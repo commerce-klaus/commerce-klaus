@@ -1,0 +1,74 @@
+{
+  "name": "sfcc-ts-tooling",
+  "version": "0.0.0",
+  "description": "TypeScript tooling for Salesforce Commerce Cloud cartridge projects",
+  "keywords": [
+    "commercecloud",
+    "demandware",
+    "salesforce",
+    "sfcc",
+    "tsserver",
+    "typescript"
+  ],
+  "homepage": "https://github.com/jenssimon/sfcc-dev-tooling#readme",
+  "bugs": {
+    "url": "https://github.com/jenssimon/sfcc-dev-tooling/issues"
+  },
+  "license": "MIT",
+  "author": "Jens Simon <https://github.com/jenssimon>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jenssimon/sfcc-dev-tooling"
+  },
+  "bin": {
+    "sfcc-ts-typecheck": "./dist/typecheck-cartridges.cjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/tsserver-plugin.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/tsserver-plugin.cjs"
+    },
+    "./tsserver-plugin": {
+      "types": "./dist/tsserver-plugin.d.cts",
+      "import": "./dist/tsserver-plugin.mjs",
+      "require": "./dist/tsserver-plugin.cjs"
+    },
+    "./typecheck": {
+      "types": "./dist/typecheck.d.mts",
+      "import": "./dist/typecheck.mjs",
+      "require": "./dist/typecheck.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "test": "vp test",
+    "check": "vp check",
+    "prepublishOnly": "vp run build"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "typescript": ">=5.5.0"
+  },
+  "release": {
+    "branches": [
+      "main"
+    ]
+  },
+  "packageManager": "pnpm@11.7.0"
+}
