@@ -1,4 +1,3 @@
-// oxlint-disable-next-line vite-plus/prefer-vite-plus-imports
 import type { Plugin } from "vite-plus"
 
 import fs from "node:fs"
