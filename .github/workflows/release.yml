@@ -30,7 +30,7 @@ jobs:
         with:
           commit: "chore: version packages"
           title: "chore: version packages"
-          version: vp run version-packages
+          version: vp run version-packages && vp run normalize-changelogs
           publish: vp run release
           createGithubReleases: true
         env:
