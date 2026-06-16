@@ -114,9 +114,19 @@ Most packages expose:
 
 ## Release And Publishing Notes
 
-- Packages are configured as publishable npm packages.
-- Each package uses `prepublishOnly` to run a build before publishing.
-- Publish config is set to public where applicable.
+- This monorepo uses Changesets for versioning and changelogs.
+- Create a changeset for user-facing changes:
+
+  ```bash
+  vp run changeset
+  ```
+
+- On pushes to `main`, GitHub Actions runs `.github/workflows/release.yml`.
+- The release workflow will:
+  - Create or update a release PR with version and changelog updates when changesets are present.
+  - Publish changed packages to npm when no unpublished changesets remain.
+- Packages are configured as publishable npm packages and use `prepublishOnly` to build before publish.
+- Set `NPM_TOKEN` in repository secrets to enable npm publishing.
 
 ## Contributing
 
@@ -130,7 +140,13 @@ Most packages expose:
    vp run -r build
    ```
 
-4. Open a pull request with a clear summary and test notes.
+4. Add a changeset for each release-relevant change:
+
+```bash
+vp run changeset
+```
+
+5. Open a pull request with a clear summary and test notes.
 
 ## Troubleshooting
 

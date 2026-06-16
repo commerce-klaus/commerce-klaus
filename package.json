@@ -4,10 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset publish",
     "ready": "vp check && vp run -r test && vp run -r build",
     "prepare": "vp config"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.7",
     "vite-plus": "catalog:"
   },
   "engines": {

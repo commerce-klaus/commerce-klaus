@@ -17,7 +17,8 @@
   "author": "Jens Simon <https://github.com/jenssimon>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jenssimon/vite-plugin-sfcc-modules"
+    "url": "https://github.com/jenssimon/sfcc-dev-tooling",
+    "directory": "packages/vite-plugin-sfcc-modules"
   },
   "files": [
     "/dist"
@@ -48,11 +49,6 @@
   },
   "peerDependencies": {
     "vite": ">=5.0.0"
-  },
-  "release": {
-    "branches": [
-      "main"
-    ]
   },
   "packageManager": "pnpm@11.6.0"
 }

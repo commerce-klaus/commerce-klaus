@@ -1,6 +1,6 @@
 {
   "name": "sfcc-ts-tooling",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "TypeScript tooling for Salesforce Commerce Cloud cartridge projects",
   "keywords": [
     "commercecloud",
@@ -64,11 +64,6 @@
   },
   "peerDependencies": {
     "typescript": ">=5.5.0"
-  },
-  "release": {
-    "branches": [
-      "main"
-    ]
   },
   "packageManager": "pnpm@11.7.0"
 }
