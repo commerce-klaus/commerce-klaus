@@ -125,6 +125,7 @@ Most packages expose:
 - The release workflow will:
   - Create or update a release PR with version and changelog updates when changesets are present.
   - Publish changed packages to npm when no unpublished changesets remain.
+  - Create GitHub Releases from the published package changelogs.
 - Packages are configured as publishable npm packages and use `prepublishOnly` to build before publish.
 - Set `NPM_TOKEN` in repository secrets to enable npm publishing.
 
