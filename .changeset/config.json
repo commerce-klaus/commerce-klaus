@@ -3,7 +3,7 @@
   "changelog": [
     "@changesets/changelog-github",
     {
-      "repo": "jenssimon/sfcc-dev-tooling"
+      "repo": "commerce-klaus/commerce-klaus"
     }
   ],
   "commit": false,

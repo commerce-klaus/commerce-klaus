@@ -6,7 +6,6 @@
   "scripts": {
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "normalize-changelogs": "node tools/normalize-changelogs.js",
     "release": "changeset publish",
     "ready": "vp check && vp run -r test && vp run -r build",
     "prepare": "vp config"

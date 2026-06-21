@@ -1,6 +1,6 @@
 {
-  "name": "sfcc-ts-tooling",
-  "version": "0.1.0",
+  "name": "@commerce-klaus/typescript-sfcc",
+  "version": "0.0.0",
   "description": "TypeScript tooling for Salesforce Commerce Cloud cartridge projects",
   "keywords": [
     "commercecloud",
@@ -10,15 +10,16 @@
     "tsserver",
     "typescript"
   ],
-  "homepage": "https://github.com/jenssimon/sfcc-dev-tooling#readme",
+  "homepage": "https://github.com/commerce-klaus/commerce-klaus/tree/main/packages/sfcc-ts-tooling#readme",
   "bugs": {
-    "url": "https://github.com/jenssimon/sfcc-dev-tooling/issues"
+    "url": "https://github.com/commerce-klaus/commerce-klaus/issues"
   },
   "license": "MIT",
   "author": "Jens Simon <https://github.com/jenssimon>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jenssimon/sfcc-dev-tooling"
+    "url": "https://github.com/commerce-klaus/commerce-klaus",
+    "directory": "packages/sfcc-ts-tooling"
   },
   "bin": {
     "sfcc-ts-typecheck": "./dist/typecheck-cartridges.cjs"

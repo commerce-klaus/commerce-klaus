@@ -1,4 +1,6 @@
-# sfcc-ts-tooling
+[![NPM version][npm-image]][npm-url] [![Downloads][npm-downloads-image]][npm-url]
+
+# @commerce-klaus/typescript-sfcc
 
 TypeScript tooling for Salesforce Commerce Cloud cartridge projects.
 
@@ -10,7 +12,7 @@ The package currently ships two main entry points:
 ## Install
 
 ```bash
-pnpm add -D sfcc-ts-tooling typescript
+pnpm add -D @commerce-klaus/typescript-sfcc typescript
 ```
 
 ## tsserver Plugin
@@ -20,7 +22,7 @@ Add the plugin to your cartridge `jsconfig.json` or `tsconfig.json`:
 ```json
 {
   "compilerOptions": {
-    "plugins": [{ "name": "sfcc-ts-tooling" }]
+    "plugins": [{ "name": "@commerce-klaus/typescript-sfcc" }]
   }
 }
 ```
@@ -32,3 +34,7 @@ Run the cartridge typecheck from your project root:
 ```bash
 pnpm exec sfcc-ts-typecheck --project cartridges/jsconfig.json
 ```
+
+[npm-url]: https://www.npmjs.com/package/@commerce-klaus/typescript-sfcc
+[npm-image]: https://badgen.net/npm/v/@commerce-klaus/typescript-sfcc
+[npm-downloads-image]: https://badgen.net/npm/dw/@commerce-klaus/typescript-sfcc

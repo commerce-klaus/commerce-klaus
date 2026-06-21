@@ -1,6 +1,6 @@
 {
-  "name": "@jenssimon/eslint-config-sfcc",
-  "version": "6.7.2",
+  "name": "@commerce-klaus/eslint-config-sfcc",
+  "version": "0.0.0",
   "description": "A collection of shareable ESLint configurations for Salesforce Commerce Cloud (SFCC)",
   "keywords": [
     "commercecloud",
@@ -10,15 +10,15 @@
     "salesforce",
     "sfcc"
   ],
-  "homepage": "https://github.com/jenssimon/sfcc-dev-tooling#readme",
+  "homepage": "https://github.com/commerce-klaus/commerce-klaus/tree/main/packages/eslint-config-sfcc#readme",
   "bugs": {
-    "url": "https://github.com/jenssimon/sfcc-dev-tooling/issues"
+    "url": "https://github.com/commerce-klaus/commerce-klaus/issues"
   },
   "license": "MIT",
   "author": "Jens Simon <https://github.com/jenssimon>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jenssimon/sfcc-dev-tooling",
+    "url": "https://github.com/commerce-klaus/commerce-klaus",
     "directory": "packages/eslint-config-sfcc"
   },
   "files": [

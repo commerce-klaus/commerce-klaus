@@ -1,8 +1,10 @@
-[![NPM version][npm-image]][npm-url] [![Downloads][npm-downloads-image]][npm-url] [![star this repo][gh-stars-image]][gh-url] [![fork this repo][gh-forks-image]][gh-url] [![CI][gh-status-image]][gh-status-url]
+[![NPM version][npm-image]][npm-url] [![Downloads][npm-downloads-image]][npm-url]
 
-# babel-plugin-sfcc-modules
+# @commerce-klaus/babel-plugin-sfcc-modules
 
 > Babel plugin to handle non-standard module paths used by Salesforce Commerce Cloud (SFCC)
+
+This package continues the original `babel-plugin-sfcc-modules` under the Commerce-Klaus organization.
 
 Server-side code for Salesforce Commerce Cloud uses non-standard module resolution patterns:
 
@@ -33,7 +35,7 @@ This plugin removes the pain of dealing with modules like [proxyquire](https://w
 ## Install
 
 ```sh
-pnpm add -D babel-plugin-sfcc-modules
+pnpm add -D @commerce-klaus/babel-plugin-sfcc-modules
 ```
 
 ## Usage
@@ -42,7 +44,7 @@ Add to your Babel configuration:
 
 ```json
 "plugins": [
-  ["babel-plugin-sfcc-modules", {
+  ["@commerce-klaus/babel-plugin-sfcc-modules", {
     "cartridgePath": [
       "app_brand",
       "app_core",
@@ -74,11 +76,6 @@ The cartridge path concept isn't common for Node.js/frontend code. This plugin w
 
 MIT
 
-[npm-url]: https://www.npmjs.com/package/babel-plugin-sfcc-modules
-[npm-image]: https://badgen.net/npm/v/babel-plugin-sfcc-modules
-[npm-downloads-image]: https://badgen.net/npm/dw/babel-plugin-sfcc-modules
-[gh-url]: https://github.com/jenssimon/babel-plugin-sfcc-modules
-[gh-stars-image]: https://badgen.net/github/stars/jenssimon/babel-plugin-sfcc-modules
-[gh-forks-image]: https://badgen.net/github/forks/jenssimon/babel-plugin-sfcc-modules
-[gh-status-image]: https://github.com/jenssimon/babel-plugin-sfcc-modules/actions/workflows/ci.yml/badge.svg
-[gh-status-url]: https://github.com/jenssimon/babel-plugin-sfcc-modules/actions/workflows/ci.yml
+[npm-url]: https://www.npmjs.com/package/@commerce-klaus/babel-plugin-sfcc-modules
+[npm-image]: https://badgen.net/npm/v/@commerce-klaus/babel-plugin-sfcc-modules
+[npm-downloads-image]: https://badgen.net/npm/dw/@commerce-klaus/babel-plugin-sfcc-modules

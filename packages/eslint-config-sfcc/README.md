@@ -1,6 +1,10 @@
-# @jenssimon/eslint-config-sfcc
+[![NPM version][npm-image]][npm-url] [![Downloads][npm-downloads-image]][npm-url]
+
+# @commerce-klaus/eslint-config-sfcc
 
 Shareable ESLint flat config for Salesforce Commerce Cloud (SFCC) projects.
+
+This package continues `@jenssimon/eslint-config-sfcc` under the [Commerce Klaus](https://github.com/commerce-klaus) organization.
 
 ## Key Features Checked (Allow/Block)
 
@@ -26,14 +30,14 @@ See the integration tests for concrete examples.
 ### Install
 
 ```bash
-pnpm add -D eslint @jenssimon/eslint-config-sfcc
+pnpm add -D eslint @commerce-klaus/eslint-config-sfcc
 ```
 
 ### Use in `eslint.config.js`
 
 ```js
 import { defineConfig } from "eslint/config"
-import sfcc from "@jenssimon/eslint-config-sfcc"
+import sfcc from "@commerce-klaus/eslint-config-sfcc"
 
 export default defineConfig(
   // ...
@@ -47,7 +51,7 @@ By default, JavaScript files under `cartridges/` are linted. Client-side and sta
 
 ```js
 import { defineConfig } from "eslint/config"
-import { createRecommendedConfig } from "@jenssimon/eslint-config-sfcc"
+import { createRecommendedConfig } from "@commerce-klaus/eslint-config-sfcc"
 
 export default defineConfig(
   createRecommendedConfig({
@@ -70,19 +74,9 @@ This package ships two built-in ESLint plugins, both automatically registered in
 1. `sfcc` for general SFCC/Rhino compatibility rules
 2. `sitegenesis` for the SiteGenesis-specific controller rule ported from [`eslint-plugin-sitegenesis`](https://www.npmjs.com/package/eslint-plugin-sitegenesis)
 
-### `sitegenesis`
-
-`sitegenesis` now only contains `sitegenesis/no-global-require`.
-
-That rule stays enabled in the recommended config by default, because it is still useful protection for repositories that contain SiteGenesis-style controller code. In non-SiteGenesis projects it is effectively dormant, because it only applies to files under `cartridge/controllers/`.
-
-| Rule                            | Description                                                                                                                                              | Default |
-| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `sitegenesis/no-global-require` | Disallows top-level `require()` calls in controller files when not every route function uses them. Only applies to files under `cartridge/controllers/`. | `error` |
-
 ### `sfcc`
 
-The new `sfcc` plugin contains the general Rhino/SFCC runtime rules:
+The `sfcc` plugin contains the general Rhino/SFCC runtime rules:
 
 | Rule                           | Description                                                                                                                                                                                                  | Default |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
@@ -97,6 +91,16 @@ The new `sfcc` plugin contains the general Rhino/SFCC runtime rules:
 
 The recommended config intentionally combines these `sfcc/*` rules so `--fix` does not bounce between conflicting suggestions: Rhino-unsafe `const` becomes `let`, while genuinely safe top-level function bindings still become `const`.
 
+### `sitegenesis`
+
+`sitegenesis` only contains `sitegenesis/no-global-require`.
+
+That rule is enabled in the recommended config by default, because it is still useful protection for repositories that contain SiteGenesis-style controller code. In non-SiteGenesis projects it is effectively dormant, because it only applies to files under `cartridge/controllers/`.
+
+| Rule                            | Description                                                                                                                                              | Default |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `sitegenesis/no-global-require` | Disallows top-level `require()` calls in controller files when not every route function uses them. Only applies to files under `cartridge/controllers/`. | `error` |
+
 ### Shared `sfcc` options
 
 By default, `sfcc/valid-require-path` validates path patterns only and allows bare `server` requires.
@@ -105,7 +109,7 @@ Use `createRecommendedConfig({ sfcc: ... })` to define shared SFCC plugin option
 
 ```js
 import { defineConfig } from "eslint/config"
-import { createRecommendedConfig } from "@jenssimon/eslint-config-sfcc"
+import { createRecommendedConfig } from "@commerce-klaus/eslint-config-sfcc"
 
 export default defineConfig(
   createRecommendedConfig({
@@ -156,7 +160,10 @@ function route() {
 
 ```js
 import { defineConfig } from "eslint/config"
-import eslintConfigSfcc, { sfcc as sfccPlugin, sitegenesis } from "@jenssimon/eslint-config-sfcc"
+import eslintConfigSfcc, {
+  sfcc as sfccPlugin,
+  sitegenesis,
+} from "@commerce-klaus/eslint-config-sfcc"
 
 export default defineConfig(eslintConfigSfcc.configs.recommended, {
   plugins: {
@@ -299,7 +306,7 @@ Notes:
 
 ---
 
-## Migrating from v4
+## Migrating from @jenssimon/eslint-config-sfcc <= v4
 
 This is a major release with breaking changes.
 
@@ -335,3 +342,7 @@ vp test
 vp check
 vp pack
 ```
+
+[npm-url]: https://www.npmjs.com/package/@commerce-klaus/eslint-config-sfccc
+[npm-image]: https://badgen.net/npm/v/@commerce-klaus/eslint-config-sfcc
+[npm-downloads-image]: https://badgen.net/npm/dw/@commerce-klaus/eslint-config-sfcc

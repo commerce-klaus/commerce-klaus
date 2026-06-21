@@ -1,6 +1,6 @@
 {
-  "name": "babel-plugin-sfcc-modules",
-  "version": "1.3.0",
+  "name": "@commerce-klaus/babel-plugin-sfcc-modules",
+  "version": "0.0.0",
   "description": "Babel plugin to handle non-standard module paths used by Salesforce Commerce Cloud (SFCC)",
   "keywords": [
     "babel",
@@ -16,11 +16,15 @@
     "sfra",
     "supermodule"
   ],
+  "homepage": "https://github.com/commerce-klaus/commerce-klaus/tree/main/packages/babel-plugin-sfcc-modules#readme",
+  "bugs": {
+    "url": "https://github.com/commerce-klaus/commerce-klaus/issues"
+  },
   "license": "MIT",
   "author": "Jens Simon <https://github.com/jenssimon>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jenssimon/sfcc-dev-tooling",
+    "url": "https://github.com/commerce-klaus/commerce-klaus",
     "directory": "packages/babel-plugin-sfcc-modules"
   },
   "files": [

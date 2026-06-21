@@ -1,6 +1,6 @@
-# SFCC Dev Tooling Monorepo
+# Commerce-Klaus Monorepo
 
-Tooling packages for Salesforce Commerce Cloud (SFCC) projects, maintained in a single monorepo.
+Tooling packages for Salesforce Commerce Cloud (SFCC) projects, maintained in a single monorepo under the Commerce-Klaus GitHub organization.
 
 This repository contains reusable developer tooling for cartridge-based projects:
 
@@ -14,16 +14,22 @@ The monorepo is powered by Vite+ and pnpm workspaces.
 
 ### Packages
 
-- `packages/sfcc-ts-tooling`
-  - TypeScript tooling for SFCC cartridge projects
-  - Includes a TS server plugin and a CLI typecheck command
-- `packages/eslint-config-sfcc`
+Located in `packages/`:
+
+- `@commerce-klaus/eslint-config-sfcc`
+  - npm package: `@commerce-klaus/eslint-config-sfcc`
   - Shareable ESLint configurations for SFCC projects
   - Includes SFCC- and SiteGenesis-related rule sets
-- `packages/babel-plugin-sfcc-modules`
-  - Babel plugin for SFCC-specific import/require path behavior
+- `@commerce-klaus/typescript-sfcc`
+  - npm package: `@commerce-klaus/typescript-sfcc`
+  - TypeScript tooling for SFCC cartridge projects
+  - Includes a TS server plugin and a CLI typecheck command
 - `packages/vite-plugin-sfcc-modules`
+  - npm package: `@commerce-klaus/vite-plugin-sfcc-modules`
   - Vite plugin for SFCC-specific module path handling
+- `packages/babel-plugin-sfcc-modules`
+  - npm package: `@commerce-klaus/babel-plugin-sfcc-modules`
+  - Babel plugin for SFCC-specific import/require path behavior
 
 ### Example / Fixture Content
 
@@ -115,6 +121,9 @@ Most packages expose:
 ## Release And Publishing Notes
 
 - This monorepo uses Changesets for versioning and changelogs.
+- Legacy release histories from the previous standalone repositories are intentionally not mirrored here.
+- Existing packages are published from this repository with a fresh `1.0.0` baseline.
+- `@commerce-klaus/typescript-sfcc` starts at `0.1.0`.
 - Create a changeset for user-facing changes:
 
   ```bash
@@ -126,6 +135,7 @@ Most packages expose:
   - Create or update a release PR with version and changelog updates when changesets are present.
   - Publish changed packages to npm when no unpublished changesets remain.
   - Create GitHub Releases from the published package changelogs.
+- Deprecation of previous npm package names is done on npm (outside this repo) and should point to the corresponding `@commerce-klaus/*` package.
 - Packages are configured as publishable npm packages and use `prepublishOnly` to build before publish.
 - Set `NPM_TOKEN` in repository secrets to enable npm publishing.
 
