@@ -28,10 +28,7 @@ jobs:
       - name: Create release PR or publish
         uses: changesets/action@v1
         with:
-          commit: "chore: version packages"
-          title: "chore: version packages"
-          version: vp run version-packages
+          # Publish-only mode: versions/changelogs are prepared manually.
           publish: vp run release
-          createGithubReleases: true
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
