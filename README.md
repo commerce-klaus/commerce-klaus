@@ -112,7 +112,7 @@ Most packages expose:
 |- packages/
 |  |- babel-plugin-sfcc-modules/
 |  |- eslint-config-sfcc/
-|  |- sfcc-ts-tooling/
+|  |- typescript-sfcc/
 |  \- vite-plugin-sfcc-modules/
 |- vite.config.ts
 \- pnpm-workspace.yaml

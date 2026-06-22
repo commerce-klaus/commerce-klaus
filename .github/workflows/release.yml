@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
       id-token: write
     steps:
       - name: Checkout
@@ -25,10 +24,7 @@ jobs:
           cache: true
           run-install: true
 
-      - name: Create release PR or publish
-        uses: changesets/action@v1
-        with:
-          # Publish-only mode: versions/changelogs are prepared manually.
-          publish: vp run release
+      - name: Publish packages
+        run: vp run release
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
