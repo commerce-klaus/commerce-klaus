@@ -24,7 +24,10 @@ jobs:
           cache: true
           run-install: true
 
-      - name: Publish packages
-        run: vp run release
+      - name: Create release PR or publish
+        uses: changesets/action@v1
+        with:
+          # Publish-only mode: versions/changelogs are prepared manually.
+          publish: vp run release
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
