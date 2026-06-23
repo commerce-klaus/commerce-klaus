@@ -16,8 +16,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-        with:
-          persist-credentials: false
 
       - name: Set up Vite+
         uses: voidzero-dev/setup-vp@v1
@@ -28,7 +26,8 @@ jobs:
       - name: Create release PR or publish
         uses: changesets/action@v1
         with:
-          # Publish-only mode: versions/changelogs are prepared manually.
+          version: vp run version-packages
           publish: vp run release
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
