@@ -1,4 +1,4 @@
-import t from "@babel/types"
+import { callExpression, identifier, stringLiteral } from "@babel/types"
 import importsVisitor from "imports-visitor"
 import fs from "node:fs"
 import path from "node:path"
@@ -114,8 +114,8 @@ const plugin = (_babel: unknown, { cartridgePath, basePath }: PluginOptions) => 
         // Replace "module.superModule" with a require() or undefined
         thePath.replaceWith(
           foundRequire
-            ? t.callExpression(t.identifier("require"), [t.stringLiteral(foundRequire)])
-            : t.identifier("undefined"),
+            ? callExpression(identifier("require"), [stringLiteral(foundRequire)])
+            : identifier("undefined"),
         )
       }
     },
