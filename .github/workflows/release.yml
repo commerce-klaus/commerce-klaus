@@ -23,6 +23,14 @@ jobs:
           cache: true
           run-install: true
 
+      - name: Test OIDC npm publish
+        run: |
+          cd packages/eslint-config-sfcc
+          npm publish --access public --dry-run
+        env:
+          NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
+          NPM_CONFIG_PROVENANCE: true
+
       - name: Create release PR or publish
         uses: changesets/action@v1
         with:
