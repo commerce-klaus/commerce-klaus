@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1
+
+### Patch Changes
+
+- c1b2b44: - fix: make sfcc-ts-typecheck resolve configs reliably
+
 ## 0.1.0
 
 ### Minor Changes
