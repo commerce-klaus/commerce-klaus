@@ -23,65 +23,11 @@ jobs:
           cache: true
           run-install: true
 
-      - name: Build packages before publish
-        run: vp run -r build
-
-      - name: OIDC and npm diagnostics
-        env:
-          NPM_CONFIG_REGISTRY: https://registry.npmjs.org
-          NPM_CONFIG_LOGLEVEL: silly
-        run: |
-          set -euxo pipefail
-          node -v
-          npm -v
-          npm config get registry
-          npm ping --registry=https://registry.npmjs.org || true
-          npm view @commerce-klaus/vite-plugin-sfcc-modules versions --json || true
-
       - name: Create release PR or publish
-        id: changesets
-        continue-on-error: true
         uses: changesets/action@v1
         with:
           version: vp run version-packages
           publish: vp run release
         env:
-          DEBUG: changesets:*
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_REGISTRY: https://registry.npmjs.org
-          NPM_CONFIG_PROVENANCE: true
-          NPM_CONFIG_LOGLEVEL: silly
-          NPM_CONFIG_FOREGROUND_SCRIPTS: true
-          NPM_CONFIG_TIMING: true
-
-      - name: Dump npm debug logs on failure
-        if: steps.changesets.outcome == 'failure'
-        run: |
-          set -euxo pipefail
-          echo "changesets outcome: ${{ steps.changesets.outcome }}"
-          echo "Listing npm debug logs"
-          ls -lah ~/.npm/_logs || true
-          for log in ~/.npm/_logs/*-debug-*.log; do
-            echo "----- $log (tail -n 400) -----"
-            tail -n 400 "$log" || true
-          done
-
-      - name: Reproduce publish error directly (OIDC)
-        if: steps.changesets.outcome == 'failure'
-        continue-on-error: true
-        env:
-          NPM_CONFIG_REGISTRY: https://registry.npmjs.org
-          NPM_CONFIG_PROVENANCE: true
-          NPM_CONFIG_LOGLEVEL: silly
-          NPM_CONFIG_FOREGROUND_SCRIPTS: true
-          NPM_CONFIG_TIMING: true
-        run: |
-          set -euxo pipefail
-          cd packages/vite-plugin-sfcc-modules
-          npm publish --access public --provenance --registry=https://registry.npmjs.org
-
-      - name: Fail workflow if publish failed
-        if: steps.changesets.outcome == 'failure'
-        run: |
-          echo "changesets publish failed; see npm debug logs above"
-          exit 1
