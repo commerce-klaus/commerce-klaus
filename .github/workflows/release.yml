@@ -24,10 +24,16 @@ jobs:
           run-install: true
 
       - name: Create release PR or publish
+        id: changesets
         uses: changesets/action@v1
         with:
           version: vp run version-packages
-          publish: vp run release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish packages
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: vp run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEBUG: "*"
