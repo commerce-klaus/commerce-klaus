@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import fs from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
@@ -30,7 +31,7 @@ export function parseArguments(
   args: string[],
   currentDirectory: string,
 ): { solutionConfigPath: string; cartridgesDir?: string } {
-  let solutionConfigPath = path.resolve(currentDirectory, "cartridges", "jsconfig.json")
+  let solutionConfigPath = findDefaultSolutionConfigPath(currentDirectory)
   let cartridgesDir: string | undefined
 
   for (let index = 0; index < args.length; index += 1) {
@@ -48,6 +49,24 @@ export function parseArguments(
   }
 
   return { solutionConfigPath, cartridgesDir }
+}
+
+function findDefaultSolutionConfigPath(currentDirectory: string): string {
+  let cursor = path.resolve(currentDirectory)
+
+  while (true) {
+    const candidate = path.join(cursor, "cartridges", "jsconfig.json")
+    if (fs.existsSync(candidate)) {
+      return candidate
+    }
+
+    const parent = path.dirname(cursor)
+    if (parent === cursor) {
+      return path.resolve(currentDirectory, "cartridges", "jsconfig.json")
+    }
+
+    cursor = parent
+  }
 }
 
 export function main(args = process.argv.slice(2), options: CliRunOptions = {}): number {
@@ -68,7 +87,13 @@ function isDirectExecution(): boolean {
     return false
   }
 
-  return path.resolve(executedPath) === path.resolve(fileURLToPath(import.meta.url))
+  const expectedPath = fileURLToPath(import.meta.url)
+
+  try {
+    return fs.realpathSync(executedPath) === fs.realpathSync(expectedPath)
+  } catch {
+    return path.resolve(executedPath) === path.resolve(expectedPath)
+  }
 }
 
 if (isDirectExecution()) {

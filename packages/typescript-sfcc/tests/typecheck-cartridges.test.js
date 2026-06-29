@@ -71,6 +71,27 @@ function setupInvalidProject(tempDir) {
   return { cartridgesDir, solutionConfigPath }
 }
 
+function setupInvalidProjectWithoutReferences(tempDir) {
+  const cartridgesDir = path.join(tempDir, "cartridges")
+  const solutionConfigPath = path.join(cartridgesDir, "jsconfig.json")
+  const brokenFile = path.join(cartridgesDir, "cartridge", "scripts", "broken.js")
+
+  fs.mkdirSync(path.dirname(brokenFile), { recursive: true })
+  fs.writeFileSync(brokenFile, '// @ts-check\n/** @type {number} */\nconst broken = "bad"\n')
+
+  writeJson(solutionConfigPath, {
+    compilerOptions: {
+      allowJs: true,
+      checkJs: true,
+      noEmit: true,
+      strict: true,
+    },
+    include: ["cartridge/**/*.js"],
+  })
+
+  return { cartridgesDir, solutionConfigPath }
+}
+
 function runCli(args, currentDirectory) {
   let exitCode = -1
   let stdout = ""
@@ -118,5 +139,32 @@ test("CLI exits with code 1 for non-existing project file", async () => {
 
     expect(result.exitCode).toBe(1)
     expect(result.stderr).not.toBe("")
+  })
+})
+
+test("CLI finds cartridges/jsconfig.json from parent directories", async () => {
+  await withTempDir(async (tempDir) => {
+    setupInvalidProjectWithoutReferences(tempDir)
+
+    const scriptsDir = path.join(tempDir, "scripts")
+    fs.mkdirSync(scriptsDir, { recursive: true })
+
+    const result = runCli([], scriptsDir)
+
+    expect(result.exitCode).toBe(2)
+    expect(result.stdout).toContain("TS2322")
+    expect(result.stdout).toContain("broken.js")
+  })
+})
+
+test("CLI typechecks solution config even without references", async () => {
+  await withTempDir(async (tempDir) => {
+    setupInvalidProjectWithoutReferences(tempDir)
+
+    const result = runCli([], tempDir)
+
+    expect(result.exitCode).toBe(2)
+    expect(result.stdout).toContain("TS2322")
+    expect(result.stdout).toContain("broken.js")
   })
 })

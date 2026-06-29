@@ -157,7 +157,9 @@ export function typecheckSolutionProjects({
   const resolvedCartridgesDir = cartridgesDir
     ? path.resolve(cartridgesDir)
     : path.dirname(resolvedSolutionConfigPath)
-  const configPaths = readSolutionReferences(resolvedSolutionConfigPath)
+  const referencedConfigPaths = readSolutionReferences(resolvedSolutionConfigPath)
+  const configPaths =
+    referencedConfigPaths.length > 0 ? referencedConfigPaths : [resolvedSolutionConfigPath]
   const cartridgeRoots = inferCartridgeOrder(resolvedCartridgesDir, resolvedSolutionConfigPath)
   const currentDirectory = path.dirname(resolvedCartridgesDir)
 
