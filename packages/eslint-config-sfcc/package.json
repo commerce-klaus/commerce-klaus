@@ -38,7 +38,7 @@
     "dev": "vp pack --watch",
     "test": "vp test",
     "check": "vp check",
-    "prepublishOnly": "vp run build"
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "eslint-plugin-es": "^4.1.0",

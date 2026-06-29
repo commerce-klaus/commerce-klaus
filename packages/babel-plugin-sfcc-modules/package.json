@@ -46,7 +46,7 @@
     "build": "vp pack",
     "test": "vp test",
     "check": "vp check",
-    "prepublishOnly": "vp run build"
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@babel/runtime": "^7.29.2",
