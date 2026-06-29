@@ -26,12 +26,26 @@ jobs:
       - name: Build packages before publish
         run: vp run -r build
 
+      - name: OIDC and npm diagnostics
+        env:
+          NPM_CONFIG_REGISTRY: https://registry.npmjs.org
+          NPM_CONFIG_LOGLEVEL: silly
+        run: |
+          set -euxo pipefail
+          node -v
+          npm -v
+          npm config get registry
+          npm ping --registry=https://registry.npmjs.org || true
+          npm view @commerce-klaus/vite-plugin-sfcc-modules versions --json || true
+
       - name: Create release PR or publish
         uses: changesets/action@v1
         with:
           version: vp run version-packages
           publish: vp run release
         env:
+          DEBUG: changesets:*
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_REGISTRY: https://registry.npmjs.org
           NPM_CONFIG_PROVENANCE: true
+          NPM_CONFIG_LOGLEVEL: silly
