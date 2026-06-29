@@ -58,7 +58,7 @@
     "build": "vp pack",
     "test": "vp test",
     "check": "vp check",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "vp run build"
   },
   "devDependencies": {
     "@types/node": "catalog:",

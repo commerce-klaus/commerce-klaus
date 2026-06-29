@@ -6,7 +6,7 @@
   "scripts": {
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "changeset publish",
+    "release": "pnpm publish -r",
     "ready": "vp check && vp run -r test && vp run -r build",
     "prepare": "vp config"
   },

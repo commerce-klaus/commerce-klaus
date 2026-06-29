@@ -23,17 +23,6 @@ jobs:
           cache: true
           run-install: true
 
-      - name: Test npm publish eslint-config-sfcc
-        run: |
-          set -euxo pipefail
-          cd packages/eslint-config-sfcc
-          npm publish --access public --provenance --registry=https://registry.npmjs.org
-        env:
-          NPM_CONFIG_REGISTRY: https://registry.npmjs.org
-          NPM_CONFIG_PROVENANCE: true
-          NPM_CONFIG_LOGLEVEL: silly
-          NPM_CONFIG_FOREGROUND_SCRIPTS: true
-          NPM_CONFIG_TIMING: true
       - name: Create release PR or publish
         uses: changesets/action@v1
         with:
