@@ -66,6 +66,20 @@ jobs:
             tail -n 400 "$log" || true
           done
 
+      - name: Reproduce publish error directly (OIDC)
+        if: steps.changesets.outcome == 'failure'
+        continue-on-error: true
+        env:
+          NPM_CONFIG_REGISTRY: https://registry.npmjs.org
+          NPM_CONFIG_PROVENANCE: true
+          NPM_CONFIG_LOGLEVEL: silly
+          NPM_CONFIG_FOREGROUND_SCRIPTS: true
+          NPM_CONFIG_TIMING: true
+        run: |
+          set -euxo pipefail
+          cd packages/vite-plugin-sfcc-modules
+          npm publish --access public --provenance --registry=https://registry.npmjs.org
+
       - name: Fail workflow if publish failed
         if: steps.changesets.outcome == 'failure'
         run: |
