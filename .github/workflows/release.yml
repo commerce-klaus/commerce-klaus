@@ -39,6 +39,8 @@ jobs:
           npm view @commerce-klaus/vite-plugin-sfcc-modules versions --json || true
 
       - name: Create release PR or publish
+        id: changesets
+        continue-on-error: true
         uses: changesets/action@v1
         with:
           version: vp run version-packages
@@ -49,3 +51,23 @@ jobs:
           NPM_CONFIG_REGISTRY: https://registry.npmjs.org
           NPM_CONFIG_PROVENANCE: true
           NPM_CONFIG_LOGLEVEL: silly
+          NPM_CONFIG_FOREGROUND_SCRIPTS: true
+          NPM_CONFIG_TIMING: true
+
+      - name: Dump npm debug logs on failure
+        if: steps.changesets.outcome == 'failure'
+        run: |
+          set -euxo pipefail
+          echo "changesets outcome: ${{ steps.changesets.outcome }}"
+          echo "Listing npm debug logs"
+          ls -lah ~/.npm/_logs || true
+          for log in ~/.npm/_logs/*-debug-*.log; do
+            echo "----- $log (tail -n 400) -----"
+            tail -n 400 "$log" || true
+          done
+
+      - name: Fail workflow if publish failed
+        if: steps.changesets.outcome == 'failure'
+        run: |
+          echo "changesets publish failed; see npm debug logs above"
+          exit 1
