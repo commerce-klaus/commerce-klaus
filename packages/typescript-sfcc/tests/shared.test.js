@@ -64,7 +64,7 @@ test("createSfccPaths creates aliases for cartridges plus server and bc_napali m
   expect(paths["bc_napali/*"]).toEqual(["int_napali/*"])
 })
 
-test("createSfccModuleResolver resolves ~/ and cartridge alias imports", () => {
+test("createSfccModuleResolver resolves ~/, */ and cartridge alias imports", () => {
   withTempDir((tempDir) => {
     const appCore = path.join(tempDir, "app_core")
     const appBrand = path.join(tempDir, "app_brand")
@@ -81,9 +81,14 @@ test("createSfccModuleResolver resolves ~/ and cartridge alias imports", () => {
     fs.mkdirSync(path.dirname(brandModel), { recursive: true })
     fs.writeFileSync(brandModel, "module.exports = {}\n")
 
+    const coreModel = path.join(appCore, "cartridge", "models", "core.js")
+    fs.mkdirSync(path.dirname(coreModel), { recursive: true })
+    fs.writeFileSync(coreModel, "module.exports = {}\n")
+
     const resolveSfccModule = createSfccModuleResolver([appCore, appBrand])
 
     expect(resolveSfccModule("~/cartridge/scripts/helper", sourceFile)).toBe(localScript)
+    expect(resolveSfccModule("*/cartridge/models/core", sourceFile)).toBe(coreModel)
     expect(resolveSfccModule("app_brand/cartridge/models/brand", sourceFile)).toBe(brandModel)
   })
 })

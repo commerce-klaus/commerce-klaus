@@ -123,6 +123,45 @@ test("runProjectTypecheck reports diagnostics for invalid JavaScript with JSDoc"
   })
 })
 
+test("runProjectTypecheck resolves */ imports without explicit wildcard path mappings", () => {
+  withTempDir((tempDir) => {
+    const cartridgesDir = path.join(tempDir, "cartridges")
+    const appCustom = path.join(cartridgesDir, "app_custom")
+    const appBase = path.join(cartridgesDir, "app_base")
+    const configPath = path.join(appCustom, "jsconfig.json")
+    const sourcePath = path.join(appCustom, "cartridge", "scripts", "entry.js")
+    const baseHelperPath = path.join(appBase, "cartridge", "scripts", "helper.js")
+
+    fs.mkdirSync(path.dirname(sourcePath), { recursive: true })
+    fs.mkdirSync(path.dirname(baseHelperPath), { recursive: true })
+
+    fs.writeFileSync(baseHelperPath, "module.exports = { value: 1 }\n")
+    fs.writeFileSync(
+      sourcePath,
+      [
+        "// @ts-check",
+        'const helper = require("*/cartridge/scripts/helper")',
+        "module.exports = helper",
+        "",
+      ].join("\n"),
+    )
+
+    writeJson(configPath, {
+      compilerOptions: {
+        allowJs: true,
+        checkJs: true,
+        noEmit: true,
+        strict: true,
+      },
+      include: ["cartridge/**/*.js"],
+    })
+
+    const diagnostics = runProjectTypecheck(configPath, [appCustom, appBase], tempDir)
+
+    expect(diagnostics).toHaveLength(0)
+  })
+})
+
 test("typecheckSolutionProjects typechecks all references from solution config", () => {
   withTempDir((tempDir) => {
     withEnvUnset("SFCC_CARTRIDGE_PATH", () => {

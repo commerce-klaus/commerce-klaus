@@ -49,7 +49,11 @@ export function runProjectTypecheck(
   currentDirectory: string,
 ): readonly ts.Diagnostic[] {
   const parsedConfig = parseConfigFile(configPath, currentDirectory)
-  parsedConfig.options.paths = createSfccPaths(configPath, cartridgeRoots)
+  const existingPaths = parsedConfig.options.paths ?? {}
+  parsedConfig.options.paths = {
+    ...existingPaths,
+    ...createSfccPaths(configPath, cartridgeRoots),
+  }
 
   const configFilePath = parsedConfig.options.configFilePath
 
