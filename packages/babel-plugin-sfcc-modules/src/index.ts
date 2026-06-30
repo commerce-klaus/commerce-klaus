@@ -14,6 +14,35 @@ type PluginOptions = {
   basePath: string
 }
 
+const resolveBasePath = (basePath: string, filename: string) => {
+  if (path.isAbsolute(basePath)) {
+    return basePath
+  }
+
+  const fromCwd = path.resolve(basePath)
+  if (fs.existsSync(fromCwd)) {
+    return fromCwd
+  }
+
+  // Fallback: resolve relative paths from the transformed file and its parents.
+  // This keeps test fixtures stable even when tests are executed from repo root.
+  let currentDir = path.dirname(filename)
+  while (true) {
+    const candidate = path.resolve(currentDir, basePath)
+    if (fs.existsSync(candidate)) {
+      return candidate
+    }
+
+    const parentDir = path.dirname(currentDir)
+    if (parentDir === currentDir) {
+      break
+    }
+    currentDir = parentDir
+  }
+
+  return fromCwd
+}
+
 const getModulePath = (moduleName: string, basePath: string, cartridge: string, target: string) => {
   const relativePath = path.relative(path.dirname(moduleName), `${basePath}/${cartridge}${target}`)
   return (relativePath.includes(".") ? "" : "./") + relativePath
@@ -22,6 +51,7 @@ const getModulePath = (moduleName: string, basePath: string, cartridge: string, 
 const plugin = (_babel: unknown, { cartridgePath, basePath }: PluginOptions) => ({
   visitor: {
     Program(thePath: any, state: any) {
+      const resolvedBasePath = resolveBasePath(basePath, state.file.opts.filename)
       const imports: ImportLike[] = []
       thePath.traverse(importsVisitor, { imports })
       for (const imp of imports) {
@@ -34,7 +64,12 @@ const plugin = (_babel: unknown, { cartridgePath, basePath }: PluginOptions) => 
           const target = imp.source.slice(1)
           const foundCartridge = findCartridge(target)
           if (foundCartridge) {
-            imp.source = getModulePath(state.file.opts.filename, basePath, foundCartridge, target)
+            imp.source = getModulePath(
+              state.file.opts.filename,
+              resolvedBasePath,
+              foundCartridge,
+              target,
+            )
           }
         }
 
@@ -48,7 +83,7 @@ const plugin = (_babel: unknown, { cartridgePath, basePath }: PluginOptions) => 
           resolve((target) =>
             cartridgePath.find((cartridge) =>
               SUPPORTED_EXTENSIONS.find((extension) =>
-                fs.existsSync(`${basePath}/${cartridge}${target}.${extension}`),
+                fs.existsSync(`${resolvedBasePath}/${cartridge}${target}.${extension}`),
               ),
             ),
           )
@@ -63,13 +98,16 @@ const plugin = (_babel: unknown, { cartridgePath, basePath }: PluginOptions) => 
         if (imp.source.indexOf("~/") === 0) {
           resolve(
             () =>
-              path.relative(basePath, path.dirname(state.file.opts.filename)).split(path.sep)[0],
+              path
+                .relative(resolvedBasePath, path.dirname(state.file.opts.filename))
+                .split(path.sep)[0],
           )
         }
       }
     },
 
     MemberExpression(thePath: any, state: any) {
+      const resolvedBasePath = resolveBasePath(basePath, state.file.opts.filename)
       // Find "module.superModule"
       if (
         thePath.node.object.type === "Identifier" &&
@@ -77,7 +115,7 @@ const plugin = (_babel: unknown, { cartridgePath, basePath }: PluginOptions) => 
         thePath.node.property.name === "superModule"
       ) {
         // path to module relative to the cartridge base path
-        const pathToModule = path.relative(basePath, state.file.opts.filename)
+        const pathToModule = path.relative(resolvedBasePath, state.file.opts.filename)
 
         // Path without cartridge name
         const shortenedPathParts = pathToModule.split(path.sep).slice(1)
@@ -97,7 +135,9 @@ const plugin = (_babel: unknown, { cartridgePath, basePath }: PluginOptions) => 
         // Find the the cartridge which contains the next match for the module path
         const foundCartridge = newCartridgePath.find((theCartridge) =>
           SUPPORTED_EXTENSIONS.find((extension) =>
-            fs.existsSync(`${basePath}/${theCartridge}${shortenedPathToModule}.${extension}`),
+            fs.existsSync(
+              `${resolvedBasePath}/${theCartridge}${shortenedPathToModule}.${extension}`,
+            ),
           ),
         )
 
@@ -105,7 +145,7 @@ const plugin = (_babel: unknown, { cartridgePath, basePath }: PluginOptions) => 
         if (foundCartridge) {
           foundRequire = getModulePath(
             state.file.opts.filename,
-            basePath,
+            resolvedBasePath,
             foundCartridge,
             shortenedPathToModule,
           )
