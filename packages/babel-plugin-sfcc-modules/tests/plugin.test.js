@@ -1,23 +1,37 @@
+import { transformSync } from "@babel/core"
+import fs from "node:fs"
 import { createRequire } from "node:module"
 import { describe, expect, it } from "vite-plus/test"
 
 import plugin from "../src/index.ts"
 
 const require = createRequire(import.meta.url)
+const jsExtension = require.extensions[".js"]
 
-require("@babel/register")({
-  extensions: [".js"],
-  ignore: [/node_modules/],
-  plugins: [
-    [
-      plugin,
-      {
-        cartridgePath: ["app_brand", "app_core", "app_storefront_base"],
-        basePath: "./tests/cartridges",
-      },
+require.extensions[".js"] = (module, filename) => {
+  if (!filename.includes("/tests/cartridges/")) {
+    jsExtension(module, filename)
+    return
+  }
+
+  const source = fs.readFileSync(filename, "utf8")
+  const result = transformSync(source, {
+    babelrc: false,
+    configFile: false,
+    filename,
+    plugins: [
+      [
+        plugin,
+        {
+          cartridgePath: ["app_brand", "app_core", "app_storefront_base"],
+          basePath: "./tests/cartridges",
+        },
+      ],
     ],
-  ],
-})
+  })
+
+  module._compile(result?.code ?? source, filename)
+}
 
 const hello = require("./cartridges/app_core/cartridge/scripts/hello")
 const hallo = require("./cartridges/app_core/cartridge/scripts/hallo")
