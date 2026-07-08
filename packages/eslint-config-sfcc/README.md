@@ -78,16 +78,16 @@ This package ships two built-in ESLint plugins, both automatically registered in
 
 The `sfcc` plugin contains the general Rhino/SFCC runtime rules:
 
-| Rule                           | Description                                                                                                                                                                                                  | Default |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
-| `sfcc/no-ds-files`             | Disallows legacy `.ds` files in SFCC projects. Use `.js` files instead.                                                                                                                                      | `error` |
-| `sfcc/no-e4x-syntax`           | Disallows JSX/E4X-like tag syntax (e.g. `<a/>`) in SFCC JavaScript to avoid parser ambiguity and unsupported runtime patterns.                                                                               | `error` |
-| `sfcc/no-type-annotations`     | Disallows type annotation syntax in JavaScript files (e.g. `const x: string = ...`, `function y(): number {}`). Rhino/E4X may accept it, but it is invalid in standard JavaScript; use JSDoc typing instead. | `error` |
-| `sfcc/no-rhino-import-globals` | Disallows legacy Rhino globals `importScript(...)`, `importPackage(...)`, and `importClass(...)`. Use CommonJS `require()` instead.                                                                          | `error` |
-| `sfcc/prefer-const`            | Requires `const` for `let` declarations that are never reassigned, excluding Rhino-sensitive nested/loop contexts.                                                                                           | `error` |
-| `sfcc/rhino-const-compat`      | Enforces `let` instead of `const` in Rhino loop-critical contexts (loop headers and declarations inside loop bodies) and supports auto-fix.                                                                  | `error` |
-| `sfcc/rhino-const-conflict`    | Detects same-name `const` declarations in nested blocks within the same function (Rhino treats them as function-scoped) and supports auto-fix to `let`.                                                      | `error` |
-| `sfcc/valid-require-path`      | Validates SFCC-compatible `require()` paths (`dw/*`, `cartridgeName/*`, `./*`, `../*`, `*/*`, `~/*`) and supports optional filesystem existence checks.                                                      | `error` |
+| Rule                                                                       | Description                                                                                                                                                                                                  | Default |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
+| [sfcc/no-ds-files](docs/rules/sfcc/no-ds-files.md)                         | Disallows legacy `.ds` files in SFCC projects. Use `.js` files instead.                                                                                                                                      | `error` |
+| [sfcc/no-e4x-syntax](docs/rules/sfcc/no-e4x-syntax.md)                     | Disallows JSX/E4X-like tag syntax (e.g. `<a/>`) in SFCC JavaScript to avoid parser ambiguity and unsupported runtime patterns.                                                                               | `error` |
+| [sfcc/no-type-annotations](docs/rules/sfcc/no-type-annotations.md)         | Disallows type annotation syntax in JavaScript files (e.g. `const x: string = ...`, `function y(): number {}`). Rhino/E4X may accept it, but it is invalid in standard JavaScript; use JSDoc typing instead. | `error` |
+| [sfcc/no-rhino-import-globals](docs/rules/sfcc/no-rhino-import-globals.md) | Disallows legacy Rhino globals `importScript(...)`, `importPackage(...)`, and `importClass(...)`. Use CommonJS `require()` instead.                                                                          | `error` |
+| [sfcc/prefer-const](docs/rules/sfcc/prefer-const.md)                       | Requires `const` for `let` declarations that are never reassigned, excluding Rhino-sensitive nested/loop contexts.                                                                                           | `error` |
+| [sfcc/rhino-const-compat](docs/rules/sfcc/rhino-const-compat.md)           | Enforces `let` instead of `const` in Rhino loop-critical contexts (loop headers and declarations inside loop bodies) and supports auto-fix.                                                                  | `error` |
+| [sfcc/rhino-const-conflict](docs/rules/sfcc/rhino-const-conflict.md)       | Detects same-name `const` declarations in nested blocks within the same function (Rhino treats them as function-scoped) and supports auto-fix to `let`.                                                      | `error` |
+| [sfcc/valid-require-path](docs/rules/sfcc/valid-require-path.md)           | Validates SFCC-compatible `require()` paths (`dw/*`, `cartridgeName/*`, `./*`, `../*`, `*/*`, `~/*`) and supports optional filesystem existence checks.                                                      | `error` |
 
 The recommended config intentionally combines these `sfcc/*` rules so `--fix` does not bounce between conflicting suggestions: Rhino-unsafe `const` becomes `let`, while genuinely safe top-level function bindings still become `const`.
 
@@ -97,9 +97,9 @@ The recommended config intentionally combines these `sfcc/*` rules so `--fix` do
 
 That rule is enabled in the recommended config by default, because it is still useful protection for repositories that contain SiteGenesis-style controller code. In non-SiteGenesis projects it is effectively dormant, because it only applies to files under `cartridge/controllers/`.
 
-| Rule                            | Description                                                                                                                                              | Default |
-| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `sitegenesis/no-global-require` | Disallows top-level `require()` calls in controller files when not every route function uses them. Only applies to files under `cartridge/controllers/`. | `error` |
+| Rule                                                                         | Description                                                                                                                                              | Default |
+| ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| [sitegenesis/no-global-require](docs/rules/sitegenesis/no-global-require.md) | Disallows top-level `require()` calls in controller files when not every route function uses them. Only applies to files under `cartridge/controllers/`. | `error` |
 
 ### Shared `sfcc` options
 

@@ -114,6 +114,7 @@ const noTypeAnnotations: Rule.RuleModule = {
     docs: {
       description:
         "Disallow type-annotation syntax in JavaScript files. Rhino/E4X may accept it, but it is invalid in standard JavaScript. Use JSDoc types instead.",
+      url: "https://github.com/commerce-klaus/commerce-klaus/blob/main/packages/eslint-config-sfcc/docs/rules/sfcc/no-type-annotations.md",
       recommended: true,
     },
     fixable: "code",

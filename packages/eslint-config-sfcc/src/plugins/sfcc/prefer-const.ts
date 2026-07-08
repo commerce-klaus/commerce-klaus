@@ -16,6 +16,7 @@ const preferConst: Rule.RuleModule = {
       description:
         "Require const for let declarations that are never reassigned, " +
         "except in Rhino-sensitive nested and loop scopes.",
+      url: "https://github.com/commerce-klaus/commerce-klaus/blob/main/packages/eslint-config-sfcc/docs/rules/sfcc/prefer-const.md",
       recommended: true,
     },
     fixable: "code",

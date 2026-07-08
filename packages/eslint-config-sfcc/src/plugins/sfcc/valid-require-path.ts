@@ -153,6 +153,7 @@ const validRequirePath: Rule.RuleModule = {
     docs: {
       description:
         "Enforce SFCC-compatible require paths (dw/, relative, cartridge-name/, */, ~/).",
+      url: "https://github.com/commerce-klaus/commerce-klaus/blob/main/packages/eslint-config-sfcc/docs/rules/sfcc/valid-require-path.md",
       recommended: true,
     },
     // Shared sfcc configuration is provided via ESLint settings.sfcc.

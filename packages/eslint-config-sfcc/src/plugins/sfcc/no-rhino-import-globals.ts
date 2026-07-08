@@ -18,6 +18,7 @@ const noRhinoImportGlobals: Rule.RuleModule = {
     docs: {
       description:
         "Disallow legacy Rhino globals importScript, importPackage, and importClass in JavaScript files. Use CommonJS require() instead.",
+      url: "https://github.com/commerce-klaus/commerce-klaus/blob/main/packages/eslint-config-sfcc/docs/rules/sfcc/no-rhino-import-globals.md",
       recommended: true,
     },
     schema: [],

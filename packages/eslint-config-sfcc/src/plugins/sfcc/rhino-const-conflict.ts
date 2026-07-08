@@ -16,6 +16,7 @@ const rhinoConstConflict: Rule.RuleModule = {
     docs: {
       description:
         "Disallow const in nested blocks when the same identifier is declared as const elsewhere in the same function, as Rhino treats const as function-scoped and would throw a re-declaration error.",
+      url: "https://github.com/commerce-klaus/commerce-klaus/blob/main/packages/eslint-config-sfcc/docs/rules/sfcc/rhino-const-conflict.md",
       recommended: true,
     },
     fixable: "code",
