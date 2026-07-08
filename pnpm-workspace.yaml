@@ -21,3 +21,9 @@ peerDependencyRules:
   allowedVersions:
     vite: "*"
     vitest: "*"
+minimumReleaseAgeExclude:
+  - "@salesforce/b2c-cli@1.18.0"
+  - "@salesforce/b2c-tooling-sdk@1.18.0"
+allowBuilds:
+  protobufjs: false
+  yarn: false

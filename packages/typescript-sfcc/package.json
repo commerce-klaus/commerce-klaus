@@ -72,7 +72,7 @@
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
-    "@salesforce/b2c-cli": ">=26.7.0",
+    "@salesforce/b2c-cli": ">=1.18.0",
     "typescript": ">=5.5.0"
   },
   "packageManager": "pnpm@11.10.0"
