@@ -1,6 +1,6 @@
 {
   "name": "@commerce-klaus/typescript-sfcc",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "TypeScript tooling for Salesforce Commerce Cloud cartridge projects",
   "keywords": [
     "commercecloud",
