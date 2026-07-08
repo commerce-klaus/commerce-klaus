@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.1
+
+### Patch Changes
+
+- 0ba78c6: Fix `sfcc-ts-sync-types` so it reliably executes when invoked via package-manager shims (for example `pnpm`/`.bin` entrypoints).
+
+  Previously, some shim invocation paths could fail the direct-execution guard and cause a silent no-op. The CLI now uses more robust entrypoint detection and path matching so sync runs consistently.
+
 ## 0.2.0
 
 ### Minor Changes
