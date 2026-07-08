@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.1.0
+
+### Minor Changes
+
+- 3fde52a: Added new rule ignores for eslint-plugin-unicorn
+
+  - `unicorn/logical-assignment-operators`
+  - `unicorn/no-computed-property-existence-check`
+  - `unicorn/prefer-iterator-to-array-at-end`
+  - `unicorn/prefer-logical-operator-over-ternary`
+  - `unicorn/prefer-unicode-code-point-escapes`
+
+### Patch Changes
+
+- 78684ee: Add per-rule Markdown documentation pages and link them from the rule metadata so ESLint diagnostics point to the detailed rule docs.
+
 ## 1.0.0
 
 ### Major Changes

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.1
+
+### Patch Changes
+
+- be49474: Fix SFCC module path resolution stability across different working directories for Babel-based usage.
+
+  Improve Vite plugin test reliability by testing plugin hooks directly, so the test suite no longer depends on root-level Vite config wiring.
+
 ## 1.0.0
 
 ### Major Changes
