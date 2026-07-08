@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 
 import { spawnSync as nodeSpawnSync } from "node:child_process"
-import { existsSync as nodeExistsSync, readFileSync as nodeReadFileSync } from "node:fs"
+import {
+  existsSync as nodeExistsSync,
+  readFileSync as nodeReadFileSync,
+  realpathSync as nodeRealpathSync,
+} from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
@@ -173,13 +177,28 @@ function isDirectExecution(): boolean {
   }
 
   const expectedPath = fileURLToPath(import.meta.url)
+
+  if (looksLikeSyncTypesCliEntrypoint(executedPath)) {
+    return true
+  }
+
   try {
-    return nodeExistsSync(executedPath) && nodeExistsSync(expectedPath)
-      ? executedPath === expectedPath || path.resolve(executedPath) === path.resolve(expectedPath)
-      : path.resolve(executedPath) === path.resolve(expectedPath)
+    if (nodeExistsSync(executedPath) && nodeExistsSync(expectedPath)) {
+      return nodeRealpathSync(executedPath) === nodeRealpathSync(expectedPath)
+    }
+
+    return path.resolve(executedPath) === path.resolve(expectedPath)
   } catch {
     return path.resolve(executedPath) === path.resolve(expectedPath)
   }
+}
+
+export function looksLikeSyncTypesCliEntrypoint(filePath: string): boolean {
+  const fileName = path.basename(filePath)
+  return (
+    /^sfcc-ts-sync-types(?:\.cmd|\.ps1)?$/u.test(fileName) ||
+    /^sync-types\.(?:cjs|mjs|js|ts)$/u.test(fileName)
+  )
 }
 
 if (isDirectExecution()) {

@@ -1,6 +1,6 @@
 import { expect, test } from "vite-plus/test"
 
-import { runSyncTypesCli } from "../src/sync-types.ts"
+import { looksLikeSyncTypesCliEntrypoint, runSyncTypesCli } from "../src/sync-types.ts"
 
 function createFakeEnvironment({ files = [], metadataVersion, localBinary = false } = {}) {
   const fileSet = new Set(files)
@@ -125,4 +125,18 @@ test("runSyncTypesCli validates --min-version format", () => {
   expect(exitCode).toBe(1)
   expect(env.calls).toHaveLength(0)
   expect(env.stderr).toContain("Invalid --min-version value")
+})
+
+test("looksLikeSyncTypesCliEntrypoint returns true for shim and dist entrypoint names", () => {
+  expect(looksLikeSyncTypesCliEntrypoint("/tmp/node_modules/.bin/sfcc-ts-sync-types")).toBe(true)
+  expect(looksLikeSyncTypesCliEntrypoint("C:/repo/node_modules/.bin/sfcc-ts-sync-types.cmd")).toBe(
+    true,
+  )
+  expect(looksLikeSyncTypesCliEntrypoint("/tmp/pkg/dist/sync-types.cjs")).toBe(true)
+  expect(looksLikeSyncTypesCliEntrypoint("/tmp/pkg/dist/sync-types.mjs")).toBe(true)
+})
+
+test("looksLikeSyncTypesCliEntrypoint returns false for unrelated executables", () => {
+  expect(looksLikeSyncTypesCliEntrypoint("/tmp/node_modules/.bin/vitest")).toBe(false)
+  expect(looksLikeSyncTypesCliEntrypoint("/tmp/pkg/dist/typecheck.cjs")).toBe(false)
 })
