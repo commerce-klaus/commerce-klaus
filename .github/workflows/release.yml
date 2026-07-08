@@ -29,6 +29,8 @@ jobs:
         with:
           version: vp run version-packages
           publish: vp run release
+          commit: "chore(release): version packages"
+          title: "chore(release): version packages"
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
