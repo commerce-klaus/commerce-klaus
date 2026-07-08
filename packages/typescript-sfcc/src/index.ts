@@ -22,3 +22,5 @@ export {
   runProjectTypecheck,
   typecheckSolutionProjects,
 } from "./typecheck.ts"
+
+export { main as syncTypesMain, runSyncTypesCli } from "./sync-types.ts"

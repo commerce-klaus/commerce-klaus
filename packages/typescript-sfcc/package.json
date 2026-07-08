@@ -22,6 +22,7 @@
     "directory": "packages/sfcc-ts-tooling"
   },
   "bin": {
+    "sfcc-ts-sync-types": "./dist/sync-types.cjs",
     "sfcc-ts-typecheck": "./dist/typecheck-cartridges.cjs"
   },
   "files": [
@@ -47,6 +48,11 @@
       "import": "./dist/typecheck.mjs",
       "require": "./dist/typecheck.cjs"
     },
+    "./sync-types": {
+      "types": "./dist/sync-types.d.mts",
+      "import": "./dist/sync-types.mjs",
+      "require": "./dist/sync-types.cjs"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -66,6 +72,7 @@
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
+    "@salesforce/b2c-cli": ">=26.7.0",
     "typescript": ">=5.5.0"
   },
   "packageManager": "pnpm@11.10.0"

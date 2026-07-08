@@ -138,8 +138,13 @@ export function createSfccPaths(
   cartridgeRoots: string[],
 ): Record<string, string[]> {
   const configDir = path.dirname(configPath)
+  const cartridgesDir =
+    cartridgeRoots.length > 0 ? path.dirname(cartridgeRoots[0]) : findCartridgesDir(configDir)
+  const workspaceRoot = cartridgesDir ? path.dirname(cartridgesDir) : path.dirname(configDir)
+  const dwTypesDir = path.join(workspaceRoot, ".b2c-script-types", "types", "dw")
+  const relativeDwTypesDir = path.relative(configDir, dwTypesDir).replaceAll("\\", "/")
   const paths: Record<string, string[]> = {
-    "dw/*": ["../../node_modules/sfcc-dts/@types/sfcc/dw/*"],
+    "dw/*": [relativeDwTypesDir ? `${relativeDwTypesDir}/*` : "./*"],
     "~/*": ["./*"],
   }
 

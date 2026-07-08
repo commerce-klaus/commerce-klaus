@@ -57,11 +57,21 @@ test("createSfccPaths creates aliases for cartridges plus server and bc_napali m
 
   const paths = createSfccPaths(configPath, cartridgeRoots)
 
+  expect(paths["dw/*"]).toEqual(["../.b2c-script-types/types/dw/*"])
   expect(paths["app_storefront_base/*"]).toEqual(["app_storefront_base/*"])
   expect(paths["modules/*"]).toEqual(["modules/*"])
   expect(paths.server).toEqual(["modules/server"])
   expect(paths["server/*"]).toEqual(["modules/server/*"])
   expect(paths["bc_napali/*"]).toEqual(["int_napali/*"])
+})
+
+test("createSfccPaths resolves dw mapping for per-cartridge configs", () => {
+  const configPath = "/workspace/cartridges/app_custom/jsconfig.json"
+  const cartridgeRoots = ["/workspace/cartridges/app_custom"]
+
+  const paths = createSfccPaths(configPath, cartridgeRoots)
+
+  expect(paths["dw/*"]).toEqual(["../../.b2c-script-types/types/dw/*"])
 })
 
 test("createSfccModuleResolver resolves ~/, */ and cartridge alias imports", () => {
