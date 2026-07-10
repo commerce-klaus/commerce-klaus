@@ -18,6 +18,7 @@ This package continues `@jenssimon/eslint-config-sfcc` under the [Commerce Klaus
 - Modern language features not supported on SFCC/Rhino (e.g. optional chaining, nullish coalescing, async/await, object spread, many ES2015+ builtins)
 - Top-level `await`, dynamic `import()`, class fields, new builtins like `Map`, `Set`, `Promise`, `Symbol`, etc.
 - JSX/E4X-like tag syntax (e.g. `<a/>`) that may be misparsed in JavaScript linting workflows
+- SFCC-specific globals that are easy to confuse with standard JavaScript, such as `empty()`
 - Features that would cause runtime or syntax errors on SFCC
 - Many ES2015+ Array/String/Object methods missing in Rhino
 - ECMAScript modules (`import`/`export`), as SFCC only supports CommonJS
@@ -82,6 +83,7 @@ The `sfcc` plugin contains the general Rhino/SFCC runtime rules:
 | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
 | [sfcc/no-ds-files](docs/rules/sfcc/no-ds-files.md)                         | Disallows legacy `.ds` files in SFCC projects. Use `.js` files instead.                                                                                                                                      | `error` |
 | [sfcc/no-e4x-syntax](docs/rules/sfcc/no-e4x-syntax.md)                     | Disallows JSX/E4X-like tag syntax (e.g. `<a/>`) in SFCC JavaScript to avoid parser ambiguity and unsupported runtime patterns.                                                                               | `error` |
+| [sfcc/no-empty-global](docs/rules/sfcc/no-empty-global.md)                 | Disallows the SFCC-specific `empty(...)` global. Use explicit checks such as `.length === 0`, `Object.keys(...).length === 0`, or `.isEmpty()` instead.                                                      | `error` |
 | [sfcc/no-type-annotations](docs/rules/sfcc/no-type-annotations.md)         | Disallows type annotation syntax in JavaScript files (e.g. `const x: string = ...`, `function y(): number {}`). Rhino/E4X may accept it, but it is invalid in standard JavaScript; use JSDoc typing instead. | `error` |
 | [sfcc/no-rhino-import-globals](docs/rules/sfcc/no-rhino-import-globals.md) | Disallows legacy Rhino globals `importScript(...)`, `importPackage(...)`, and `importClass(...)`. Use CommonJS `require()` instead.                                                                          | `error` |
 | [sfcc/prefer-const](docs/rules/sfcc/prefer-const.md)                       | Requires `const` for `let` declarations that are never reassigned, excluding Rhino-sensitive nested/loop contexts.                                                                                           | `error` |
@@ -222,6 +224,10 @@ A: No. `sfcc/no-type-annotations` reports annotation syntax in JavaScript files 
 Q: Are legacy Rhino import globals allowed?
 
 A: No. `sfcc/no-rhino-import-globals` reports `importScript(...)`, `importPackage(...)`, and `importClass(...)` and points you to CommonJS `require()` instead.
+
+Q: Is `empty()` allowed?
+
+A: No. `sfcc/no-empty-global` reports the SFCC-specific `empty(...)` global and nudges you toward explicit checks such as `.length === 0`, `Object.keys(...).length === 0`, or `.isEmpty()` depending on the value type.
 
 Q: Are `.ds` files still allowed?
 
