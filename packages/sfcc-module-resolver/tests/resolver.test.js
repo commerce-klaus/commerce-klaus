@@ -6,13 +6,13 @@ import { expect, test } from "vite-plus/test"
 import {
   SUPER_MODULE_TOKEN,
   createSfccModuleResolver,
-  createSfccPaths,
+  getSiteTemplateCartridgePath,
   inferCartridgeOrder,
   transformSuperModuleSource,
 } from "../src/index.ts"
 
 function withTempDir(run) {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-ts-tooling-test-"))
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-module-resolver-test-"))
 
   try {
     return run(tempDir)
@@ -21,58 +21,66 @@ function withTempDir(run) {
   }
 }
 
-test("inferCartridgeOrder uses SFCC_CARTRIDGE_PATH order and skips missing entries", () => {
+test("inferCartridgeOrder uses configured cartridgePath before other sources", () => {
   withTempDir((tempDir) => {
     const cartridgesDir = path.join(tempDir, "cartridges")
-    const appStorefront = path.join(cartridgesDir, "app_storefront_base")
     const appCore = path.join(cartridgesDir, "app_core")
+    const appBase = path.join(cartridgesDir, "app_storefront_base")
 
-    fs.mkdirSync(appStorefront, { recursive: true })
     fs.mkdirSync(appCore, { recursive: true })
+    fs.mkdirSync(appBase, { recursive: true })
 
-    const previousPath = process.env.SFCC_CARTRIDGE_PATH
-    process.env.SFCC_CARTRIDGE_PATH = "app_storefront_base:missing:app_core"
+    const result = inferCartridgeOrder({
+      cartridgesDir,
+      cartridgePath: ["app_storefront_base", "app_core", "missing"],
+      envCartridgePath: "app_core",
+    })
 
-    try {
-      const result = inferCartridgeOrder(cartridgesDir)
-
-      expect(result).toEqual([appStorefront, appCore])
-    } finally {
-      if (previousPath === undefined) {
-        delete process.env.SFCC_CARTRIDGE_PATH
-      } else {
-        process.env.SFCC_CARTRIDGE_PATH = previousPath
-      }
-    }
+    expect(result).toEqual([appBase, appCore])
   })
 })
 
-test("createSfccPaths creates aliases for cartridges plus server mappings", () => {
-  const configPath = "/workspace/cartridges/jsconfig.json"
-  const cartridgeRoots = [
-    "/workspace/cartridges/app_storefront_base",
-    "/workspace/cartridges/modules",
-  ]
+test("inferCartridgeOrder falls back to site template", () => {
+  withTempDir((tempDir) => {
+    const cartridgesDir = path.join(tempDir, "cartridges")
+    const siteTemplatePath = path.join(tempDir, "site_template")
+    const siteXmlPath = path.join(siteTemplatePath, "sites", "RefArch", "site.xml")
 
-  const paths = createSfccPaths(configPath, cartridgeRoots)
+    fs.mkdirSync(path.join(cartridgesDir, "app_storefront_base"), { recursive: true })
+    fs.mkdirSync(path.join(cartridgesDir, "app_core"), { recursive: true })
+    fs.mkdirSync(path.dirname(siteXmlPath), { recursive: true })
+    fs.writeFileSync(
+      siteXmlPath,
+      "<site><custom-cartridges>app_core:missing:app_storefront_base</custom-cartridges></site>",
+    )
 
-  expect(paths["dw/*"]).toEqual(["../.b2c-script-types/types/dw/*"])
-  expect(paths["app_storefront_base/*"]).toEqual(["app_storefront_base/*"])
-  expect(paths["modules/*"]).toEqual(["modules/*"])
-  expect(paths.server).toEqual(["modules/server"])
-  expect(paths["server/*"]).toEqual(["modules/server/*"])
+    const result = inferCartridgeOrder({
+      cartridgesDir,
+      siteTemplatePath,
+      site: "RefArch",
+    })
+
+    expect(result.map((entry) => path.basename(entry))).toEqual(["app_core", "app_storefront_base"])
+  })
 })
 
-test("createSfccPaths resolves dw mapping for per-cartridge configs", () => {
-  const configPath = "/workspace/cartridges/app_custom/jsconfig.json"
-  const cartridgeRoots = ["/workspace/cartridges/app_custom"]
+test("getSiteTemplateCartridgePath parses nested custom-cartridges", () => {
+  withTempDir((tempDir) => {
+    const siteTemplatePath = path.join(tempDir, "site_template")
+    const siteXmlPath = path.join(siteTemplatePath, "sites", "RefArch", "site.xml")
 
-  const paths = createSfccPaths(configPath, cartridgeRoots)
+    fs.mkdirSync(path.dirname(siteXmlPath), { recursive: true })
+    fs.writeFileSync(
+      siteXmlPath,
+      "<site><settings><custom-cartridges>app_a:app_b</custom-cartridges></settings></site>",
+    )
 
-  expect(paths["dw/*"]).toEqual(["../../.b2c-script-types/types/dw/*"])
+    const result = getSiteTemplateCartridgePath(siteTemplatePath, "RefArch", tempDir)
+    expect(result).toEqual(["app_a", "app_b"])
+  })
 })
 
-test("createSfccModuleResolver resolves ~/, */ and cartridge alias imports", () => {
+test("createSfccModuleResolver resolves ~/, */ and cartridge aliases", () => {
   withTempDir((tempDir) => {
     const appCore = path.join(tempDir, "app_core")
     const appBrand = path.join(tempDir, "app_brand")
@@ -121,15 +129,4 @@ test("transformSuperModuleSource injects require and rewrites module.superModule
     expect(transformed).toContain(`const parent = ${SUPER_MODULE_TOKEN}`)
     expect(transformed.startsWith('"use strict"\n')).toBe(true)
   })
-})
-
-test("transformSuperModuleSource replaces module.superModule with undefined if no fallback cartridge exists", () => {
-  const source = "const parent = module.superModule\n"
-  const transformed = transformSuperModuleSource(
-    source,
-    "/tmp/app_custom/cartridge/controllers/Page.js",
-    ["/tmp/app_custom"],
-  )
-
-  expect(transformed).toBe("const parent = undefined\n")
 })

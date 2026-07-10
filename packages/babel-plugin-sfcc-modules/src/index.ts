@@ -1,9 +1,13 @@
 import { callExpression, identifier, stringLiteral } from "@babel/types"
+import {
+  createSfccModuleResolver,
+  resolveSuperModuleFilePath,
+  stripExt,
+  toPosixPath,
+} from "@commerce-klaus/sfcc-module-resolver"
 import importsVisitor from "imports-visitor"
 import fs from "node:fs"
 import path from "node:path"
-
-const SUPPORTED_EXTENSIONS = ["js", "ds", "json"]
 
 type ImportLike = {
   source: string
@@ -43,36 +47,22 @@ const resolveBasePath = (basePath: string, filename: string) => {
   return fromCwd
 }
 
-const getModulePath = (moduleName: string, basePath: string, cartridge: string, target: string) => {
-  const relativePath = path.relative(path.dirname(moduleName), `${basePath}/${cartridge}${target}`)
-  return (relativePath.includes(".") ? "" : "./") + relativePath
+const getRelativeRequirePath = (moduleName: string, resolvedFile: string) => {
+  const relativePath = toPosixPath(path.relative(path.dirname(moduleName), stripExt(resolvedFile)))
+  return relativePath.startsWith(".") ? relativePath : `./${relativePath}`
 }
 
 const plugin = (_babel: unknown, { cartridgePath, basePath }: PluginOptions) => ({
   visitor: {
     Program(thePath: any, state: any) {
       const resolvedBasePath = resolveBasePath(basePath, state.file.opts.filename)
+      const cartridgeRoots = cartridgePath.map((cartridge) =>
+        path.join(resolvedBasePath, cartridge),
+      )
+      const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
       const imports: ImportLike[] = []
       thePath.traverse(importsVisitor, { imports })
       for (const imp of imports) {
-        /**
-         * Finds and sets the rewrittten module path.
-         *
-         * @param findCartridge  a function to find the cartridge
-         */
-        const resolve = (findCartridge: (target: string) => string | undefined) => {
-          const target = imp.source.slice(1)
-          const foundCartridge = findCartridge(target)
-          if (foundCartridge) {
-            imp.source = getModulePath(
-              state.file.opts.filename,
-              resolvedBasePath,
-              foundCartridge,
-              target,
-            )
-          }
-        }
-
         // Handle
         //
         // require("*/cartridge/scripts/foo")
@@ -80,13 +70,10 @@ const plugin = (_babel: unknown, { cartridgePath, basePath }: PluginOptions) => 
         // Find the first cartridge that matches the requested module name
         //
         if (imp.source.indexOf("*/") === 0) {
-          resolve((target) =>
-            cartridgePath.find((cartridge) =>
-              SUPPORTED_EXTENSIONS.find((extension) =>
-                fs.existsSync(`${resolvedBasePath}/${cartridge}${target}.${extension}`),
-              ),
-            ),
-          )
+          const resolved = resolveSfccModule(imp.source, state.file.opts.filename)
+          if (resolved) {
+            imp.source = getRelativeRequirePath(state.file.opts.filename, resolved)
+          }
         }
 
         // Handle
@@ -96,12 +83,10 @@ const plugin = (_babel: unknown, { cartridgePath, basePath }: PluginOptions) => 
         // Own cartridge - rewrites the module path to a relative URL.
         //
         if (imp.source.indexOf("~/") === 0) {
-          resolve(
-            () =>
-              path
-                .relative(resolvedBasePath, path.dirname(state.file.opts.filename))
-                .split(path.sep)[0],
-          )
+          const resolved = resolveSfccModule(imp.source, state.file.opts.filename)
+          if (resolved) {
+            imp.source = getRelativeRequirePath(state.file.opts.filename, resolved)
+          }
         }
       }
     },
@@ -114,42 +99,13 @@ const plugin = (_babel: unknown, { cartridgePath, basePath }: PluginOptions) => 
         thePath.node.object.name === "module" &&
         thePath.node.property.name === "superModule"
       ) {
-        // path to module relative to the cartridge base path
-        const pathToModule = path.relative(resolvedBasePath, state.file.opts.filename)
-
-        // Path without cartridge name
-        const shortenedPathParts = pathToModule.split(path.sep).slice(1)
-
-        // Remove extension
-        const lastPart = shortenedPathParts.at(-1)
-        if (!lastPart) {
-          return
-        }
-        shortenedPathParts[shortenedPathParts.length - 1] = lastPart.replace(/\.[^.]+$/, "")
-        const shortenedPathToModule = `/${shortenedPathParts.join(path.sep)}`
-
-        const cartridge = pathToModule.split(path.sep)[0] // the own cartridge name
-        // all cartridges after the found cartridges in cartridge path
-        const newCartridgePath = cartridgePath.slice(cartridgePath.indexOf(cartridge) + 1)
-
-        // Find the the cartridge which contains the next match for the module path
-        const foundCartridge = newCartridgePath.find((theCartridge) =>
-          SUPPORTED_EXTENSIONS.find((extension) =>
-            fs.existsSync(
-              `${resolvedBasePath}/${theCartridge}${shortenedPathToModule}.${extension}`,
-            ),
-          ),
+        const cartridgeRoots = cartridgePath.map((cartridge) =>
+          path.join(resolvedBasePath, cartridge),
         )
-
-        let foundRequire: string | undefined
-        if (foundCartridge) {
-          foundRequire = getModulePath(
-            state.file.opts.filename,
-            resolvedBasePath,
-            foundCartridge,
-            shortenedPathToModule,
-          )
-        }
+        const resolved = resolveSuperModuleFilePath(state.file.opts.filename, cartridgeRoots)
+        const foundRequire = resolved
+          ? getRelativeRequirePath(state.file.opts.filename, resolved)
+          : undefined
 
         // Replace "module.superModule" with a require() or undefined
         thePath.replaceWith(

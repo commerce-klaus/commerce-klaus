@@ -53,6 +53,7 @@
   "dependencies": {
     "@babel/runtime": "^8.0.0",
     "@babel/types": "^8.0.0",
+    "@commerce-klaus/sfcc-module-resolver": "workspace:*",
     "imports-visitor": "^2.1.0"
   },
   "devDependencies": {

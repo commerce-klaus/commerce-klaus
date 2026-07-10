@@ -66,6 +66,9 @@
     "check": "vp check",
     "prepublishOnly": "pnpm run build"
   },
+  "dependencies": {
+    "@commerce-klaus/sfcc-module-resolver": "workspace:*"
+  },
   "devDependencies": {
     "@types/node": "catalog:",
     "@typescript/native-preview": "catalog:",

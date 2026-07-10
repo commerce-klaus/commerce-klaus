@@ -1,12 +1,14 @@
 import type { Rule } from "eslint"
 
+import {
+  createSfccModuleResolver,
+  inferCartridgeOrder,
+  resolveCartridgesDir,
+} from "@commerce-klaus/sfcc-module-resolver"
 import fs from "node:fs"
 import path from "node:path"
 
 import { withSfccSettings } from "../_utils/sfcc-settings.js"
-import { getSiteTemplateCartridgePath } from "../_utils/site-template-cartridge-path.js"
-
-const SUPPORTED_EXTENSIONS = ["js", "ds", "json"]
 
 function getStringArgument(node: Rule.Node): string | undefined {
   if (node.type === "Literal" && typeof node.value === "string") {
@@ -39,10 +41,6 @@ function getFirstSegment(requirePath: string): string {
   return slashIndex === -1 ? requirePath : requirePath.slice(0, slashIndex)
 }
 
-function resolveCartridgesDir(cartridgesDir: string, cwd: string): string {
-  return path.isAbsolute(cartridgesDir) ? cartridgesDir : path.resolve(cwd, cartridgesDir)
-}
-
 function getConfiguredCartridgePath(cartridgePath: string[] | undefined): string[] {
   if (!cartridgePath) {
     return []
@@ -51,89 +49,12 @@ function getConfiguredCartridgePath(cartridgePath: string[] | undefined): string
   return cartridgePath.filter((entry) => entry.trim().length > 0)
 }
 
-function getFilesystemCartridges(cartridgesDir: string, cwd: string): string[] {
-  const baseDir = resolveCartridgesDir(cartridgesDir, cwd)
-
-  try {
-    return fs
-      .readdirSync(baseDir, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory())
-      .map((entry) => entry.name)
-  } catch {
-    return []
-  }
-}
-
-function moduleExistsInCartridge(
-  cartridgeName: string,
-  moduleTarget: string,
-  cartridgesDir: string,
-  cwd: string,
-): boolean {
-  const baseDir = resolveCartridgesDir(cartridgesDir, cwd)
-  const normalizedTarget = moduleTarget.replace(/^\/+/, "")
-  const targetPath = path.join(baseDir, cartridgeName, normalizedTarget)
-
-  if (path.extname(normalizedTarget)) {
-    return fs.existsSync(targetPath)
-  }
-
-  return SUPPORTED_EXTENSIONS.some((extension) => fs.existsSync(`${targetPath}.${extension}`))
-}
-
-function getOwnCartridge(filename: string, cartridgesDir: string, cwd: string): string | undefined {
+function normalizeFilename(filename: string, cwd: string): string {
   if (filename === "<input>") {
-    return undefined
+    return filename
   }
 
-  const resolvedFilename = path.isAbsolute(filename) ? filename : path.resolve(cwd, filename)
-  const baseDir = resolveCartridgesDir(cartridgesDir, cwd)
-  const relativePath = path.relative(baseDir, resolvedFilename)
-
-  if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
-    return undefined
-  }
-
-  const firstSegment = relativePath.split(path.sep)[0]
-  return firstSegment && firstSegment !== "." ? firstSegment : undefined
-}
-
-function starReferenceExists(
-  requirePath: string,
-  cartridgesDir: string,
-  cwd: string,
-  cartridgePath: string[],
-): boolean {
-  const moduleTarget = requirePath.slice(2)
-  if (!moduleTarget) {
-    return false
-  }
-
-  const cartridgeNames =
-    cartridgePath.length > 0 ? cartridgePath : getFilesystemCartridges(cartridgesDir, cwd)
-
-  return cartridgeNames.some((name) =>
-    moduleExistsInCartridge(name, moduleTarget, cartridgesDir, cwd),
-  )
-}
-
-function tildeReferenceExists(
-  requirePath: string,
-  filename: string,
-  cartridgesDir: string,
-  cwd: string,
-): boolean {
-  const moduleTarget = requirePath.slice(2)
-  if (!moduleTarget) {
-    return false
-  }
-
-  const ownCartridge = getOwnCartridge(filename, cartridgesDir, cwd)
-  if (!ownCartridge) {
-    return false
-  }
-
-  return moduleExistsInCartridge(ownCartridge, moduleTarget, cartridgesDir, cwd)
+  return path.isAbsolute(filename) ? filename : path.resolve(cwd, filename)
 }
 
 function cartridgeExists(cartridgeName: string, cartridgesDir: string, cwd: string): boolean {
@@ -178,17 +99,19 @@ const validRequirePath: Rule.RuleModule = {
       (context as Rule.RuleContext & { getCwd?: () => string }).getCwd?.() ??
       process.cwd()
     const configuredCartridgePath = getConfiguredCartridgePath(options.cartridgePath)
-    const templateCartridgePath = getSiteTemplateCartridgePath(
-      options.siteTemplatePath,
-      options.site,
+    const cartridgeRoots = inferCartridgeOrder({
+      cartridgesDir,
       cwd,
-    )
-    const cartridgePath =
-      configuredCartridgePath.length > 0 ? configuredCartridgePath : templateCartridgePath
+      cartridgePath: configuredCartridgePath,
+      siteTemplatePath: options.siteTemplatePath,
+      site: options.site,
+    })
+    const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
     const filename =
       (context as Rule.RuleContext & { filename?: string }).filename ??
       (context as Rule.RuleContext & { getFilename?: () => string }).getFilename?.() ??
       "<input>"
+    const normalizedFilename = normalizeFilename(filename, cwd)
 
     return {
       CallExpression(node) {
@@ -212,10 +135,7 @@ const validRequirePath: Rule.RuleModule = {
         }
 
         if (requirePath.startsWith("*/")) {
-          if (
-            checkCartridgeExists &&
-            !starReferenceExists(requirePath, cartridgesDir, cwd, cartridgePath)
-          ) {
+          if (checkCartridgeExists && !resolveSfccModule(requirePath, normalizedFilename)) {
             context.report({
               node: firstArgument,
               messageId: "unresolvedStarPath",
@@ -226,10 +146,7 @@ const validRequirePath: Rule.RuleModule = {
         }
 
         if (requirePath.startsWith("~/")) {
-          if (
-            checkCartridgeExists &&
-            !tildeReferenceExists(requirePath, filename, cartridgesDir, cwd)
-          ) {
+          if (checkCartridgeExists && !resolveSfccModule(requirePath, normalizedFilename)) {
             context.report({
               node: firstArgument,
               messageId: "unresolvedTildePath",
