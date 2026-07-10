@@ -1,3 +1,5 @@
+[![NPM version][npm-image]][npm-url] [![Downloads][npm-downloads-image]][npm-url]
+
 # @commerce-klaus/sfcc-module-resolver
 
 Shared SFCC cartridge path and module resolution utilities.
@@ -149,3 +151,7 @@ If consumer tests in other packages need this resolver and exports point to `dis
 cd packages/sfcc-module-resolver
 vp pack
 ```
+
+[npm-url]: https://www.npmjs.com/package/@commerce-klaus/sfcc-module-resolver
+[npm-image]: https://badgen.net/npm/v/@commerce-klaus/sfcc-module-resolver
+[npm-downloads-image]: https://badgen.net/npm/dw/@commerce-klaus/sfcc-module-resolver
