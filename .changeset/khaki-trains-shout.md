@@ -1,8 +1,8 @@
 ---
-"@commerce-klaus/sfcc-module-resolver": minor
+"@commerce-klaus/sfcc-module-resolver": major
 "@commerce-klaus/babel-plugin-sfcc-modules": patch
 "@commerce-klaus/vite-plugin-sfcc-modules": patch
-"@commerce-klaus/typescript-sfcc": minor
+"@commerce-klaus/typescript-sfcc": major
 "@commerce-klaus/eslint-config-sfcc": patch
 ---
 
