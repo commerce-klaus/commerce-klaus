@@ -43,8 +43,8 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "eslint-plugin-es": "^4.1.0",
-    "fast-xml-parser": "^5.8.0"
+    "@commerce-klaus/sfcc-module-resolver": "workspace:*",
+    "eslint-plugin-es": "^4.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

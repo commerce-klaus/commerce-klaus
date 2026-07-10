@@ -47,6 +47,9 @@
     "check": "vp check",
     "prepublishOnly": "pnpm run build"
   },
+  "dependencies": {
+    "@commerce-klaus/sfcc-module-resolver": "workspace:*"
+  },
   "devDependencies": {
     "@types/node": "^25.0.0",
     "@vitest/coverage-v8": "^4.1.5",

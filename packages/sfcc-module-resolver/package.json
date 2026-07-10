@@ -1,22 +1,16 @@
 {
-  "name": "@commerce-klaus/babel-plugin-sfcc-modules",
-  "version": "1.0.1",
-  "description": "Babel plugin to handle non-standard module paths used by Salesforce Commerce Cloud (SFCC)",
+  "name": "@commerce-klaus/sfcc-module-resolver",
+  "version": "0.1.0",
+  "description": "Shared SFCC cartridge path and module resolution utilities",
   "keywords": [
-    "babel",
-    "babel-plugin",
     "cartridge",
     "commercecloud",
     "demandware",
-    "import",
-    "module",
-    "require",
+    "resolver",
     "salesforce",
-    "sfcc",
-    "sfra",
-    "supermodule"
+    "sfcc"
   ],
-  "homepage": "https://github.com/commerce-klaus/commerce-klaus/tree/main/packages/babel-plugin-sfcc-modules#readme",
+  "homepage": "https://github.com/commerce-klaus/commerce-klaus/tree/main/packages/sfcc-module-resolver#readme",
   "bugs": {
     "url": "https://github.com/commerce-klaus/commerce-klaus/issues"
   },
@@ -25,19 +19,22 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/commerce-klaus/commerce-klaus",
-    "directory": "packages/babel-plugin-sfcc-modules"
+    "directory": "packages/sfcc-module-resolver"
   },
   "files": [
-    "/dist"
+    "dist"
   ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "publishConfig": {
     "access": "public",
@@ -51,18 +48,12 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@babel/runtime": "^8.0.0",
-    "@babel/types": "^8.0.0",
-    "@commerce-klaus/sfcc-module-resolver": "workspace:*",
-    "imports-visitor": "^2.1.0"
+    "fast-xml-parser": "^5.8.0"
   },
   "devDependencies": {
-    "@babel/core": "^8.0.0",
-    "@babel/register": "^8.0.0",
-    "@types/node": "^25.6.0",
-    "@vitest/coverage-v8": "^4.1.5",
-    "typescript": "^6.0.3",
-    "vite-plus": "latest"
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vite-plus": "catalog:"
   },
   "packageManager": "pnpm@11.10.0"
 }
