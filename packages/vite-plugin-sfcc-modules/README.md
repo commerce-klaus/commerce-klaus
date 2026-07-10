@@ -139,6 +139,6 @@ vp run build
 
 MIT
 
-[npm-url]: https://www.npmjs.com/package/@commerce-klaus/vite-olugin-sfcc-modules
-[npm-image]: https://badgen.net/npm/v/@commerce-klaus/vite-olugin-sfcc-modules
-[npm-downloads-image]: https://badgen.net/npm/dw/@commerce-klaus/vite-olugin-sfcc-modules
+[npm-url]: https://www.npmjs.com/package/@commerce-klaus/vite-plugin-sfcc-modules
+[npm-image]: https://badgen.net/npm/v/@commerce-klaus/vite-plugin-sfcc-modules
+[npm-downloads-image]: https://badgen.net/npm/dw/@commerce-klaus/vite-plugin-sfcc-modules
