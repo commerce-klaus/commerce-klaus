@@ -1,9 +1,12 @@
 const {
   createSfccModuleResolver,
   findCartridgesDir,
+  getGeneratedCustomAttributesTypesPathIfPresent,
   inferCartridgeOrder,
+  resolveWorkspaceRootFromProjectDir,
   transformSuperModuleSource,
 } = require("./shared") as typeof import("./shared.ts")
+const { existsSync } = require("node:fs")
 
 function init(modules: { typescript: typeof import("typescript") }) {
   const ts = modules.typescript
@@ -14,6 +17,7 @@ function init(modules: { typescript: typeof import("typescript") }) {
       getCompilationSettings(): import("typescript").CompilerOptions
     }
     languageServiceHost: {
+      getScriptFileNames?(): string[]
       getScriptSnapshot?(fileName: string): import("typescript").IScriptSnapshot | undefined
       resolveModuleNames?(
         moduleNames: string[],
@@ -35,14 +39,31 @@ function init(modules: { typescript: typeof import("typescript") }) {
     const projectDir = info.project.getCurrentDirectory()
     const cartridgesDir = findCartridgesDir(projectDir)
     const cartridgeRoots = cartridgesDir ? inferCartridgeOrder(cartridgesDir) : []
+    const workspaceRoot = resolveWorkspaceRootFromProjectDir(projectDir)
+    const generatedTypesPath = getGeneratedCustomAttributesTypesPathIfPresent(
+      workspaceRoot,
+      existsSync,
+    )
     const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
 
     const host = info.languageServiceHost
     const compilerOptions = info.project.getCompilationSettings()
 
     const originalGetScriptSnapshot = host.getScriptSnapshot?.bind(host)
+    const originalGetScriptFileNames = host.getScriptFileNames?.bind(host)
     const originalResolveModuleNames = host.resolveModuleNames?.bind(host)
     const originalResolveModuleNameLiterals = host.resolveModuleNameLiterals?.bind(host)
+
+    if (originalGetScriptFileNames && generatedTypesPath) {
+      host.getScriptFileNames = () => {
+        const fileNames = originalGetScriptFileNames()
+        if (fileNames.includes(generatedTypesPath)) {
+          return fileNames
+        }
+
+        return [...fileNames, generatedTypesPath]
+      }
+    }
 
     host.getScriptSnapshot = (fileName) => {
       const snapshot = originalGetScriptSnapshot?.(fileName)

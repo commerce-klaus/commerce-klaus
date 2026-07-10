@@ -3,11 +3,14 @@
 import { spawnSync as nodeSpawnSync } from "node:child_process"
 import {
   existsSync as nodeExistsSync,
+  mkdirSync as nodeMkdirSync,
   readFileSync as nodeReadFileSync,
   realpathSync as nodeRealpathSync,
 } from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
+
+import { generateCustomAttributesTypes } from "./custom-attributes.ts"
 
 interface SpawnResultLike {
   status: number | null
@@ -26,6 +29,7 @@ export interface SyncTypesCliOptions {
   currentDirectory?: string
   platform?: string
   existsSync?: (filePath: string) => boolean
+  mkdirSync?: (dirPath: string, options: { recursive: boolean }) => void
   readFileSync?: (filePath: string, encoding: BufferEncoding) => string
   spawnSync?: SpawnSyncLike
   writeStdout?: (text: string) => void
@@ -36,6 +40,7 @@ export function runSyncTypesCli(args: string[], options: SyncTypesCliOptions = {
   const currentDirectory = options.currentDirectory ?? process.cwd()
   const platform = options.platform ?? process.platform
   const existsSync = options.existsSync ?? nodeExistsSync
+  const mkdirSync = options.mkdirSync ?? nodeMkdirSync
   const readFileSync = options.readFileSync ?? nodeReadFileSync
   const spawnSync = options.spawnSync ?? nodeSpawnSync
   const writeStdout = options.writeStdout ?? ((text: string) => process.stdout.write(text))
@@ -93,7 +98,32 @@ export function runSyncTypesCli(args: string[], options: SyncTypesCliOptions = {
         shell: platform === "win32",
       })
 
-  return result.status ?? 1
+  const exitCode = result.status ?? 1
+  if (exitCode !== 0) {
+    return exitCode
+  }
+
+  const typesDirectory = path.resolve(currentDirectory, ".b2c-script-types", "types")
+  mkdirSync(typesDirectory, { recursive: true })
+
+  const generatedTypes = generateCustomAttributesTypes({
+    workspaceRoot: currentDirectory,
+    existsSync,
+    readFileSync,
+  })
+
+  if (!generatedTypes.written) {
+    writeStdout(
+      "No custom attribute metadata found under sites/site_template/meta/*.xml; skipping custom attribute type generation.\n",
+    )
+    return 0
+  }
+
+  writeStdout(
+    `Generated ${generatedTypes.declarationsCount} custom attribute declaration blocks with ${generatedTypes.attributesCount} attributes at ${generatedTypes.outputFilePath}.\n`,
+  )
+
+  return 0
 }
 
 export function main(args = process.argv.slice(2), options: SyncTypesCliOptions = {}): number {

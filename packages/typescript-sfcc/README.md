@@ -38,6 +38,74 @@ Notes:
 
 - `sfcc-dts` is not required for `dw/*` resolution in this package.
 - Keep `.b2c-script-types/types` available in the workspace before running `sfcc-ts-typecheck`.
+- `sfcc-ts-sync-types` extends `b2c-script-types` by reading all XML files under `sites/site_template/meta/*.xml` and generating custom attribute declarations into `.b2c-script-types/types/sfcc-custom-attributes.generated.d.ts`.
+- The generated declarations are consumed by both `sfcc-ts-typecheck` and the tsserver plugin, so editor diagnostics and CLI diagnostics use the same custom attribute typing.
+- The generated declarations also patch `dw/object/SystemObjectMgr` so supported `type` literals narrow `getAllSystemObjects`, `querySystemObject`, and `querySystemObjects` to the matching system object class.
+- Custom attribute values are inferred by metadata type. For enums, `select-multiple-flag=true` is treated as a multi-value enum and emitted as `SfccEnumValue<T>[]`.
+- Attribute type values follow Salesforce metadata schema (`metadata.xsd`), where enum multi-select is modeled via `enum-of-*` plus `select-multiple-flag=true` (not via `set-of-enum-of-*`).
+
+Custom attribute mapping reference:
+
+| Metadata type                                            | Generated TypeScript type                 |
+| -------------------------------------------------------- | ----------------------------------------- |
+| `boolean`                                                | `boolean`                                 |
+| `date`, `datetime`                                       | `Date`                                    |
+| `double`, `int`, `integer`, `long`, `number`, `quantity` | `number`                                  |
+| `email`, `html`, `password`, `string`, `text`, `url`     | `string`                                  |
+| `enum-of-string` (with value-definitions)                | `SfccEnumValue<"value1" \| "value2" ...>` |
+| `enum-of-int` (with value-definitions)                   | `SfccEnumValue<1 \| 2 ...>`               |
+| `enum-of-*` with `select-multiple-flag=true`             | `SfccEnumValue<...>[]`                    |
+| `enum-of-*` (without value-definitions)                  | `SfccEnumValue<baseType>`                 |
+| unknown `enum-of-*`                                      | `SfccEnumValue<string \| number>`         |
+| `set-of-string`                                          | `string[]`                                |
+| `set-of-int`, `set-of-double`                            | `number[]`                                |
+| invalid `set-of-enum-of-*` (not in `metadata.xsd`)       | `unknown[]`                               |
+| unknown `set-of-*`                                       | `unknown[]`                               |
+| unsupported/unknown single-value type                    | `unknown`                                 |
+
+Example (`Product.custom`):
+
+```ts
+import ProductMgr = require("dw/catalog/ProductMgr")
+
+const product = ProductMgr.getProduct("my-product-id")
+
+if (product) {
+  // enum-of-string -> SfccEnumValue<...>
+  const status = product.custom.status
+  if (status) {
+    const value = status.getValue()
+    const label = status.getDisplayValue()
+    void value
+    void label
+  }
+
+  // enum-of-int + select-multiple-flag=true -> SfccEnumValue<...>[]
+  const modes = product.custom.modes
+  if (modes && modes.length > 0) {
+    const firstModeValue = modes[0].getValue()
+    void firstModeValue
+  }
+
+  // unknown custom attribute -> TypeScript error
+  // @ts-expect-error Property 'doesNotExist' does not exist
+  product.custom.doesNotExist
+}
+```
+
+Schema-driven assumptions:
+
+- The generator follows the Salesforce metadata schema namespace `http://www.demandware.com/xml/impex/metadata/2006-10-31`.
+- Type inference uses these fields from attribute definitions:
+  - `type`
+  - `value-definitions` and `value-definition/value`
+  - `select-multiple-flag` (for enum multi-select)
+  - `mandatory-flag` (required vs optional property)
+- Supported metadata roots are `type-extension/custom-attribute-definitions` and `custom-type/attribute-definitions`.
+- `type-extension` object types are assigned to `dw/*` modules via a preferred mapping table for known SFCC system objects (for example `Product` -> `dw/catalog/Product`, `Order` -> `dw/order/Order`).
+- If no preferred mapping exists, a system object type is only assigned when its `dw/*` basename match is unique; ambiguous matches are skipped.
+- For enum attributes, multi-value behavior is derived from `select-multiple-flag=true`.
+- For set attributes, valid values follow `metadata.xsd` (`set-of-string`, `set-of-int`, `set-of-double`); non-schema variants fall back to `unknown[]`.
 
 Recommended `package.json` scripts:
 

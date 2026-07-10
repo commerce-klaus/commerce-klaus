@@ -67,7 +67,8 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@commerce-klaus/sfcc-module-resolver": "workspace:*"
+    "@commerce-klaus/sfcc-module-resolver": "workspace:*",
+    "fast-xml-parser": "^5.8.0"
   },
   "devDependencies": {
     "@types/node": "catalog:",
