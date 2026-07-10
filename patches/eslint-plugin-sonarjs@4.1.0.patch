@@ -1,0 +1,26 @@
+diff --git a/cjs/S2201/rule.js b/cjs/S2201/rule.js
+index 9378376a51b65ada5c409372824c298caab4fafb..6ff91b441709e8cfe89bbabb9e3f18cc19712a12 100644
+--- a/cjs/S2201/rule.js
++++ b/cjs/S2201/rule.js
+@@ -241,7 +241,7 @@ exports.rule = {
+         };
+     },
+ };
+-const FunctionTypeNodeKind = typescript_1.default.SyntaxKind.FunctionType;
++const FunctionTypeNodeKind = typescript_1.default?.SyntaxKind?.FunctionType;
+ const isFunctionTypeNode = (candidate) => {
+     return candidate.kind === FunctionTypeNodeKind;
+ };
+diff --git a/package.json b/package.json
+index 3122812b1c2a57de9ac8db52373a8dee7ada13cd..cf799da0670b182317b92f606874e72b1d38b2a2 100644
+--- a/package.json
++++ b/package.json
+@@ -23,7 +23,7 @@
+   "name": "eslint-plugin-sonarjs",
+   "version": "4.1.0",
+   "dependencies": {
+-    "typescript": ">=5",
++    "typescript": "npm:@typescript/typescript6@^6.0.2",
+     "jsx-ast-utils-x": "^0.1.0",
+     "lodash.merge": "^4.6.2",
+     "functional-red-black-tree": "^1.0.1",
