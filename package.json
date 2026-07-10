@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.7",
+    "@typescript/native-preview": "catalog:",
     "vite-plus": "catalog:"
   },
   "engines": {
