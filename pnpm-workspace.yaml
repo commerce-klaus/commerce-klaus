@@ -7,6 +7,7 @@ catalogMode: prefer
 
 catalog:
   "@types/node": ^24
+  "@typescript/native-preview": "npm:typescript@^7.0.0"
   typescript: ^7.0.0
   vite: npm:@voidzero-dev/vite-plus-core@latest
   vitest: ^4.1.9
@@ -27,3 +28,5 @@ minimumReleaseAgeExclude:
 allowBuilds:
   protobufjs: false
   yarn: false
+patchedDependencies:
+  eslint-plugin-sonarjs@4.1.0: patches/eslint-plugin-sonarjs@4.1.0.patch
