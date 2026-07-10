@@ -28,6 +28,9 @@ jobs:
           cache: true
           run-install: true
 
+      - name: Bootstrap shared resolver package
+        run: cd packages/sfcc-module-resolver && vp pack
+
       - name: Run checks
         run: vp check
 
