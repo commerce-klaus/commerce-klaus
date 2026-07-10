@@ -57,7 +57,7 @@
     "bumpp": "^11.0.1",
     "eslint-plugin-sonarjs": "^4.0.3",
     "eslint-plugin-unicorn": "^71.0.0",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.0",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
