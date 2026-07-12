@@ -113,7 +113,7 @@ test("generateCustomAttributesTypes reads all site_template/meta xml files and w
       [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">',
-        '  <custom-type type-id="AdyenNotification">',
+        '  <custom-type type-id="ExampleNotification">',
         "    <attribute-definitions>",
         '      <attribute-definition attribute-id="eventCode">',
         "        <type>string</type>",
@@ -143,7 +143,7 @@ test("generateCustomAttributesTypes reads all site_template/meta xml files and w
     expect(generatedContent).toContain("modes?: SfccEnumValue<1 | 2>[]")
     expect(generatedContent).toContain('declare module "dw/object/CustomObject"')
     expect(generatedContent).toContain("eventCode?: string")
-    expect(generatedContent).toContain("interface CustomObjectAdyenNotificationCustomAttributes")
+    expect(generatedContent).toContain("interface CustomObjectExampleNotificationCustomAttributes")
     expect(generatedContent).toContain("interface CustomObjectCustomAttributes")
     expect(generatedContent).toContain("eventCode?: string")
 
@@ -152,10 +152,10 @@ test("generateCustomAttributesTypes reads all site_template/meta xml files and w
       "utf8",
     )
     expect(customObjectMgrContent).toContain(
-      'static createCustomObject(type: "AdyenNotification", keyValue: string):',
+      'static createCustomObject(type: "ExampleNotification", keyValue: string):',
     )
     expect(customObjectMgrContent).toContain(
-      'static getCustomObject(type: "AdyenNotification", keyValue: string):',
+      'static getCustomObject(type: "ExampleNotification", keyValue: string):',
     )
   })
 })
