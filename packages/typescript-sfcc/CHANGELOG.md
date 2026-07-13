@@ -1,5 +1,51 @@
 # Changelog
 
+## 1.0.0
+
+### Major Changes
+
+- 8c07a16: Introduce a new shared package, `@commerce-klaus/sfcc-module-resolver`, to centralize SFCC module resolution and cartridge-order detection.
+
+  Migrate `babel-plugin-sfcc-modules`, `vite-plugin-sfcc-modules`, `typescript-sfcc`, and `eslint-config-sfcc` to use the shared resolver logic for consistent handling of SFCC patterns like `*/`, `~/`, and `module.superModule`.
+
+  Include reusable site-template cartridge-path parsing (`site.xml` `custom-cartridges`) in the shared package and expand the shared package README with usage examples and API documentation.
+
+### Minor Changes
+
+- d486a49: Generate custom attribute typings for SFCC extensible objects from local metadata XML files under `sites/site_template/meta/*.xml`.
+
+  Extend the existing `b2c-script-types` sync flow with generated declarations for `ExtensibleObject.custom`, including schema-driven handling of enum values, enum multi-select via `select-multiple-flag`, and set-based attribute types.
+
+  Load the generated declarations consistently in both `sfcc-ts-typecheck` and the tsserver plugin so editor diagnostics and CLI diagnostics use the same custom attribute typing.
+
+- d486a49: Extend generated SFCC custom attribute typings to cover `dw.object.SystemObjectMgr` and `dw.object.CustomObjectMgr`, as well as per-object attribute interfaces derived from local metadata XML.
+
+  This adds typed overloads for system object and custom object creation, lookup, and query methods so both managers return the matching object shape for known metadata-backed types.
+
+### Patch Changes
+
+- 856caee: Harmonize `siteTemplatePath` handling across the shared resolver and TypeScript SFCC tooling.
+
+  `@commerce-klaus/sfcc-module-resolver` now exposes a shared `DEFAULT_SITE_TEMPLATE_PATH` constant plus a reusable `resolveSiteTemplatePath()` helper, and falls back to the default `sites/site_template` location when cartridge order is inferred from `site.xml` and only `site` is configured.
+
+  `@commerce-klaus/typescript-sfcc` now uses the shared resolver path logic for custom attribute metadata discovery and supports configuring the site template directory consistently through `siteTemplatePath` and the `sfcc-ts-sync-types --site-template-path <path>` CLI flag.
+
+- 8ac5337: Migrate to TypeScript 7
+
+  TypeScript 7 ships without a programmatic API (coming in 7.1). All packages that
+  depend on the TypeScript compiler API now use `@typescript/typescript6` as their
+  `typescript` devDependency while keeping the native TS7 binary available via
+  `@typescript/native-preview` for faster builds. The peer dependency
+  `typescript: ">=5.5.0"` remains unchanged.
+
+  A patch for `eslint-plugin-sonarjs@4.1.0` is included to guard the top-level
+  `ts.SyntaxKind.FunctionType` access with optional chaining so the plugin loads
+  without crashing when the TypeScript API is unavailable.
+
+- Updated dependencies [8c07a16]
+- Updated dependencies [856caee]
+  - @commerce-klaus/sfcc-module-resolver@1.0.0
+
 ## 0.2.1
 
 ### Patch Changes
