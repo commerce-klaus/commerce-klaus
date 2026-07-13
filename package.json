@@ -6,7 +6,7 @@
   "scripts": {
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "vp run -r build && vp pm publish -- -r --ignore-scripts --access public",
+    "release": "vp run -r build && changeset publish",
     "ready": "vp check && vp run -r test && vp run -r build",
     "prepare": "vp config"
   },

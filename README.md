@@ -132,17 +132,19 @@ Most packages expose:
 
 - On pushes to `main`, GitHub Actions runs `.github/workflows/release.yml`.
 - The release workflow will:
-  - Publish packages to npm based on already-committed version changes.
+  - Open or update a release PR when unpublished changesets are present.
+  - Publish packages from merged release commits.
+  - Create and push Git tags and GitHub Releases for published packages.
 - Deprecation of previous npm package names is done on npm (outside this repo) and should point to the corresponding `@commerce-klaus/*` package.
 - Packages are configured as publishable npm packages and use `prepublishOnly` to build before publish.
-- Set `NPM_TOKEN` in repository secrets to enable npm publishing.
-- Version bumps and changelog updates are done manually before merge, for example with `vp run version-packages`, then committed to `main`.
+- npm publishing in CI uses Trusted Publishing via OIDC (`id-token: write`), no `NPM_TOKEN` secret required.
+- Version bumps and changelog updates are handled by the Changesets release PR.
 
 ## Contributing
 
 1. Create a branch for your change.
-2. Implement and test your changes.
-3. Run:
+1. Implement and test your changes.
+1. Run:
 
    ```bash
    vp check
@@ -150,13 +152,13 @@ Most packages expose:
    vp run -r build
    ```
 
-4. Add a changeset for each release-relevant change:
+1. Add a changeset for each release-relevant change:
 
 ```bash
 vp run changeset
 ```
 
-5. Open a pull request with a clear summary and test notes.
+1. Open a pull request with a clear summary and test notes.
 
 ## Troubleshooting
 
