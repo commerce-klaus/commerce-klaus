@@ -45,6 +45,7 @@ jobs:
         run: |
           set -euo pipefail
           created_tags_file=$(mktemp)
+          git fetch --tags --force origin
 
           for file in packages/*/package.json; do
             name=$(node -p "const p=require('./${file}'); p.private ? '' : p.name")
@@ -56,19 +57,27 @@ jobs:
 
             tag="$name@$version"
 
-            if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
-              echo "Tag already exists: $tag"
+            if [ -n "$(git ls-remote --tags --refs origin "refs/tags/$tag")" ]; then
+              echo "Tag already exists on origin: $tag"
               continue
             fi
 
-            git tag "$tag"
-            echo "$tag" >> "$created_tags_file"
-            echo "Created tag: $tag"
-          done
+            if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+              git tag -d "$tag" >/dev/null
+            fi
 
-          if [ -s "$created_tags_file" ]; then
-            git push --tags
+            git tag "$tag"
+            echo "Created tag: $tag"
+            if git push origin "refs/tags/$tag"; then
+              echo "$tag" >> "$created_tags_file"
+            elif [ -n "$(git ls-remote --tags --refs origin "refs/tags/$tag")" ]; then
+              echo "Tag appeared on origin during push, skipping: $tag"
+            else
+              echo "Failed to push tag: $tag"
+              exit 1
+            fi
           fi
+          done
 
           {
             echo 'created_tags<<EOF'
