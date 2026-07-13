@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.3
+
+### Patch Changes
+
+- 7effb0a: Trigger a patch release for `@commerce-klaus/eslint-config-sfcc` to verify tag and GitHub release note generation from changelog.
+
 ## 1.2.2
 
 ### Patch Changes
