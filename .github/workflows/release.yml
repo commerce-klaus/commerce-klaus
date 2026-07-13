@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Set up Vite+
         uses: voidzero-dev/setup-vp@v1
@@ -39,23 +41,36 @@ jobs:
           NPM_CONFIG_PROVENANCE: true
           NPM_CONFIG_LOGLEVEL: verbose
 
-      - name: Create missing package tags
-        id: package_tags
+      - name: Determine release candidate tags
+        id: release_candidates
         if: success() && github.ref == 'refs/heads/main'
         run: |
           set -euo pipefail
-          created_tags_file=$(mktemp)
+          release_tags_file=$(mktemp)
           git fetch --tags --force origin
+          changed_files=$(git diff --name-only HEAD^ HEAD -- 'packages/*/package.json' || true)
 
-          for file in packages/*/package.json; do
+          if [ -z "$changed_files" ]; then
+            echo "No package version changes detected in this commit."
+          fi
+
+          for file in $changed_files; do
             name=$(node -p "const p=require('./${file}'); p.private ? '' : p.name")
             version=$(node -p "const p=require('./${file}'); p.private ? '' : p.version")
+            previous_version=$(git show "HEAD^:${file}" 2>/dev/null | node -e 'const fs = require("fs"); const input = fs.readFileSync(0, "utf8"); const p = JSON.parse(input); process.stdout.write(p.version || "")' || true)
 
             if [ -z "$name" ] || [ -z "$version" ]; then
               continue
             fi
 
+            if [ "$version" = "$previous_version" ]; then
+              echo "No version bump in $file ($version), skipping"
+              continue
+            fi
+
             tag="$name@$version"
+            echo "$tag" >> "$release_tags_file"
+            echo "Release candidate: $tag ($previous_version -> $version)"
 
             if [ -n "$(git ls-remote --tags --refs origin "refs/tags/$tag")" ]; then
               echo "Tag already exists on origin: $tag"
@@ -67,9 +82,9 @@ jobs:
             fi
 
             git tag "$tag"
-            echo "Created tag: $tag"
+            echo "Created local tag: $tag"
             if git push origin "refs/tags/$tag"; then
-              echo "$tag" >> "$created_tags_file"
+              echo "Pushed tag: $tag"
             elif [ -n "$(git ls-remote --tags --refs origin "refs/tags/$tag")" ]; then
               echo "Tag appeared on origin during push, skipping: $tag"
             else
@@ -79,8 +94,8 @@ jobs:
           done
 
           {
-            echo 'created_tags<<EOF'
-            cat "$created_tags_file"
+            echo 'release_tags<<EOF'
+            sort -u "$release_tags_file"
             echo 'EOF'
           } >> "$GITHUB_OUTPUT"
 
@@ -90,14 +105,14 @@ jobs:
           set -euo pipefail
           echo "changesets.outputs.published=${{ steps.changesets.outputs.published }}"
           echo "changesets.outputs.publishedPackages=${{ steps.changesets.outputs.publishedPackages }}"
-          echo "package_tags.outputs.created_tags=${{ steps.package_tags.outputs.created_tags }}"
+          echo "release_candidates.outputs.release_tags=${{ steps.release_candidates.outputs.release_tags }}"
           echo "Tags on HEAD:"
           git tag --points-at HEAD || true
 
       - name: Create GitHub Releases from new tags
-        if: steps.package_tags.outputs.created_tags != ''
+        if: steps.release_candidates.outputs.release_tags != ''
         env:
-          CREATED_TAGS: ${{ steps.package_tags.outputs.created_tags }}
+          RELEASE_TAGS: ${{ steps.release_candidates.outputs.release_tags }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
@@ -118,5 +133,5 @@ jobs:
             gh release create "$tag" --title "$tag" --notes-file "$notes_file"
             echo "Created release for $tag"
             created=$((created + 1))
-          done <<< "$CREATED_TAGS"
+          done <<< "$RELEASE_TAGS"
           echo "Created $created release(s)."
