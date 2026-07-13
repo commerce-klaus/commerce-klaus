@@ -39,11 +39,42 @@ jobs:
           NPM_CONFIG_PROVENANCE: true
           NPM_CONFIG_LOGLEVEL: verbose
 
-      - name: Create and push tags
-        if: steps.changesets.outputs.published == 'true'
+      - name: Create missing package tags
+        id: package_tags
+        if: success() && github.ref == 'refs/heads/main'
         run: |
-          vp run changeset tag
-          git push --tags
+          set -euo pipefail
+          created_tags_file=$(mktemp)
+
+          for file in packages/*/package.json; do
+            name=$(node -p "const p=require('./${file}'); p.private ? '' : p.name")
+            version=$(node -p "const p=require('./${file}'); p.private ? '' : p.version")
+
+            if [ -z "$name" ] || [ -z "$version" ]; then
+              continue
+            fi
+
+            tag="$name@$version"
+
+            if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+              echo "Tag already exists: $tag"
+              continue
+            fi
+
+            git tag "$tag"
+            echo "$tag" >> "$created_tags_file"
+            echo "Created tag: $tag"
+          done
+
+          if [ -s "$created_tags_file" ]; then
+            git push --tags
+          fi
+
+          {
+            echo 'created_tags<<EOF'
+            cat "$created_tags_file"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
 
       - name: Release diagnostics
         if: always()
@@ -51,17 +82,22 @@ jobs:
           set -euo pipefail
           echo "changesets.outputs.published=${{ steps.changesets.outputs.published }}"
           echo "changesets.outputs.publishedPackages=${{ steps.changesets.outputs.publishedPackages }}"
+          echo "package_tags.outputs.created_tags=${{ steps.package_tags.outputs.created_tags }}"
           echo "Tags on HEAD:"
           git tag --points-at HEAD || true
 
       - name: Create GitHub Releases from new tags
-        if: steps.changesets.outputs.published == 'true'
+        if: steps.package_tags.outputs.created_tags != ''
         env:
+          CREATED_TAGS: ${{ steps.package_tags.outputs.created_tags }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           created=0
-          for tag in $(git tag --points-at HEAD); do
+          while IFS= read -r tag; do
+            if [ -z "$tag" ]; then
+              continue
+            fi
             if gh release view "$tag" >/dev/null 2>&1; then
               echo "Release already exists for $tag"
               continue
@@ -69,5 +105,5 @@ jobs:
             gh release create "$tag" --generate-notes
             echo "Created release for $tag"
             created=$((created + 1))
-          done
+          done <<< "$CREATED_TAGS"
           echo "Created $created release(s)."
