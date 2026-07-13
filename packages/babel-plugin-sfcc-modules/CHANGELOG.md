@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.0.2
+
+### Patch Changes
+
+- 8c07a16: Introduce a new shared package, `@commerce-klaus/sfcc-module-resolver`, to centralize SFCC module resolution and cartridge-order detection.
+
+  Migrate `babel-plugin-sfcc-modules`, `vite-plugin-sfcc-modules`, `typescript-sfcc`, and `eslint-config-sfcc` to use the shared resolver logic for consistent handling of SFCC patterns like `*/`, `~/`, and `module.superModule`.
+
+  Include reusable site-template cartridge-path parsing (`site.xml` `custom-cartridges`) in the shared package and expand the shared package README with usage examples and API documentation.
+
+- Updated dependencies [8c07a16]
+- Updated dependencies [856caee]
+  - @commerce-klaus/sfcc-module-resolver@1.0.0
+
 ## 1.0.1
 
 ### Patch Changes

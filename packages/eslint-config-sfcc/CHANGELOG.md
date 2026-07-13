@@ -1,5 +1,35 @@
 # Changelog
 
+## 1.2.0
+
+### Minor Changes
+
+- 002b818: Add an SFCC-specific lint rule that disallows the `empty()` global and document it in the package README.
+
+### Patch Changes
+
+- 8c07a16: Introduce a new shared package, `@commerce-klaus/sfcc-module-resolver`, to centralize SFCC module resolution and cartridge-order detection.
+
+  Migrate `babel-plugin-sfcc-modules`, `vite-plugin-sfcc-modules`, `typescript-sfcc`, and `eslint-config-sfcc` to use the shared resolver logic for consistent handling of SFCC patterns like `*/`, `~/`, and `module.superModule`.
+
+  Include reusable site-template cartridge-path parsing (`site.xml` `custom-cartridges`) in the shared package and expand the shared package README with usage examples and API documentation.
+
+- 8ac5337: Migrate to TypeScript 7
+
+  TypeScript 7 ships without a programmatic API (coming in 7.1). All packages that
+  depend on the TypeScript compiler API now use `@typescript/typescript6` as their
+  `typescript` devDependency while keeping the native TS7 binary available via
+  `@typescript/native-preview` for faster builds. The peer dependency
+  `typescript: ">=5.5.0"` remains unchanged.
+
+  A patch for `eslint-plugin-sonarjs@4.1.0` is included to guard the top-level
+  `ts.SyntaxKind.FunctionType` access with optional chaining so the plugin loads
+  without crashing when the TypeScript API is unavailable.
+
+- Updated dependencies [8c07a16]
+- Updated dependencies [856caee]
+  - @commerce-klaus/sfcc-module-resolver@1.0.0
+
 ## 1.1.0
 
 ### Minor Changes
