@@ -38,3 +38,36 @@ jobs:
           NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
           NPM_CONFIG_PROVENANCE: true
           NPM_CONFIG_LOGLEVEL: verbose
+
+      - name: Create and push tags
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          vp run changeset tag
+          git push --tags
+
+      - name: Release diagnostics
+        if: always()
+        run: |
+          set -euo pipefail
+          echo "changesets.outputs.published=${{ steps.changesets.outputs.published }}"
+          echo "changesets.outputs.publishedPackages=${{ steps.changesets.outputs.publishedPackages }}"
+          echo "Tags on HEAD:"
+          git tag --points-at HEAD || true
+
+      - name: Create GitHub Releases from new tags
+        if: steps.changesets.outputs.published == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          created=0
+          for tag in $(git tag --points-at HEAD); do
+            if gh release view "$tag" >/dev/null 2>&1; then
+              echo "Release already exists for $tag"
+              continue
+            fi
+            gh release create "$tag" --generate-notes
+            echo "Created release for $tag"
+            created=$((created + 1))
+          done
+          echo "Created $created release(s)."
