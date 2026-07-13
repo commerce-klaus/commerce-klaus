@@ -55,7 +55,7 @@ describe("sfcc/no-empty-global", () => {
     const suggestion = hit?.suggestions?.[0]
 
     expect(suggestion?.desc).toContain("length")
-    expect(applySuggestion(code, suggestion as { fix?: any })).toContain('"foo".length === 0')
+    expect(applySuggestion(code, suggestion as { fix?: any })).toBe('"foo".length === 0')
   })
 
   test("suggests a length check for arrays", async () => {
@@ -65,7 +65,7 @@ describe("sfcc/no-empty-global", () => {
     const suggestion = hit?.suggestions?.[0]
 
     expect(suggestion?.desc).toContain("length")
-    expect(applySuggestion(code, suggestion as { fix?: any })).toContain("[].length === 0")
+    expect(applySuggestion(code, suggestion as { fix?: any })).toBe("[].length === 0")
   })
 
   test("suggests Object.keys for plain objects", async () => {
@@ -75,7 +75,7 @@ describe("sfcc/no-empty-global", () => {
     const suggestion = hit?.suggestions?.[0]
 
     expect(suggestion?.desc).toContain("plain objects")
-    expect(applySuggestion(code, suggestion as { fix?: any })).toContain(
+    expect(applySuggestion(code, suggestion as { fix?: any })).toBe(
       "Object.keys({ foo: 1 }).length === 0",
     )
   })
@@ -87,8 +87,42 @@ describe("sfcc/no-empty-global", () => {
     const suggestion = hit?.suggestions?.[0]
 
     expect(suggestion?.desc).toContain("collections")
-    expect(applySuggestion(code, suggestion as { fix?: any })).toContain(
-      "new ArrayList().isEmpty()",
+    expect(applySuggestion(code, suggestion as { fix?: any })).toBe("new ArrayList().isEmpty()")
+  })
+
+  test("offers suggestions for identifier arguments", async () => {
+    const result = await lint("empty(customer)")
+    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
+    const suggestions = hit?.suggestions ?? []
+
+    expect(suggestions.length).toBeGreaterThanOrEqual(3)
+    expect(suggestions.some((s) => s.desc?.includes("customer.length === 0"))).toBe(true)
+    expect(suggestions.some((s) => s.desc?.includes("Object.keys(customer).length === 0"))).toBe(
+      true,
+    )
+    expect(suggestions.some((s) => s.desc?.includes("customer.isEmpty()"))).toBe(true)
+  })
+
+  test("offers suggestions for member expression arguments", async () => {
+    const code = "empty(customer.profile.email)"
+    const result = await lint(code)
+    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
+    const suggestions = hit?.suggestions ?? []
+
+    expect(suggestions.length).toBeGreaterThanOrEqual(3)
+    expect(suggestions.some((s) => s.desc?.includes("customer.profile.email.length === 0"))).toBe(
+      true,
+    )
+    expect(
+      suggestions.some((s) => s.desc?.includes("Object.keys(customer.profile.email).length === 0")),
+    ).toBe(true)
+    expect(suggestions.some((s) => s.desc?.includes("customer.profile.email.isEmpty()"))).toBe(true)
+
+    const lengthSuggestion = suggestions.find((s) =>
+      s.desc?.includes("customer.profile.email.length === 0"),
+    )
+    expect(applySuggestion(code, lengthSuggestion as { fix?: any })).toBe(
+      "customer.profile.email.length === 0",
     )
   })
 })

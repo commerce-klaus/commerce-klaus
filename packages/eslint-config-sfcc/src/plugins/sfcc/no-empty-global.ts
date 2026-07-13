@@ -33,64 +33,60 @@ function getPropertyName(node: Rule.Node): string | undefined {
   return undefined
 }
 
+function isIdentifierOrMemberExpression(node: Rule.Node): boolean {
+  if (node.type === "Identifier") {
+    return true
+  }
+
+  if (node.type === "MemberExpression") {
+    return true
+  }
+
+  return false
+}
+
 function getEmptySuggestions(
   argument: Rule.Node,
+  callExpression: Rule.Node,
   sourceCode: { getText(node: Rule.Node): string },
 ) {
   const text = sourceCode.getText(argument)
 
+  const buildSuggestion = (messageId: string, replacement: string) => ({
+    messageId,
+    data: { replacement },
+    fix: (fixer: Rule.RuleFixer) => fixer.replaceText(callExpression, replacement),
+  })
+
   if (argument.type === "Literal" && typeof argument.value === "string") {
-    return [
-      {
-        messageId: "suggestLengthCheck",
-        data: { replacement: `${text}.length === 0` },
-        fix: (fixer: Rule.RuleFixer) => fixer.replaceText(argument, `${text}.length === 0`),
-      },
-    ]
+    return [buildSuggestion("suggestLengthCheck", `${text}.length === 0`)]
   }
 
   if (argument.type === "TemplateLiteral" && argument.expressions.length === 0) {
-    return [
-      {
-        messageId: "suggestLengthCheck",
-        data: { replacement: `${text}.length === 0` },
-        fix: (fixer: Rule.RuleFixer) => fixer.replaceText(argument, `${text}.length === 0`),
-      },
-    ]
+    return [buildSuggestion("suggestLengthCheck", `${text}.length === 0`)]
   }
 
   if (argument.type === "ArrayExpression") {
-    return [
-      {
-        messageId: "suggestLengthCheck",
-        data: { replacement: `${text}.length === 0` },
-        fix: (fixer: Rule.RuleFixer) => fixer.replaceText(argument, `${text}.length === 0`),
-      },
-    ]
+    return [buildSuggestion("suggestLengthCheck", `${text}.length === 0`)]
   }
 
   if (argument.type === "ObjectExpression") {
-    return [
-      {
-        messageId: "suggestObjectKeysCheck",
-        data: { replacement: `Object.keys(${text}).length === 0` },
-        fix: (fixer: Rule.RuleFixer) =>
-          fixer.replaceText(argument, `Object.keys(${text}).length === 0`),
-      },
-    ]
+    return [buildSuggestion("suggestObjectKeysCheck", `Object.keys(${text}).length === 0`)]
   }
 
   if (argument.type === "NewExpression") {
     const calleeName = getPropertyName(argument.callee as Rule.Node)
     if (calleeName && COLLECTION_CONSTRUCTORS.has(calleeName)) {
-      return [
-        {
-          messageId: "suggestCollectionCheck",
-          data: { replacement: `${text}.isEmpty()` },
-          fix: (fixer: Rule.RuleFixer) => fixer.replaceText(argument, `${text}.isEmpty()`),
-        },
-      ]
+      return [buildSuggestion("suggestCollectionCheck", `${text}.isEmpty()`)]
     }
+  }
+
+  if (isIdentifierOrMemberExpression(argument)) {
+    return [
+      buildSuggestion("suggestLengthCheck", `${text}.length === 0`),
+      buildSuggestion("suggestObjectKeysCheck", `Object.keys(${text}).length === 0`),
+      buildSuggestion("suggestCollectionCheck", `${text}.isEmpty()`),
+    ]
   }
 
   return []
@@ -140,9 +136,9 @@ const noEmptyGlobal: Rule.RuleModule = {
         }
 
         context.report({
-          node: callExpression.callee,
+          node: callExpression,
           messageId: "forbiddenEmptyGlobal",
-          suggest: getEmptySuggestions(argument, context.sourceCode),
+          suggest: getEmptySuggestions(argument, callExpression, context.sourceCode),
         })
       },
     }
