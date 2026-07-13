@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.9
+
+### Patch Changes
+
+- 320e98a: Test patch release for the simplified Changesets-based publish workflow.
+
 ## 1.2.8
 
 ### Patch Changes
