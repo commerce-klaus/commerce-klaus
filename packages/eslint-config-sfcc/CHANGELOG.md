@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.4
+
+### Patch Changes
+
+- f49bbad: Trigger a patch release for `@commerce-klaus/eslint-config-sfcc` to verify the final release workflow behavior.
+
 ## 1.2.3
 
 ### Patch Changes
