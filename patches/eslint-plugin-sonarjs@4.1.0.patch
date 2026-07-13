@@ -11,6 +11,24 @@ index 9378376a51b65ada5c409372824c298caab4fafb..6ff91b441709e8cfe89bbabb9e3f18cc
  const isFunctionTypeNode = (candidate) => {
      return candidate.kind === FunctionTypeNodeKind;
  };
+diff --git a/cjs/S6759/rule.js b/cjs/S6759/rule.js
+index aaaa8ebef768b461b842035132bae39ef2dad584..2f0d5a646d8c1d25e84f1489272ef080460a4ee7 100644
+--- a/cjs/S6759/rule.js
++++ b/cjs/S6759/rule.js
+@@ -59,7 +59,12 @@ const generate_meta_js_1 = require("../helpers/generate-meta.js");
+ const type_js_1 = require("../helpers/type.js");
+ const ast_js_1 = require("../helpers/ast.js");
+ const collection_js_1 = require("../helpers/collection.js");
+-const ts_api_utils_1 = require("ts-api-utils");
++let ts_api_utils_1 = {};
++try {
++    ts_api_utils_1 = require("ts-api-utils");
++}
++catch {
++}
+ const typescript_1 = __importDefault(require("typescript"));
+ const meta = __importStar(require("./generated-meta.js"));
+ exports.rule = {
 diff --git a/package.json b/package.json
 index 3122812b1c2a57de9ac8db52373a8dee7ada13cd..cf799da0670b182317b92f606874e72b1d38b2a2 100644
 --- a/package.json
