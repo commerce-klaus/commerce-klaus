@@ -98,11 +98,16 @@ jobs:
             if [ -z "$tag" ]; then
               continue
             fi
+            package_name="${tag%@*}"
+            package_version="${tag##*@}"
             if gh release view "$tag" >/dev/null 2>&1; then
               echo "Release already exists for $tag"
               continue
             fi
-            gh release create "$tag" --generate-notes
+            package_dir=$(node -p 'const fs = require("fs"); const path = require("path"); const packageName = process.argv[1]; for (const dir of fs.readdirSync("packages")) { const manifestPath = path.join("packages", dir, "package.json"); if (!fs.existsSync(manifestPath)) continue; const manifest = require("./" + manifestPath); if (manifest.name === packageName) { console.log(path.join("packages", dir)); process.exit(0); } } process.exit(1);' "$package_name")
+            notes_file=$(mktemp)
+            node -e 'const fs = require("fs"); const changelogPath = process.argv[1]; const version = process.argv[2]; const outputPath = process.argv[3]; const changelog = fs.readFileSync(changelogPath, "utf8"); const escapedVersion = version.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); const sectionPattern = new RegExp(`## ${escapedVersion}\\n([\\s\\S]*?)(?=\\n## |$)`); const match = changelog.match(sectionPattern); if (!match) { console.error(`Missing changelog entry for version ${version} in ${changelogPath}`); process.exit(1); } const notes = match[1].trim(); fs.writeFileSync(outputPath, notes ? `${notes}\\n` : "");' "$package_dir/CHANGELOG.md" "$package_version" "$notes_file"
+            gh release create "$tag" --title "$tag" --notes-file "$notes_file"
             echo "Created release for $tag"
             created=$((created + 1))
           done <<< "$CREATED_TAGS"
