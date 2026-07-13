@@ -15,7 +15,7 @@ function withTempDir(run) {
   }
 }
 
-test("generateCustomAttributesTypes skips when metadata directory is missing", () => {
+test("generateCustomAttributesTypes writes a fallback file when metadata directory is missing", () => {
   withTempDir((workspaceRoot) => {
     fs.mkdirSync(path.join(workspaceRoot, ".b2c-script-types", "types", "dw"), {
       recursive: true,
@@ -23,8 +23,12 @@ test("generateCustomAttributesTypes skips when metadata directory is missing", (
 
     const result = generateCustomAttributesTypes({ workspaceRoot })
 
-    expect(result.written).toBe(false)
+    expect(result.written).toBe(true)
     expect(result.declarationsCount).toBe(0)
+
+    const generatedContent = fs.readFileSync(result.outputFilePath, "utf8")
+    expect(generatedContent).toContain("type SfccEnumValue<TValue>")
+    expect(generatedContent).not.toContain("declare module ")
   })
 })
 
