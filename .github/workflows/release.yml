@@ -76,7 +76,6 @@ jobs:
               echo "Failed to push tag: $tag"
               exit 1
             fi
-          fi
           done
 
           {
