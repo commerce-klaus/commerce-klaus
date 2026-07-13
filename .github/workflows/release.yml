@@ -47,7 +47,6 @@ jobs:
         run: |
           set -euo pipefail
           release_tags_file=$(mktemp)
-          target_sha=$(git rev-parse HEAD)
           git fetch --tags --force origin
           changed_files=$(git diff --name-only HEAD^ HEAD -- 'packages/*/package.json' || true)
 
@@ -73,16 +72,8 @@ jobs:
             echo "$tag" >> "$release_tags_file"
             echo "Release candidate: $tag ($previous_version -> $version)"
 
-            remote_tag_sha=$(git ls-remote --tags --refs origin "refs/tags/$tag" | awk '{print $1}')
-            if [ -n "$remote_tag_sha" ]; then
-              if [ "$remote_tag_sha" = "$target_sha" ]; then
-                echo "Tag already exists on origin and points to HEAD: $tag"
-                continue
-              fi
-
-              echo "Retargeting tag to current main commit: $tag ($remote_tag_sha -> $target_sha)"
-              git tag -f "$tag" "$target_sha" >/dev/null
-              git push --force origin "refs/tags/$tag"
+            if [ -n "$(git ls-remote --tags --refs origin "refs/tags/$tag")" ]; then
+              echo "Tag already exists on origin: $tag"
               continue
             fi
 
