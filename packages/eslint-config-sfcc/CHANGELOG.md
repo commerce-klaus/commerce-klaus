@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.10
+
+### Patch Changes
+
+- ffe0c75: Test patch release for the simplified Changesets-based publish workflow.
+
 ## 1.2.9
 
 ### Patch Changes
