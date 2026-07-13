@@ -61,7 +61,7 @@ const resolved = resolveSfccModule("*/cartridge/scripts/util", importer)
 1. `options.cartridgePath`
 2. `options.envCartridgePath` or `process.env.SFCC_CARTRIDGE_PATH`
 3. `jsconfig` references (via `solutionConfigPath`)
-4. `site.xml` (`custom-cartridges`) via `siteTemplatePath` + `site`
+4. `site.xml` (`custom-cartridges`) via `(siteTemplatePath || DEFAULT_SITE_TEMPLATE_PATH)` + `site`
 5. filesystem fallback (alphabetical directory list)
 
 Notes:
@@ -75,12 +75,14 @@ Notes:
 
 - `SUPPORTED_RUNTIME_EXTENSIONS`: `readonly ["js", "ds", "json"]`
 - `SUPER_MODULE_TOKEN`: `"__sfcc_superModule__"`
+- `DEFAULT_SITE_TEMPLATE_PATH`: `"sites/site_template"`
 
 ### Cartridge order and paths
 
 - `resolveCartridgesDir(cartridgesDir, cwd): string`
 - `findCartridgesDir(startDirectory): string | undefined`
 - `readSolutionReferences(solutionConfigPath): string[]`
+- `resolveSiteTemplatePath(siteTemplatePath, cwd, fallbackPath?): string | undefined`
 - `getSiteTemplateCartridgePath(siteTemplatePath, site, cwd): string[]`
 - `inferCartridgeOrder(options): string[]`
 
@@ -128,7 +130,11 @@ When no fallback exists, `module.superModule` is rewritten to `undefined`.
 ### 3) Read `site.xml`
 
 ```ts
-const order = getSiteTemplateCartridgePath("/workspace/site_template", "RefArch", process.cwd())
+const order = getSiteTemplateCartridgePath(
+  "/workspace/sites/site_template",
+  "RefArch",
+  process.cwd(),
+)
 ```
 
 ## Design decisions

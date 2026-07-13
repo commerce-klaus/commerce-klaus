@@ -123,7 +123,7 @@ export default defineConfig(
       checkCartridgeExists: true,
       // Optional: explicit cartridge order for */* lookup (otherwise folders in cartridgesDir are used)
       cartridgePath: ["app_storefront", "modules", "app_custom"],
-      // Optional: path to site template directory
+      // Optional: path to site template directory (defaults to sites/site_template when site is set)
       siteTemplatePath: "sites/site_template",
       // Optional: site id under <siteTemplatePath>/sites/<site>/site.xml
       site: "example",

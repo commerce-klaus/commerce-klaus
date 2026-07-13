@@ -4,6 +4,7 @@ import path from "node:path"
 
 export const SUPPORTED_RUNTIME_EXTENSIONS = ["js", "ds", "json"] as const
 export const SUPER_MODULE_TOKEN = "__sfcc_superModule__"
+export const DEFAULT_SITE_TEMPLATE_PATH = path.join("sites", "site_template")
 
 export type InferCartridgeOrderOptions = {
   cartridgesDir: string
@@ -64,15 +65,33 @@ function resolveSiteTemplateXmlPath(
   site: string | undefined,
   cwd: string,
 ): string | undefined {
-  if (!siteTemplatePath || !site) {
+  if (!site) {
     return undefined
   }
 
-  const resolvedSiteTemplatePath = path.isAbsolute(siteTemplatePath)
-    ? siteTemplatePath
-    : path.resolve(cwd, siteTemplatePath)
+  const resolvedSiteTemplatePath = resolveSiteTemplatePath(
+    siteTemplatePath,
+    cwd,
+    DEFAULT_SITE_TEMPLATE_PATH,
+  )
+  if (!resolvedSiteTemplatePath) {
+    return undefined
+  }
 
   return path.join(resolvedSiteTemplatePath, "sites", site, "site.xml")
+}
+
+export function resolveSiteTemplatePath(
+  siteTemplatePath: string | undefined,
+  cwd: string,
+  fallbackPath?: string,
+): string | undefined {
+  const effectivePath = siteTemplatePath ?? fallbackPath
+  if (!effectivePath) {
+    return undefined
+  }
+
+  return path.isAbsolute(effectivePath) ? effectivePath : path.resolve(cwd, effectivePath)
 }
 
 function findCustomCartridges(value: unknown): string | undefined {

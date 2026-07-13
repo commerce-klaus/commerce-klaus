@@ -11,6 +11,7 @@ import path from "node:path"
 import { fileURLToPath } from "node:url"
 
 import { generateCustomAttributesTypes } from "./custom-attributes.ts"
+import { resolveSiteTemplatePath } from "./shared.ts"
 
 interface SpawnResultLike {
   status: number | null
@@ -49,6 +50,7 @@ export function runSyncTypesCli(args: string[], options: SyncTypesCliOptions = {
   const force = args.includes("--force")
   const minVersion = getArgValue(args, "--min-version")
   const outputPath = getArgValue(args, "--output") ?? ".b2c-script-types/jsconfig.generated.json"
+  const siteTemplatePath = getArgValue(args, "--site-template-path")
 
   const markerFile = path.resolve(currentDirectory, ".b2c-script-types/types/global.d.ts")
   const upstreamMetadataFile = path.resolve(
@@ -108,13 +110,21 @@ export function runSyncTypesCli(args: string[], options: SyncTypesCliOptions = {
 
   const generatedTypes = generateCustomAttributesTypes({
     workspaceRoot: currentDirectory,
+    siteTemplatePath,
     existsSync,
     readFileSync,
   })
 
   if (!generatedTypes.written) {
+    const configuredMetaDirectory = path.join(
+      resolveSiteTemplatePath(currentDirectory, siteTemplatePath),
+      "meta",
+    )
+    const relativeMetaDirectory =
+      path.relative(currentDirectory, configuredMetaDirectory).replaceAll(path.sep, "/") ||
+      configuredMetaDirectory.replaceAll(path.sep, "/")
     writeStdout(
-      "No custom attribute metadata found under sites/site_template/meta/*.xml; skipping custom attribute type generation.\n",
+      `No custom attribute metadata found under ${relativeMetaDirectory}/*.xml; skipping custom attribute type generation.\n`,
     )
     return 0
   }

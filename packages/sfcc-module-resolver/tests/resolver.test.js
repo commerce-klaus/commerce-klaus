@@ -64,6 +64,28 @@ test("inferCartridgeOrder falls back to site template", () => {
   })
 })
 
+test("inferCartridgeOrder uses default site template path when siteTemplatePath is omitted", () => {
+  withTempDir((tempDir) => {
+    const cartridgesDir = path.join(tempDir, "cartridges")
+    const siteXmlPath = path.join(tempDir, "sites", "site_template", "sites", "RefArch", "site.xml")
+
+    fs.mkdirSync(path.join(cartridgesDir, "app_storefront_base"), { recursive: true })
+    fs.mkdirSync(path.join(cartridgesDir, "app_core"), { recursive: true })
+    fs.mkdirSync(path.dirname(siteXmlPath), { recursive: true })
+    fs.writeFileSync(
+      siteXmlPath,
+      "<site><custom-cartridges>app_core:app_storefront_base</custom-cartridges></site>",
+    )
+
+    const result = inferCartridgeOrder({
+      cartridgesDir,
+      site: "RefArch",
+    })
+
+    expect(result.map((entry) => path.basename(entry))).toEqual(["app_core", "app_storefront_base"])
+  })
+})
+
 test("getSiteTemplateCartridgePath parses nested custom-cartridges", () => {
   withTempDir((tempDir) => {
     const siteTemplatePath = path.join(tempDir, "site_template")

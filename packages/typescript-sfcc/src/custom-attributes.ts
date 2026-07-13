@@ -11,6 +11,7 @@ import path from "node:path"
 import {
   GENERATED_CUSTOM_ATTRIBUTES_FILE_NAME,
   resolveGeneratedCustomAttributesTypesPath,
+  resolveSiteTemplatePath,
 } from "./shared.ts"
 
 interface GeneratedAttribute {
@@ -23,6 +24,7 @@ type AttributeMap = Map<string, GeneratedAttribute>
 
 export interface GenerateCustomAttributesTypesOptions {
   workspaceRoot: string
+  siteTemplatePath?: string
   existsSync?: (filePath: string) => boolean
   readFileSync?: (filePath: string, encoding: BufferEncoding) => string
   readdirSync?: (dirPath: string) => string[]
@@ -180,7 +182,10 @@ export function generateCustomAttributesTypes(
   const writeFileSync = options.writeFileSync ?? nodeWriteFileSync
 
   const outputFilePath = resolveGeneratedCustomAttributesTypesPath(options.workspaceRoot)
-  const metaDirectory = path.join(options.workspaceRoot, "sites", "site_template", "meta")
+  const metaDirectory = path.join(
+    resolveSiteTemplatePath(options.workspaceRoot, options.siteTemplatePath),
+    "meta",
+  )
   const dwTypesDirectory = path.join(options.workspaceRoot, ".b2c-script-types", "types", "dw")
 
   if (!existsSync(dwTypesDirectory)) {

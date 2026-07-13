@@ -38,7 +38,7 @@ Notes:
 
 - `sfcc-dts` is not required for `dw/*` resolution in this package.
 - Keep `.b2c-script-types/types` available in the workspace before running `sfcc-ts-typecheck`.
-- `sfcc-ts-sync-types` extends `b2c-script-types` by reading all XML files under `sites/site_template/meta/*.xml` and generating custom attribute declarations into `.b2c-script-types/types/sfcc-custom-attributes.generated.d.ts`.
+- `sfcc-ts-sync-types` extends `b2c-script-types` by reading all XML files under `<siteTemplatePath>/meta/*.xml` (default: `sites/site_template/meta/*.xml`) and generating custom attribute declarations into `.b2c-script-types/types/sfcc-custom-attributes.generated.d.ts`.
 - The generated declarations are consumed by both `sfcc-ts-typecheck` and the tsserver plugin, so editor diagnostics and CLI diagnostics use the same custom attribute typing.
 - The generated declarations also patch `dw/object/SystemObjectMgr` so supported `type` literals narrow `getAllSystemObjects`, `querySystemObject`, and `querySystemObjects` to the matching system object class.
 - Custom attribute values are inferred by metadata type. For enums, `select-multiple-flag=true` is treated as a multi-value enum and emitted as `SfccEnumValue<T>[]`.
@@ -181,6 +181,7 @@ Exit codes:
 - `--min-version X.Y.Z`: refreshes types if vendored version is older than required
 - `--force`: always refreshes vendored types
 - `--output <path>`: optional output path for generated `jsconfig` metadata
+- `--site-template-path <path>`: optional path to the site template directory (relative to current directory or absolute). The tool reads metadata from `<path>/meta/*.xml`.
 
 [npm-url]: https://www.npmjs.com/package/@commerce-klaus/typescript-sfcc
 [npm-image]: https://badgen.net/npm/v/@commerce-klaus/typescript-sfcc

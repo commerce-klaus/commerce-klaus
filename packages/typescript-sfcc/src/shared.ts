@@ -1,4 +1,5 @@
 import {
+  DEFAULT_SITE_TEMPLATE_PATH,
   SUPER_MODULE_TOKEN,
   SUPPORTED_RUNTIME_EXTENSIONS,
   createSfccModuleResolver,
@@ -8,6 +9,7 @@ import {
   inferCartridgeOrder as inferCartridgeOrderFromResolver,
   readSolutionReferences,
   resolveCandidateFile,
+  resolveSiteTemplatePath as resolveSiteTemplatePathFromResolver,
   resolveSuperModuleFilePath,
   resolveSuperModuleSpecifier,
   stripExt,
@@ -20,6 +22,7 @@ import path from "node:path"
 export const GENERATED_CUSTOM_ATTRIBUTES_FILE_NAME = "sfcc-custom-attributes.generated.d.ts"
 
 export {
+  DEFAULT_SITE_TEMPLATE_PATH,
   SUPER_MODULE_TOKEN,
   SUPPORTED_RUNTIME_EXTENSIONS,
   createSfccModuleResolver,
@@ -98,6 +101,19 @@ export function resolveGeneratedCustomAttributesTypesPath(workspaceRoot: string)
     ".b2c-script-types",
     "types",
     GENERATED_CUSTOM_ATTRIBUTES_FILE_NAME,
+  )
+}
+
+export function resolveSiteTemplatePath(
+  workspaceRoot: string,
+  siteTemplatePath: string = DEFAULT_SITE_TEMPLATE_PATH,
+): string {
+  return (
+    resolveSiteTemplatePathFromResolver(
+      siteTemplatePath,
+      workspaceRoot,
+      DEFAULT_SITE_TEMPLATE_PATH,
+    ) ?? path.join(workspaceRoot, DEFAULT_SITE_TEMPLATE_PATH)
   )
 }
 

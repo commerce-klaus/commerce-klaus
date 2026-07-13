@@ -32,6 +32,46 @@ test("generateCustomAttributesTypes writes a fallback file when metadata directo
   })
 })
 
+test("generateCustomAttributesTypes supports a configurable siteTemplatePath", () => {
+  withTempDir((workspaceRoot) => {
+    const metaDir = path.join(workspaceRoot, "config", "site-template", "meta")
+    const dwDir = path.join(workspaceRoot, ".b2c-script-types", "types", "dw")
+
+    fs.mkdirSync(path.join(dwDir, "catalog"), { recursive: true })
+    fs.mkdirSync(metaDir, { recursive: true })
+
+    fs.writeFileSync(path.join(dwDir, "catalog", "Product.d.ts"), "export {}\n")
+    fs.writeFileSync(
+      path.join(metaDir, "system-objecttype-extensions.xml"),
+      [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">',
+        '  <type-extension type-id="Product">',
+        "    <custom-attribute-definitions>",
+        '      <attribute-definition attribute-id="origin">',
+        "        <type>string</type>",
+        "      </attribute-definition>",
+        "    </custom-attribute-definitions>",
+        "  </type-extension>",
+        "</metadata>",
+        "",
+      ].join("\n"),
+    )
+
+    const result = generateCustomAttributesTypes({
+      workspaceRoot,
+      siteTemplatePath: "config/site-template",
+    })
+
+    expect(result.written).toBe(true)
+    expect(result.declarationsCount).toBe(1)
+
+    const generatedContent = fs.readFileSync(result.outputFilePath, "utf8")
+    expect(generatedContent).toContain('declare module "dw/catalog/Product"')
+    expect(generatedContent).toContain("origin?: string")
+  })
+})
+
 test("generateCustomAttributesTypes reads all site_template/meta xml files and writes declarations", () => {
   withTempDir((workspaceRoot) => {
     const metaDir = path.join(workspaceRoot, "sites", "site_template", "meta")
