@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.5
+
+### Patch Changes
+
+- 86c5515: Trigger another patch release for `@commerce-klaus/eslint-config-sfcc` to validate tag and GitHub release creation.
+
 ## 1.2.4
 
 ### Patch Changes
