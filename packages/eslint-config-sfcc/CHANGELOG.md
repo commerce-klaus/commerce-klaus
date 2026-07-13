@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.7
+
+### Patch Changes
+
+- fccde03: Test patch release for the simplified Changesets-based publish workflow.
+
 ## 1.2.6
 
 ### Patch Changes
