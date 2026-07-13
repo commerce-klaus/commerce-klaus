@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1
+
+### Patch Changes
+
+- 0b50bd3: Fix `sfcc/no-empty-global` suggestions so they replace the full `empty(...)` call and include suggestions for identifier/member-expression arguments.
+
 ## 1.2.0
 
 ### Minor Changes
