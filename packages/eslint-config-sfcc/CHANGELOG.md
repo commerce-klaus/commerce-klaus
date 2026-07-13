@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.6
+
+### Patch Changes
+
+- 70ee1ae: Trigger a patch release for `@commerce-klaus/eslint-config-sfcc` to validate tag alignment on main and release creation.
+
 ## 1.2.5
 
 ### Patch Changes
