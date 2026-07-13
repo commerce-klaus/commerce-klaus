@@ -55,6 +55,7 @@ function createFakeEnvironment({ files = [], metadataVersion, localBinary = fals
           calls.push({ command, args: [...spawnArgs] })
           return { status: 0 }
         },
+        mkdirSync: () => {},
         writeStdout: (text) => {
           stdout += text
         },

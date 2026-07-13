@@ -4,8 +4,10 @@ import ts from "typescript"
 import {
   createSfccModuleResolver,
   createSfccPaths,
+  getGeneratedCustomAttributesTypesPathIfPresent,
   inferCartridgeOrder,
   readSolutionReferences,
+  resolveWorkspaceRootFromConfig,
   transformSuperModuleSource,
 } from "./shared.ts"
 
@@ -145,12 +147,28 @@ export function runProjectTypecheck(
 
   const program = ts.createProgram({
     options: parsedConfig.options,
-    rootNames: parsedConfig.fileNames,
+    rootNames: withGeneratedTypeFiles(
+      parsedConfig.fileNames,
+      resolveWorkspaceRootFromConfig(configPath, cartridgeRoots),
+    ),
     projectReferences: parsedConfig.projectReferences,
     host,
   })
 
   return ts.getPreEmitDiagnostics(program)
+}
+
+function withGeneratedTypeFiles(rootNames: string[], workspaceRoot: string): string[] {
+  const generatedTypesPath = getGeneratedCustomAttributesTypesPathIfPresent(workspaceRoot)
+  if (!generatedTypesPath) {
+    return rootNames
+  }
+
+  if (rootNames.includes(generatedTypesPath)) {
+    return rootNames
+  }
+
+  return [...rootNames, generatedTypesPath]
 }
 
 export function typecheckSolutionProjects({

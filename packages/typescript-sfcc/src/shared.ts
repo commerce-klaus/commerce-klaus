@@ -14,7 +14,10 @@ import {
   toPosixPath,
   transformSuperModuleSource,
 } from "@commerce-klaus/sfcc-module-resolver"
+import { existsSync as nodeExistsSync } from "node:fs"
 import path from "node:path"
+
+export const GENERATED_CUSTOM_ATTRIBUTES_FILE_NAME = "sfcc-custom-attributes.generated.d.ts"
 
 export {
   SUPER_MODULE_TOKEN,
@@ -47,9 +50,7 @@ export function createSfccPaths(
   cartridgeRoots: string[],
 ): Record<string, string[]> {
   const configDir = path.dirname(configPath)
-  const cartridgesDir =
-    cartridgeRoots.length > 0 ? path.dirname(cartridgeRoots[0]) : findCartridgesDir(configDir)
-  const workspaceRoot = cartridgesDir ? path.dirname(cartridgesDir) : path.dirname(configDir)
+  const workspaceRoot = resolveWorkspaceRootFromConfig(configPath, cartridgeRoots)
   const dwTypesDir = path.join(workspaceRoot, ".b2c-script-types", "types", "dw")
   const relativeDwTypesDir = path.relative(configDir, dwTypesDir).replaceAll("\\", "/")
   const paths: Record<string, string[]> = {
@@ -74,4 +75,36 @@ export function createSfccPaths(
   }
 
   return paths
+}
+
+export function resolveWorkspaceRootFromConfig(
+  configPath: string,
+  cartridgeRoots: string[],
+): string {
+  const configDir = path.dirname(configPath)
+  const cartridgesDir =
+    cartridgeRoots.length > 0 ? path.dirname(cartridgeRoots[0]) : findCartridgesDir(configDir)
+  return cartridgesDir ? path.dirname(cartridgesDir) : path.dirname(configDir)
+}
+
+export function resolveWorkspaceRootFromProjectDir(projectDir: string): string {
+  const cartridgesDir = findCartridgesDir(projectDir)
+  return cartridgesDir ? path.dirname(cartridgesDir) : projectDir
+}
+
+export function resolveGeneratedCustomAttributesTypesPath(workspaceRoot: string): string {
+  return path.join(
+    workspaceRoot,
+    ".b2c-script-types",
+    "types",
+    GENERATED_CUSTOM_ATTRIBUTES_FILE_NAME,
+  )
+}
+
+export function getGeneratedCustomAttributesTypesPathIfPresent(
+  workspaceRoot: string,
+  existsSync: (filePath: string) => boolean = nodeExistsSync,
+): string | undefined {
+  const filePath = resolveGeneratedCustomAttributesTypesPath(workspaceRoot)
+  return existsSync(filePath) ? filePath : undefined
 }
