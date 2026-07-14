@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.2
+
+### Patch Changes
+
+- 99a6ed4: Fix SFCC compatibility typing in generated custom attribute declarations.
+
+  - restore CommonJS static member typing for `require("dw/..." )` by emitting compatibility `require` overloads from Salesforce `global.d.ts` types
+  - support real Salesforce `b2c-script-types` globals declared via `module dw`, not only synthetic `namespace dw` fixtures
+  - restore dynamic `dw.web.HttpParameterMap` property access such as `parameterMap.productId.value`
+  - add regression tests covering real `b2c-script-types` global declarations
+
 ## 1.0.1
 
 ### Patch Changes
