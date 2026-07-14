@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.1
+
+### Patch Changes
+
+- 6a127fa: Fix SFCC typing regressions introduced by generated custom attribute declarations.
+
+  - restore CommonJS static member typing for `require("dw/..." )` by emitting `require` overloads based on global `dw` namespace types
+  - restore dynamic `dw.web.HttpParameterMap` property access (for example `parameterMap.productId.value`) with an index signature augmentation
+  - add regression tests for both compatibility behaviors
+
 ## 1.0.0
 
 ### Major Changes

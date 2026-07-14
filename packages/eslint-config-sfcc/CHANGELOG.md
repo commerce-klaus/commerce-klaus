@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.2.11
+
+### Patch Changes
+
+- 5539459: Improve `sfcc/no-empty-global` suggestions for nullable object references.
+
+  - add an extra `!value` suggestion for identifiers and member expressions when a null or nullable object reference check may be appropriate
+  - clarify in the rule documentation when a nullable reference check is a reasonable replacement for `empty(...)`
+  - keep the existing explicit suggestions for strings, arrays, plain objects, and SFCC collections
+
+- 344a27d: Fix `sfcc/no-empty-global` to report only true environment-global `empty()` calls.
+
+  - ignore shadowed/local `empty` identifiers (for example function declarations and parameters)
+  - keep reporting SFCC global `empty()` usage with the existing suggestions
+  - add regression tests for local shadowing cases
+
 ## 1.2.10
 
 ### Patch Changes
