@@ -9,6 +9,8 @@ Validates SFCC-compatible `require()` paths and optionally checks whether cartri
 - Can verify cartridge existence when `checkCartridgeExists` is enabled
 - Can resolve `*/` references against the configured cartridge order or filesystem cartridges
 - Can resolve `~/` references against the current cartridge
+- When TypeScript parser type information is available, can also validate `require()` calls that use identifier arguments with an exact string-literal type
+- Without type information, keeps existing behavior and ignores dynamic/non-literal `require(...)` arguments
 
 ## Shared settings
 

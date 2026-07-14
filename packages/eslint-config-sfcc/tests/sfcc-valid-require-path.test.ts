@@ -1,14 +1,48 @@
+import tsParser from "@typescript-eslint/parser"
+import { ESLint } from "eslint"
 import { Linter } from "eslint"
 import fs from "node:fs"
 import os from "node:os"
 import path from "node:path"
+import { fileURLToPath } from "node:url"
 import { expect, test } from "vite-plus/test"
 
 import { createRecommendedConfig, recommended } from "../src/index.js"
+import sfcc from "../src/plugins/sfcc/index.js"
 
 function lint(code: string, filename = "cartridges/app_sfra/cartridge/controllers/Home.js") {
   const linter = new Linter()
   return linter.verify(code, recommended, { filename })
+}
+
+const typeAwareFixtureDir = fileURLToPath(
+  new URL("./fixtures/valid-require-path-type-aware", import.meta.url),
+)
+
+async function lintTypeAwareFixture(filename: string) {
+  const eslint = new ESLint({
+    overrideConfigFile: true,
+    overrideConfig: [
+      {
+        files: ["**/*.ts"],
+        languageOptions: {
+          parser: tsParser,
+          parserOptions: {
+            project: [path.join(typeAwareFixtureDir, "tsconfig.json")],
+          },
+        },
+        plugins: {
+          sfcc,
+        },
+        rules: {
+          "sfcc/valid-require-path": "error",
+        },
+      },
+    ],
+  })
+
+  const results = await eslint.lintFiles([path.join(typeAwareFixtureDir, filename)])
+  return results[0]?.messages ?? []
 }
 
 function createTempTestRoot(): string {
@@ -77,6 +111,24 @@ test("ignores dynamic requires", () => {
     const dynamic = require(moduleName)
     module.exports = dynamic
   `)
+
+  expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(false)
+})
+
+test("uses type info for indirect const string and reports invalid module", async () => {
+  const messages = await lintTypeAwareFixture("invalid-indirect.ts")
+
+  expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(true)
+})
+
+test("uses type info for indirect const string and allows valid dw path", async () => {
+  const messages = await lintTypeAwareFixture("valid-indirect.ts")
+
+  expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(false)
+})
+
+test("keeps fallback behavior for non-literal typed identifiers", async () => {
+  const messages = await lintTypeAwareFixture("nonliteral-indirect.ts")
 
   expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(false)
 })

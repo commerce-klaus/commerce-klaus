@@ -10,6 +10,20 @@ import path from "node:path"
 
 import { withSfccSettings } from "../_utils/sfcc-settings.js"
 
+type TypeCheckerLike = {
+  getTypeAtLocation(node: unknown): unknown
+  typeToString(type: unknown): string
+}
+
+type ProgramLike = {
+  getTypeChecker(): TypeCheckerLike
+}
+
+type ParserServicesLike = {
+  program?: ProgramLike
+  esTreeNodeToTSNodeMap?: Map<unknown, unknown>
+}
+
 function getStringArgument(node: Rule.Node): string | undefined {
   if (node.type === "Literal" && typeof node.value === "string") {
     return node.value
@@ -20,6 +34,59 @@ function getStringArgument(node: Rule.Node): string | undefined {
   }
 
   return undefined
+}
+
+function getLiteralStringFromTypeText(typeText: string): string | undefined {
+  const trimmed = typeText.trim()
+  const singleQuoted = /^'([^'\\]|\\.)*'$/u
+  const doubleQuoted = /^"([^"\\]|\\.)*"$/u
+
+  if (!singleQuoted.test(trimmed) && !doubleQuoted.test(trimmed)) {
+    return undefined
+  }
+
+  try {
+    if (doubleQuoted.test(trimmed)) {
+      return JSON.parse(trimmed) as string
+    }
+
+    const body = trimmed.slice(1, -1)
+    const normalized = `"${body.replace(/\\/gu, "\\\\").replace(/"/gu, '\\"')}"`
+    return JSON.parse(normalized) as string
+  } catch {
+    return undefined
+  }
+}
+
+function getTypeAwareStringArgument(
+  context: Rule.RuleContext,
+  node: Rule.Node,
+): string | undefined {
+  if (node.type !== "Identifier") {
+    return undefined
+  }
+
+  const parserServices =
+    (context.sourceCode.parserServices as ParserServicesLike | undefined) ??
+    (context as unknown as { parserServices?: ParserServicesLike }).parserServices ??
+    undefined
+  const program = parserServices?.program
+  const tsNodeMap = parserServices?.esTreeNodeToTSNodeMap
+
+  if (!program || !tsNodeMap) {
+    return undefined
+  }
+
+  const tsNode = tsNodeMap.get(node)
+  if (!tsNode) {
+    return undefined
+  }
+
+  const checker = program.getTypeChecker()
+  const type = checker.getTypeAtLocation(tsNode)
+  const typeText = checker.typeToString(type)
+
+  return getLiteralStringFromTypeText(typeText)
 }
 
 function isAllowedPrefix(requirePath: string): boolean {
@@ -129,7 +196,8 @@ const validRequirePath: Rule.RuleModule = {
           return
         }
 
-        const requirePath = getStringArgument(firstArgument)
+        const requirePath =
+          getStringArgument(firstArgument) ?? getTypeAwareStringArgument(context, firstArgument)
         if (!requirePath) {
           return
         }
