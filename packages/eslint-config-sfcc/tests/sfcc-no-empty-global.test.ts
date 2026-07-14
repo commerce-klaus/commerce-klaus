@@ -200,4 +200,17 @@ describe("sfcc/no-empty-global", () => {
     expect(suggestions).toHaveLength(1)
     expect(suggestions[0]?.desc).toContain("customer.length === 0")
   })
+
+  test("uses broad fallback suggestions for mixed union types", async () => {
+    const result = await lintTypeAwareFixture("union-string-object.ts")
+    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
+    const suggestions = hit?.suggestions ?? []
+
+    expect(suggestions.length).toBeGreaterThanOrEqual(4)
+    expect(suggestions.some((s) => s.desc?.includes("customer.length === 0"))).toBe(true)
+    expect(suggestions.some((s) => s.desc?.includes("Object.keys(customer).length === 0"))).toBe(
+      true,
+    )
+    expect(suggestions.some((s) => s.desc?.includes("!customer"))).toBe(true)
+  })
 })

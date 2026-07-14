@@ -51,6 +51,13 @@ function inferSuggestionKindFromTypeText(typeText: string): ReferenceSuggestionK
       typeText,
     )
 
+  const categories = [isCollectionLike, isStringLike || isArrayLike, isObjectLike, hasNullable]
+  const matchedCategories = categories.filter(Boolean).length
+
+  if (matchedCategories > 1) {
+    return "unknown"
+  }
+
   if (isCollectionLike) {
     return "collection"
   }
