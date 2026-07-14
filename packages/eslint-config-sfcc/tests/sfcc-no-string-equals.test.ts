@@ -125,6 +125,13 @@ describe("sfcc/no-string-equals", () => {
     expect(messages.some((m) => m.ruleId === "sfcc/no-string-equals")).toBe(true)
   })
 
+  test("uses TS type info to keep reporting string equals with type aliases", async () => {
+    const result = await lintTypeAware("string-alias-equals.ts")
+    const messages = result?.messages ?? []
+
+    expect(messages.some((m) => m.ruleId === "sfcc/no-string-equals")).toBe(true)
+  })
+
   test("keeps fallback behavior without TS parser type info", async () => {
     const result = await lint('const value = "abc"\nvalue.equals("123")')
     const messages = result?.messages ?? []
