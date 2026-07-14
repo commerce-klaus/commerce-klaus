@@ -1,6 +1,8 @@
 import tseslint from "@typescript-eslint/eslint-plugin"
 import tsParser from "@typescript-eslint/parser"
 import { ESLint, type Linter } from "eslint"
+import path from "node:path"
+import { fileURLToPath } from "node:url"
 import { describe, expect, test } from "vite-plus/test"
 
 import { createRecommendedConfig } from "../src/index.js"
@@ -28,10 +30,9 @@ async function lint(code: string, filename = "cartridges/app_sfra/cartridge/scri
   return results[0]
 }
 
-async function lintTypeAware(
-  code: string,
-  filename = "cartridges/app_sfra/cartridge/scripts/fixture.ts",
-) {
+const fixtureDir = fileURLToPath(new URL("./fixtures/no-string-equals-type-aware", import.meta.url))
+
+async function lintTypeAware(filename: string) {
   const eslint = new ESLint({
     overrideConfigFile: true,
     overrideConfig: [
@@ -40,7 +41,7 @@ async function lintTypeAware(
         languageOptions: {
           parser: tsParser,
           parserOptions: {
-            projectService: true,
+            project: [path.join(fixtureDir, "tsconfig.json")],
           },
         },
         plugins: {
@@ -53,7 +54,7 @@ async function lintTypeAware(
     ],
   })
 
-  const results = await eslint.lintText(code, { filePath: filename })
+  const results = await eslint.lintFiles([path.join(fixtureDir, filename)])
   return results[0]
 }
 
@@ -111,12 +112,17 @@ describe("sfcc/no-string-equals", () => {
   })
 
   test("uses TS type info to ignore non-string equals calls", async () => {
-    const result = await lintTypeAware(
-      'interface HasEquals { equals(value: string): boolean }\nconst value: HasEquals = { equals() { return true } }\nvalue.equals("123")',
-    )
+    const result = await lintTypeAware("non-string-equals.ts")
     const messages = result?.messages ?? []
 
     expect(messages.some((m) => m.ruleId === "sfcc/no-string-equals")).toBe(false)
+  })
+
+  test("uses TS type info to keep reporting string equals with augmentation", async () => {
+    const result = await lintTypeAware("string-augmentation-equals.ts")
+    const messages = result?.messages ?? []
+
+    expect(messages.some((m) => m.ruleId === "sfcc/no-string-equals")).toBe(true)
   })
 
   test("keeps fallback behavior without TS parser type info", async () => {

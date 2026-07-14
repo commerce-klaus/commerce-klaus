@@ -7,7 +7,7 @@ function isJavaScriptTarget(filename: string): boolean {
     return true
   }
 
-  return /\.(?:[cm]?js|ds)$/iu.test(filename)
+  return /\.(?:[cm]?(?:js|ts)|ds)$/iu.test(filename)
 }
 
 function isEqualsProperty(node: Rule.Node): boolean {
