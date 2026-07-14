@@ -9,20 +9,7 @@ import fs from "node:fs"
 import path from "node:path"
 
 import { withSfccSettings } from "../_utils/sfcc-settings.js"
-
-type TypeCheckerLike = {
-  getTypeAtLocation(node: unknown): unknown
-  typeToString(type: unknown): string
-}
-
-type ProgramLike = {
-  getTypeChecker(): TypeCheckerLike
-}
-
-type ParserServicesLike = {
-  program?: ProgramLike
-  esTreeNodeToTSNodeMap?: Map<unknown, unknown>
-}
+import { getTypeTextForNode } from "../_utils/type-aware.js"
 
 function getStringArgument(node: Rule.Node): string | undefined {
   if (node.type === "Literal" && typeof node.value === "string") {
@@ -40,14 +27,25 @@ function getLiteralStringFromTypeText(typeText: string): string | undefined {
   const trimmed = typeText.trim()
   const singleQuoted = /^'([^'\\]|\\.)*'$/u
   const doubleQuoted = /^"([^"\\]|\\.)*"$/u
+  const backtickQuoted = /^`([^`\\]|\\.)*`$/u
 
-  if (!singleQuoted.test(trimmed) && !doubleQuoted.test(trimmed)) {
+  if (!singleQuoted.test(trimmed) && !doubleQuoted.test(trimmed) && !backtickQuoted.test(trimmed)) {
     return undefined
   }
 
   try {
     if (doubleQuoted.test(trimmed)) {
       return JSON.parse(trimmed) as string
+    }
+
+    if (backtickQuoted.test(trimmed)) {
+      if (trimmed.includes("${")) {
+        return undefined
+      }
+
+      const body = trimmed.slice(1, -1)
+      const normalized = `"${body.replace(/\\/gu, "\\\\").replace(/"/gu, '\\"')}"`
+      return JSON.parse(normalized) as string
     }
 
     const body = trimmed.slice(1, -1)
@@ -65,26 +63,10 @@ function getTypeAwareStringArgument(
   if (node.type !== "Identifier") {
     return undefined
   }
-
-  const parserServices =
-    (context.sourceCode.parserServices as ParserServicesLike | undefined) ??
-    (context as unknown as { parserServices?: ParserServicesLike }).parserServices ??
-    undefined
-  const program = parserServices?.program
-  const tsNodeMap = parserServices?.esTreeNodeToTSNodeMap
-
-  if (!program || !tsNodeMap) {
+  const typeText = getTypeTextForNode(context, node)
+  if (!typeText) {
     return undefined
   }
-
-  const tsNode = tsNodeMap.get(node)
-  if (!tsNode) {
-    return undefined
-  }
-
-  const checker = program.getTypeChecker()
-  const type = checker.getTypeAtLocation(tsNode)
-  const typeText = checker.typeToString(type)
 
   return getLiteralStringFromTypeText(typeText)
 }

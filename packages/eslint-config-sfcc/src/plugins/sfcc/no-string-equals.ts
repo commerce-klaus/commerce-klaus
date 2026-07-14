@@ -1,6 +1,7 @@
 import type { Rule } from "eslint"
 
 import { withSfccSettings } from "../_utils/sfcc-settings.js"
+import { getTypeTextForNode } from "../_utils/type-aware.js"
 
 function isJavaScriptTarget(filename: string): boolean {
   if (filename === "<input>") {
@@ -56,20 +57,6 @@ function getEqualitySuggestion(
   ]
 }
 
-type TypeCheckerLike = {
-  getTypeAtLocation(node: unknown): unknown
-  typeToString(type: unknown): string
-}
-
-type ProgramLike = {
-  getTypeChecker(): TypeCheckerLike
-}
-
-type ParserServicesLike = {
-  program?: ProgramLike
-  esTreeNodeToTSNodeMap?: Map<unknown, unknown>
-}
-
 function parseTypeWords(typeText: string): string[] {
   const parts = typeText
     .replace(/[()]/gu, "")
@@ -112,25 +99,10 @@ function shouldReportBasedOnTypes(
   context: Rule.RuleContext,
   memberExpression: Rule.Node & { object: Rule.Node },
 ): boolean {
-  const parserServices =
-    (context.sourceCode.parserServices as ParserServicesLike | undefined) ??
-    (context as unknown as { parserServices?: ParserServicesLike }).parserServices ??
-    undefined
-
-  const program = parserServices?.program
-  const tsNodeMap = parserServices?.esTreeNodeToTSNodeMap
-  if (!program || !tsNodeMap) {
+  const typeText = getTypeTextForNode(context, memberExpression.object)
+  if (!typeText) {
     return true
   }
-
-  const tsNode = tsNodeMap.get(memberExpression.object)
-  if (!tsNode) {
-    return true
-  }
-
-  const checker = program.getTypeChecker()
-  const type = checker.getTypeAtLocation(tsNode)
-  const typeText = checker.typeToString(type)
 
   if (isStringLikeType(typeText)) {
     return true

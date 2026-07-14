@@ -127,6 +127,18 @@ test("uses type info for indirect const string and allows valid dw path", async 
   expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(false)
 })
 
+test("uses type info for indirect const template literal and allows valid dw path", async () => {
+  const messages = await lintTypeAwareFixture("valid-template-literal-indirect.ts")
+
+  expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(false)
+})
+
+test("uses type info for indirect const template literal and reports invalid module", async () => {
+  const messages = await lintTypeAwareFixture("invalid-template-literal-indirect.ts")
+
+  expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(true)
+})
+
 test("keeps fallback behavior for non-literal typed identifiers", async () => {
   const messages = await lintTypeAwareFixture("nonliteral-indirect.ts")
 

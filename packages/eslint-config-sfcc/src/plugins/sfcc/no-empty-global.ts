@@ -1,6 +1,7 @@
 import type { Rule } from "eslint"
 
 import { withSfccSettings } from "../_utils/sfcc-settings.js"
+import { getTypeTextForNode } from "../_utils/type-aware.js"
 
 const COLLECTION_CONSTRUCTORS = new Set([
   "ArrayList",
@@ -12,20 +13,6 @@ const COLLECTION_CONSTRUCTORS = new Set([
   "Set",
   "SortedSet",
 ])
-
-type TypeCheckerLike = {
-  getTypeAtLocation(node: unknown): unknown
-  typeToString(type: unknown): string
-}
-
-type ProgramLike = {
-  getTypeChecker(): TypeCheckerLike
-}
-
-type ParserServicesLike = {
-  program?: ProgramLike
-  esTreeNodeToTSNodeMap?: Map<unknown, unknown>
-}
 
 type ReferenceSuggestionKind = "length" | "object-keys" | "collection" | "nullable" | "unknown"
 
@@ -87,25 +74,10 @@ function getTypeAwareSuggestionKind(
   context: Rule.RuleContext,
   argument: Rule.Node,
 ): ReferenceSuggestionKind {
-  const parserServices =
-    (context.sourceCode.parserServices as ParserServicesLike | undefined) ??
-    (context as unknown as { parserServices?: ParserServicesLike }).parserServices ??
-    undefined
-  const program = parserServices?.program
-  const tsNodeMap = parserServices?.esTreeNodeToTSNodeMap
-
-  if (!program || !tsNodeMap) {
+  const typeText = getTypeTextForNode(context, argument)
+  if (!typeText) {
     return "unknown"
   }
-
-  const tsNode = tsNodeMap.get(argument)
-  if (!tsNode) {
-    return "unknown"
-  }
-
-  const checker = program.getTypeChecker()
-  const type = checker.getTypeAtLocation(tsNode)
-  const typeText = checker.typeToString(type)
 
   return inferSuggestionKindFromTypeText(typeText)
 }
