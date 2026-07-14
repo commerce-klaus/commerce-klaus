@@ -45,6 +45,21 @@ function isIdentifierOrMemberExpression(node: Rule.Node): boolean {
   return false
 }
 
+function isGlobalReference(
+  context: Rule.RuleContext,
+  node: Rule.Node & { type: "Identifier"; name: string },
+): boolean {
+  const scope = context.sourceCode.getScope(node)
+  const reference = scope.references.find((item) => item.identifier === node)
+  const resolved = reference?.resolved
+
+  if (!resolved) {
+    return false
+  }
+
+  return resolved.scope.type === "global" && resolved.defs.length === 0
+}
+
 function getEmptySuggestions(
   argument: Rule.Node,
   callExpression: Rule.Node,
@@ -126,6 +141,10 @@ const noEmptyGlobal: Rule.RuleModule = {
           callExpression.callee?.type !== "Identifier" ||
           callExpression.callee.name !== "empty"
         ) {
+          return
+        }
+
+        if (!isGlobalReference(context, callExpression.callee)) {
           return
         }
 

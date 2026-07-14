@@ -125,4 +125,18 @@ describe("sfcc/no-empty-global", () => {
       "customer.profile.email.length === 0",
     )
   })
+
+  test("does not report for locally shadowed empty function", async () => {
+    const result = await lint("function empty(value) { return !value }\nempty(customer)")
+    const messages = result?.messages ?? []
+
+    expect(messages.some((m) => m.ruleId === "sfcc/no-empty-global")).toBe(false)
+  })
+
+  test("does not report for parameter shadowing", async () => {
+    const result = await lint("function check(empty) { return empty(customer) }")
+    const messages = result?.messages ?? []
+
+    expect(messages.some((m) => m.ruleId === "sfcc/no-empty-global")).toBe(false)
+  })
 })
