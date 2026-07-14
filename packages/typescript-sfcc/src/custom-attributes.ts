@@ -296,7 +296,7 @@ function detectDwGlobalNamespace(
     return false
   }
 
-  return /declare\s+namespace\s+dw\b/u.test(readFileSync(globalTypesPath, "utf8"))
+  return /(?:declare\s+namespace|module)\s+dw\b/u.test(readFileSync(globalTypesPath, "utf8"))
 }
 
 function listMetaXmlFiles(
