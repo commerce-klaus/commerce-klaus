@@ -98,6 +98,7 @@ function getEmptySuggestions(
 
   if (isIdentifierOrMemberExpression(argument)) {
     return [
+      buildSuggestion("suggestNullableReferenceCheck", `!${text}`),
       buildSuggestion("suggestLengthCheck", `${text}.length === 0`),
       buildSuggestion("suggestObjectKeysCheck", `Object.keys(${text}).length === 0`),
       buildSuggestion("suggestCollectionCheck", `${text}.isEmpty()`),
@@ -120,6 +121,8 @@ const noEmptyGlobal: Rule.RuleModule = {
     schema: [],
     messages: {
       forbiddenEmptyGlobal: "empty() is an SFCC-specific global and is not standard JavaScript.",
+      suggestNullableReferenceCheck:
+        "Use {{replacement}} instead for a null or nullable object reference.",
       suggestLengthCheck: "Use {{replacement}} instead.",
       suggestObjectKeysCheck: "Use {{replacement}} for plain objects instead.",
       suggestCollectionCheck: "Use {{replacement}} for SFCC collections instead.",

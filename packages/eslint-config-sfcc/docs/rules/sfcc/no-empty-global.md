@@ -17,6 +17,26 @@ Disallows the SFCC-specific `empty(...)` global in JavaScript files. Use explici
 - Auto-fix: none
 - Suggestions: yes
 
+## Nullable references
+
+When you know a value is only a nullable object reference, for example `dw.catalog.Product | null`, a null check can be the clearest replacement.
+
+```js
+// before
+if (empty(product)) {
+  return
+}
+```
+
+```js
+// valid when `product` is only nullable, not a collection/string/object to inspect
+if (!product) {
+  return
+}
+```
+
+The rule may offer this as an additional suggestion for identifiers and member expressions, but it is intentionally not the only recommendation because `empty(...)` is also used for strings, arrays, plain objects, and SFCC collections.
+
 ## Examples
 
 ```js

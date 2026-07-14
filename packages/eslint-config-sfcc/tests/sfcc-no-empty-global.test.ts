@@ -91,16 +91,21 @@ describe("sfcc/no-empty-global", () => {
   })
 
   test("offers suggestions for identifier arguments", async () => {
-    const result = await lint("empty(customer)")
+    const code = "empty(customer)"
+    const result = await lint(code)
     const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
     const suggestions = hit?.suggestions ?? []
 
-    expect(suggestions.length).toBeGreaterThanOrEqual(3)
+    expect(suggestions.length).toBeGreaterThanOrEqual(4)
+    expect(suggestions.some((s) => s.desc?.includes("!customer"))).toBe(true)
     expect(suggestions.some((s) => s.desc?.includes("customer.length === 0"))).toBe(true)
     expect(suggestions.some((s) => s.desc?.includes("Object.keys(customer).length === 0"))).toBe(
       true,
     )
     expect(suggestions.some((s) => s.desc?.includes("customer.isEmpty()"))).toBe(true)
+
+    const nullableSuggestion = suggestions.find((s) => s.desc?.includes("!customer"))
+    expect(applySuggestion(code, nullableSuggestion as { fix?: any })).toBe("!customer")
   })
 
   test("offers suggestions for member expression arguments", async () => {
@@ -109,7 +114,8 @@ describe("sfcc/no-empty-global", () => {
     const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
     const suggestions = hit?.suggestions ?? []
 
-    expect(suggestions.length).toBeGreaterThanOrEqual(3)
+    expect(suggestions.length).toBeGreaterThanOrEqual(4)
+    expect(suggestions.some((s) => s.desc?.includes("!customer.profile.email"))).toBe(true)
     expect(suggestions.some((s) => s.desc?.includes("customer.profile.email.length === 0"))).toBe(
       true,
     )
@@ -117,6 +123,11 @@ describe("sfcc/no-empty-global", () => {
       suggestions.some((s) => s.desc?.includes("Object.keys(customer.profile.email).length === 0")),
     ).toBe(true)
     expect(suggestions.some((s) => s.desc?.includes("customer.profile.email.isEmpty()"))).toBe(true)
+
+    const nullableSuggestion = suggestions.find((s) => s.desc?.includes("!customer.profile.email"))
+    expect(applySuggestion(code, nullableSuggestion as { fix?: any })).toBe(
+      "!customer.profile.email",
+    )
 
     const lengthSuggestion = suggestions.find((s) =>
       s.desc?.includes("customer.profile.email.length === 0"),
