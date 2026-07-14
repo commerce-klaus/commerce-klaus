@@ -6,6 +6,7 @@ Disallows the SFCC-specific `empty(...)` global in JavaScript files. Use explici
 
 - Flags calls to the global `empty(...)`
 - Applies only to JavaScript-like inputs: `.js`, `.mjs`, `.cjs`, `.ds`, and `<input>`
+- When TypeScript parser services with type information are available, suggestions are narrowed to the most likely replacement for the value type
 
 ## Why this rule exists
 
@@ -36,6 +37,8 @@ if (!product) {
 ```
 
 The rule may offer this as an additional suggestion for identifiers and member expressions, but it is intentionally not the only recommendation because `empty(...)` is also used for strings, arrays, plain objects, and SFCC collections.
+
+With type information enabled, the rule narrows suggestions for identifier/member-expression arguments to reduce noisy alternatives.
 
 ## Examples
 

@@ -1,8 +1,12 @@
 import tseslint from "@typescript-eslint/eslint-plugin"
+import tsParser from "@typescript-eslint/parser"
 import { ESLint, type Linter } from "eslint"
+import path from "node:path"
+import { fileURLToPath } from "node:url"
 import { describe, expect, test } from "vite-plus/test"
 
 import { createRecommendedConfig } from "../src/index.js"
+import sfcc from "../src/plugins/sfcc/index.js"
 
 const tsRecommended = tseslint.configs["flat/recommended"] as unknown as
   | Linter.Config
@@ -23,6 +27,34 @@ async function lint(code: string, filename = "cartridges/app_sfra/cartridge/scri
   })
 
   const results = await eslint.lintText(code, { filePath: filename })
+  return results[0]
+}
+
+const fixtureDir = fileURLToPath(new URL("./fixtures/no-empty-global-type-aware", import.meta.url))
+
+async function lintTypeAwareFixture(filename: string) {
+  const eslint = new ESLint({
+    overrideConfigFile: true,
+    overrideConfig: [
+      {
+        files: ["**/*.ts"],
+        languageOptions: {
+          parser: tsParser,
+          parserOptions: {
+            project: [path.join(fixtureDir, "tsconfig.json")],
+          },
+        },
+        plugins: {
+          sfcc,
+        },
+        rules: {
+          "sfcc/no-empty-global": "error",
+        },
+      },
+    ],
+  })
+
+  const results = await eslint.lintFiles([path.join(fixtureDir, filename)])
   return results[0]
 }
 
@@ -149,5 +181,23 @@ describe("sfcc/no-empty-global", () => {
     const messages = result?.messages ?? []
 
     expect(messages.some((m) => m.ruleId === "sfcc/no-empty-global")).toBe(false)
+  })
+
+  test("uses type info fixture to suggest only Object.keys for Record values", async () => {
+    const result = await lintTypeAwareFixture("record.ts")
+    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
+    const suggestions = hit?.suggestions ?? []
+
+    expect(suggestions).toHaveLength(1)
+    expect(suggestions[0]?.desc).toContain("Object.keys(customer).length === 0")
+  })
+
+  test("uses type info fixture to suggest only length for string values", async () => {
+    const result = await lintTypeAwareFixture("string.ts")
+    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
+    const suggestions = hit?.suggestions ?? []
+
+    expect(suggestions).toHaveLength(1)
+    expect(suggestions[0]?.desc).toContain("customer.length === 0")
   })
 })

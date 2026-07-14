@@ -13,12 +13,101 @@ const COLLECTION_CONSTRUCTORS = new Set([
   "SortedSet",
 ])
 
+type TypeCheckerLike = {
+  getTypeAtLocation(node: unknown): unknown
+  typeToString(type: unknown): string
+}
+
+type ProgramLike = {
+  getTypeChecker(): TypeCheckerLike
+}
+
+type ParserServicesLike = {
+  program?: ProgramLike
+  esTreeNodeToTSNodeMap?: Map<unknown, unknown>
+}
+
+type ReferenceSuggestionKind = "length" | "object-keys" | "collection" | "nullable" | "unknown"
+
 function isJavaScriptTarget(filename: string): boolean {
   if (filename === "<input>") {
     return true
   }
 
-  return /\.(?:[cm]?js|ds)$/iu.test(filename)
+  return /\.(?:[cm]?(?:js|ts)|ds)$/iu.test(filename)
+}
+
+function parseTypeWords(typeText: string): string[] {
+  return typeText
+    .replace(/[()]/gu, "")
+    .split(/[|&]/u)
+    .map((item) => item.trim())
+    .filter(Boolean)
+}
+
+function isStringLiteralTypeText(typeText: string): boolean {
+  return /^".*"$/u.test(typeText) || /^'.*'$/u.test(typeText)
+}
+
+function inferSuggestionKindFromTypeText(typeText: string): ReferenceSuggestionKind {
+  const words = parseTypeWords(typeText)
+  const hasNullable = words.some(
+    (word) => word === "null" || word === "undefined" || word === "void",
+  )
+  const isObjectLike = /^\{|\bobject\b|\bObject\b|\bRecord</u.test(typeText)
+  const isStringLike = words.some(
+    (word) => word === "string" || word === "String" || isStringLiteralTypeText(word),
+  )
+  const isArrayLike = /\[\]|\bArray<|\bReadonlyArray</u.test(typeText)
+  const isCollectionLike =
+    /\b(?:ArrayList|Collection|FilteringCollection|HashSet|LinkedHashSet|List|Set|SortedSet)\b/u.test(
+      typeText,
+    )
+
+  if (isCollectionLike) {
+    return "collection"
+  }
+
+  if (isStringLike || isArrayLike) {
+    return "length"
+  }
+
+  if (isObjectLike) {
+    return "object-keys"
+  }
+
+  if (hasNullable) {
+    return "nullable"
+  }
+
+  return "unknown"
+}
+
+function getTypeAwareSuggestionKind(
+  context: Rule.RuleContext,
+  argument: Rule.Node,
+): ReferenceSuggestionKind {
+  const parserServices =
+    (context.sourceCode.parserServices as ParserServicesLike | undefined) ??
+    (context as unknown as { parserServices?: ParserServicesLike }).parserServices ??
+    undefined
+  const program = parserServices?.program
+  const tsNodeMap = parserServices?.esTreeNodeToTSNodeMap
+
+  if (!program || !tsNodeMap) {
+    return "unknown"
+  }
+
+  const tsNode = tsNodeMap.get(argument)
+  if (!tsNode) {
+    return "unknown"
+  }
+
+  const checker = program.getTypeChecker()
+  const type = checker.getTypeAtLocation(tsNode)
+  const typeText = checker.typeToString(type)
+
+  return inferSuggestionKindFromTypeText(typeText)
 }
 
 function getPropertyName(node: Rule.Node): string | undefined {
@@ -45,6 +134,41 @@ function isIdentifierOrMemberExpression(node: Rule.Node): boolean {
   return false
 }
 
+function isStringInitializedIdentifier(context: Rule.RuleContext, node: Rule.Node): boolean {
+  if (node.type !== "Identifier") {
+    return false
+  }
+
+  const scope = context.sourceCode.getScope(node)
+  const reference = scope.references.find((item) => item.identifier === node)
+  const resolved = reference?.resolved
+  const definitionNode = resolved?.defs?.[0]?.node as
+    | ({
+        type?: string
+        init?: Rule.Node
+      } & Rule.Node)
+    | undefined
+
+  if (definitionNode?.type !== "VariableDeclarator") {
+    return false
+  }
+
+  const initializer = definitionNode.init
+  if (!initializer) {
+    return false
+  }
+
+  if (initializer.type === "Literal" && typeof initializer.value === "string") {
+    return true
+  }
+
+  if (initializer.type === "TemplateLiteral" && initializer.expressions.length === 0) {
+    return true
+  }
+
+  return false
+}
+
 function isGlobalReference(
   context: Rule.RuleContext,
   node: Rule.Node & { type: "Identifier"; name: string },
@@ -54,13 +178,25 @@ function isGlobalReference(
   const resolved = reference?.resolved
 
   if (!resolved) {
+    return true
+  }
+
+  if (resolved.scope.type !== "global") {
     return false
   }
 
-  return resolved.scope.type === "global" && resolved.defs.length === 0
+  if (resolved.defs.length === 0) {
+    return true
+  }
+
+  return resolved.defs.every((definition) => {
+    const definitionWithNode = definition as { node?: unknown }
+    return definitionWithNode.node == null
+  })
 }
 
 function getEmptySuggestions(
+  context: Rule.RuleContext,
   argument: Rule.Node,
   callExpression: Rule.Node,
   sourceCode: { getText(node: Rule.Node): string },
@@ -97,6 +233,28 @@ function getEmptySuggestions(
   }
 
   if (isIdentifierOrMemberExpression(argument)) {
+    if (isStringInitializedIdentifier(context, argument)) {
+      return [buildSuggestion("suggestLengthCheck", `${text}.length === 0`)]
+    }
+
+    const typeAwareSuggestionKind = getTypeAwareSuggestionKind(context, argument)
+
+    if (typeAwareSuggestionKind === "nullable") {
+      return [buildSuggestion("suggestNullableReferenceCheck", `!${text}`)]
+    }
+
+    if (typeAwareSuggestionKind === "length") {
+      return [buildSuggestion("suggestLengthCheck", `${text}.length === 0`)]
+    }
+
+    if (typeAwareSuggestionKind === "object-keys") {
+      return [buildSuggestion("suggestObjectKeysCheck", `Object.keys(${text}).length === 0`)]
+    }
+
+    if (typeAwareSuggestionKind === "collection") {
+      return [buildSuggestion("suggestCollectionCheck", `${text}.isEmpty()`)]
+    }
+
     return [
       buildSuggestion("suggestNullableReferenceCheck", `!${text}`),
       buildSuggestion("suggestLengthCheck", `${text}.length === 0`),
@@ -160,7 +318,7 @@ const noEmptyGlobal: Rule.RuleModule = {
         context.report({
           node: callExpression,
           messageId: "forbiddenEmptyGlobal",
-          suggest: getEmptySuggestions(argument, callExpression, context.sourceCode),
+          suggest: getEmptySuggestions(context, argument, callExpression, context.sourceCode),
         })
       },
     }
