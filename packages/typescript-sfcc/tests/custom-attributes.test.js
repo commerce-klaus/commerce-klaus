@@ -522,3 +522,61 @@ test("generateCustomAttributesTypes resolves newly mapped order, service, and ca
     expect(generatedContent).toContain("slotTheme?: string")
   })
 })
+
+test("generateCustomAttributesTypes emits require and HttpParameterMap compatibility declarations when global dw namespace exists", () => {
+  withTempDir((workspaceRoot) => {
+    const metaDir = path.join(workspaceRoot, "sites", "site_template", "meta")
+    const typesDir = path.join(workspaceRoot, ".b2c-script-types", "types")
+    const dwDir = path.join(typesDir, "dw")
+
+    fs.mkdirSync(path.join(dwDir, "catalog"), { recursive: true })
+    fs.mkdirSync(path.join(dwDir, "order"), { recursive: true })
+    fs.mkdirSync(path.join(dwDir, "web"), { recursive: true })
+    fs.mkdirSync(metaDir, { recursive: true })
+
+    fs.writeFileSync(
+      path.join(typesDir, "global.d.ts"),
+      [
+        "declare namespace dw {",
+        "  namespace order {",
+        "    class Order {}",
+        "  }",
+        "  namespace web {",
+        "    class HttpParameter { value: string }",
+        "    class HttpParameterMap {}",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    )
+    fs.writeFileSync(path.join(dwDir, "catalog", "Product.d.ts"), "export {}\n")
+    fs.writeFileSync(path.join(dwDir, "order", "Order.d.ts"), "export {}\n")
+    fs.writeFileSync(path.join(dwDir, "web", "HttpParameterMap.d.ts"), "export {}\n")
+
+    fs.writeFileSync(
+      path.join(metaDir, "product.xml"),
+      [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">',
+        '  <type-extension type-id="Product">',
+        "    <custom-attribute-definitions>",
+        '      <attribute-definition attribute-id="origin"><type>string</type></attribute-definition>',
+        "    </custom-attribute-definitions>",
+        "  </type-extension>",
+        "</metadata>",
+        "",
+      ].join("\n"),
+    )
+
+    const result = generateCustomAttributesTypes({ workspaceRoot })
+
+    expect(result.written).toBe(true)
+
+    const generatedContent = fs.readFileSync(result.outputFilePath, "utf8")
+    expect(generatedContent).toContain("namespace NodeJS")
+    expect(generatedContent).toContain('function require(id: "dw/order/Order")')
+    expect(generatedContent).toContain("namespace dw.web")
+    expect(generatedContent).toContain("[key: string]: dw.web.HttpParameter")
+    expect(generatedContent).toContain("export {}")
+  })
+})

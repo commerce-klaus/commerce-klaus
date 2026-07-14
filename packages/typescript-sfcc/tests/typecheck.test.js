@@ -697,3 +697,106 @@ test("runProjectTypecheck loads generated custom attribute typings from b2c-scri
     expect(messages).toContain("unknown")
   })
 })
+
+test("runProjectTypecheck preserves CommonJS static members and HttpParameterMap dynamic access with generated custom attributes", () => {
+  withTempDir((tempDir) => {
+    const cartridgesDir = path.join(tempDir, "cartridges")
+    const appCustom = path.join(cartridgesDir, "app_custom")
+    const configPath = path.join(appCustom, "jsconfig.json")
+    const sourcePath = path.join(appCustom, "cartridge", "scripts", "compat.js")
+    const metaDir = path.join(tempDir, "sites", "site_template", "meta")
+    const typesDir = path.join(tempDir, ".b2c-script-types", "types")
+    const dwDir = path.join(typesDir, "dw")
+
+    fs.mkdirSync(path.dirname(sourcePath), { recursive: true })
+    fs.mkdirSync(path.join(dwDir, "catalog"), { recursive: true })
+    fs.mkdirSync(path.join(dwDir, "order"), { recursive: true })
+    fs.mkdirSync(path.join(dwDir, "web"), { recursive: true })
+    fs.mkdirSync(metaDir, { recursive: true })
+
+    fs.writeFileSync(
+      sourcePath,
+      [
+        "// @ts-check",
+        'const Order = require("dw/order/Order")',
+        "Order.PAYMENT_STATUS_NOTPAID",
+        "",
+        "/** @type {dw.web.HttpParameterMap} */",
+        'const parameterMap = /** @type {any} */ ({ productId: { value: "x" } })',
+        "parameterMap.productId.value",
+        "",
+      ].join("\n"),
+    )
+
+    fs.writeFileSync(
+      path.join(typesDir, "global.d.ts"),
+      [
+        "declare namespace dw {",
+        "  namespace order {",
+        "    class Order {",
+        "      static PAYMENT_STATUS_NOTPAID: string",
+        "    }",
+        "  }",
+        "  namespace web {",
+        "    class HttpParameter {",
+        "      value: string",
+        "    }",
+        "    class HttpParameterMap {}",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    )
+
+    fs.writeFileSync(path.join(dwDir, "catalog", "Product.d.ts"), "export {}\n")
+
+    fs.writeFileSync(
+      path.join(dwDir, "order", "Order.d.ts"),
+      [
+        "declare class Order {",
+        "  static PAYMENT_STATUS_NOTPAID: string",
+        "}",
+        "export = Order",
+        "",
+      ].join("\n"),
+    )
+
+    fs.writeFileSync(
+      path.join(dwDir, "web", "HttpParameterMap.d.ts"),
+      ["declare class HttpParameterMap {}", "export = HttpParameterMap", ""].join("\n"),
+    )
+
+    fs.writeFileSync(
+      path.join(metaDir, "product.xml"),
+      [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">',
+        '  <type-extension type-id="Product">',
+        "    <custom-attribute-definitions>",
+        '      <attribute-definition attribute-id="origin"><type>string</type></attribute-definition>',
+        "    </custom-attribute-definitions>",
+        "  </type-extension>",
+        "</metadata>",
+        "",
+      ].join("\n"),
+    )
+
+    generateCustomAttributesTypes({ workspaceRoot: tempDir })
+
+    writeJson(configPath, {
+      compilerOptions: {
+        allowJs: true,
+        checkJs: true,
+        baseUrl: ".",
+        ignoreDeprecations: "6.0",
+        noEmit: true,
+        strict: true,
+      },
+      include: ["cartridge/**/*.js"],
+    })
+
+    const diagnostics = runProjectTypecheck(configPath, [appCustom], tempDir)
+
+    expect(diagnostics).toHaveLength(0)
+  })
+})
