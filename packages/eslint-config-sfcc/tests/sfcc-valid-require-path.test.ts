@@ -121,6 +121,24 @@ test("uses type info for indirect const string and reports invalid module", asyn
   expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(true)
 })
 
+test("uses type info for union of valid string literals and allows both", async () => {
+  const messages = await lintTypeAwareFixture("valid-union-indirect.ts")
+
+  expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(false)
+})
+
+test("uses type info for union with invalid string literal and reports it", async () => {
+  const messages = await lintTypeAwareFixture("invalid-union-indirect.ts")
+
+  expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(true)
+})
+
+test("uses type info for alias-based union with invalid string literal and reports it", async () => {
+  const messages = await lintTypeAwareFixture("invalid-union-alias-indirect.ts")
+
+  expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(true)
+})
+
 test("uses type info for indirect const string and allows valid dw path", async () => {
   const messages = await lintTypeAwareFixture("valid-indirect.ts")
 
@@ -141,6 +159,12 @@ test("uses type info for indirect const template literal and reports invalid mod
 
 test("keeps fallback behavior for non-literal typed identifiers", async () => {
   const messages = await lintTypeAwareFixture("nonliteral-indirect.ts")
+
+  expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(false)
+})
+
+test("keeps fallback behavior for mixed union with non-literal member", async () => {
+  const messages = await lintTypeAwareFixture("mixed-union-nonliteral-indirect.ts")
 
   expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(false)
 })

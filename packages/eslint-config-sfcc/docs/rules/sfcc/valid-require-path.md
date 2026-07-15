@@ -10,7 +10,9 @@ Validates SFCC-compatible `require()` paths and optionally checks whether cartri
 - Can resolve `*/` references against the configured cartridge order or filesystem cartridges
 - Can resolve `~/` references against the current cartridge
 - When TypeScript parser type information is available, can also validate `require()` calls that use identifier arguments with an exact string-literal type
+- Also supports unions where all members are exact string literals (for example `'dw/order/OrderMgr' | 'server'`)
 - Without type information, keeps existing behavior and ignores dynamic/non-literal `require(...)` arguments
+- Mixed unions with non-literal members (for example `string | 'server'`) keep the fallback behavior and are not type-narrowed
 
 ## Shared settings
 

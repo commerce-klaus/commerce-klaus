@@ -9,7 +9,11 @@ import fs from "node:fs"
 import path from "node:path"
 
 import { withSfccSettings } from "../_utils/sfcc-settings.js"
-import { getTypeTextForNode } from "../_utils/type-aware.js"
+import {
+  getExactStringLiteralValuesForNode,
+  getTypeTextForNode,
+  getUnionTypePartTextsForNode,
+} from "../_utils/type-aware.js"
 
 function getStringArgument(node: Rule.Node): string | undefined {
   if (node.type === "Literal" && typeof node.value === "string") {
@@ -23,7 +27,7 @@ function getStringArgument(node: Rule.Node): string | undefined {
   return undefined
 }
 
-function getLiteralStringFromTypeText(typeText: string): string | undefined {
+function parseSingleLiteralStringFromTypeText(typeText: string): string | undefined {
   const trimmed = typeText.trim()
   const singleQuoted = /^'([^'\\]|\\.)*'$/u
   const doubleQuoted = /^"([^"\\]|\\.)*"$/u
@@ -56,19 +60,89 @@ function getLiteralStringFromTypeText(typeText: string): string | undefined {
   }
 }
 
-function getTypeAwareStringArgument(
+function trimOuterParens(typeText: string): string {
+  let text = typeText.trim()
+
+  while (text.startsWith("(") && text.endsWith(")")) {
+    let depth = 0
+    let wrapsWholeText = true
+
+    for (let index = 0; index < text.length; index += 1) {
+      const char = text[index]
+      if (char === "(") {
+        depth += 1
+      } else if (char === ")") {
+        depth -= 1
+      }
+
+      if (depth === 0 && index < text.length - 1) {
+        wrapsWholeText = false
+        break
+      }
+    }
+
+    if (!wrapsWholeText) {
+      break
+    }
+
+    text = text.slice(1, -1).trim()
+  }
+
+  return text
+}
+
+function getLiteralStringsFromTypeText(typeText: string): string[] | undefined {
+  const normalizedTypeText = trimOuterParens(typeText)
+
+  if (!normalizedTypeText.includes("|")) {
+    const singleLiteral = parseSingleLiteralStringFromTypeText(normalizedTypeText)
+    return singleLiteral === undefined ? undefined : [singleLiteral]
+  }
+
+  const parts = normalizedTypeText.split("|").map((part) => part.trim())
+  if (parts.length === 0 || parts.some((part) => part.length === 0)) {
+    return undefined
+  }
+
+  const parsedParts = parts.map((part) => parseSingleLiteralStringFromTypeText(part))
+  if (parsedParts.some((part) => part === undefined)) {
+    return undefined
+  }
+
+  return [...new Set(parsedParts as string[])]
+}
+
+function getTypeAwareStringArguments(
   context: Rule.RuleContext,
   node: Rule.Node,
-): string | undefined {
+): string[] | undefined {
   if (node.type !== "Identifier") {
     return undefined
   }
+
+  const exactLiteralValues = getExactStringLiteralValuesForNode(context, node)
+  if (exactLiteralValues && exactLiteralValues.length > 0) {
+    return exactLiteralValues
+  }
+
+  const unionPartTexts = getUnionTypePartTextsForNode(context, node)
+  if (unionPartTexts && unionPartTexts.length > 0) {
+    const parsedUnionParts = unionPartTexts.map((part) =>
+      parseSingleLiteralStringFromTypeText(part),
+    )
+    if (!parsedUnionParts.some((part) => part === undefined)) {
+      return [...new Set(parsedUnionParts as string[])]
+    }
+
+    return undefined
+  }
+
   const typeText = getTypeTextForNode(context, node)
   if (!typeText) {
     return undefined
   }
 
-  return getLiteralStringFromTypeText(typeText)
+  return getLiteralStringsFromTypeText(typeText)
 }
 
 function isAllowedPrefix(requirePath: string): boolean {
@@ -162,6 +236,67 @@ const validRequirePath: Rule.RuleModule = {
       "<input>"
     const normalizedFilename = normalizeFilename(filename, cwd)
 
+    function validateRequirePath(requirePath: string, reportNode: Rule.Node) {
+      if (requirePath.startsWith("*/")) {
+        if (checkCartridgeExists && !resolveSfccModule(requirePath, normalizedFilename)) {
+          context.report({
+            node: reportNode,
+            messageId: "unresolvedStarPath",
+            data: { requirePath, cartridgesDir },
+          })
+        }
+        return
+      }
+
+      if (requirePath.startsWith("~/")) {
+        if (checkCartridgeExists && !resolveSfccModule(requirePath, normalizedFilename)) {
+          context.report({
+            node: reportNode,
+            messageId: "unresolvedTildePath",
+            data: { requirePath, cartridgesDir },
+          })
+        }
+        return
+      }
+
+      if (isAllowedPrefix(requirePath)) {
+        return
+      }
+
+      if (!requirePath.includes("/")) {
+        if (!allowBareModules.has(requirePath)) {
+          context.report({
+            node: reportNode,
+            messageId: "invalidPath",
+            data: { requirePath },
+          })
+        }
+        return
+      }
+
+      if (!isCartridgeStylePath(requirePath)) {
+        context.report({
+          node: reportNode,
+          messageId: "invalidPath",
+          data: { requirePath },
+        })
+        return
+      }
+
+      if (!checkCartridgeExists) {
+        return
+      }
+
+      const cartridgeName = getFirstSegment(requirePath)
+      if (!cartridgeExists(cartridgeName, cartridgesDir, cwd)) {
+        context.report({
+          node: reportNode,
+          messageId: "unknownCartridge",
+          data: { cartridgeName, requirePath, cartridgesDir },
+        })
+      }
+    }
+
     return {
       CallExpression(node) {
         const callNode = node as Rule.Node & {
@@ -178,69 +313,21 @@ const validRequirePath: Rule.RuleModule = {
           return
         }
 
-        const requirePath =
-          getStringArgument(firstArgument) ?? getTypeAwareStringArgument(context, firstArgument)
-        if (!requirePath) {
+        const directRequirePath = getStringArgument(firstArgument)
+        const typeAwareRequirePaths =
+          directRequirePath === undefined
+            ? getTypeAwareStringArguments(context, firstArgument)
+            : undefined
+        const requirePaths = directRequirePath
+          ? [directRequirePath]
+          : typeAwareRequirePaths?.filter((path) => path.length > 0)
+
+        if (!requirePaths || requirePaths.length === 0) {
           return
         }
 
-        if (requirePath.startsWith("*/")) {
-          if (checkCartridgeExists && !resolveSfccModule(requirePath, normalizedFilename)) {
-            context.report({
-              node: firstArgument,
-              messageId: "unresolvedStarPath",
-              data: { requirePath, cartridgesDir },
-            })
-          }
-          return
-        }
-
-        if (requirePath.startsWith("~/")) {
-          if (checkCartridgeExists && !resolveSfccModule(requirePath, normalizedFilename)) {
-            context.report({
-              node: firstArgument,
-              messageId: "unresolvedTildePath",
-              data: { requirePath, cartridgesDir },
-            })
-          }
-          return
-        }
-
-        if (isAllowedPrefix(requirePath)) {
-          return
-        }
-
-        if (!requirePath.includes("/")) {
-          if (!allowBareModules.has(requirePath)) {
-            context.report({
-              node: firstArgument,
-              messageId: "invalidPath",
-              data: { requirePath },
-            })
-          }
-          return
-        }
-
-        if (!isCartridgeStylePath(requirePath)) {
-          context.report({
-            node: firstArgument,
-            messageId: "invalidPath",
-            data: { requirePath },
-          })
-          return
-        }
-
-        if (!checkCartridgeExists) {
-          return
-        }
-
-        const cartridgeName = getFirstSegment(requirePath)
-        if (!cartridgeExists(cartridgeName, cartridgesDir, cwd)) {
-          context.report({
-            node: firstArgument,
-            messageId: "unknownCartridge",
-            data: { cartridgeName, requirePath, cartridgesDir },
-          })
+        for (const requirePath of requirePaths) {
+          validateRequirePath(requirePath, firstArgument)
         }
       },
     }
