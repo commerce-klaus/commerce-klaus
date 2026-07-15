@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0
+
+### Minor Changes
+
+- 060f22a: Generate JSDoc comments for custom attributes from SFCC x-default display-name and description metadata when available.
+
 ## 1.0.2
 
 ### Patch Changes

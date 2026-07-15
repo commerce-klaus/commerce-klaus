@@ -1,5 +1,51 @@
 # Changelog
 
+## 1.3.0
+
+### Minor Changes
+
+- d865600: Make `sfcc/no-empty-global` type-aware suggestion narrowing more conservative for mixed union types.
+
+  When multiple value categories are present in the inferred type (for example string/object/nullable combinations), keep broad fallback suggestions instead of forcing a single replacement.
+
+  Add fixture-based coverage for the mixed union case.
+
+- 9c115e6: Add fixture coverage for `sfcc/no-string-equals` to validate string type-alias receivers in type-aware mode.
+
+  This protects against regressions where `type Alias = string` values using `.equals(...)` might be missed.
+
+- 1bd59dd: Improve `sfcc/valid-require-path` with conservative type-aware validation for indirect `require(...)` calls.
+
+  When TypeScript parser type information is available, identifier arguments with an exact string-literal type are validated like direct string literals.
+
+  Without type information (or for non-literal/ambiguous identifier types), keep existing behavior unchanged and continue to ignore dynamic `require(...)` arguments.
+
+  Add dedicated fixture-based tests and documentation for the new behavior.
+
+### Patch Changes
+
+- de0b49b: Improve `sfcc/no-empty-global` with type-aware suggestion narrowing when TypeScript parser type information is available.
+
+  Add stable fixture-based tests (with a dedicated `tsconfig.json`) to verify typed `empty(...)` suggestions for object-like and string values.
+
+  Keep existing fallback behavior unchanged when type information is not available.
+
+- 3c3592d: Refactor shared TypeScript parser-services access into a reusable internal utility for SFCC rules.
+
+  Migrate `sfcc/no-empty-global`, `sfcc/no-string-equals`, and `sfcc/valid-require-path` to use the shared type-aware utility while preserving existing fallback behavior when type information is unavailable.
+
+  Extend `sfcc/valid-require-path` fixture coverage for indirect `const` template-literal `require(...)` arguments.
+
+- 22729cb: Harden `sfcc/no-string-equals` with stable fixture-based type-aware tests.
+
+  When TypeScript parser type information is available, keep reporting `string` receivers (including String augmentation cases) and skip clearly non-string receivers with custom `equals(...)` methods.
+
+  Without type information, keep the existing fallback behavior unchanged and continue reporting `.equals(...)` calls.
+
+- 0d91916: Enhance SFCC rule precision by validating dynamic `import(...)` paths in `sfcc/valid-require-path` with conservative type-aware fallback behavior.
+
+  Improve `sfcc/no-string-equals` safety by reporting optional-chaining calls without offering unsafe strict-equality suggestions.
+
 ## 1.2.12
 
 ### Patch Changes
