@@ -35,7 +35,11 @@ function isEqualsProperty(node: Rule.Node): boolean {
 }
 
 function getEqualitySuggestion(
-  callExpression: Rule.Node & { callee: Rule.Node; arguments?: Rule.Node[] },
+  callExpression: Rule.Node & {
+    callee: Rule.Node & { optional?: boolean }
+    arguments?: Rule.Node[]
+    optional?: boolean
+  },
   sourceCode: { getText(node: Rule.Node): string },
 ) {
   if (!Array.isArray(callExpression.arguments) || callExpression.arguments.length !== 1) {
@@ -48,6 +52,11 @@ function getEqualitySuggestion(
   }
 
   if (callExpression.callee.type !== "MemberExpression") {
+    return []
+  }
+
+  // Optional chaining has different nullish semantics; avoid offering unsafe replacements.
+  if (callExpression.optional || callExpression.callee.optional) {
     return []
   }
 

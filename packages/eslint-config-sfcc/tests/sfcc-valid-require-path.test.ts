@@ -105,6 +105,30 @@ test("reports invalid bare module requires", () => {
   expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(true)
 })
 
+test("allows dynamic import with valid dw path", () => {
+  const messages = lint(`
+    async function load() {
+      return import("dw/order/OrderMgr")
+    }
+
+    module.exports = load
+  `)
+
+  expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(false)
+})
+
+test("reports invalid bare module dynamic imports", () => {
+  const messages = lint(`
+    async function load() {
+      return import("lodash")
+    }
+
+    module.exports = load
+  `)
+
+  expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(true)
+})
+
 test("ignores dynamic requires", () => {
   const messages = lint(`
     const moduleName = "dw/order/OrderMgr"
@@ -165,6 +189,12 @@ test("uses type info for indirect const template literal and reports invalid mod
   expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(true)
 })
 
+test("uses type info for indirect dynamic import and reports invalid module", async () => {
+  const messages = await lintTypeAwareFixture("invalid-import-indirect.ts")
+
+  expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(true)
+})
+
 test("keeps fallback behavior for non-literal typed identifiers", async () => {
   const messages = await lintTypeAwareFixture("nonliteral-indirect.ts")
 
@@ -179,6 +209,12 @@ test("keeps fallback behavior for mixed union with non-literal member", async ()
 
 test("keeps fallback behavior for alias-based mixed union with non-literal member", async () => {
   const messages = await lintTypeAwareFixture("mixed-union-nonliteral-alias-indirect.ts")
+
+  expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(false)
+})
+
+test("keeps fallback behavior for alias-based mixed union in dynamic import", async () => {
+  const messages = await lintTypeAwareFixture("mixed-import-nonliteral-alias-indirect.ts")
 
   expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(false)
 })

@@ -1,17 +1,17 @@
 # sfcc/valid-require-path
 
-Validates SFCC-compatible `require()` paths and optionally checks whether cartridge-style references exist on disk.
+Validates SFCC-compatible `require()` and dynamic `import()` paths and optionally checks whether cartridge-style references exist on disk.
 
 ## What it checks
 
 - Accepts `dw/*`, `./*`, `../*`, `*/*`, `~/*`, cartridge-style paths like `cartridgeName/module`, and configured bare modules
-- Reports invalid require strings that do not match those patterns
+- Reports invalid require/import strings that do not match those patterns
 - Can verify cartridge existence when `checkCartridgeExists` is enabled
 - Can resolve `*/` references against the configured cartridge order or filesystem cartridges
 - Can resolve `~/` references against the current cartridge
-- When TypeScript parser type information is available, can also validate `require()` calls that use identifier arguments with an exact string-literal type
+- When TypeScript parser type information is available, can also validate `require()` and `import()` calls that use identifier arguments with an exact string-literal type
 - Also supports unions where all members are exact string literals (for example `'dw/order/OrderMgr' | 'server'`)
-- Without type information, keeps existing behavior and ignores dynamic/non-literal `require(...)` arguments
+- Without type information, keeps existing behavior and ignores dynamic/non-literal `require(...)` and `import(...)` arguments
 - Mixed unions with non-literal members (for example `string | 'server'`) keep the fallback behavior and are not type-narrowed
 
 ## Shared settings

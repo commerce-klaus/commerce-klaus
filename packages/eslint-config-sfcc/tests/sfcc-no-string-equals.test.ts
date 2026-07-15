@@ -94,6 +94,21 @@ describe("sfcc/no-string-equals", () => {
     expect(messages.some((m) => m.ruleId === "sfcc/no-string-equals")).toBe(true)
   })
 
+  test("reports optional chaining equals call", async () => {
+    const result = await lint('customerNo?.equals("123")')
+    const messages = result?.messages ?? []
+
+    expect(messages.some((m) => m.ruleId === "sfcc/no-string-equals")).toBe(true)
+  })
+
+  test("does not suggest replacement for optional chaining equals call", async () => {
+    const result = await lint('customerNo?.equals("123")')
+    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-string-equals")
+
+    expect(hit).toBeTruthy()
+    expect(hit?.suggestions ?? []).toHaveLength(0)
+  })
+
   test("suggests strict equality replacement", async () => {
     const code = 'customerNo.equals("123")'
     const result = await lint(code)

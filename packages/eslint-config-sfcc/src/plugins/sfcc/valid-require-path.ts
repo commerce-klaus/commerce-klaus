@@ -297,6 +297,29 @@ const validRequirePath: Rule.RuleModule = {
       }
     }
 
+    function validateModuleArgument(argumentNode: Rule.Node | undefined) {
+      if (!argumentNode) {
+        return
+      }
+
+      const directRequirePath = getStringArgument(argumentNode)
+      const typeAwareRequirePaths =
+        directRequirePath === undefined
+          ? getTypeAwareStringArguments(context, argumentNode)
+          : undefined
+      const requirePaths = directRequirePath
+        ? [directRequirePath]
+        : typeAwareRequirePaths?.filter((value) => value.length > 0)
+
+      if (!requirePaths || requirePaths.length === 0) {
+        return
+      }
+
+      for (const requirePath of requirePaths) {
+        validateRequirePath(requirePath, argumentNode)
+      }
+    }
+
     return {
       CallExpression(node) {
         const callNode = node as Rule.Node & {
@@ -308,27 +331,11 @@ const validRequirePath: Rule.RuleModule = {
           return
         }
 
-        const firstArgument = callNode.arguments?.[0]
-        if (!firstArgument) {
-          return
-        }
-
-        const directRequirePath = getStringArgument(firstArgument)
-        const typeAwareRequirePaths =
-          directRequirePath === undefined
-            ? getTypeAwareStringArguments(context, firstArgument)
-            : undefined
-        const requirePaths = directRequirePath
-          ? [directRequirePath]
-          : typeAwareRequirePaths?.filter((path) => path.length > 0)
-
-        if (!requirePaths || requirePaths.length === 0) {
-          return
-        }
-
-        for (const requirePath of requirePaths) {
-          validateRequirePath(requirePath, firstArgument)
-        }
+        validateModuleArgument(callNode.arguments?.[0])
+      },
+      ImportExpression(node) {
+        const importNode = node as Rule.Node & { source?: Rule.Node }
+        validateModuleArgument(importNode.source)
       },
     }
   }),
