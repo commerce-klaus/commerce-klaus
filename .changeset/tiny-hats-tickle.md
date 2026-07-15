@@ -1,5 +1,5 @@
 ---
-"@commerce-klaus/eslint-config-sfcc": minor
+"@commerce-klaus/eslint-config-sfcc": patch
 ---
 
 Enhance SFCC rule precision by validating dynamic `import(...)` paths in `sfcc/valid-require-path` with conservative type-aware fallback behavior.

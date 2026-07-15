@@ -1,5 +1,5 @@
 ---
-"@commerce-klaus/eslint-config-sfcc": patch
+"@commerce-klaus/eslint-config-sfcc": minor
 ---
 
 Make `sfcc/no-empty-global` type-aware suggestion narrowing more conservative for mixed union types.

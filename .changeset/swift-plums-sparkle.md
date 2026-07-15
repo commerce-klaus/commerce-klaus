@@ -1,5 +1,5 @@
 ---
-"@commerce-klaus/eslint-config-sfcc": patch
+"@commerce-klaus/eslint-config-sfcc": minor
 ---
 
 Improve `sfcc/valid-require-path` with conservative type-aware validation for indirect `require(...)` calls.

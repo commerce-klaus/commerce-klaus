@@ -1,5 +1,5 @@
 ---
-"@commerce-klaus/eslint-config-sfcc": patch
+"@commerce-klaus/eslint-config-sfcc": minor
 ---
 
 Add fixture coverage for `sfcc/no-string-equals` to validate string type-alias receivers in type-aware mode.
