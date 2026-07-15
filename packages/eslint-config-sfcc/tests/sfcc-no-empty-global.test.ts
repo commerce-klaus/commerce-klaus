@@ -213,4 +213,31 @@ describe("sfcc/no-empty-global", () => {
     )
     expect(suggestions.some((s) => s.desc?.includes("!customer"))).toBe(true)
   })
+
+  test("uses type info fixture to suggest only length for alias-based string literal unions", async () => {
+    const result = await lintTypeAwareFixture("string-literal-union-alias.ts")
+    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
+    const suggestions = hit?.suggestions ?? []
+
+    expect(suggestions).toHaveLength(1)
+    expect(suggestions[0]?.desc).toContain("customer.length === 0")
+  })
+
+  test("uses type info fixture to suggest only Object.keys for alias-based object unions", async () => {
+    const result = await lintTypeAwareFixture("object-record-union-alias.ts")
+    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
+    const suggestions = hit?.suggestions ?? []
+
+    expect(suggestions).toHaveLength(1)
+    expect(suggestions[0]?.desc).toContain("Object.keys(customer).length === 0")
+  })
+
+  test("uses type info fixture to suggest only nullable check for alias-based nullable unions", async () => {
+    const result = await lintTypeAwareFixture("nullable-union-alias.ts")
+    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
+    const suggestions = hit?.suggestions ?? []
+
+    expect(suggestions).toHaveLength(1)
+    expect(suggestions[0]?.desc).toContain("!customer")
+  })
 })

@@ -1,7 +1,13 @@
 import type { Rule } from "eslint"
 
 import { withSfccSettings } from "../_utils/sfcc-settings.js"
-import { getTypeTextForNode } from "../_utils/type-aware.js"
+import {
+  getExactStringLiteralValuesForNode,
+  getTypeTextForNode,
+  getUnionTypePartTextsForNode,
+  isStringLiteralTypeText,
+  parseTypeWordsFromTypeText,
+} from "../_utils/type-aware.js"
 
 const COLLECTION_CONSTRUCTORS = new Set([
   "ArrayList",
@@ -25,15 +31,7 @@ function isJavaScriptTarget(filename: string): boolean {
 }
 
 function parseTypeWords(typeText: string): string[] {
-  return typeText
-    .replace(/[()]/gu, "")
-    .split(/[|&]/u)
-    .map((item) => item.trim())
-    .filter(Boolean)
-}
-
-function isStringLiteralTypeText(typeText: string): boolean {
-  return /^".*"$/u.test(typeText) || /^'.*'$/u.test(typeText)
+  return parseTypeWordsFromTypeText(typeText)
 }
 
 function inferSuggestionKindFromTypeText(typeText: string): ReferenceSuggestionKind {
@@ -77,10 +75,83 @@ function inferSuggestionKindFromTypeText(typeText: string): ReferenceSuggestionK
   return "unknown"
 }
 
+function isObjectLiteralTypeWord(word: string): boolean {
+  return /^\{.*\}$/u.test(word) || /^Record<.*>$/u.test(word)
+}
+
+function isNullableTypeWord(word: string): boolean {
+  return word === "null" || word === "undefined" || word === "void"
+}
+
+function isStringTypeWord(word: string): boolean {
+  return word === "string" || word === "String" || isStringLiteralTypeText(word)
+}
+
+function isArrayTypeWord(word: string): boolean {
+  return /\[\]$|^Array<|^ReadonlyArray</u.test(word)
+}
+
+function getTypeAwareSuggestionKindFromShape(
+  context: Rule.RuleContext,
+  argument: Rule.Node,
+): ReferenceSuggestionKind | undefined {
+  const exactStringLiterals = getExactStringLiteralValuesForNode(context, argument)
+  if (exactStringLiterals && exactStringLiterals.length > 0) {
+    return "length"
+  }
+
+  const unionPartTexts = getUnionTypePartTextsForNode(context, argument)
+  const words =
+    unionPartTexts && unionPartTexts.length > 0
+      ? unionPartTexts
+      : (() => {
+          const typeText = getTypeTextForNode(context, argument)
+          if (!typeText) {
+            return []
+          }
+
+          return parseTypeWords(typeText)
+        })()
+
+  if (words.length === 0) {
+    return undefined
+  }
+
+  const hasNullable = words.some((word) => isNullableTypeWord(word))
+  const hasObjectLiteral = words.some((word) => isObjectLiteralTypeWord(word))
+  const hasStringLike = words.some((word) => isStringTypeWord(word))
+  const hasArrayLike = words.some((word) => isArrayTypeWord(word))
+  const categories = [hasObjectLiteral, hasNullable, hasStringLike || hasArrayLike]
+  const matchedCategories = categories.filter(Boolean).length
+
+  if (matchedCategories > 1) {
+    return "unknown"
+  }
+
+  if (hasObjectLiteral) {
+    return "object-keys"
+  }
+
+  if (hasStringLike || hasArrayLike) {
+    return "length"
+  }
+
+  if (hasNullable) {
+    return "nullable"
+  }
+
+  return undefined
+}
+
 function getTypeAwareSuggestionKind(
   context: Rule.RuleContext,
   argument: Rule.Node,
 ): ReferenceSuggestionKind {
+  const shapeAwareKind = getTypeAwareSuggestionKindFromShape(context, argument)
+  if (shapeAwareKind) {
+    return shapeAwareKind
+  }
+
   const typeText = getTypeTextForNode(context, argument)
   if (!typeText) {
     return "unknown"
