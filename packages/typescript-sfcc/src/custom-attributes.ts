@@ -18,6 +18,12 @@ interface GeneratedAttribute {
   name: string
   typeName: string
   required: boolean
+  documentation?: GeneratedDocumentation
+}
+
+interface GeneratedDocumentation {
+  displayName?: string
+  description?: string
 }
 
 type AttributeMap = Map<string, GeneratedAttribute>
@@ -50,6 +56,8 @@ interface ParsedAttributeDefinition {
 
 interface ParsedTypeExtension {
   "type-id"?: unknown
+  "display-name"?: unknown
+  description?: unknown
   "custom-attribute-definitions"?: {
     "attribute-definition"?: ParsedAttributeDefinition | ParsedAttributeDefinition[]
   }
@@ -57,6 +65,8 @@ interface ParsedTypeExtension {
 
 interface ParsedCustomType {
   "type-id"?: unknown
+  "display-name"?: unknown
+  description?: unknown
   "attribute-definitions"?: {
     "attribute-definition"?: ParsedAttributeDefinition | ParsedAttributeDefinition[]
   }
@@ -233,7 +243,9 @@ export function generateCustomAttributesTypes(
   const dwModuleIndex = buildDwModuleIndex(dwTypesDirectory, readdirSync, statSync)
   const hasDwGlobalNamespace = detectDwGlobalNamespace(typesRootDirectory, existsSync, readFileSync)
   const typeAttributes = new Map<string, AttributeMap>()
+  const typeDocumentation = new Map<string, GeneratedDocumentation>()
   const customObjectAttributes = new Map<string, AttributeMap>()
+  const customObjectDocumentation = new Map<string, GeneratedDocumentation>()
 
   for (const xmlFilePath of xmlFiles) {
     const parsed = parser.parse(readFileSync(xmlFilePath, "utf8")) as ParsedMetadataRoot
@@ -243,11 +255,11 @@ export function generateCustomAttributesTypes(
     }
 
     for (const extension of toArray(metadata["type-extension"])) {
-      ingestTypeExtension(extension, typeAttributes)
+      ingestTypeExtension(extension, typeAttributes, typeDocumentation)
     }
 
     for (const customType of toArray(metadata["custom-type"])) {
-      ingestCustomType(customType, customObjectAttributes)
+      ingestCustomType(customType, customObjectAttributes, customObjectDocumentation)
     }
   }
 
@@ -255,13 +267,16 @@ export function generateCustomAttributesTypes(
   patchCustomObjectMgrDeclarations(
     dwTypesDirectory,
     customObjectAttributes,
+    customObjectDocumentation,
     readFileSync,
     writeFileSync,
   )
 
   const rendered = renderGeneratedDeclarations(
     typeAttributes,
+    typeDocumentation,
     customObjectAttributes,
+    customObjectDocumentation,
     dwModuleIndex,
     hasDwGlobalNamespace,
   )
@@ -356,22 +371,31 @@ function buildDwModuleIndex(
 function ingestTypeExtension(
   extension: ParsedTypeExtension,
   target: Map<string, AttributeMap>,
+  documentationTarget: Map<string, GeneratedDocumentation>,
 ): void {
   const typeId = asString(extension["type-id"])
   if (!typeId) {
     return
   }
 
+  documentationTarget.set(typeId, extractDocumentation(extension))
+
   const definitions = extension["custom-attribute-definitions"]
   const attributeDefinitions = toArray(definitions?.["attribute-definition"])
   upsertAttributeDefinitions(target, typeId, attributeDefinitions)
 }
 
-function ingestCustomType(customType: ParsedCustomType, target: Map<string, AttributeMap>): void {
+function ingestCustomType(
+  customType: ParsedCustomType,
+  target: Map<string, AttributeMap>,
+  documentationTarget: Map<string, GeneratedDocumentation>,
+): void {
   const typeId = asString(customType["type-id"])
   if (!typeId) {
     return
   }
+
+  documentationTarget.set(typeId, extractDocumentation(customType))
 
   const definitions = customType["attribute-definitions"]
   const attributeDefinitions = toArray(definitions?.["attribute-definition"])
@@ -398,6 +422,7 @@ function upsertAttributeDefinitions(
       name: attributeId,
       typeName: toTypescriptType(definition),
       required: asString(definition["mandatory-flag"]) === "true",
+      documentation: extractDocumentation(definition),
     })
   }
 
@@ -406,7 +431,9 @@ function upsertAttributeDefinitions(
 
 function renderGeneratedDeclarations(
   typeAttributes: Map<string, AttributeMap>,
+  typeDocumentation: Map<string, GeneratedDocumentation>,
   customObjectAttributes: Map<string, AttributeMap>,
+  customObjectDocumentation: Map<string, GeneratedDocumentation>,
   dwModuleIndex: Map<string, string[]>,
   hasDwGlobalNamespace: boolean,
 ): { content: string; declarationsCount: number; attributesCount: number } | undefined {
@@ -468,9 +495,11 @@ function renderGeneratedDeclarations(
       left.name.localeCompare(right.name),
     )
     lines.push(`declare module "${moduleSpecifier}" {`)
+    lines.push(...renderDocumentationComment(typeDocumentation.get(typeId), "  "))
     lines.push(`  interface ${typeId}CustomAttributes {`)
     for (const attribute of sortedAttributes) {
       const optionalToken = attribute.required ? "" : "?"
+      lines.push(...renderDocumentationComment(attribute.documentation, "    "))
       lines.push(
         `    ${toPropertyIdentifier(attribute.name)}${optionalToken}: ${attribute.typeName}`,
       )
@@ -492,12 +521,14 @@ function renderGeneratedDeclarations(
         continue
       }
 
+      lines.push(...renderDocumentationComment(customObjectDocumentation.get(typeId), ""))
       lines.push(`interface ${toCustomObjectAttributesIdentifier(typeId)} {`)
       const sorted = [...attributes.values()].sort((left, right) =>
         left.name.localeCompare(right.name),
       )
       for (const attribute of sorted) {
         const optionalToken = attribute.required ? "" : "?"
+        lines.push(...renderDocumentationComment(attribute.documentation, "  "))
         lines.push(
           `  ${toPropertyIdentifier(attribute.name)}${optionalToken}: ${attribute.typeName}`,
         )
@@ -511,6 +542,7 @@ function renderGeneratedDeclarations(
     lines.push("  interface CustomObjectCustomAttributes {")
     for (const attribute of customAttributes) {
       const optionalToken = attribute.required ? "" : "?"
+      lines.push(...renderDocumentationComment(attribute.documentation, "    "))
       lines.push(
         `    ${toPropertyIdentifier(attribute.name)}${optionalToken}: ${attribute.typeName}`,
       )
@@ -573,6 +605,7 @@ function toGlobalDwTypeExpression(moduleSpecifier: string): string | undefined {
 function patchCustomObjectMgrDeclarations(
   dwTypesDirectory: string,
   customObjectAttributes: Map<string, AttributeMap>,
+  _customObjectDocumentation: Map<string, GeneratedDocumentation>,
   readFileSync: (filePath: string, encoding: BufferEncoding) => string,
   writeFileSync: (filePath: string, content: string, encoding: BufferEncoding) => void,
 ): boolean {
@@ -748,6 +781,85 @@ function mergeCustomObjectAttributes(
   }
 
   return [...merged.values()].sort((left, right) => left.name.localeCompare(right.name))
+}
+
+function extractDocumentation(source: unknown): GeneratedDocumentation {
+  if (!isRecord(source)) {
+    return {}
+  }
+
+  const displayName = extractXDefaultText(source["display-name"])
+  const description = extractXDefaultText(source.description)
+
+  return {
+    displayName,
+    description,
+  }
+}
+
+function extractXDefaultText(value: unknown): string | undefined {
+  if (typeof value === "string") {
+    return value
+  }
+
+  if (Array.isArray(value)) {
+    const defaultEntry = value.find((item) => {
+      if (!isRecord(item)) {
+        return false
+      }
+
+      const language = asString(item["xml:lang"]) ?? asString(item.lang)
+      return language === "x-default"
+    })
+
+    return extractXDefaultText(defaultEntry ?? value[0])
+  }
+
+  if (!isRecord(value)) {
+    return undefined
+  }
+
+  const language = asString(value["xml:lang"]) ?? asString(value.lang)
+  if (language && language !== "x-default") {
+    return undefined
+  }
+
+  const text = value["#text"]
+  return typeof text === "string" ? text : undefined
+}
+
+function renderDocumentationComment(
+  documentation: GeneratedDocumentation | undefined,
+  indentation: string,
+): string[] {
+  if (!documentation) {
+    return []
+  }
+
+  const texts = [documentation.displayName, documentation.description]
+    .flatMap((text) => splitDocumentationText(text))
+    .filter((text, index, all) => all.indexOf(text) === index)
+
+  if (texts.length === 0) {
+    return []
+  }
+
+  return [
+    `${indentation}/**`,
+    ...texts.map((text) => `${indentation} * ${text}`),
+    `${indentation} */`,
+  ]
+}
+
+function splitDocumentationText(text: string | undefined): string[] {
+  if (!text) {
+    return []
+  }
+
+  return text
+    .split(/\r?\n/u)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
 }
 
 function resolveSystemObjectModule(

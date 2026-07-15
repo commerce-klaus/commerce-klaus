@@ -114,6 +114,8 @@ test("generateCustomAttributesTypes reads all site_template/meta xml files and w
         '  <type-extension type-id="Product">',
         "    <custom-attribute-definitions>",
         '      <attribute-definition attribute-id="foo">',
+        '        <display-name xml:lang="x-default">Foo</display-name>',
+        '        <description xml:lang="x-default">Foo attribute description</description>',
         "        <type>string</type>",
         "        <mandatory-flag>true</mandatory-flag>",
         "      </attribute-definition>",
@@ -158,8 +160,12 @@ test("generateCustomAttributesTypes reads all site_template/meta xml files and w
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">',
         '  <custom-type type-id="ExampleNotification">',
+        '    <display-name xml:lang="x-default">Example Notification</display-name>',
+        '    <description xml:lang="x-default">Example notification type</description>',
         "    <attribute-definitions>",
         '      <attribute-definition attribute-id="eventCode">',
+        '        <display-name xml:lang="x-default">Event Code</display-name>',
+        '        <description xml:lang="x-default">Event code from the notification</description>',
         "        <type>string</type>",
         "        <mandatory-flag>false</mandatory-flag>",
         "      </attribute-definition>",
@@ -179,6 +185,7 @@ test("generateCustomAttributesTypes reads all site_template/meta xml files and w
     const generatedContent = fs.readFileSync(result.outputFilePath, "utf8")
     expect(generatedContent).toContain("type SfccEnumValue<TValue>")
     expect(generatedContent).toContain('declare module "dw/catalog/Product"')
+    expect(generatedContent).toContain("Foo attribute description")
     expect(generatedContent).toContain("foo: string")
     expect(generatedContent).toContain('status?: SfccEnumValue<"disabled" | "enabled">')
     expect(generatedContent).toContain("weights?: number[]")
@@ -186,7 +193,13 @@ test("generateCustomAttributesTypes reads all site_template/meta xml files and w
     expect(generatedContent).toContain("priority?: number")
     expect(generatedContent).toContain("modes?: SfccEnumValue<1 | 2>[]")
     expect(generatedContent).toContain('declare module "dw/object/CustomObject"')
+    expect(generatedContent).toContain(
+      "/**\n * Example Notification\n * Example notification type\n */\ninterface CustomObjectExampleNotificationCustomAttributes",
+    )
     expect(generatedContent).toContain("eventCode?: string")
+    expect(generatedContent).toContain(
+      "  /**\n   * Event Code\n   * Event code from the notification\n   */\n  eventCode?: string",
+    )
     expect(generatedContent).toContain("interface CustomObjectExampleNotificationCustomAttributes")
     expect(generatedContent).toContain("interface CustomObjectCustomAttributes")
     expect(generatedContent).toContain("eventCode?: string")
