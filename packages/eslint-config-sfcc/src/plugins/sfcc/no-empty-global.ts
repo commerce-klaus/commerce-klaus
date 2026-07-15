@@ -4,8 +4,11 @@ import { withSfccSettings } from "../_utils/sfcc-settings.js"
 import {
   getExactStringLiteralValuesForNode,
   getTypeTextForNode,
-  getUnionTypePartTextsForNode,
-  isStringLiteralTypeText,
+  getTypeWordsForNode,
+  isArrayTypeWord,
+  isNullableTypeWord,
+  isObjectLikeTypeWord,
+  isStringLikeTypeWord,
   parseTypeWordsFromTypeText,
 } from "../_utils/type-aware.js"
 
@@ -36,13 +39,9 @@ function parseTypeWords(typeText: string): string[] {
 
 function inferSuggestionKindFromTypeText(typeText: string): ReferenceSuggestionKind {
   const words = parseTypeWords(typeText)
-  const hasNullable = words.some(
-    (word) => word === "null" || word === "undefined" || word === "void",
-  )
+  const hasNullable = words.some((word) => isNullableTypeWord(word))
   const isObjectLike = /^\{|\bobject\b|\bObject\b|\bRecord</u.test(typeText)
-  const isStringLike = words.some(
-    (word) => word === "string" || word === "String" || isStringLiteralTypeText(word),
-  )
+  const isStringLike = words.some((word) => isStringLikeTypeWord(word))
   const isArrayLike = /\[\]|\bArray<|\bReadonlyArray</u.test(typeText)
   const isCollectionLike =
     /\b(?:ArrayList|Collection|FilteringCollection|HashSet|LinkedHashSet|List|Set|SortedSet)\b/u.test(
@@ -75,22 +74,6 @@ function inferSuggestionKindFromTypeText(typeText: string): ReferenceSuggestionK
   return "unknown"
 }
 
-function isObjectLiteralTypeWord(word: string): boolean {
-  return /^\{.*\}$/u.test(word) || /^Record<.*>$/u.test(word)
-}
-
-function isNullableTypeWord(word: string): boolean {
-  return word === "null" || word === "undefined" || word === "void"
-}
-
-function isStringTypeWord(word: string): boolean {
-  return word === "string" || word === "String" || isStringLiteralTypeText(word)
-}
-
-function isArrayTypeWord(word: string): boolean {
-  return /\[\]$|^Array<|^ReadonlyArray</u.test(word)
-}
-
 function getTypeAwareSuggestionKindFromShape(
   context: Rule.RuleContext,
   argument: Rule.Node,
@@ -100,26 +83,15 @@ function getTypeAwareSuggestionKindFromShape(
     return "length"
   }
 
-  const unionPartTexts = getUnionTypePartTextsForNode(context, argument)
-  const words =
-    unionPartTexts && unionPartTexts.length > 0
-      ? unionPartTexts
-      : (() => {
-          const typeText = getTypeTextForNode(context, argument)
-          if (!typeText) {
-            return []
-          }
-
-          return parseTypeWords(typeText)
-        })()
+  const words = getTypeWordsForNode(context, argument)
 
   if (words.length === 0) {
     return undefined
   }
 
   const hasNullable = words.some((word) => isNullableTypeWord(word))
-  const hasObjectLiteral = words.some((word) => isObjectLiteralTypeWord(word))
-  const hasStringLike = words.some((word) => isStringTypeWord(word))
+  const hasObjectLiteral = words.some((word) => isObjectLikeTypeWord(word))
+  const hasStringLike = words.some((word) => isStringLikeTypeWord(word))
   const hasArrayLike = words.some((word) => isArrayTypeWord(word))
   const categories = [hasObjectLiteral, hasNullable, hasStringLike || hasArrayLike]
   const matchedCategories = categories.filter(Boolean).length

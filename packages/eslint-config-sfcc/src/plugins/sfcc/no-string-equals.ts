@@ -4,8 +4,9 @@ import { withSfccSettings } from "../_utils/sfcc-settings.js"
 import {
   getExactStringLiteralValuesForNode,
   getTypeTextForNode,
-  getUnionTypePartTextsForNode,
-  isStringLiteralTypeText,
+  getTypeWordsForNode,
+  hasStringLikeWithoutConcreteNonString,
+  isAmbiguousTypeWord,
   parseTypeWordsFromTypeText,
 } from "../_utils/type-aware.js"
 
@@ -69,37 +70,6 @@ function parseTypeWords(typeText: string): string[] {
     .filter(Boolean)
 }
 
-function isAmbiguousTypeWord(word: string): boolean {
-  return (
-    word === "any" ||
-    word === "unknown" ||
-    word === "never" ||
-    word === "{}" ||
-    word === "object" ||
-    word === "Object" ||
-    word === "null" ||
-    word === "undefined" ||
-    word === "void"
-  )
-}
-
-function isStringLikeTypeWord(word: string): boolean {
-  return word === "string" || word === "String" || isStringLiteralTypeText(word)
-}
-
-function hasStringLikeWithoutConcreteNonString(words: string[]): boolean {
-  if (words.length === 0) {
-    return false
-  }
-
-  const hasStringLike = words.some((word) => isStringLikeTypeWord(word))
-  const hasNonString = words.some(
-    (word) => !isStringLikeTypeWord(word) && !isAmbiguousTypeWord(word),
-  )
-
-  return hasStringLike && !hasNonString
-}
-
 function isStringLikeType(typeText: string): boolean {
   return hasStringLikeWithoutConcreteNonString(parseTypeWords(typeText))
 }
@@ -122,13 +92,13 @@ function shouldReportBasedOnTypes(
     return true
   }
 
-  const unionPartTexts = getUnionTypePartTextsForNode(context, memberExpression.object)
-  if (unionPartTexts && unionPartTexts.length > 0) {
-    if (hasStringLikeWithoutConcreteNonString(unionPartTexts)) {
+  const typeWords = getTypeWordsForNode(context, memberExpression.object)
+  if (typeWords.length > 0) {
+    if (hasStringLikeWithoutConcreteNonString(typeWords)) {
       return true
     }
 
-    if (unionPartTexts.some((word) => isAmbiguousTypeWord(word))) {
+    if (typeWords.some((word) => isAmbiguousTypeWord(word))) {
       return true
     }
 

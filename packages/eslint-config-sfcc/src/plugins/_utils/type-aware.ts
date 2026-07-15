@@ -111,6 +111,51 @@ export function isStringLiteralTypeText(typeText: string): boolean {
   return /^".*"$/u.test(typeText) || /^'.*'$/u.test(typeText)
 }
 
+export function isAmbiguousTypeWord(word: string): boolean {
+  return (
+    word === "any" ||
+    word === "unknown" ||
+    word === "never" ||
+    word === "{}" ||
+    word === "object" ||
+    word === "Object" ||
+    word === "null" ||
+    word === "undefined" ||
+    word === "void"
+  )
+}
+
+export function isNullableTypeWord(word: string): boolean {
+  return word === "null" || word === "undefined" || word === "void"
+}
+
+export function isStringLikeTypeWord(word: string): boolean {
+  return word === "string" || word === "String" || isStringLiteralTypeText(word)
+}
+
+export function isArrayTypeWord(word: string): boolean {
+  return /\[\]$|^Array<|^ReadonlyArray</u.test(word)
+}
+
+export function isObjectLikeTypeWord(word: string): boolean {
+  return (
+    /^\{.*\}$/u.test(word) || /^Record<.*>$/u.test(word) || word === "object" || word === "Object"
+  )
+}
+
+export function hasStringLikeWithoutConcreteNonString(words: string[]): boolean {
+  if (words.length === 0) {
+    return false
+  }
+
+  const hasStringLike = words.some((word) => isStringLikeTypeWord(word))
+  const hasNonString = words.some(
+    (word) => !isStringLikeTypeWord(word) && !isAmbiguousTypeWord(word),
+  )
+
+  return hasStringLike && !hasNonString
+}
+
 export function getTypeTextForNode(context: Rule.RuleContext, node: Rule.Node): string | undefined {
   const type = getTypeForNode(context, node)
   if (!type) {
@@ -163,4 +208,18 @@ export function getUnionTypePartTextsForNode(
     .filter((part) => part.length > 0)
 
   return texts.length > 0 ? [...new Set(texts)] : undefined
+}
+
+export function getTypeWordsForNode(context: Rule.RuleContext, node: Rule.Node): string[] {
+  const unionPartTexts = getUnionTypePartTextsForNode(context, node)
+  if (unionPartTexts && unionPartTexts.length > 0) {
+    return unionPartTexts
+  }
+
+  const typeText = getTypeTextForNode(context, node)
+  if (!typeText) {
+    return []
+  }
+
+  return parseTypeWordsFromTypeText(typeText)
 }
