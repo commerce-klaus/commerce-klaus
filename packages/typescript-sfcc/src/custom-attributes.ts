@@ -467,11 +467,21 @@ function renderGeneratedDeclarations(
       lines.push("")
     }
 
-    // Preserve dynamic property access for SFCC request parameter maps.
+    // Preserve dynamic property access for SFCC request and pipeline dictionaries.
     lines.push("declare global {")
     lines.push("  namespace dw.web {")
     lines.push("    interface HttpParameterMap {")
     lines.push("      [key: string]: dw.web.HttpParameter")
+    lines.push("    }")
+    lines.push("  }")
+    lines.push("  namespace dw.system {")
+    lines.push("    interface PipelineDictionary {")
+    lines.push("      [key: string]: any")
+    lines.push("    }")
+    lines.push("  }")
+    lines.push("  namespace dw.util {")
+    lines.push("    interface Map<K, V> {")
+    lines.push("      [key: string]: any")
     lines.push("    }")
     lines.push("  }")
     lines.push("}")

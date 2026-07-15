@@ -698,7 +698,7 @@ test("runProjectTypecheck loads generated custom attribute typings from b2c-scri
   })
 })
 
-test("runProjectTypecheck preserves CommonJS static members and HttpParameterMap dynamic access with generated custom attributes", () => {
+test("runProjectTypecheck preserves SFCC compatibility typing with generated custom attributes", () => {
   withTempDir((tempDir) => {
     const cartridgesDir = path.join(tempDir, "cartridges")
     const appCustom = path.join(cartridgesDir, "app_custom")
@@ -725,6 +725,15 @@ test("runProjectTypecheck preserves CommonJS static members and HttpParameterMap
         'const parameterMap = /** @type {any} */ ({ productId: { value: "x" } })',
         "parameterMap.productId.value",
         "",
+        "/** @type {dw.system.PipelineDictionary} */",
+        "const pdict = /** @type {any} */ ({})",
+        "pdict.Status = { error: false }",
+        "pdict.Status.error",
+        "",
+        "/** @type {dw.util.Map<any, any>} */",
+        'const requestHttpParameters = /** @type {any} */ ({ format: ["json"] })',
+        "requestHttpParameters.format[0]",
+        "",
       ].join("\n"),
     )
 
@@ -743,6 +752,12 @@ test("runProjectTypecheck preserves CommonJS static members and HttpParameterMap
         "        value: string",
         "      }",
         "      export class HttpParameterMap {}",
+        "    }",
+        "    module util {",
+        "      export class Map<K, V> {}",
+        "    }",
+        "    module system {",
+        "      export class PipelineDictionary {}",
         "    }",
         "  }",
         "}",

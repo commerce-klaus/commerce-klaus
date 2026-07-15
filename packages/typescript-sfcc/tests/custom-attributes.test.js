@@ -536,7 +536,7 @@ test("generateCustomAttributesTypes resolves newly mapped order, service, and ca
   })
 })
 
-test("generateCustomAttributesTypes emits require and HttpParameterMap compatibility declarations when global dw namespace exists", () => {
+test("generateCustomAttributesTypes emits SFCC compatibility declarations when global dw namespace exists", () => {
   withTempDir((workspaceRoot) => {
     const metaDir = path.join(workspaceRoot, "sites", "site_template", "meta")
     const typesDir = path.join(workspaceRoot, ".b2c-script-types", "types")
@@ -558,6 +558,15 @@ test("generateCustomAttributesTypes emits require and HttpParameterMap compatibi
         "    module web {",
         "      export class HttpParameter { value: string }",
         "      export class HttpParameterMap {}",
+        "    }",
+        "    module system {",
+        "      export class PipelineDictionary {}",
+        "      export class Request {",
+        "        readonly httpParameters: util.Map<any, any>",
+        "      }",
+        "    }",
+        "    module util {",
+        "      export class Map<K, V> {}",
         "    }",
         "  }",
         "}",
@@ -593,6 +602,12 @@ test("generateCustomAttributesTypes emits require and HttpParameterMap compatibi
     expect(generatedContent).toContain('function require(id: "dw/order/Order")')
     expect(generatedContent).toContain("namespace dw.web")
     expect(generatedContent).toContain("[key: string]: dw.web.HttpParameter")
+    expect(generatedContent).toContain("namespace dw.system")
+    expect(generatedContent).toContain("interface PipelineDictionary")
+    expect(generatedContent).toContain("[key: string]: any")
+    expect(generatedContent).toContain("namespace dw.util")
+    expect(generatedContent).toContain("interface Map<K, V>")
+    expect(generatedContent).toContain("[key: string]: any")
     expect(generatedContent).toContain("export {}")
   })
 })
