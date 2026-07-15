@@ -7,6 +7,8 @@ Disallows Java-style `String.equals(...)` calls in JavaScript files. Use strict 
 - Flags `.equals(...)` calls such as `value.equals("foo")` and `value["equals"]("foo")`
 - Applies only to JavaScript-like inputs: `.js`, `.mjs`, `.cjs`, `.ds`, and `<input>`
 - When TypeScript parser services with type information are available, only reports `.equals(...)` calls on string-like receivers
+- Includes alias-based exact string literal unions (for example `type CustomerNo = "abc" | "def"`)
+- Conservatively skips mixed unions that include non-string members (for example `string | HasEquals`)
 - Without TypeScript type information, keeps the default strict behavior and reports all `.equals(...)` calls
 
 ## Why this rule exists

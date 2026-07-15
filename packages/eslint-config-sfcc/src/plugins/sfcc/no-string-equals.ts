@@ -1,7 +1,13 @@
 import type { Rule } from "eslint"
 
 import { withSfccSettings } from "../_utils/sfcc-settings.js"
-import { getTypeTextForNode } from "../_utils/type-aware.js"
+import {
+  getExactStringLiteralValuesForNode,
+  getTypeTextForNode,
+  getUnionTypePartTextsForNode,
+  isStringLiteralTypeText,
+  parseTypeWordsFromTypeText,
+} from "../_utils/type-aware.js"
 
 function isJavaScriptTarget(filename: string): boolean {
   if (filename === "<input>") {
@@ -58,24 +64,44 @@ function getEqualitySuggestion(
 }
 
 function parseTypeWords(typeText: string): string[] {
-  const parts = typeText
-    .replace(/[()]/gu, "")
-    .split(/[|&]/u)
-    .map((item) => item.trim())
+  return parseTypeWordsFromTypeText(typeText)
+    .map((part) => part.replace(/\[\]$/u, ""))
     .filter(Boolean)
-
-  return parts.map((part) => part.replace(/\[\]$/u, "")).filter(Boolean)
 }
 
-function isStringLiteralTypeText(typeText: string): boolean {
-  return /^".*"$/u.test(typeText) || /^'.*'$/u.test(typeText)
+function isAmbiguousTypeWord(word: string): boolean {
+  return (
+    word === "any" ||
+    word === "unknown" ||
+    word === "never" ||
+    word === "{}" ||
+    word === "object" ||
+    word === "Object" ||
+    word === "null" ||
+    word === "undefined" ||
+    word === "void"
+  )
+}
+
+function isStringLikeTypeWord(word: string): boolean {
+  return word === "string" || word === "String" || isStringLiteralTypeText(word)
+}
+
+function hasStringLikeWithoutConcreteNonString(words: string[]): boolean {
+  if (words.length === 0) {
+    return false
+  }
+
+  const hasStringLike = words.some((word) => isStringLikeTypeWord(word))
+  const hasNonString = words.some(
+    (word) => !isStringLikeTypeWord(word) && !isAmbiguousTypeWord(word),
+  )
+
+  return hasStringLike && !hasNonString
 }
 
 function isStringLikeType(typeText: string): boolean {
-  const words = parseTypeWords(typeText)
-  return words.some(
-    (word) => word === "string" || word === "String" || isStringLiteralTypeText(word),
-  )
+  return hasStringLikeWithoutConcreteNonString(parseTypeWords(typeText))
 }
 
 function isAmbiguousType(typeText: string): boolean {
@@ -84,21 +110,31 @@ function isAmbiguousType(typeText: string): boolean {
     return true
   }
 
-  return words.some(
-    (word) =>
-      word === "any" ||
-      word === "unknown" ||
-      word === "never" ||
-      word === "{}" ||
-      word === "object" ||
-      word === "Object",
-  )
+  return words.some((word) => isAmbiguousTypeWord(word))
 }
 
 function shouldReportBasedOnTypes(
   context: Rule.RuleContext,
   memberExpression: Rule.Node & { object: Rule.Node },
 ): boolean {
+  const exactStringLiterals = getExactStringLiteralValuesForNode(context, memberExpression.object)
+  if (exactStringLiterals && exactStringLiterals.length > 0) {
+    return true
+  }
+
+  const unionPartTexts = getUnionTypePartTextsForNode(context, memberExpression.object)
+  if (unionPartTexts && unionPartTexts.length > 0) {
+    if (hasStringLikeWithoutConcreteNonString(unionPartTexts)) {
+      return true
+    }
+
+    if (unionPartTexts.some((word) => isAmbiguousTypeWord(word))) {
+      return true
+    }
+
+    return false
+  }
+
   const typeText = getTypeTextForNode(context, memberExpression.object)
   if (!typeText) {
     return true

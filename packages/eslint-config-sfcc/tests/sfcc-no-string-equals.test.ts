@@ -132,6 +132,27 @@ describe("sfcc/no-string-equals", () => {
     expect(messages.some((m) => m.ruleId === "sfcc/no-string-equals")).toBe(true)
   })
 
+  test("uses TS type info to keep reporting equals on string literal unions", async () => {
+    const result = await lintTypeAware("string-literal-union-equals.ts")
+    const messages = result?.messages ?? []
+
+    expect(messages.some((m) => m.ruleId === "sfcc/no-string-equals")).toBe(true)
+  })
+
+  test("uses TS type info to keep reporting equals on alias-based string literal unions", async () => {
+    const result = await lintTypeAware("string-literal-union-alias-equals.ts")
+    const messages = result?.messages ?? []
+
+    expect(messages.some((m) => m.ruleId === "sfcc/no-string-equals")).toBe(true)
+  })
+
+  test("uses TS type info conservatively for mixed string and non-string unions", async () => {
+    const result = await lintTypeAware("mixed-string-and-object-union-equals.ts")
+    const messages = result?.messages ?? []
+
+    expect(messages.some((m) => m.ruleId === "sfcc/no-string-equals")).toBe(false)
+  })
+
   test("keeps fallback behavior without TS parser type info", async () => {
     const result = await lint('const value = "abc"\nvalue.equals("123")')
     const messages = result?.messages ?? []
