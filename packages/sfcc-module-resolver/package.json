@@ -48,7 +48,7 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "fast-xml-parser": "^5.8.0"
+    "fast-xml-parser": "^5.10.1"
   },
   "devDependencies": {
     "@types/node": "catalog:",
