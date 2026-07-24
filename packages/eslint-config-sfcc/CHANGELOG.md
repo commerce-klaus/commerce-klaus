@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.3.1
+
+### Patch Changes
+
+- e315a2d: Allow usage of JavaScript Generators
+
+  ```js
+  const Logger = require("dw/system/Logger")
+
+  function* greet() {
+    yield "Hello"
+    yield "World"
+  }
+
+  const generator = greet()
+  for (const value of generator) {
+    Logger.info(value)
+  }
+  ```
+
 ## 1.3.0
 
 ### Minor Changes
