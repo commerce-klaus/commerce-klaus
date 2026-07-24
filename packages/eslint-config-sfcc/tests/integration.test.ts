@@ -165,6 +165,11 @@ describe("✅ SFCC Compatibility - Allowed ES2015+ Features", () => {
     `)
     expect(hasErrors(messages)).toBe(false)
   })
+
+  test("✅ Generator Functions", async () => {
+    const messages = await lint(`function* gen() { yield 1 }`)
+    expect(hasErrors(messages)).toBe(false)
+  })
 })
 
 describe("❌ SFCC Compatibility - Disallowed ES2015+ Features", () => {
@@ -277,11 +282,6 @@ describe("❌ SFCC Compatibility - Disallowed ES2015+ Features", () => {
       const p = new Promise(function(resolve) { resolve(1) })
       module.exports = p
     `)
-      expect(hasErrors(messages)).toBe(true)
-    })
-
-    test("❌ Generator Functions", async () => {
-      const messages = await lint(`function* gen() { yield 1 }`)
       expect(hasErrors(messages)).toBe(true)
     })
 
