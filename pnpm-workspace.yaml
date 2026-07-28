@@ -24,5 +24,3 @@ peerDependencyRules:
 allowBuilds:
   protobufjs: false
   yarn: false
-patchedDependencies:
-  eslint-plugin-sonarjs@4.1.0: patches/eslint-plugin-sonarjs@4.1.0.patch
