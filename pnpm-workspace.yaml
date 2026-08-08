@@ -3,7 +3,8 @@ packages:
   - packages/*
   - tools/*
 
-catalogMode: prefer
+catalogMode: manual
+cleanupUnusedCatalogs: true
 
 catalog:
   "@types/node": ^24
