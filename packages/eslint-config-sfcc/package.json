@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@commerce-klaus/sfcc-module-resolver": "^1.0.0",
-    "eslint-plugin-es": "^4.1.0"
+    "eslint-plugin-es-x": "^10.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -60,7 +60,6 @@
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
-    "@eslint/compat": ">=1.3.1",
     "eslint": ">=9.0.0",
     "globals": ">=13.24.0"
   },

@@ -1,12 +1,12 @@
-import { fixupPluginRules } from "@eslint/compat"
 import { ESLint } from "eslint"
-import es from "eslint-plugin-es"
+import pluginESx from "eslint-plugin-es-x"
 import globals from "globals"
 import { expect, test, describe } from "vite-plus/test"
 
 import { createRecommendedConfig } from "../src/configs/recommended.js"
 import sfcc from "../src/plugins/sfcc/index.js"
 import sitegenesis from "../src/plugins/sitegenesis/index.js"
+import esOverrides from "../src/rules/es.js"
 import rules from "../src/rules/index.js"
 
 async function lint(
@@ -30,7 +30,7 @@ async function lintModule(code: string): Promise<any[]> {
         globals: globals.commonjs,
       },
       plugins: {
-        es: fixupPluginRules(es as never),
+        "es-x": pluginESx,
         sfcc,
         sitegenesis,
       },
@@ -48,6 +48,19 @@ async function lintModule(code: string): Promise<any[]> {
 function hasErrors(messages: any[]): boolean {
   return messages.filter((m) => m.severity > 0).length > 0
 }
+
+describe("✅ ES baseline wiring", () => {
+  test("✅ no-optional-chaining comes from recommended baseline, not es overrides", async () => {
+    expect(esOverrides["es-x/no-optional-chaining"]).toBeUndefined()
+
+    const messages = await lint(`
+      const customerNo = req.currentCustomer?.profile?.customerNo
+      module.exports = customerNo
+    `)
+
+    expect(messages.some((m) => m.ruleId === "es-x/no-optional-chaining")).toBe(true)
+  })
+})
 
 describe("✅ SFCC Compatibility - Valid ES5 Code", () => {
   test("✅ valid CommonJS module exports", async () => {

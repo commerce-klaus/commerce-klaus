@@ -42,14 +42,19 @@ test("forwards shared sfcc options via settings", () => {
     },
   })
 
-  expect(createdConfig[0]?.settings).toEqual({
+  const sfccConfig = createdConfig.find(
+    (config) =>
+      config.settings !== undefined || config.rules?.["sfcc/valid-require-path"] !== undefined,
+  )
+
+  expect(sfccConfig?.settings).toEqual({
     sfcc: {
       checkCartridgeExists: true,
       cartridgePath: ["app_storefront", "modules"],
       cartridgesDir: "custom-cartridges",
     },
   })
-  expect(createdConfig[0]?.rules?.["sfcc/valid-require-path"]).toBe("error")
+  expect(sfccConfig?.rules?.["sfcc/valid-require-path"]).toBe("error")
 })
 
 test("exports sitegenesis plugin", () => {

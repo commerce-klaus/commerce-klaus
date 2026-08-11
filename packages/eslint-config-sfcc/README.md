@@ -11,7 +11,12 @@ This package continues `@jenssimon/eslint-config-sfcc` under the [Commerce Klaus
 **Allowed:**
 
 - ES5 syntax and common patterns that are guaranteed to work on SFCC/Rhino
-- Selected ES2015+ features that are proven to work on SFCC (e.g. `String.raw`, some Array methods)
+- Selected ES2015+ features that are proven to work on SFCC, including:
+- `const`/`let` declarations
+- Arrow functions, destructuring, template literals, and generator functions
+- `String.raw`
+- `Object.values(...)` and `Object.entries(...)`
+- `for...of` loops
 
 **Blocked:**
 
