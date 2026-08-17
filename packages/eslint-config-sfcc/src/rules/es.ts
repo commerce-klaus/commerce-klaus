@@ -5,6 +5,8 @@ import type { Linter } from "eslint"
 // src/configs/recommended.ts; this file only contains SFCC-specific overrides.
 const es: Linter.RulesRecord = {
   // features that are supported
+  "es-x/no-array-prototype-includes": "off",
+  "es-x/no-exponential-operators": "off",
   "es-x/no-object-values": "off",
   "es-x/no-object-entries": "off",
   "es-x/no-for-of-loops": "off",
