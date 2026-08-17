@@ -11,7 +11,7 @@
     "prepare": "vp config"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.29.7",
+    "@changesets/cli": "^3.0.0",
     "vite-plus": "catalog:"
   },
   "engines": {
