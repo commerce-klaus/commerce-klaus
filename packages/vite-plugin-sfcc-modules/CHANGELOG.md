@@ -1,5 +1,40 @@
 # Changelog
 
+## 1.1.0
+
+### Minor Changes
+
+- d4ceba2: Add optional cartridge-order inference to the Vite plugin when cartridgePath is not provided.
+
+  The plugin can now derive cartridge order from:
+
+  - envCartridgePath (or SFCC_CARTRIDGE_PATH)
+  - solutionConfigPath references
+  - siteTemplatePath + site (custom-cartridges in site.xml)
+  - filesystem fallback
+
+  Also adds test coverage for site-template inference and documents new usage examples in README.
+
+### Patch Changes
+
+- 2606f44: Centralize cartridge root resolution in `@commerce-klaus/sfcc-module-resolver` and reuse it in both plugin packages.
+
+  ## What changed
+  - Added shared helpers in resolver:
+    - `resolveCartridgesBasePath(basePath, cwd, containingFile?)`
+    - `resolveCartridgeRoots(options)`
+  - Refactored `@commerce-klaus/vite-plugin-sfcc-modules` to use shared cartridge root resolution.
+  - Refactored `@commerce-klaus/babel-plugin-sfcc-modules` to use shared cartridge root resolution.
+  - Added resolver tests for base path fallback and shared root resolution.
+  - Updated resolver documentation with the new shared APIs.
+
+  ## Why
+
+  Both plugins had near-identical logic for resolving base paths and cartridge roots. This removes duplication and ensures consistent behavior across Babel and Vite integrations.
+
+- Updated dependencies [2606f44]
+  - @commerce-klaus/sfcc-module-resolver@1.1.0
+
 ## 1.0.2
 
 ### Patch Changes
