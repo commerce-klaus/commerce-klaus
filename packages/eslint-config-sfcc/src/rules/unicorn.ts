@@ -5,6 +5,7 @@ import type { Linter } from "eslint"
 const unicorn: Linter.RulesRecord = {
   "unicorn/logical-assignment-operators": "off",
 
+  "unicorn/no-array-sort": "off",
   "unicorn/no-computed-property-existence-check": "off",
   "unicorn/no-useless-iterator-to-array": "off",
 
