@@ -37,7 +37,7 @@ importers:
         specifier: ^8.0.0
         version: 8.0.4
       '@commerce-klaus/sfcc-module-resolver':
-        specifier: ^1.0.0
+        specifier: ^1.1.0
         version: link:../sfcc-module-resolver
       imports-visitor:
         specifier: ^2.1.0
@@ -152,7 +152,7 @@ importers:
   packages/vite-plugin-sfcc-modules:
     dependencies:
       '@commerce-klaus/sfcc-module-resolver':
-        specifier: ^1.0.0
+        specifier: ^1.1.0
         version: link:../sfcc-module-resolver
       vite:
         specifier: npm:@voidzero-dev/vite-plus-core@latest
