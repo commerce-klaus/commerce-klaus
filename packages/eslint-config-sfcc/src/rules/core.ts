@@ -1,13 +1,11 @@
 import type { Linter } from "eslint"
 
-// Disable ESLint core rules that suggest or require ES2015+ syntax.
-// SFCC sandboxes run on Rhino (ES5), so these patterns are not supported.
+// Disable ESLint core rules that suggest syntax or APIs unsupported by SFCC/Rhino.
+// Supported ES2015+ syntax and APIs should remain available to core rules.
 const core: Linter.RulesRecord = {
   "no-restricted-properties": "off",
   "object-shorthand": "off",
-  "prefer-arrow-callback": "off",
   "prefer-const": "off",
-  "prefer-exponentiation-operator": "off",
   "prefer-object-has-own": "off",
   "prefer-object-spread": "off",
   "prefer-rest-params": "off",

@@ -17,6 +17,7 @@ This package continues `@jenssimon/eslint-config-sfcc` under the [Commerce Klaus
 - `String.raw`
 - `Object.values(...)` and `Object.entries(...)`
 - `for...of` loops
+- Selected ES2015+ standard APIs documented for SFCC from API version 21.2, including `Array.from`, `Array.of`, `Array.prototype.find`, `Array.prototype.findIndex`, `String.prototype.includes`, `String.prototype.startsWith`, `String.prototype.endsWith`, `String.prototype.repeat`, `String.prototype.padStart`, `String.prototype.padEnd`, `String.fromCodePoint`, `Object.assign`, and selected `Number` validation/parsing methods
 
 **Blocked:**
 

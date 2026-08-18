@@ -10,6 +10,7 @@ const es: Linter.RulesRecord = {
   "es-x/no-object-values": "off",
   "es-x/no-object-entries": "off",
   "es-x/no-for-of-loops": "off",
+  "es-x/no-string-prototype-padstart-padend": "off",
 
   // ES2015 features not supported on SFCC/Rhino:
   "es-x/no-classes": "error",

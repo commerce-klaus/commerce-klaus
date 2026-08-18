@@ -2,4 +2,4 @@
 "@commerce-klaus/eslint-config-sfcc": patch
 ---
 
-add allowed EcmaScript features
+Allow documented ES2015+ APIs and supported syntax in SFCC compatibility rules.

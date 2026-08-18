@@ -183,6 +183,26 @@ describe("✅ SFCC Compatibility - Allowed ES2015+ Features", () => {
     const messages = await lint(`function* gen() { yield 1 }`)
     expect(hasErrors(messages)).toBe(false)
   })
+
+  test("✅ SFCC-documented Array, String, Object, and Number APIs", async () => {
+    const messages = await lint(`
+      const values = Array.from({ 0: "a", 1: "b", length: 2 })
+      const first = values.find(function(value) { return value === "a" })
+      const index = values.findIndex(function(value) { return value === "b" })
+      const created = Array.of(first, values[index])
+      const text = "SFCC"
+      const result = text.includes("FCC") && text.startsWith("S") && text.endsWith("C")
+      const padded = text.padStart(6, "0").padEnd(8, "!")
+      const repeated = text.repeat(2)
+      const codePoint = String.fromCodePoint(83)
+      const merged = Object.assign({}, { values: created })
+      const finite = Number.isFinite(1) && Number.isNaN(NaN) === false
+      const safe = Number.isSafeInteger(1) && Number.parseInt("1", 10) === 1
+      const decimal = Number.parseFloat("1.5")
+      module.exports = { result, padded, repeated, codePoint, merged, finite, safe, decimal }
+    `)
+    expect(hasErrors(messages)).toBe(false)
+  })
 })
 
 describe("❌ SFCC Compatibility - Disallowed ES2015+ Features", () => {
