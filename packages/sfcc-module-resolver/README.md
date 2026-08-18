@@ -80,6 +80,8 @@ Notes:
 ### Cartridge order and paths
 
 - `resolveCartridgesDir(cartridgesDir, cwd): string`
+- `resolveCartridgesBasePath(basePath, cwd, containingFile?): string`
+- `resolveCartridgeRoots(options): string[]`
 - `findCartridgesDir(startDirectory): string | undefined`
 - `readSolutionReferences(solutionConfigPath): string[]`
 - `resolveSiteTemplatePath(siteTemplatePath, cwd, fallbackPath?): string | undefined`

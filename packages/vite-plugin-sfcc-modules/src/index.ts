@@ -3,10 +3,9 @@ import type { Plugin } from "vite-plus"
 import {
   createSfccModuleResolver,
   findContainingCartridgeRoot,
-  inferCartridgeOrder,
+  resolveCartridgeRoots,
   resolveSuperModuleFilePath,
 } from "@commerce-klaus/sfcc-module-resolver"
-import path from "node:path"
 
 /**
  * Configuration for SFCC module resolution.
@@ -41,26 +40,22 @@ interface SfccModulesOptions {
  */
 export default function sfccModules({
   cartridgePath,
-  basePath: rawBasePath,
-  cwd: rawCwd,
+  basePath,
+  cwd,
   siteTemplatePath,
   site,
   solutionConfigPath,
   envCartridgePath,
 }: SfccModulesOptions): Plugin {
-  const cwd = rawCwd ?? process.cwd()
-  const basePath = path.isAbsolute(rawBasePath) ? rawBasePath : path.resolve(cwd, rawBasePath)
-  const cartridgeRoots =
-    cartridgePath && cartridgePath.length > 0
-      ? cartridgePath.map((cartridge) => path.join(basePath, cartridge))
-      : inferCartridgeOrder({
-          cartridgesDir: basePath,
-          cwd,
-          siteTemplatePath,
-          site,
-          solutionConfigPath,
-          envCartridgePath,
-        })
+  const cartridgeRoots = resolveCartridgeRoots({
+    basePath,
+    cwd,
+    cartridgePath,
+    siteTemplatePath,
+    site,
+    solutionConfigPath,
+    envCartridgePath,
+  })
   const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
 
   return {
@@ -68,7 +63,7 @@ export default function sfccModules({
 
     resolveId(source, importer) {
       if (source.startsWith("*/")) {
-        const found = resolveSfccModule(source, importer ?? basePath)
+        const found = resolveSfccModule(source, importer ?? process.cwd())
         if (found) return found
       }
 

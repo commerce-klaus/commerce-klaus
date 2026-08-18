@@ -16,6 +16,17 @@ export type InferCartridgeOrderOptions = {
   envCartridgePath?: string
 }
 
+export type ResolveCartridgeRootsOptions = {
+  basePath: string
+  cwd?: string
+  cartridgePath?: string[]
+  siteTemplatePath?: string
+  site?: string
+  solutionConfigPath?: string
+  envCartridgePath?: string
+  containingFile?: string
+}
+
 function cleanCartridgePathEntries(entries: string[] | undefined): string[] {
   if (!entries) {
     return []
@@ -26,6 +37,53 @@ function cleanCartridgePathEntries(entries: string[] | undefined): string[] {
 
 export function resolveCartridgesDir(cartridgesDir: string, cwd: string): string {
   return path.isAbsolute(cartridgesDir) ? cartridgesDir : path.resolve(cwd, cartridgesDir)
+}
+
+export function resolveCartridgesBasePath(
+  basePath: string,
+  cwd: string,
+  containingFile?: string,
+): string {
+  if (path.isAbsolute(basePath)) {
+    return basePath
+  }
+
+  const fromCwd = path.resolve(cwd, basePath)
+  if (!containingFile || fs.existsSync(fromCwd)) {
+    return fromCwd
+  }
+
+  let currentDir = path.dirname(path.resolve(containingFile))
+  while (true) {
+    const candidate = path.resolve(currentDir, basePath)
+    if (fs.existsSync(candidate)) {
+      return candidate
+    }
+
+    const parentDir = path.dirname(currentDir)
+    if (parentDir === currentDir) {
+      break
+    }
+
+    currentDir = parentDir
+  }
+
+  return fromCwd
+}
+
+export function resolveCartridgeRoots(options: ResolveCartridgeRootsOptions): string[] {
+  const cwd = options.cwd ?? process.cwd()
+  const cartridgesDir = resolveCartridgesBasePath(options.basePath, cwd, options.containingFile)
+
+  return inferCartridgeOrder({
+    cartridgesDir,
+    cwd,
+    cartridgePath: options.cartridgePath,
+    siteTemplatePath: options.siteTemplatePath,
+    site: options.site,
+    solutionConfigPath: options.solutionConfigPath,
+    envCartridgePath: options.envCartridgePath,
+  })
 }
 
 export function findCartridgesDir(startDirectory: string): string | undefined {

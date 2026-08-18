@@ -8,6 +8,8 @@ import {
   createSfccModuleResolver,
   getSiteTemplateCartridgePath,
   inferCartridgeOrder,
+  resolveCartridgeRoots,
+  resolveCartridgesBasePath,
   transformSuperModuleSource,
 } from "../src/index.ts"
 
@@ -99,6 +101,47 @@ test("getSiteTemplateCartridgePath parses nested custom-cartridges", () => {
 
     const result = getSiteTemplateCartridgePath(siteTemplatePath, "RefArch", tempDir)
     expect(result).toEqual(["app_a", "app_b"])
+  })
+})
+
+test("resolveCartridgesBasePath falls back to containing file when cwd path does not exist", () => {
+  withTempDir((tempDir) => {
+    const containingFile = path.join(
+      tempDir,
+      "workspace",
+      "cartridges",
+      "app_core",
+      "cartridge",
+      "controllers",
+      "Home.js",
+    )
+    fs.mkdirSync(path.dirname(containingFile), { recursive: true })
+    fs.writeFileSync(containingFile, "module.exports = {}\n")
+
+    const resolved = resolveCartridgesBasePath(
+      "cartridges",
+      path.join(tempDir, "other-cwd"),
+      containingFile,
+    )
+    expect(resolved).toBe(path.join(tempDir, "workspace", "cartridges"))
+  })
+})
+
+test("resolveCartridgeRoots resolves explicit cartridge path entries", () => {
+  withTempDir((tempDir) => {
+    const cartridgesDir = path.join(tempDir, "cartridges")
+    const appCore = path.join(cartridgesDir, "app_core")
+    const appBase = path.join(cartridgesDir, "app_storefront_base")
+
+    fs.mkdirSync(appCore, { recursive: true })
+    fs.mkdirSync(appBase, { recursive: true })
+
+    const result = resolveCartridgeRoots({
+      basePath: cartridgesDir,
+      cartridgePath: ["app_storefront_base", "app_core"],
+    })
+
+    expect(result).toEqual([appBase, appCore])
   })
 })
 
