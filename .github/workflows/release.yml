@@ -23,7 +23,13 @@ jobs:
         uses: voidzero-dev/setup-vp@v1
         with:
           cache: true
-          run-install: true
+          run-install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --link-workspace-packages
+
+      - name: Bootstrap shared resolver package
+        run: cd packages/sfcc-module-resolver && vp pack
 
       - name: Create release PR or publish
         id: changesets
