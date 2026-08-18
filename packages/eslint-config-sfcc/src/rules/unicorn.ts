@@ -9,6 +9,11 @@ const unicorn: Linter.RulesRecord = {
   "unicorn/no-computed-property-existence-check": "off",
   "unicorn/no-useless-iterator-to-array": "off",
 
+  // ⚠️ for-of loops work for arrays.
+  //  but there are false positives like dw.util.Collection, which is not iterable in Rhino.
+  // So we disable this rule.
+  "unicorn/no-for-loop": "off",
+
   "unicorn/numeric-separators-style": "off",
 
   "unicorn/prefer-array-flat": "off",
