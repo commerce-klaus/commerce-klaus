@@ -29,7 +29,12 @@ jobs:
           run-install: false
 
       - name: Install dependencies
+        if: ${{ !startsWith(github.ref, 'refs/heads/changeset-release/') && !startsWith(github.head_ref, 'changeset-release/') }}
         run: vp install --frozen-lockfile -- --link-workspace-packages
+
+      - name: Install dependencies (changeset release branches)
+        if: ${{ startsWith(github.ref, 'refs/heads/changeset-release/') || startsWith(github.head_ref, 'changeset-release/') }}
+        run: vp install --no-frozen-lockfile -- --link-workspace-packages
 
       - name: Bootstrap shared resolver package
         run: cd packages/sfcc-module-resolver && vp pack

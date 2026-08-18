@@ -35,7 +35,7 @@ jobs:
         id: changesets
         uses: changesets/action@v2.1.0
         with:
-          version-script: vp run version-packages
+          version-script: vp run version-packages && vp install --lockfile-only -- --link-workspace-packages
           publish-script: vp run release
           commit-message: "chore(release): version packages"
           pr-title: "chore(release): version packages"
