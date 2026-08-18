@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.0
+
+### Minor Changes
+
+- 1259ef3: Bring back unicorn/no-array-sort ignore
+
 ## 1.3.3
 
 ### Patch Changes
