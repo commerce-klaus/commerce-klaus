@@ -6,6 +6,7 @@
   "scripts": {
     "changeset": "changeset",
     "version-packages": "changeset version",
+    "version-packages-lockfile": "changeset version && vp install --lockfile-only -- --link-workspace-packages",
     "release": "vp pm publish -r",
     "ready": "vp check && vp run -r test && vp run -r build",
     "prepare": "vp config"
