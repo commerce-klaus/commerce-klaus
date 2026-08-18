@@ -1,4 +1,5 @@
 import fs from "node:fs"
+import os from "node:os"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { describe, expect, it } from "vite-plus/test"
@@ -49,5 +50,47 @@ describe("vite-plugin-sfcc-modules", () => {
       `import __sfcc_superModule__ from ${JSON.stringify(path.join(basePath, "app_core/cartridge/scripts/things.js"))}`,
     )
     expect(transformed).not.toContain("module.superModule")
+  })
+
+  it("infers cartridge order from site template custom-cartridges", () => {
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-vite-plugin-site-template-"))
+    const cartridgesDir = path.join(tempRoot, "cartridges")
+    const siteTemplatePath = path.join(tempRoot, "sites", "site_template")
+    const siteXmlPath = path.join(siteTemplatePath, "sites", "refarch", "site.xml")
+
+    fs.mkdirSync(path.join(cartridgesDir, "app_first", "cartridge", "scripts"), { recursive: true })
+    fs.mkdirSync(path.join(cartridgesDir, "app_second", "cartridge", "scripts"), {
+      recursive: true,
+    })
+    fs.mkdirSync(path.dirname(siteXmlPath), { recursive: true })
+
+    fs.writeFileSync(
+      path.join(cartridgesDir, "app_first", "cartridge", "scripts", "order.js"),
+      "module.exports = 'first'\n",
+    )
+    fs.writeFileSync(
+      path.join(cartridgesDir, "app_second", "cartridge", "scripts", "order.js"),
+      "module.exports = 'second'\n",
+    )
+    fs.writeFileSync(
+      siteXmlPath,
+      "<site><custom-cartridges>app_second:app_first</custom-cartridges></site>",
+    )
+
+    try {
+      const inferredPlugin = sfccModules({
+        basePath: cartridgesDir,
+        cwd: tempRoot,
+        siteTemplatePath,
+        site: "refarch",
+      })
+
+      const resolved = inferredPlugin.resolveId?.("*/cartridge/scripts/order")
+      expect(resolved).toBe(
+        path.join(cartridgesDir, "app_second", "cartridge", "scripts", "order.js"),
+      )
+    } finally {
+      fs.rmSync(tempRoot, { recursive: true, force: true })
+    }
   })
 })

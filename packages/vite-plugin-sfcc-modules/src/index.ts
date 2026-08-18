@@ -3,6 +3,7 @@ import type { Plugin } from "vite-plus"
 import {
   createSfccModuleResolver,
   findContainingCartridgeRoot,
+  inferCartridgeOrder,
   resolveSuperModuleFilePath,
 } from "@commerce-klaus/sfcc-module-resolver"
 import path from "node:path"
@@ -12,9 +13,19 @@ import path from "node:path"
  */
 interface SfccModulesOptions {
   /** Ordered cartridge lookup path. First match wins. */
-  cartridgePath: string[]
+  cartridgePath?: string[]
   /** Base directory that contains all cartridges from cartridgePath. */
   basePath: string
+  /** Current working directory used to resolve relative paths. Defaults to process.cwd(). */
+  cwd?: string
+  /** Optional path to the site template root that contains sites/<site>/site.xml. */
+  siteTemplatePath?: string
+  /** Optional site id used to read custom-cartridges from sites/<site>/site.xml. */
+  site?: string
+  /** Optional path to cartridges/jsconfig.json used for reference-based cartridge ordering. */
+  solutionConfigPath?: string
+  /** Optional cartridge path string (colon-separated), same format as SFCC_CARTRIDGE_PATH. */
+  envCartridgePath?: string
 }
 
 /**
@@ -31,9 +42,25 @@ interface SfccModulesOptions {
 export default function sfccModules({
   cartridgePath,
   basePath: rawBasePath,
+  cwd: rawCwd,
+  siteTemplatePath,
+  site,
+  solutionConfigPath,
+  envCartridgePath,
 }: SfccModulesOptions): Plugin {
-  const basePath = path.resolve(rawBasePath)
-  const cartridgeRoots = cartridgePath.map((cartridge) => path.join(basePath, cartridge))
+  const cwd = rawCwd ?? process.cwd()
+  const basePath = path.isAbsolute(rawBasePath) ? rawBasePath : path.resolve(cwd, rawBasePath)
+  const cartridgeRoots =
+    cartridgePath && cartridgePath.length > 0
+      ? cartridgePath.map((cartridge) => path.join(basePath, cartridge))
+      : inferCartridgeOrder({
+          cartridgesDir: basePath,
+          cwd,
+          siteTemplatePath,
+          site,
+          solutionConfigPath,
+          envCartridgePath,
+        })
   const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
 
   return {

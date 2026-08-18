@@ -87,12 +87,57 @@ export default defineConfig({
 })
 ```
 
+Example with cartridge order inferred from site template (`sites/<site>/site.xml`):
+
+```ts
+import { defineConfig } from "vite"
+import sfccModules from "@commerce-klaus/vite-plugin-sfcc-modules"
+
+export default defineConfig({
+  plugins: [
+    sfccModules({
+      basePath: "./cartridges",
+      siteTemplatePath: "./sites/site_template",
+      site: "RefArch",
+    }),
+  ],
+})
+```
+
+Example with explicit env-style override (`envCartridgePath`):
+
+```ts
+import { defineConfig } from "vite"
+import sfccModules from "@commerce-klaus/vite-plugin-sfcc-modules"
+
+export default defineConfig({
+  plugins: [
+    sfccModules({
+      basePath: "./cartridges",
+      envCartridgePath: "app_brand:app_core:app_storefront_base",
+    }),
+  ],
+})
+```
+
 ### Options
 
-| Option          | Type       | Required | Description                                                                                        |
-| --------------- | ---------- | -------- | -------------------------------------------------------------------------------------------------- |
-| `cartridgePath` | `string[]` | yes      | Ordered cartridge lookup path. First match wins.                                                   |
-| `basePath`      | `string`   | yes      | Path to the folder containing cartridges in `cartridgePath`. Resolved relative to `process.cwd()`. |
+| Option               | Type       | Required | Description                                                                         |
+| -------------------- | ---------- | -------- | ----------------------------------------------------------------------------------- |
+| `cartridgePath`      | `string[]` | no       | Ordered cartridge lookup path. First match wins.                                    |
+| `basePath`           | `string`   | yes      | Path to the cartridges directory. Resolved relative to `cwd` (or `process.cwd()`).  |
+| `cwd`                | `string`   | no       | Working directory used to resolve relative paths.                                   |
+| `siteTemplatePath`   | `string`   | no       | Site-template root that contains `sites/<site>/site.xml`.                           |
+| `site`               | `string`   | no       | Site identifier used to read `custom-cartridges` from `site.xml`.                   |
+| `solutionConfigPath` | `string`   | no       | Path to `cartridges/jsconfig.json` for reference-based cartridge order.             |
+| `envCartridgePath`   | `string`   | no       | Cartridge order as a colon-separated string (same format as `SFCC_CARTRIDGE_PATH`). |
+
+If `cartridgePath` is omitted, cartridge order is inferred with this precedence:
+
+1. `envCartridgePath` (or `SFCC_CARTRIDGE_PATH`)
+2. `solutionConfigPath` references
+3. `siteTemplatePath` + `site` (`custom-cartridges` in `site.xml`)
+4. filesystem fallback (alphabetical)
 
 ## Resolution behavior
 
