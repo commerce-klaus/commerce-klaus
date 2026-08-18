@@ -1,6 +1,7 @@
 import { callExpression, identifier, stringLiteral } from "@babel/types"
 import {
   createSfccModuleResolver,
+  inferCartridgeOrder,
   resolveSuperModuleFilePath,
   stripExt,
   toPosixPath,
@@ -14,16 +15,21 @@ type ImportLike = {
 }
 
 type PluginOptions = {
-  cartridgePath: string[]
+  cartridgePath?: string[]
   basePath: string
+  cwd?: string
+  siteTemplatePath?: string
+  site?: string
+  solutionConfigPath?: string
+  envCartridgePath?: string
 }
 
-const resolveBasePath = (basePath: string, filename: string) => {
+const resolveBasePath = (basePath: string, filename: string, cwd: string) => {
   if (path.isAbsolute(basePath)) {
     return basePath
   }
 
-  const fromCwd = path.resolve(basePath)
+  const fromCwd = path.resolve(cwd, basePath)
   if (fs.existsSync(fromCwd)) {
     return fromCwd
   }
@@ -52,13 +58,28 @@ const getRelativeRequirePath = (moduleName: string, resolvedFile: string) => {
   return relativePath.startsWith(".") ? relativePath : `./${relativePath}`
 }
 
-const plugin = (_babel: unknown, { cartridgePath, basePath }: PluginOptions) => ({
+const resolveCartridgeRoots = (options: PluginOptions, filename: string): string[] => {
+  const cwd = options.cwd ?? process.cwd()
+  const resolvedBasePath = resolveBasePath(options.basePath, filename, cwd)
+
+  if (options.cartridgePath && options.cartridgePath.length > 0) {
+    return options.cartridgePath.map((cartridge) => path.join(resolvedBasePath, cartridge))
+  }
+
+  return inferCartridgeOrder({
+    cartridgesDir: resolvedBasePath,
+    cwd,
+    siteTemplatePath: options.siteTemplatePath,
+    site: options.site,
+    solutionConfigPath: options.solutionConfigPath,
+    envCartridgePath: options.envCartridgePath,
+  })
+}
+
+const plugin = (_babel: unknown, options: PluginOptions) => ({
   visitor: {
     Program(thePath: any, state: any) {
-      const resolvedBasePath = resolveBasePath(basePath, state.file.opts.filename)
-      const cartridgeRoots = cartridgePath.map((cartridge) =>
-        path.join(resolvedBasePath, cartridge),
-      )
+      const cartridgeRoots = resolveCartridgeRoots(options, state.file.opts.filename)
       const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
       const imports: ImportLike[] = []
       thePath.traverse(importsVisitor, { imports })
@@ -92,16 +113,13 @@ const plugin = (_babel: unknown, { cartridgePath, basePath }: PluginOptions) => 
     },
 
     MemberExpression(thePath: any, state: any) {
-      const resolvedBasePath = resolveBasePath(basePath, state.file.opts.filename)
       // Find "module.superModule"
       if (
         thePath.node.object.type === "Identifier" &&
         thePath.node.object.name === "module" &&
         thePath.node.property.name === "superModule"
       ) {
-        const cartridgeRoots = cartridgePath.map((cartridge) =>
-          path.join(resolvedBasePath, cartridge),
-        )
+        const cartridgeRoots = resolveCartridgeRoots(options, state.file.opts.filename)
         const resolved = resolveSuperModuleFilePath(state.file.opts.filename, cartridgeRoots)
         const foundRequire = resolved
           ? getRelativeRequirePath(state.file.opts.filename, resolved)
