@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.1
+
+### Patch Changes
+
+- b691eb0: Disable `unicorn/no-for-loop` to avoid false positives with e.g. `dw.util.Collection`
+
 ## 1.4.0
 
 ### Minor Changes
