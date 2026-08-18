@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.3
+
+### Patch Changes
+
+- 7bb3115: Allow documented ES2015+ APIs and supported syntax in SFCC compatibility rules.
+
 ## 1.3.2
 
 ### Patch Changes
