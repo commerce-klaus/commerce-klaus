@@ -39,6 +39,7 @@ Notes:
 - `sfcc-dts` is not required for `dw/*` resolution in this package.
 - Keep `.b2c-script-types/types` available in the workspace before running `sfcc-ts-typecheck`.
 - `sfcc-ts-sync-types` extends `b2c-script-types` by reading all XML files under `<siteTemplatePath>/meta/*.xml` (default: `sites/site_template/meta/*.xml`) and generating custom attribute declarations into `.b2c-script-types/types/sfcc-custom-attributes.generated.d.ts`.
+- Custom Object and System Object attribute interfaces are available by name to JavaScript JSDoc from `.b2c-script-types/types/sfcc-custom-attributes.generated.d.ts`, for example `CustomObjectExampleNotificationCustomAttributes` and `ProductCustomAttributes`.
 - The generated declarations are consumed by both `sfcc-ts-typecheck` and the tsserver plugin, so editor diagnostics and CLI diagnostics use the same custom attribute typing.
 - The generated declarations also patch `dw/object/SystemObjectMgr` so supported `type` literals narrow `getAllSystemObjects`, `querySystemObject`, and `querySystemObjects` to the matching system object class.
 - Custom attribute values are inferred by metadata type. For enums, `select-multiple-flag=true` is treated as a multi-value enum and emitted as `SfccEnumValue<T>[]`.
@@ -90,6 +91,34 @@ if (product) {
   // unknown custom attribute -> TypeScript error
   // @ts-expect-error Property 'doesNotExist' does not exist
   product.custom.doesNotExist
+}
+```
+
+Named Custom Object attribute types can be referenced directly from JavaScript JSDoc:
+
+```js
+// @ts-check
+
+/**
+ * @param {CustomObjectExampleNotificationCustomAttributes} custom
+ * @returns {string | undefined}
+ */
+function readNotification(custom) {
+  return custom.eventCode
+}
+```
+
+System Object attributes use the same pattern:
+
+```js
+// @ts-check
+
+/**
+ * @param {ProductCustomAttributes} custom
+ * @returns {string | undefined}
+ */
+function readProductOrigin(custom) {
+  return custom.origin
 }
 ```
 

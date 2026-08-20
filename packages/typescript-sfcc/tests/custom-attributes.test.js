@@ -194,13 +194,16 @@ test("generateCustomAttributesTypes reads all site_template/meta xml files and w
     expect(generatedContent).toContain("modes?: SfccEnumValue<1 | 2>[]")
     expect(generatedContent).toContain('declare module "dw/object/CustomObject"')
     expect(generatedContent).toContain(
-      "/**\n * Example Notification\n * Example notification type\n */\ninterface CustomObjectExampleNotificationCustomAttributes",
+      "/**\n     * Example Notification\n     * Example notification type\n     */\n    interface CustomObjectExampleNotificationCustomAttributes",
     )
     expect(generatedContent).toContain("eventCode?: string")
     expect(generatedContent).toContain(
-      "  /**\n   * Event Code\n   * Event code from the notification\n   */\n  eventCode?: string",
+      "      /**\n       * Event Code\n       * Event code from the notification\n       */\n      eventCode?: string",
     )
     expect(generatedContent).toContain("interface CustomObjectExampleNotificationCustomAttributes")
+    expect(generatedContent).toContain(
+      "export type CustomObjectExampleNotificationCustomAttributes = SfccCustomObjectAttributes.CustomObjectExampleNotificationCustomAttributes",
+    )
     expect(generatedContent).toContain("interface CustomObjectCustomAttributes")
     expect(generatedContent).toContain("eventCode?: string")
 

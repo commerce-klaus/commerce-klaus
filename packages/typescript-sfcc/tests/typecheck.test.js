@@ -98,6 +98,124 @@ test("runProjectTypecheck returns no diagnostics for valid JavaScript with JSDoc
   })
 })
 
+test("runProjectTypecheck resolves generated custom object types in JavaScript JSDoc", () => {
+  withTempDir((tempDir) => {
+    const cartridgesDir = path.join(tempDir, "cartridges")
+    const appCustom = path.join(cartridgesDir, "app_custom")
+    const configPath = path.join(appCustom, "jsconfig.json")
+    const sourcePath = path.join(appCustom, "cartridge", "scripts", "notification.js")
+    const dwDir = path.join(tempDir, ".b2c-script-types", "types", "dw", "object")
+    const metaDir = path.join(tempDir, "sites", "site_template", "meta")
+
+    fs.mkdirSync(path.dirname(sourcePath), { recursive: true })
+    fs.mkdirSync(dwDir, { recursive: true })
+    fs.mkdirSync(metaDir, { recursive: true })
+    fs.writeFileSync(path.join(dwDir, "CustomObject.d.ts"), "export {}\n")
+    fs.writeFileSync(
+      path.join(metaDir, "custom-objecttype-definitions.xml"),
+      [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">',
+        '  <custom-type type-id="ExampleNotification">',
+        "    <attribute-definitions>",
+        '      <attribute-definition attribute-id="eventCode">',
+        "        <type>string</type>",
+        "      </attribute-definition>",
+        "    </attribute-definitions>",
+        "  </custom-type>",
+        "</metadata>",
+        "",
+      ].join("\n"),
+    )
+    generateCustomAttributesTypes({ workspaceRoot: tempDir })
+    fs.writeFileSync(
+      sourcePath,
+      [
+        "// @ts-check",
+        "/**",
+        " * @param {CustomObjectExampleNotificationCustomAttributes} custom",
+        " */",
+        "function readEventCode(custom) {",
+        "  return custom.eventCode",
+        "}",
+        "",
+      ].join("\n"),
+    )
+    writeJson(configPath, {
+      compilerOptions: {
+        allowJs: true,
+        checkJs: true,
+        noEmit: true,
+        strict: true,
+      },
+      include: ["cartridge/**/*.js"],
+    })
+
+    const diagnostics = runProjectTypecheck(configPath, [appCustom], tempDir)
+
+    expect(diagnostics).toHaveLength(0)
+  })
+})
+
+test("runProjectTypecheck resolves generated system object types in JavaScript JSDoc", () => {
+  withTempDir((tempDir) => {
+    const cartridgesDir = path.join(tempDir, "cartridges")
+    const appCustom = path.join(cartridgesDir, "app_custom")
+    const configPath = path.join(appCustom, "jsconfig.json")
+    const sourcePath = path.join(appCustom, "cartridge", "scripts", "product.js")
+    const dwDir = path.join(tempDir, ".b2c-script-types", "types", "dw", "catalog")
+    const metaDir = path.join(tempDir, "sites", "site_template", "meta")
+
+    fs.mkdirSync(path.dirname(sourcePath), { recursive: true })
+    fs.mkdirSync(dwDir, { recursive: true })
+    fs.mkdirSync(metaDir, { recursive: true })
+    fs.writeFileSync(path.join(dwDir, "Product.d.ts"), "export {}\n")
+    fs.writeFileSync(
+      path.join(metaDir, "system-objecttype-extensions.xml"),
+      [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">',
+        '  <type-extension type-id="Product">',
+        "    <custom-attribute-definitions>",
+        '      <attribute-definition attribute-id="origin">',
+        "        <type>string</type>",
+        "      </attribute-definition>",
+        "    </custom-attribute-definitions>",
+        "  </type-extension>",
+        "</metadata>",
+        "",
+      ].join("\n"),
+    )
+    generateCustomAttributesTypes({ workspaceRoot: tempDir })
+    fs.writeFileSync(
+      sourcePath,
+      [
+        "// @ts-check",
+        "/**",
+        " * @param {ProductCustomAttributes} custom",
+        " */",
+        "function readOrigin(custom) {",
+        "  return custom.origin",
+        "}",
+        "",
+      ].join("\n"),
+    )
+    writeJson(configPath, {
+      compilerOptions: {
+        allowJs: true,
+        checkJs: true,
+        noEmit: true,
+        strict: true,
+      },
+      include: ["cartridge/**/*.js"],
+    })
+
+    const diagnostics = runProjectTypecheck(configPath, [appCustom], tempDir)
+
+    expect(diagnostics).toHaveLength(0)
+  })
+})
+
 test("runProjectTypecheck reports diagnostics for invalid JavaScript with JSDoc", () => {
   withTempDir((tempDir) => {
     const cartridgesDir = path.join(tempDir, "cartridges")

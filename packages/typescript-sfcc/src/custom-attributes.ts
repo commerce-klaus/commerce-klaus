@@ -444,6 +444,7 @@ function renderGeneratedDeclarations(
   ]
   let declarationsCount = 0
   let attributesCount = 0
+  let hasModuleScope = false
 
   if (hasDwGlobalNamespace) {
     const requireOverloads = renderDwRequireOverloads(dwModuleIndex)
@@ -488,25 +489,63 @@ function renderGeneratedDeclarations(
     lines.push("")
     lines.push("export {}")
     lines.push("")
+    hasModuleScope = true
   }
 
   const sortedTypeIds = [...typeAttributes.keys()].sort((left, right) => left.localeCompare(right))
-  for (const typeId of sortedTypeIds) {
+  const resolvedSystemTypes = sortedTypeIds.flatMap((typeId) => {
     const attributeMap = typeAttributes.get(typeId)
-    if (!attributeMap || attributeMap.size === 0) {
-      continue
+    const moduleSpecifier = resolveSystemObjectModule(typeId, dwModuleIndex)
+    if (!attributeMap || attributeMap.size === 0 || !moduleSpecifier) {
+      return []
     }
 
-    const moduleSpecifier = resolveSystemObjectModule(typeId, dwModuleIndex)
-    if (!moduleSpecifier) {
-      continue
+    return [{ attributeMap, moduleSpecifier, typeId }]
+  })
+
+  if (resolvedSystemTypes.length > 0) {
+    if (!hasModuleScope) {
+      lines.push("export {}")
+      lines.push("")
+      hasModuleScope = true
     }
+
+    lines.push("declare global {")
+    lines.push("  namespace SfccSystemObjectAttributes {")
+    for (const { attributeMap, typeId } of resolvedSystemTypes) {
+      lines.push(...renderDocumentationComment(typeDocumentation.get(typeId), "    "))
+      lines.push(`    interface ${toSystemObjectAttributesIdentifier(typeId)} {`)
+      const sortedAttributes = [...attributeMap.values()].sort((left, right) =>
+        left.name.localeCompare(right.name),
+      )
+      for (const attribute of sortedAttributes) {
+        const optionalToken = attribute.required ? "" : "?"
+        lines.push(...renderDocumentationComment(attribute.documentation, "      "))
+        lines.push(
+          `      ${toPropertyIdentifier(attribute.name)}${optionalToken}: ${attribute.typeName}`,
+        )
+      }
+      lines.push("    }")
+    }
+    lines.push("  }")
+    lines.push("")
+    for (const { typeId } of resolvedSystemTypes) {
+      const identifier = toSystemObjectAttributesIdentifier(typeId)
+      lines.push(`  type ${identifier} = SfccSystemObjectAttributes.${identifier}`)
+    }
+    lines.push("}")
+    lines.push("")
+  }
+
+  for (const { attributeMap, moduleSpecifier, typeId } of resolvedSystemTypes) {
     const sortedAttributes = [...attributeMap.values()].sort((left, right) =>
       left.name.localeCompare(right.name),
     )
     lines.push(`declare module "${moduleSpecifier}" {`)
     lines.push(...renderDocumentationComment(typeDocumentation.get(typeId), "  "))
-    lines.push(`  interface ${typeId}CustomAttributes {`)
+    lines.push(
+      `  interface ${toSystemObjectAttributesIdentifier(typeId)} extends SfccSystemObjectAttributes.${toSystemObjectAttributesIdentifier(typeId)} {`,
+    )
     for (const attribute of sortedAttributes) {
       const optionalToken = attribute.required ? "" : "?"
       lines.push(...renderDocumentationComment(attribute.documentation, "    "))
@@ -523,6 +562,14 @@ function renderGeneratedDeclarations(
 
   const customAttributes = mergeCustomObjectAttributes(customObjectAttributes)
   if (customAttributes.length > 0) {
+    if (!hasModuleScope) {
+      lines.push("export {}")
+      lines.push("")
+      hasModuleScope = true
+    }
+
+    lines.push("declare global {")
+    lines.push("  namespace SfccCustomObjectAttributes {")
     for (const typeId of [...customObjectAttributes.keys()].sort((left, right) =>
       left.localeCompare(right),
     )) {
@@ -531,22 +578,49 @@ function renderGeneratedDeclarations(
         continue
       }
 
-      lines.push(...renderDocumentationComment(customObjectDocumentation.get(typeId), ""))
-      lines.push(`interface ${toCustomObjectAttributesIdentifier(typeId)} {`)
+      lines.push(...renderDocumentationComment(customObjectDocumentation.get(typeId), "    "))
+      lines.push(`    interface ${toCustomObjectAttributesIdentifier(typeId)} {`)
       const sorted = [...attributes.values()].sort((left, right) =>
         left.name.localeCompare(right.name),
       )
       for (const attribute of sorted) {
         const optionalToken = attribute.required ? "" : "?"
-        lines.push(...renderDocumentationComment(attribute.documentation, "  "))
+        lines.push(...renderDocumentationComment(attribute.documentation, "      "))
         lines.push(
-          `  ${toPropertyIdentifier(attribute.name)}${optionalToken}: ${attribute.typeName}`,
+          `      ${toPropertyIdentifier(attribute.name)}${optionalToken}: ${attribute.typeName}`,
         )
         attributesCount += 1
       }
-      lines.push("}")
-      lines.push("")
+      lines.push("    }")
     }
+    lines.push("  }")
+    lines.push("")
+    for (const typeId of [...customObjectAttributes.keys()].sort((left, right) =>
+      left.localeCompare(right),
+    )) {
+      const attributes = customObjectAttributes.get(typeId)
+      if (!attributes || attributes.size === 0) {
+        continue
+      }
+
+      const identifier = toCustomObjectAttributesIdentifier(typeId)
+      lines.push(`  type ${identifier} = SfccCustomObjectAttributes.${identifier}`)
+    }
+    lines.push("}")
+    lines.push("")
+
+    for (const typeId of [...customObjectAttributes.keys()].sort((left, right) =>
+      left.localeCompare(right),
+    )) {
+      const attributes = customObjectAttributes.get(typeId)
+      if (!attributes || attributes.size === 0) {
+        continue
+      }
+
+      const identifier = toCustomObjectAttributesIdentifier(typeId)
+      lines.push(`export type ${identifier} = SfccCustomObjectAttributes.${identifier}`)
+    }
+    lines.push("")
 
     lines.push('declare module "dw/object/CustomObject" {')
     lines.push("  interface CustomObjectCustomAttributes {")
@@ -707,6 +781,10 @@ function toTypeIdentifier(typeId: string): string {
 
 function toCustomObjectAttributesIdentifier(typeId: string): string {
   return `CustomObject${toTypeIdentifier(typeId)}CustomAttributes`
+}
+
+function toSystemObjectAttributesIdentifier(typeId: string): string {
+  return `${toTypeIdentifier(typeId)}CustomAttributes`
 }
 
 function patchSystemObjectMgrDeclarations(
