@@ -37,7 +37,7 @@ async function lintTypeAware(filename: string) {
     overrideConfigFile: true,
     overrideConfig: [
       {
-        files: ["**/*.ts"],
+        files: ["**/*.js"],
         languageOptions: {
           parser: tsParser,
           parserOptions: {
@@ -127,42 +127,42 @@ describe("sfcc/no-string-equals", () => {
   })
 
   test("uses TS type info to ignore non-string equals calls", async () => {
-    const result = await lintTypeAware("non-string-equals.ts")
+    const result = await lintTypeAware("non-string-equals.js")
     const messages = result?.messages ?? []
 
     expect(messages.some((m) => m.ruleId === "sfcc/no-string-equals")).toBe(false)
   })
 
   test("uses TS type info to keep reporting string equals with augmentation", async () => {
-    const result = await lintTypeAware("string-augmentation-equals.ts")
+    const result = await lintTypeAware("string-augmentation-equals.js")
     const messages = result?.messages ?? []
 
     expect(messages.some((m) => m.ruleId === "sfcc/no-string-equals")).toBe(true)
   })
 
   test("uses TS type info to keep reporting string equals with type aliases", async () => {
-    const result = await lintTypeAware("string-alias-equals.ts")
+    const result = await lintTypeAware("string-alias-equals.js")
     const messages = result?.messages ?? []
 
     expect(messages.some((m) => m.ruleId === "sfcc/no-string-equals")).toBe(true)
   })
 
   test("uses TS type info to keep reporting equals on string literal unions", async () => {
-    const result = await lintTypeAware("string-literal-union-equals.ts")
+    const result = await lintTypeAware("string-literal-union-equals.js")
     const messages = result?.messages ?? []
 
     expect(messages.some((m) => m.ruleId === "sfcc/no-string-equals")).toBe(true)
   })
 
   test("uses TS type info to keep reporting equals on alias-based string literal unions", async () => {
-    const result = await lintTypeAware("string-literal-union-alias-equals.ts")
+    const result = await lintTypeAware("string-literal-union-alias-equals.js")
     const messages = result?.messages ?? []
 
     expect(messages.some((m) => m.ruleId === "sfcc/no-string-equals")).toBe(true)
   })
 
   test("uses TS type info conservatively for mixed string and non-string unions", async () => {
-    const result = await lintTypeAware("mixed-string-and-object-union-equals.ts")
+    const result = await lintTypeAware("mixed-string-and-object-union-equals.js")
     const messages = result?.messages ?? []
 
     expect(messages.some((m) => m.ruleId === "sfcc/no-string-equals")).toBe(false)

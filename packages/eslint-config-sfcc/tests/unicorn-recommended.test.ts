@@ -4,7 +4,7 @@ import { expect, test, describe } from "vite-plus/test"
 
 import { createRecommendedConfig } from "../src/index.js"
 
-const unicornRecommended = unicorn.configs["flat/recommended"]
+const unicornRecommended = unicorn.configs.recommended
 const sfccRecommended = createRecommendedConfig({
   files: ["**/*.{js,ts,ds}"],
   ignores: [],

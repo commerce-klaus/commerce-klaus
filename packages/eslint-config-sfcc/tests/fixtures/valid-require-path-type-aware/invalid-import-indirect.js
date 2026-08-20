@@ -1,6 +1,7 @@
 export {}
 
-const dep = "lodash" as const
+/** @type {"lodash"} */
+const dep = "lodash"
 
 function load() {
   return import(dep)

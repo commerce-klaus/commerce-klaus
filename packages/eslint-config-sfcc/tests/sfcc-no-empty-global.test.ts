@@ -37,7 +37,7 @@ async function lintTypeAwareFixture(filename: string) {
     overrideConfigFile: true,
     overrideConfig: [
       {
-        files: ["**/*.ts"],
+        files: ["**/*.js"],
         languageOptions: {
           parser: tsParser,
           parserOptions: {
@@ -184,7 +184,7 @@ describe("sfcc/no-empty-global", () => {
   })
 
   test("uses type info fixture to suggest only Object.keys for Record values", async () => {
-    const result = await lintTypeAwareFixture("record.ts")
+    const result = await lintTypeAwareFixture("record.js")
     const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
     const suggestions = hit?.suggestions ?? []
 
@@ -193,7 +193,7 @@ describe("sfcc/no-empty-global", () => {
   })
 
   test("uses type info fixture to suggest only length for string values", async () => {
-    const result = await lintTypeAwareFixture("string.ts")
+    const result = await lintTypeAwareFixture("string.js")
     const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
     const suggestions = hit?.suggestions ?? []
 
@@ -202,7 +202,7 @@ describe("sfcc/no-empty-global", () => {
   })
 
   test("uses broad fallback suggestions for mixed union types", async () => {
-    const result = await lintTypeAwareFixture("union-string-object.ts")
+    const result = await lintTypeAwareFixture("union-string-object.js")
     const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
     const suggestions = hit?.suggestions ?? []
 
@@ -215,7 +215,7 @@ describe("sfcc/no-empty-global", () => {
   })
 
   test("uses type info fixture to suggest only length for alias-based string literal unions", async () => {
-    const result = await lintTypeAwareFixture("string-literal-union-alias.ts")
+    const result = await lintTypeAwareFixture("string-literal-union-alias.js")
     const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
     const suggestions = hit?.suggestions ?? []
 
@@ -224,7 +224,7 @@ describe("sfcc/no-empty-global", () => {
   })
 
   test("uses type info fixture to suggest only Object.keys for alias-based object unions", async () => {
-    const result = await lintTypeAwareFixture("object-record-union-alias.ts")
+    const result = await lintTypeAwareFixture("object-record-union-alias.js")
     const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
     const suggestions = hit?.suggestions ?? []
 
@@ -233,7 +233,7 @@ describe("sfcc/no-empty-global", () => {
   })
 
   test("uses type info fixture to suggest only nullable check for alias-based nullable unions", async () => {
-    const result = await lintTypeAwareFixture("nullable-union-alias.ts")
+    const result = await lintTypeAwareFixture("nullable-union-alias.js")
     const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
     const suggestions = hit?.suggestions ?? []
 

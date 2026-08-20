@@ -1,6 +1,7 @@
 export {}
 
-const dep = "lodash" as const
+/** @type {`lodash`} */
+const dep = `lodash`
 const mod = require(dep)
 
 void mod

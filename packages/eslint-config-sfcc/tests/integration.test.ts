@@ -24,7 +24,7 @@ async function lint(
 async function lintModule(code: string): Promise<any[]> {
   const moduleConfig = [
     {
-      files: ["**/*.mjs"],
+      files: ["**/*.js"],
       languageOptions: {
         sourceType: "module" as const,
         globals: globals.commonjs,
@@ -41,7 +41,7 @@ async function lintModule(code: string): Promise<any[]> {
     overrideConfigFile: true,
     overrideConfig: moduleConfig,
   })
-  const results = await eslint.lintText(code, { filePath: "test.mjs" })
+  const results = await eslint.lintText(code, { filePath: "test.js" })
   return results[0]?.messages || []
 }
 

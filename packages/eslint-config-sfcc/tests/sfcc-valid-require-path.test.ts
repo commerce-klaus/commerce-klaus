@@ -24,7 +24,7 @@ async function lintTypeAwareFixture(filename: string) {
     overrideConfigFile: true,
     overrideConfig: [
       {
-        files: ["**/*.ts"],
+        files: ["**/*.js"],
         languageOptions: {
           parser: tsParser,
           parserOptions: {
@@ -140,31 +140,31 @@ test("ignores dynamic requires", () => {
 })
 
 test("uses type info for indirect const string and reports invalid module", async () => {
-  const messages = await lintTypeAwareFixture("invalid-indirect.ts")
+  const messages = await lintTypeAwareFixture("invalid-indirect.js")
 
   expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(true)
 })
 
 test("uses type info for union of valid string literals and allows both", async () => {
-  const messages = await lintTypeAwareFixture("valid-union-indirect.ts")
+  const messages = await lintTypeAwareFixture("valid-union-indirect.js")
 
   expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(false)
 })
 
 test("uses type info for union with invalid string literal and reports it", async () => {
-  const messages = await lintTypeAwareFixture("invalid-union-indirect.ts")
+  const messages = await lintTypeAwareFixture("invalid-union-indirect.js")
 
   expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(true)
 })
 
 test("uses type info for alias-based union with invalid string literal and reports it", async () => {
-  const messages = await lintTypeAwareFixture("invalid-union-alias-indirect.ts")
+  const messages = await lintTypeAwareFixture("invalid-union-alias-indirect.js")
 
   expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(true)
 })
 
 test("uses type info for union of invalid string literals and reports candidates", async () => {
-  const messages = await lintTypeAwareFixture("invalid-all-literals-union-indirect.ts")
+  const messages = await lintTypeAwareFixture("invalid-all-literals-union-indirect.js")
   const hits = messages.filter((m) => m.ruleId === "sfcc/valid-require-path")
 
   expect(hits.length).toBeGreaterThanOrEqual(1)
@@ -172,49 +172,49 @@ test("uses type info for union of invalid string literals and reports candidates
 })
 
 test("uses type info for indirect const string and allows valid dw path", async () => {
-  const messages = await lintTypeAwareFixture("valid-indirect.ts")
+  const messages = await lintTypeAwareFixture("valid-indirect.js")
 
   expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(false)
 })
 
 test("uses type info for indirect const template literal and allows valid dw path", async () => {
-  const messages = await lintTypeAwareFixture("valid-template-literal-indirect.ts")
+  const messages = await lintTypeAwareFixture("valid-template-literal-indirect.js")
 
   expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(false)
 })
 
 test("uses type info for indirect const template literal and reports invalid module", async () => {
-  const messages = await lintTypeAwareFixture("invalid-template-literal-indirect.ts")
+  const messages = await lintTypeAwareFixture("invalid-template-literal-indirect.js")
 
   expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(true)
 })
 
 test("uses type info for indirect dynamic import and reports invalid module", async () => {
-  const messages = await lintTypeAwareFixture("invalid-import-indirect.ts")
+  const messages = await lintTypeAwareFixture("invalid-import-indirect.js")
 
   expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(true)
 })
 
 test("keeps fallback behavior for non-literal typed identifiers", async () => {
-  const messages = await lintTypeAwareFixture("nonliteral-indirect.ts")
+  const messages = await lintTypeAwareFixture("nonliteral-indirect.js")
 
   expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(false)
 })
 
 test("keeps fallback behavior for mixed union with non-literal member", async () => {
-  const messages = await lintTypeAwareFixture("mixed-union-nonliteral-indirect.ts")
+  const messages = await lintTypeAwareFixture("mixed-union-nonliteral-indirect.js")
 
   expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(false)
 })
 
 test("keeps fallback behavior for alias-based mixed union with non-literal member", async () => {
-  const messages = await lintTypeAwareFixture("mixed-union-nonliteral-alias-indirect.ts")
+  const messages = await lintTypeAwareFixture("mixed-union-nonliteral-alias-indirect.js")
 
   expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(false)
 })
 
 test("keeps fallback behavior for alias-based mixed union in dynamic import", async () => {
-  const messages = await lintTypeAwareFixture("mixed-import-nonliteral-alias-indirect.ts")
+  const messages = await lintTypeAwareFixture("mixed-import-nonliteral-alias-indirect.js")
 
   expect(messages.some((m) => m.ruleId === "sfcc/valid-require-path")).toBe(false)
 })

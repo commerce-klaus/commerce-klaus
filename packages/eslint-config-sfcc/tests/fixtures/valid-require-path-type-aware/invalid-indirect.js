@@ -1,6 +1,7 @@
 export {}
 
-const dep = "dw/order/OrderMgr" as const
+/** @type {"lodash"} */
+const dep = "lodash"
 const mod = require(dep)
 
 void mod
