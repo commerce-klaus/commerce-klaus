@@ -719,7 +719,7 @@ test("runProjectTypecheck loads generated custom attribute typings from b2c-scri
     const cartridgesDir = path.join(tempDir, "cartridges")
     const appCustom = path.join(cartridgesDir, "app_custom")
     const configPath = path.join(appCustom, "jsconfig.json")
-    const sourcePath = path.join(appCustom, "cartridge", "scripts", "custom-attrs.ts")
+    const sourcePath = path.join(appCustom, "cartridge", "scripts", "custom-attrs.js")
     const productTypePath = path.join(
       tempDir,
       ".b2c-script-types",
@@ -749,7 +749,8 @@ test("runProjectTypecheck loads generated custom attribute typings from b2c-scri
     fs.writeFileSync(
       sourcePath,
       [
-        'import ProductMgr = require("dw/catalog/ProductMgr")',
+        "// @ts-check",
+        'const ProductMgr = require("dw/catalog/ProductMgr")',
         'const product = ProductMgr.getProduct("test")',
         "if (product) {",
         "  product.custom.foo",
@@ -803,7 +804,7 @@ test("runProjectTypecheck loads generated custom attribute typings from b2c-scri
         noEmit: true,
         strict: true,
       },
-      include: ["cartridge/**/*.ts"],
+      include: ["cartridge/**/*.js"],
     })
 
     const diagnostics = runProjectTypecheck(configPath, [appCustom], tempDir)
