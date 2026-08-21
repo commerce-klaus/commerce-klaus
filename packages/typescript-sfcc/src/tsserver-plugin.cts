@@ -1,9 +1,7 @@
 const {
   createSfccModuleResolver,
   findCartridgesDir,
-  getGeneratedCustomAttributesTypesPathIfPresent,
-  getGeneratedHookTypesPathIfPresent,
-  getProjectHookTypesPathIfPresent,
+  getAdditionalTypeFiles,
   inferCartridgeOrder,
   resolveWorkspaceRootFromProjectDir,
   transformSuperModuleSource,
@@ -42,12 +40,7 @@ function init(modules: { typescript: typeof import("typescript") }) {
     const cartridgesDir = findCartridgesDir(projectDir)
     const cartridgeRoots = cartridgesDir ? inferCartridgeOrder(cartridgesDir) : []
     const workspaceRoot = resolveWorkspaceRootFromProjectDir(projectDir)
-    const generatedTypesPath = getGeneratedCustomAttributesTypesPathIfPresent(
-      workspaceRoot,
-      existsSync,
-    )
-    const generatedHookTypesPath = getGeneratedHookTypesPathIfPresent(workspaceRoot, existsSync)
-    const projectHookTypesPath = getProjectHookTypesPathIfPresent(workspaceRoot, existsSync)
+    const additionalTypeFiles = getAdditionalTypeFiles(workspaceRoot, existsSync)
     const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
 
     const host = info.languageServiceHost
@@ -58,20 +51,12 @@ function init(modules: { typescript: typeof import("typescript") }) {
     const originalResolveModuleNames = host.resolveModuleNames?.bind(host)
     const originalResolveModuleNameLiterals = host.resolveModuleNameLiterals?.bind(host)
 
-    if (
-      originalGetScriptFileNames &&
-      (generatedTypesPath || generatedHookTypesPath || projectHookTypesPath)
-    ) {
+    if (originalGetScriptFileNames && additionalTypeFiles.length > 0) {
       host.getScriptFileNames = () => {
         const fileNames = originalGetScriptFileNames()
-        const generatedTypePaths = [
-          generatedTypesPath,
-          generatedHookTypesPath,
-          projectHookTypesPath,
-        ].filter((filePath): filePath is string => filePath !== undefined)
         return [
           ...fileNames,
-          ...generatedTypePaths.filter((filePath) => !fileNames.includes(filePath)),
+          ...additionalTypeFiles.filter((filePath) => !fileNames.includes(filePath)),
         ]
       }
     }

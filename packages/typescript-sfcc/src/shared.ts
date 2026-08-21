@@ -150,3 +150,14 @@ export function getProjectHookTypesPathIfPresent(
   const filePath = resolveProjectHookTypesPath(workspaceRoot)
   return existsSync(filePath) ? filePath : undefined
 }
+
+export function getAdditionalTypeFiles(
+  workspaceRoot: string,
+  existsSync: (filePath: string) => boolean = nodeExistsSync,
+): string[] {
+  return [
+    getGeneratedCustomAttributesTypesPathIfPresent(workspaceRoot, existsSync),
+    getGeneratedHookTypesPathIfPresent(workspaceRoot, existsSync),
+    getProjectHookTypesPathIfPresent(workspaceRoot, existsSync),
+  ].filter((filePath): filePath is string => filePath !== undefined)
+}

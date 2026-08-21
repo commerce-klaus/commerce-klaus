@@ -165,15 +165,52 @@ function hasStaticCommonJsExport(scriptFile: ts.SourceFile, methodName: string):
       return false
     }
 
-    const { left, operatorToken } = statement.expression
-    return (
-      operatorToken.kind === ts.SyntaxKind.EqualsToken &&
-      ts.isPropertyAccessExpression(left) &&
-      ts.isIdentifier(left.expression) &&
-      left.expression.text === "exports" &&
-      left.name.text === methodName
-    )
+    const { left, operatorToken, right } = statement.expression
+    if (operatorToken.kind !== ts.SyntaxKind.EqualsToken) {
+      return false
+    }
+
+    if (isCommonJsExportProperty(left, methodName)) {
+      return true
+    }
+
+    return isModuleExports(left) && isObjectLiteralExport(right, methodName)
   })
+}
+
+function isCommonJsExportProperty(left: ts.Expression, methodName: string): boolean {
+  if (!ts.isPropertyAccessExpression(left) || left.name.text !== methodName) {
+    return false
+  }
+
+  return (
+    (ts.isIdentifier(left.expression) && left.expression.text === "exports") ||
+    isModuleExports(left.expression)
+  )
+}
+
+function isModuleExports(expression: ts.Expression): boolean {
+  return (
+    ts.isPropertyAccessExpression(expression) &&
+    ts.isIdentifier(expression.expression) &&
+    expression.expression.text === "module" &&
+    expression.name.text === "exports"
+  )
+}
+
+function isObjectLiteralExport(expression: ts.Expression, methodName: string): boolean {
+  return (
+    ts.isObjectLiteralExpression(expression) &&
+    expression.properties.some(
+      (property) =>
+        (ts.isPropertyAssignment(property) || ts.isShorthandPropertyAssignment(property)) &&
+        getPropertyNameText(property.name) === methodName,
+    )
+  )
+}
+
+function getPropertyNameText(name: ts.PropertyName): string | undefined {
+  return ts.isIdentifier(name) || ts.isStringLiteral(name) ? name.text : undefined
 }
 
 function readKnownHookNames(workspaceRoot: string): Set<string> {

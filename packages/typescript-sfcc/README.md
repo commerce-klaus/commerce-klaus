@@ -254,7 +254,7 @@ Exit codes:
 
 ### Registration validation
 
-When a cartridge `package.json` declares a `hooks` path, `sfcc-ts-typecheck` also validates the referenced `hooks.json` file. It reports malformed registrations, missing hook scripts, and statically detectable missing CommonJS exports such as `exports.afterPOST`.
+When a cartridge `package.json` declares a `hooks` path, `sfcc-ts-typecheck` also validates the referenced `hooks.json` file. It reports malformed registrations, missing hook scripts, and statically detectable missing CommonJS exports such as `exports.afterPOST` or `module.exports = { afterPOST }`.
 
 The checker reads vendored Salesforce hook declarations under `.b2c-script-types/types/dw/**/hooks/*.d.ts` to report unknown system hook extension points. OCAPI and SCAPI registrations are validated structurally, because Salesforce does not currently ship complete declarations for those API hook documents.
 

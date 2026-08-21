@@ -194,6 +194,15 @@ test("CLI validates hooks.json CommonJS exports", async () => {
 
     expect(validResult.exitCode).toBe(0)
 
+    fs.writeFileSync(scriptPath, "module.exports = { afterPOST: function () {} }\n")
+
+    const objectExportResult = runCli(
+      ["--project", path.relative(tempDir, solutionConfigPath)],
+      tempDir,
+    )
+
+    expect(objectExportResult.exitCode).toBe(0)
+
     fs.writeFileSync(scriptPath, "exports.afterPATCH = function () {}\n")
 
     const invalidResult = runCli(["--project", path.relative(tempDir, solutionConfigPath)], tempDir)

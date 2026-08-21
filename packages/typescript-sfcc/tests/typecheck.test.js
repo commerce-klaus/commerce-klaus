@@ -5,6 +5,7 @@ import { expect, test } from "vite-plus/test"
 
 import { generateCustomAttributesTypes } from "../src/custom-attributes.ts"
 import { generateHookTypes } from "../src/hook-types.ts"
+import { getAdditionalTypeFiles } from "../src/shared.ts"
 import {
   formatDiagnostics,
   parseConfigFile,
@@ -40,6 +41,21 @@ function withEnvUnset(key, run) {
 function writeJson(filePath, content) {
   fs.writeFileSync(filePath, `${JSON.stringify(content, null, 2)}\n`)
 }
+
+test("getAdditionalTypeFiles includes generated and project-local hook declarations", () => {
+  const workspaceRoot = "/workspace"
+  const filePaths = new Set([
+    "/workspace/.b2c-script-types/types/sfcc-custom-attributes.generated.d.ts",
+    "/workspace/.b2c-script-types/types/sfcc-hooks.generated.d.ts",
+    "/workspace/sfcc-hooks.d.ts",
+  ])
+
+  const additionalTypeFiles = getAdditionalTypeFiles(workspaceRoot, (filePath) =>
+    filePaths.has(filePath),
+  )
+
+  expect(additionalTypeFiles).toEqual([...filePaths])
+})
 
 test("parseConfigFile parses a valid config and resolves file names", () => {
   withTempDir((tempDir) => {

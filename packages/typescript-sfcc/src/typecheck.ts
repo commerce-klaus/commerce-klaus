@@ -5,9 +5,7 @@ import { validateHookRegistrations } from "./hooks.ts"
 import {
   createSfccModuleResolver,
   createSfccPaths,
-  getGeneratedCustomAttributesTypesPathIfPresent,
-  getGeneratedHookTypesPathIfPresent,
-  getProjectHookTypesPathIfPresent,
+  getAdditionalTypeFiles,
   inferCartridgeOrder,
   readSolutionReferences,
   resolveWorkspaceRootFromConfig,
@@ -162,11 +160,7 @@ export function runProjectTypecheck(
 }
 
 function withGeneratedTypeFiles(rootNames: string[], workspaceRoot: string): string[] {
-  const generatedTypePaths = [
-    getGeneratedCustomAttributesTypesPathIfPresent(workspaceRoot),
-    getGeneratedHookTypesPathIfPresent(workspaceRoot),
-    getProjectHookTypesPathIfPresent(workspaceRoot),
-  ].filter((filePath): filePath is string => filePath !== undefined)
+  const generatedTypePaths = getAdditionalTypeFiles(workspaceRoot)
 
   return [...rootNames, ...generatedTypePaths.filter((filePath) => !rootNames.includes(filePath))]
 }
