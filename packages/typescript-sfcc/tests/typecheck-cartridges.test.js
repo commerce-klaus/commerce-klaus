@@ -213,6 +213,33 @@ test("CLI validates hooks.json CommonJS exports", async () => {
   })
 })
 
+test("CLI does not infer export names for project-specific hook registrations", async () => {
+  await withTempDir(async (tempDir) => {
+    const { solutionConfigPath } = setupValidProject(tempDir)
+    const cartridgeRoot = path.join(tempDir, "cartridges", "app_base")
+    const hooksPath = path.join(cartridgeRoot, "cartridge", "scripts", "hooks.json")
+    const scriptPath = path.join(cartridgeRoot, "cartridge", "scripts", "hooks", "provider.js")
+
+    fs.mkdirSync(path.dirname(scriptPath), { recursive: true })
+    writeJson(path.join(cartridgeRoot, "package.json"), {
+      hooks: "./cartridge/scripts/hooks.json",
+    })
+    writeJson(hooksPath, {
+      hooks: [
+        {
+          name: "app.example.hook.Provider",
+          script: "./hooks/provider",
+        },
+      ],
+    })
+    fs.writeFileSync(scriptPath, "exports.getStores = function () {}\n")
+
+    const result = runCli(["--project", path.relative(tempDir, solutionConfigPath)], tempDir)
+
+    expect(result.exitCode).toBe(0)
+  })
+})
+
 test("CLI reports malformed and unresolved hook registrations", async () => {
   await withTempDir(async (tempDir) => {
     const { solutionConfigPath } = setupValidProject(tempDir)

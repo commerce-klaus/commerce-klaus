@@ -114,17 +114,15 @@ function validateHookRegistration(
   knownHookNames: Set<string>,
 ): ts.Diagnostic[] {
   const diagnostics: ts.Diagnostic[] = []
-  const methodName = registration.name.split(".").at(-1)
+  const methodName = registration.name.startsWith("dw.")
+    ? registration.name.split(".").at(-1)
+    : undefined
   const scriptPath = resolveHookScriptPath(path.dirname(hooksFile.fileName), registration.script)
 
   if (isUnknownKnownHook(registration.name, knownHookNames)) {
     diagnostics.push(
       createDiagnostic(hooksFile.fileName, `Unknown Salesforce hook "${registration.name}".`),
     )
-  }
-
-  if (!methodName) {
-    return diagnostics
   }
 
   if (!scriptPath) {
@@ -138,7 +136,7 @@ function validateHookRegistration(
   }
 
   const scriptFile = readSourceFile(scriptPath)
-  if (scriptFile && !hasStaticCommonJsExport(scriptFile, methodName)) {
+  if (methodName && scriptFile && !hasStaticCommonJsExport(scriptFile, methodName)) {
     diagnostics.push(
       createDiagnostic(
         scriptPath,
