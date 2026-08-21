@@ -205,6 +205,12 @@ Exit codes:
 - `2`: diagnostics found
 - `1`: runtime/config error (for example missing config file)
 
+### Hook registration validation
+
+When a cartridge `package.json` declares a `hooks` path, `sfcc-ts-typecheck` also validates the referenced `hooks.json` file. It reports malformed registrations, missing hook scripts, and statically detectable missing CommonJS exports such as `exports.afterPOST`.
+
+The checker reads vendored Salesforce hook declarations under `.b2c-script-types/types/dw/**/hooks/*.d.ts` to report unknown system hook extension points. OCAPI and SCAPI registrations are validated structurally, because Salesforce does not currently ship complete declarations for those API hook documents.
+
 `sfcc-ts-sync-types` options:
 
 - `--min-version X.Y.Z`: refreshes types if vendored version is older than required

@@ -168,3 +168,124 @@ test("CLI typechecks solution config even without references", async () => {
     expect(result.stdout).toContain("broken.js")
   })
 })
+
+test("CLI validates hooks.json CommonJS exports", async () => {
+  await withTempDir(async (tempDir) => {
+    const { solutionConfigPath } = setupValidProject(tempDir)
+    const cartridgeRoot = path.join(tempDir, "cartridges", "app_base")
+    const hooksPath = path.join(cartridgeRoot, "cartridge", "scripts", "hooks.json")
+    const scriptPath = path.join(cartridgeRoot, "cartridge", "scripts", "hooks", "basket.js")
+
+    fs.mkdirSync(path.dirname(scriptPath), { recursive: true })
+    writeJson(path.join(cartridgeRoot, "package.json"), {
+      hooks: "./cartridge/scripts/hooks.json",
+    })
+    writeJson(hooksPath, {
+      hooks: [
+        {
+          name: "dw.ocapi.shop.basket.afterPOST",
+          script: "./hooks/basket",
+        },
+      ],
+    })
+    fs.writeFileSync(scriptPath, "exports.afterPOST = function () {}\n")
+
+    const validResult = runCli(["--project", path.relative(tempDir, solutionConfigPath)], tempDir)
+
+    expect(validResult.exitCode).toBe(0)
+
+    fs.writeFileSync(scriptPath, "exports.afterPATCH = function () {}\n")
+
+    const invalidResult = runCli(["--project", path.relative(tempDir, solutionConfigPath)], tempDir)
+
+    expect(invalidResult.exitCode).toBe(2)
+    expect(invalidResult.stdout).toContain("dw.ocapi.shop.basket.afterPOST")
+    expect(invalidResult.stdout).toContain('export named "afterPOST"')
+  })
+})
+
+test("CLI reports malformed and unresolved hook registrations", async () => {
+  await withTempDir(async (tempDir) => {
+    const { solutionConfigPath } = setupValidProject(tempDir)
+    const cartridgeRoot = path.join(tempDir, "cartridges", "app_base")
+    const hooksPath = path.join(cartridgeRoot, "cartridge", "scripts", "hooks.json")
+
+    writeJson(path.join(cartridgeRoot, "package.json"), {
+      hooks: "./cartridge/scripts/hooks.json",
+    })
+    writeJson(hooksPath, { hooks: [{ name: "dw.ocapi.shop.basket.afterPOST" }] })
+
+    const malformedResult = runCli(
+      ["--project", path.relative(tempDir, solutionConfigPath)],
+      tempDir,
+    )
+
+    expect(malformedResult.exitCode).toBe(2)
+    expect(malformedResult.stdout).toContain('must contain a "hooks" array')
+
+    writeJson(hooksPath, {
+      hooks: [
+        {
+          name: "dw.ocapi.shop.basket.afterPOST",
+          script: "./hooks/missing",
+        },
+      ],
+    })
+
+    const unresolvedResult = runCli(
+      ["--project", path.relative(tempDir, solutionConfigPath)],
+      tempDir,
+    )
+
+    expect(unresolvedResult.exitCode).toBe(2)
+    expect(unresolvedResult.stdout).toContain('Could not resolve script "./hooks/missing"')
+  })
+})
+
+test("CLI reports unknown Salesforce system hooks from vendored declarations", async () => {
+  await withTempDir(async (tempDir) => {
+    const { solutionConfigPath } = setupValidProject(tempDir)
+    const cartridgeRoot = path.join(tempDir, "cartridges", "app_base")
+    const hooksPath = path.join(cartridgeRoot, "cartridge", "scripts", "hooks.json")
+    const scriptPath = path.join(cartridgeRoot, "cartridge", "scripts", "hooks", "calculate.js")
+    const declarationPath = path.join(
+      tempDir,
+      ".b2c-script-types",
+      "types",
+      "dw",
+      "order",
+      "hooks",
+      "CalculateHooks.d.ts",
+    )
+
+    fs.mkdirSync(path.dirname(scriptPath), { recursive: true })
+    fs.mkdirSync(path.dirname(declarationPath), { recursive: true })
+    writeJson(path.join(cartridgeRoot, "package.json"), {
+      hooks: "./cartridge/scripts/hooks.json",
+    })
+    writeJson(hooksPath, {
+      hooks: [
+        {
+          name: "dw.order.notARealHook",
+          script: "./hooks/calculate",
+        },
+      ],
+    })
+    fs.writeFileSync(scriptPath, "exports.notARealHook = function () {}\n")
+    fs.writeFileSync(
+      declarationPath,
+      [
+        "declare interface CalculateHooks {",
+        '  readonly extensionPointCalculate: "dw.order.calculate"',
+        "}",
+        "export = CalculateHooks",
+        "",
+      ].join("\n"),
+    )
+
+    const result = runCli(["--project", path.relative(tempDir, solutionConfigPath)], tempDir)
+
+    expect(result.exitCode).toBe(2)
+    expect(result.stdout).toContain('Unknown Salesforce hook "dw.order.notARealHook"')
+  })
+})

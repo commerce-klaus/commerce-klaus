@@ -1,6 +1,7 @@
 import path from "node:path"
 import ts from "typescript"
 
+import { validateHookRegistrations } from "./hooks.ts"
 import {
   createSfccModuleResolver,
   createSfccPaths,
@@ -185,9 +186,12 @@ export function typecheckSolutionProjects({
   const cartridgeRoots = inferCartridgeOrder(resolvedCartridgesDir, resolvedSolutionConfigPath)
   const currentDirectory = path.dirname(resolvedCartridgesDir)
 
-  return configPaths.flatMap((configPath) =>
+  const typecheckDiagnostics = configPaths.flatMap((configPath) =>
     runProjectTypecheck(configPath, cartridgeRoots, currentDirectory),
   )
+  const workspaceRoot = resolveWorkspaceRootFromConfig(resolvedSolutionConfigPath, cartridgeRoots)
+
+  return [...typecheckDiagnostics, ...validateHookRegistrations(cartridgeRoots, workspaceRoot)]
 }
 
 export function formatDiagnostics(diagnostics: ts.Diagnostic[], currentDirectory: string): string {

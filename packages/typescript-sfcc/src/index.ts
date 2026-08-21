@@ -23,4 +23,6 @@ export {
   typecheckSolutionProjects,
 } from "./typecheck.ts"
 
+export { validateHookRegistrations } from "./hooks.ts"
+
 export { main as syncTypesMain, runSyncTypesCli } from "./sync-types.ts"
