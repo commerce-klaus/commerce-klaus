@@ -38,6 +38,9 @@ Notes:
 
 - `sfcc-dts` is not required for `dw/*` resolution in this package.
 - Keep `.b2c-script-types/types` available in the workspace before running `sfcc-ts-typecheck`.
+
+## Custom Attributes
+
 - `sfcc-ts-sync-types` extends `b2c-script-types` by reading all XML files under `<siteTemplatePath>/meta/*.xml` (default: `sites/site_template/meta/*.xml`) and generating custom attribute declarations into `.b2c-script-types/types/sfcc-custom-attributes.generated.d.ts`.
 - Custom Object and System Object attribute interfaces are available by name to JavaScript JSDoc from `.b2c-script-types/types/sfcc-custom-attributes.generated.d.ts`, for example `CustomObjectExampleNotificationCustomAttributes` and `ProductCustomAttributes`.
 - The generated declarations are consumed by both `sfcc-ts-typecheck` and the tsserver plugin, so editor diagnostics and CLI diagnostics use the same custom attribute typing.
@@ -136,6 +139,25 @@ Schema-driven assumptions:
 - For enum attributes, multi-value behavior is derived from `select-multiple-flag=true`.
 - For set attributes, valid values follow `metadata.xsd` (`set-of-string`, `set-of-int`, `set-of-double`); non-schema variants fall back to `unknown[]`.
 
+## Hook Handling
+
+`sfcc-ts-sync-types` generates `.b2c-script-types/types/sfcc-hooks.generated.d.ts` with `SfccHooks` aliases for Salesforce system hook interfaces available in the vendored Script API types. For example, `SfccHooks.OrderCalculate` refers to the `dw.order.calculate` signature.
+
+Existing Salesforce system hook signatures can be used from JavaScript JSDoc without duplicating their parameters or return type:
+
+```js
+// @ts-check
+
+/** @type {SfccHooks.OrderCalculate} */
+function calculate(lineItemCtnr) {
+  // lineItemCtnr is typed from dw/order/hooks/CalculateHooks
+}
+
+exports.calculate = calculate
+```
+
+`SfccHooks` includes only hook signatures declared by the synchronized Salesforce Script API types. Shopper API hook documents and project-specific `c_*` response fields remain project-local types.
+
 Recommended `package.json` scripts:
 
 ```json
@@ -205,7 +227,7 @@ Exit codes:
 - `2`: diagnostics found
 - `1`: runtime/config error (for example missing config file)
 
-### Hook registration validation
+### Registration validation
 
 When a cartridge `package.json` declares a `hooks` path, `sfcc-ts-typecheck` also validates the referenced `hooks.json` file. It reports malformed registrations, missing hook scripts, and statically detectable missing CommonJS exports such as `exports.afterPOST`.
 

@@ -56,6 +56,7 @@ function createFakeEnvironment({ files = [], metadataVersion, localBinary = fals
           return { status: 0 }
         },
         mkdirSync: () => {},
+        writeFileSync: () => {},
         writeStdout: (text) => {
           stdout += text
         },
@@ -77,6 +78,7 @@ test("runSyncTypesCli skips when marker exists and no refresh is required", () =
   expect(exitCode).toBe(0)
   expect(env.calls).toHaveLength(0)
   expect(env.stdout).toContain("skipping sync")
+  expect(env.stdout).toContain("Salesforce hook declaration aliases")
 })
 
 test("runSyncTypesCli refreshes when minimum version is not met", () => {

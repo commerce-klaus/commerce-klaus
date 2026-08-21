@@ -2,6 +2,7 @@ const {
   createSfccModuleResolver,
   findCartridgesDir,
   getGeneratedCustomAttributesTypesPathIfPresent,
+  getGeneratedHookTypesPathIfPresent,
   inferCartridgeOrder,
   resolveWorkspaceRootFromProjectDir,
   transformSuperModuleSource,
@@ -44,6 +45,7 @@ function init(modules: { typescript: typeof import("typescript") }) {
       workspaceRoot,
       existsSync,
     )
+    const generatedHookTypesPath = getGeneratedHookTypesPathIfPresent(workspaceRoot, existsSync)
     const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
 
     const host = info.languageServiceHost
@@ -54,14 +56,16 @@ function init(modules: { typescript: typeof import("typescript") }) {
     const originalResolveModuleNames = host.resolveModuleNames?.bind(host)
     const originalResolveModuleNameLiterals = host.resolveModuleNameLiterals?.bind(host)
 
-    if (originalGetScriptFileNames && generatedTypesPath) {
+    if (originalGetScriptFileNames && (generatedTypesPath || generatedHookTypesPath)) {
       host.getScriptFileNames = () => {
         const fileNames = originalGetScriptFileNames()
-        if (fileNames.includes(generatedTypesPath)) {
-          return fileNames
-        }
-
-        return [...fileNames, generatedTypesPath]
+        const generatedTypePaths = [generatedTypesPath, generatedHookTypesPath].filter(
+          (filePath): filePath is string => filePath !== undefined,
+        )
+        return [
+          ...fileNames,
+          ...generatedTypePaths.filter((filePath) => !fileNames.includes(filePath)),
+        ]
       }
     }
 

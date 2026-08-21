@@ -20,6 +20,7 @@ import { existsSync as nodeExistsSync } from "node:fs"
 import path from "node:path"
 
 export const GENERATED_CUSTOM_ATTRIBUTES_FILE_NAME = "sfcc-custom-attributes.generated.d.ts"
+export const GENERATED_HOOK_TYPES_FILE_NAME = "sfcc-hooks.generated.d.ts"
 
 export {
   DEFAULT_SITE_TEMPLATE_PATH,
@@ -104,6 +105,10 @@ export function resolveGeneratedCustomAttributesTypesPath(workspaceRoot: string)
   )
 }
 
+export function resolveGeneratedHookTypesPath(workspaceRoot: string): string {
+  return path.join(workspaceRoot, ".b2c-script-types", "types", GENERATED_HOOK_TYPES_FILE_NAME)
+}
+
 export function resolveSiteTemplatePath(
   workspaceRoot: string,
   siteTemplatePath: string = DEFAULT_SITE_TEMPLATE_PATH,
@@ -122,5 +127,13 @@ export function getGeneratedCustomAttributesTypesPathIfPresent(
   existsSync: (filePath: string) => boolean = nodeExistsSync,
 ): string | undefined {
   const filePath = resolveGeneratedCustomAttributesTypesPath(workspaceRoot)
+  return existsSync(filePath) ? filePath : undefined
+}
+
+export function getGeneratedHookTypesPathIfPresent(
+  workspaceRoot: string,
+  existsSync: (filePath: string) => boolean = nodeExistsSync,
+): string | undefined {
+  const filePath = resolveGeneratedHookTypesPath(workspaceRoot)
   return existsSync(filePath) ? filePath : undefined
 }

@@ -4,6 +4,7 @@ import path from "node:path"
 import { expect, test } from "vite-plus/test"
 
 import { generateCustomAttributesTypes } from "../src/custom-attributes.ts"
+import { generateHookTypes } from "../src/hook-types.ts"
 import {
   formatDiagnostics,
   parseConfigFile,
@@ -49,7 +50,9 @@ test("parseConfigFile parses a valid config and resolves file names", () => {
     writeJson(configPath, {
       compilerOptions: {
         allowJs: true,
+        baseUrl: ".",
         checkJs: true,
+        ignoreDeprecations: "6.0",
         noEmit: true,
         strict: true,
       },
@@ -95,6 +98,66 @@ test("runProjectTypecheck returns no diagnostics for valid JavaScript with JSDoc
     const diagnostics = runProjectTypecheck(configPath, [appCustom], tempDir)
 
     expect(diagnostics).toHaveLength(0)
+  })
+})
+
+test("runProjectTypecheck resolves generated Salesforce hook aliases in JavaScript JSDoc", () => {
+  withTempDir((tempDir) => {
+    const cartridgesDir = path.join(tempDir, "cartridges")
+    const appCustom = path.join(cartridgesDir, "app_custom")
+    const configPath = path.join(appCustom, "jsconfig.json")
+    const sourcePath = path.join(appCustom, "cartridge", "scripts", "calculate.js")
+    const declarationPath = path.join(
+      tempDir,
+      ".b2c-script-types",
+      "types",
+      "dw",
+      "order",
+      "hooks",
+      "CalculateHooks.d.ts",
+    )
+
+    fs.mkdirSync(path.dirname(sourcePath), { recursive: true })
+    fs.mkdirSync(path.dirname(declarationPath), { recursive: true })
+    fs.writeFileSync(
+      declarationPath,
+      [
+        "declare interface CalculateHooks {",
+        '  readonly extensionPointCalculate: "dw.order.calculate"',
+        "  calculate(lineItemCtnr: { id: string }): void",
+        "}",
+        "export = CalculateHooks",
+        "",
+      ].join("\n"),
+    )
+    generateHookTypes({ workspaceRoot: tempDir })
+    fs.writeFileSync(
+      sourcePath,
+      [
+        "// @ts-check",
+        "/** @type {SfccHooks.OrderCalculate} */",
+        "function calculate(lineItemCtnr) {",
+        "  return lineItemCtnr.unknownProperty",
+        "}",
+        "exports.calculate = calculate",
+        "",
+      ].join("\n"),
+    )
+    writeJson(configPath, {
+      compilerOptions: {
+        allowJs: true,
+        baseUrl: ".",
+        checkJs: true,
+        ignoreDeprecations: "6.0",
+        noEmit: true,
+        strict: true,
+      },
+      include: ["cartridge/**/*.js"],
+    })
+
+    const diagnostics = runProjectTypecheck(configPath, [appCustom], tempDir)
+
+    expect(diagnostics.some((diagnostic) => diagnostic.code === 2339)).toBe(true)
   })
 })
 

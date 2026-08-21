@@ -6,6 +6,7 @@ import {
   createSfccModuleResolver,
   createSfccPaths,
   getGeneratedCustomAttributesTypesPathIfPresent,
+  getGeneratedHookTypesPathIfPresent,
   inferCartridgeOrder,
   readSolutionReferences,
   resolveWorkspaceRootFromConfig,
@@ -160,16 +161,12 @@ export function runProjectTypecheck(
 }
 
 function withGeneratedTypeFiles(rootNames: string[], workspaceRoot: string): string[] {
-  const generatedTypesPath = getGeneratedCustomAttributesTypesPathIfPresent(workspaceRoot)
-  if (!generatedTypesPath) {
-    return rootNames
-  }
+  const generatedTypePaths = [
+    getGeneratedCustomAttributesTypesPathIfPresent(workspaceRoot),
+    getGeneratedHookTypesPathIfPresent(workspaceRoot),
+  ].filter((filePath): filePath is string => filePath !== undefined)
 
-  if (rootNames.includes(generatedTypesPath)) {
-    return rootNames
-  }
-
-  return [...rootNames, generatedTypesPath]
+  return [...rootNames, ...generatedTypePaths.filter((filePath) => !rootNames.includes(filePath))]
 }
 
 export function typecheckSolutionProjects({

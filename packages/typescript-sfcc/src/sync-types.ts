@@ -6,11 +6,13 @@ import {
   mkdirSync as nodeMkdirSync,
   readFileSync as nodeReadFileSync,
   realpathSync as nodeRealpathSync,
+  writeFileSync as nodeWriteFileSync,
 } from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
 import { generateCustomAttributesTypes } from "./custom-attributes.ts"
+import { generateHookTypes } from "./hook-types.ts"
 import { resolveSiteTemplatePath } from "./shared.ts"
 
 interface SpawnResultLike {
@@ -33,6 +35,7 @@ export interface SyncTypesCliOptions {
   mkdirSync?: (dirPath: string, options: { recursive: boolean }) => void
   readFileSync?: (filePath: string, encoding: BufferEncoding) => string
   spawnSync?: SpawnSyncLike
+  writeFileSync?: (filePath: string, content: string, encoding: BufferEncoding) => void
   writeStdout?: (text: string) => void
   writeStderr?: (text: string) => void
 }
@@ -44,6 +47,7 @@ export function runSyncTypesCli(args: string[], options: SyncTypesCliOptions = {
   const mkdirSync = options.mkdirSync ?? nodeMkdirSync
   const readFileSync = options.readFileSync ?? nodeReadFileSync
   const spawnSync = options.spawnSync ?? nodeSpawnSync
+  const writeFileSync = options.writeFileSync ?? nodeWriteFileSync
   const writeStdout = options.writeStdout ?? ((text: string) => process.stdout.write(text))
   const writeStderr = options.writeStderr ?? ((text: string) => process.stderr.write(text))
 
@@ -85,6 +89,16 @@ export function runSyncTypesCli(args: string[], options: SyncTypesCliOptions = {
       writeStdout(
         "SFCC script types already present and up to date; skipping sync. Use --force to refresh.\n",
       )
+      const generatedHookTypes = generateHookTypes({
+        workspaceRoot: currentDirectory,
+        existsSync,
+        mkdirSync,
+        readFileSync,
+        writeFileSync,
+      })
+      writeStdout(
+        `Generated ${generatedHookTypes.declarationsCount} Salesforce hook declaration aliases at ${generatedHookTypes.outputFilePath}.\n`,
+      )
       return 0
     }
   }
@@ -114,6 +128,13 @@ export function runSyncTypesCli(args: string[], options: SyncTypesCliOptions = {
     existsSync,
     readFileSync,
   })
+  const generatedHookTypes = generateHookTypes({
+    workspaceRoot: currentDirectory,
+    existsSync,
+    mkdirSync,
+    readFileSync,
+    writeFileSync,
+  })
 
   if (!generatedTypes.written) {
     const configuredMetaDirectory = path.join(
@@ -131,6 +152,9 @@ export function runSyncTypesCli(args: string[], options: SyncTypesCliOptions = {
 
   writeStdout(
     `Generated ${generatedTypes.declarationsCount} custom attribute declaration blocks with ${generatedTypes.attributesCount} attributes at ${generatedTypes.outputFilePath}.\n`,
+  )
+  writeStdout(
+    `Generated ${generatedHookTypes.declarationsCount} Salesforce hook declaration aliases at ${generatedHookTypes.outputFilePath}.\n`,
   )
 
   return 0
