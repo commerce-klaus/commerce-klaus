@@ -7,6 +7,7 @@ import {
   createSfccPaths,
   getGeneratedCustomAttributesTypesPathIfPresent,
   getGeneratedHookTypesPathIfPresent,
+  getProjectHookTypesPathIfPresent,
   inferCartridgeOrder,
   readSolutionReferences,
   resolveWorkspaceRootFromConfig,
@@ -164,6 +165,7 @@ function withGeneratedTypeFiles(rootNames: string[], workspaceRoot: string): str
   const generatedTypePaths = [
     getGeneratedCustomAttributesTypesPathIfPresent(workspaceRoot),
     getGeneratedHookTypesPathIfPresent(workspaceRoot),
+    getProjectHookTypesPathIfPresent(workspaceRoot),
   ].filter((filePath): filePath is string => filePath !== undefined)
 
   return [...rootNames, ...generatedTypePaths.filter((filePath) => !rootNames.includes(filePath))]

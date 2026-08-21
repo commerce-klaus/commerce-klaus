@@ -161,6 +161,55 @@ test("runProjectTypecheck resolves generated Salesforce hook aliases in JavaScri
   })
 })
 
+test("runProjectTypecheck resolves project-local Shopper API hook types", () => {
+  withTempDir((tempDir) => {
+    const cartridgesDir = path.join(tempDir, "cartridges")
+    const appCustom = path.join(cartridgesDir, "app_custom")
+    const configPath = path.join(appCustom, "jsconfig.json")
+    const sourcePath = path.join(appCustom, "cartridge", "scripts", "product.js")
+
+    fs.mkdirSync(path.dirname(sourcePath), { recursive: true })
+    fs.writeFileSync(
+      path.join(tempDir, "sfcc-hooks.d.ts"),
+      [
+        "export {}",
+        "",
+        "declare global {",
+        "  namespace SfccHooks {",
+        "    type ShopperProductModifyGetResponse = (document: { c_brand: string }) => void",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    )
+    fs.writeFileSync(
+      sourcePath,
+      [
+        "// @ts-check",
+        "/** @type {SfccHooks.ShopperProductModifyGetResponse} */",
+        "function modifyGETResponse(document) {",
+        "  document.c_brand.toUpperCase()",
+        "}",
+        "exports.modifyGETResponse = modifyGETResponse",
+        "",
+      ].join("\n"),
+    )
+    writeJson(configPath, {
+      compilerOptions: {
+        allowJs: true,
+        checkJs: true,
+        noEmit: true,
+        strict: true,
+      },
+      include: ["cartridge/**/*.js"],
+    })
+
+    const diagnostics = runProjectTypecheck(configPath, [appCustom], tempDir)
+
+    expect(diagnostics).toHaveLength(0)
+  })
+})
+
 test("runProjectTypecheck resolves generated custom object types in JavaScript JSDoc", () => {
   withTempDir((tempDir) => {
     const cartridgesDir = path.join(tempDir, "cartridges")

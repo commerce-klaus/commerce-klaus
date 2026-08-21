@@ -158,6 +158,31 @@ exports.calculate = calculate
 
 `SfccHooks` includes only hook signatures declared by the synchronized Salesforce Script API types. Shopper API hook documents and project-specific `c_*` response fields remain project-local types.
 
+For Shopper API hooks, add an optional `sfcc-hooks.d.ts` file at the workspace root. It is loaded automatically by both `sfcc-ts-typecheck` and the tsserver plugin, even when cartridge project configs include JavaScript files only. Keep document models narrow and declare only the fields read or written by the hook:
+
+```ts
+export {}
+
+declare global {
+  namespace SfccHooks {
+    type ShopperProductModifyGetResponse = (document: { c_brand: string }) => void
+  }
+}
+```
+
+Use the project-local alias from the hook implementation:
+
+```js
+// @ts-check
+
+/** @type {SfccHooks.ShopperProductModifyGetResponse} */
+function modifyGETResponse(document) {
+  document.c_brand = "Example"
+}
+
+exports.modifyGETResponse = modifyGETResponse
+```
+
 Recommended `package.json` scripts:
 
 ```json
