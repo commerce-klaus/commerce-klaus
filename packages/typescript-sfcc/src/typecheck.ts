@@ -190,9 +190,8 @@ export function typecheckSolutionProjects({
   const typecheckDiagnostics = configPaths.flatMap((configPath) =>
     runProjectTypecheck(configPath, cartridgeRoots, currentDirectory),
   )
-  const workspaceRoot = resolveWorkspaceRootFromConfig(resolvedSolutionConfigPath, cartridgeRoots)
 
-  return [...typecheckDiagnostics, ...validateHookRegistrations(cartridgeRoots, workspaceRoot)]
+  return [...typecheckDiagnostics, ...validateHookRegistrations(cartridgeRoots)]
 }
 
 export function formatDiagnostics(diagnostics: ts.Diagnostic[], currentDirectory: string): string {

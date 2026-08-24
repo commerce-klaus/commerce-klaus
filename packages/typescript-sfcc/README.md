@@ -265,7 +265,7 @@ When a cartridge `package.json` declares a `hooks` path, `sfcc-ts-typecheck` als
 
 Project-specific hook names do not necessarily identify an exported method, so their registrations are validated structurally without inferring an export name.
 
-The checker reads vendored Salesforce hook declarations under `.b2c-script-types/types/dw/**/hooks/*.d.ts` to report unknown system hook extension points. OCAPI and SCAPI registrations are validated structurally, because Salesforce does not currently ship complete declarations for those API hook documents.
+The checker does not maintain or validate against a list of known Salesforce extension point names. The vendored hook declarations under `.b2c-script-types/types/dw/**/hooks/*.d.ts` only cover a subset of valid `dw.*` hooks (for example, `CalculateHooks` does not model `dw.order.calculateDiscounts`), so an unmodeled hook name is not necessarily invalid.
 
 `sfcc-ts-sync-types` options:
 

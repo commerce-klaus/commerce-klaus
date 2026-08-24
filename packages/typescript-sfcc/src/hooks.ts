@@ -13,21 +13,11 @@ interface HookDocument {
   hooks: HookRegistration[]
 }
 
-export function validateHookRegistrations(
-  cartridgeRoots: string[],
-  workspaceRoot: string,
-): ts.Diagnostic[] {
-  const knownHookNames = readKnownHookNames(workspaceRoot)
-
-  return cartridgeRoots.flatMap((cartridgeRoot) =>
-    validateCartridgeHooks(cartridgeRoot, knownHookNames),
-  )
+export function validateHookRegistrations(cartridgeRoots: string[]): ts.Diagnostic[] {
+  return cartridgeRoots.flatMap((cartridgeRoot) => validateCartridgeHooks(cartridgeRoot))
 }
 
-function validateCartridgeHooks(
-  cartridgeRoot: string,
-  knownHookNames: Set<string>,
-): ts.Diagnostic[] {
+function validateCartridgeHooks(cartridgeRoot: string): ts.Diagnostic[] {
   const packagePath = path.join(cartridgeRoot, "package.json")
   if (!fs.existsSync(packagePath)) {
     return []
@@ -65,7 +55,7 @@ function validateCartridgeHooks(
   }
 
   return parsedHooks.hooks.flatMap((registration) =>
-    validateHookRegistration(registration, hooksFile, knownHookNames),
+    validateHookRegistration(registration, hooksFile),
   )
 }
 
@@ -111,19 +101,12 @@ function isHookDocument(value: unknown): value is HookDocument {
 function validateHookRegistration(
   registration: HookRegistration,
   hooksFile: ts.SourceFile,
-  knownHookNames: Set<string>,
 ): ts.Diagnostic[] {
   const diagnostics: ts.Diagnostic[] = []
   const methodName = registration.name.startsWith("dw.")
     ? registration.name.split(".").at(-1)
     : undefined
   const scriptPath = resolveHookScriptPath(path.dirname(hooksFile.fileName), registration.script)
-
-  if (isUnknownKnownHook(registration.name, knownHookNames)) {
-    diagnostics.push(
-      createDiagnostic(hooksFile.fileName, `Unknown Salesforce hook "${registration.name}".`),
-    )
-  }
 
   if (!scriptPath) {
     diagnostics.push(
@@ -209,58 +192,6 @@ function isObjectLiteralExport(expression: ts.Expression, methodName: string): b
 
 function getPropertyNameText(name: ts.PropertyName): string | undefined {
   return ts.isIdentifier(name) || ts.isStringLiteral(name) ? name.text : undefined
-}
-
-function readKnownHookNames(workspaceRoot: string): Set<string> {
-  const hooksDirectory = path.join(workspaceRoot, ".b2c-script-types", "types", "dw")
-  if (!fs.existsSync(hooksDirectory)) {
-    return new Set()
-  }
-
-  const hookNames = new Set<string>()
-  for (const declarationPath of findHookDeclarations(hooksDirectory)) {
-    const declaration = readSourceFile(declarationPath)
-    if (!declaration) {
-      continue
-    }
-
-    collectHookNames(declaration, hookNames)
-  }
-
-  return hookNames
-}
-
-function collectHookNames(node: ts.Node, hookNames: Set<string>): void {
-  if (ts.isPropertySignature(node) && node.type && ts.isLiteralTypeNode(node.type)) {
-    const literal = node.type.literal
-    if (ts.isStringLiteral(literal) && literal.text.startsWith("dw.")) {
-      hookNames.add(literal.text)
-    }
-  }
-
-  ts.forEachChild(node, (child) => collectHookNames(child, hookNames))
-}
-
-function findHookDeclarations(directory: string): string[] {
-  return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
-    const entryPath = path.join(directory, entry.name)
-    if (entry.isDirectory()) {
-      return findHookDeclarations(entryPath)
-    }
-
-    return entry.name.endsWith("Hooks.d.ts") ? [entryPath] : []
-  })
-}
-
-function isUnknownKnownHook(hookName: string, knownHookNames: Set<string>): boolean {
-  if (knownHookNames.has(hookName) || hookName.startsWith("dw.ocapi.")) {
-    return false
-  }
-
-  return [...knownHookNames].some((knownHookName) => {
-    const namespace = knownHookName.split(".").slice(0, 2).join(".")
-    return hookName.startsWith(`${namespace}.`)
-  })
 }
 
 function readSourceFile(filePath: string): ts.SourceFile | undefined {

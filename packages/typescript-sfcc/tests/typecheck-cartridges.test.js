@@ -278,7 +278,7 @@ test("CLI reports malformed and unresolved hook registrations", async () => {
   })
 })
 
-test("CLI reports unknown Salesforce system hooks from vendored declarations", async () => {
+test("CLI does not flag dw.* hooks absent from vendored declarations as unknown", async () => {
   await withTempDir(async (tempDir) => {
     const { solutionConfigPath } = setupValidProject(tempDir)
     const cartridgeRoot = path.join(tempDir, "cartridges", "app_base")
@@ -299,15 +299,16 @@ test("CLI reports unknown Salesforce system hooks from vendored declarations", a
     writeJson(path.join(cartridgeRoot, "package.json"), {
       hooks: "./cartridge/scripts/hooks.json",
     })
+    // dw.order.calculateDiscounts is a real Salesforce hook not modeled by CalculateHooks.
     writeJson(hooksPath, {
       hooks: [
         {
-          name: "dw.order.notARealHook",
+          name: "dw.order.calculateDiscounts",
           script: "./hooks/calculate",
         },
       ],
     })
-    fs.writeFileSync(scriptPath, "exports.notARealHook = function () {}\n")
+    fs.writeFileSync(scriptPath, "exports.calculateDiscounts = function () {}\n")
     fs.writeFileSync(
       declarationPath,
       [
@@ -321,7 +322,6 @@ test("CLI reports unknown Salesforce system hooks from vendored declarations", a
 
     const result = runCli(["--project", path.relative(tempDir, solutionConfigPath)], tempDir)
 
-    expect(result.exitCode).toBe(2)
-    expect(result.stdout).toContain('Unknown Salesforce hook "dw.order.notARealHook"')
+    expect(result.exitCode).toBe(0)
   })
 })
