@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.3.0
+
+### Minor Changes
+
+- 0f9a70c: Generate SfccHooks JSDoc aliases for Salesforce system hook signatures from vendored Script API declarations.
+- db29345: Load optional workspace sfcc-hooks.d.ts declarations for project-specific Shopper API hook document types.
+- 0179730: Move the default `sfcc-hooks.d.ts` location from the workspace root to `cartridges/`, next to `jsconfig.json`, and add support for cartridge-specific `sfcc-hooks.d.ts` files (for example `cartridges/int_storepickup/sfcc-hooks.d.ts`) that are merged into the same global `SfccHooks` namespace.
+
+  Migration: move an existing workspace-root `sfcc-hooks.d.ts` into `cartridges/`.
+
+- fbce5e6: Recognize static module.exports object literals when validating registered hook exports.
+- db2127a: Validate cartridge hooks.json registrations during sfcc-ts-typecheck, including hook scripts, CommonJS exports, and known Salesforce system hook extension points.
+
+### Patch Changes
+
+- a6f496e: Anchor hooks.json registration diagnostics (unresolved script, missing export) to the specific offending entry instead of always pointing at line 1 of the file.
+- 920f97b: Remove the "Unknown Salesforce hook" diagnostic. Vendored Salesforce hook declarations only cover a subset of valid `dw.*` extension points (for example `CalculateHooks` does not model `dw.order.calculateDiscounts`), so this check produced false positives for legitimate hook registrations.
+- 0b42849: Avoid inferring CommonJS export names from project-specific hook registrations.
+
 ## 1.2.0
 
 ### Minor Changes
