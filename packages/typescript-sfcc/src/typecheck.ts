@@ -8,6 +8,7 @@ import {
   getAdditionalTypeFiles,
   inferCartridgeOrder,
   readSolutionReferences,
+  resolveCartridgesDirFromConfig,
   resolveWorkspaceRootFromConfig,
   transformSuperModuleSource,
 } from "./shared.ts"
@@ -148,10 +149,7 @@ export function runProjectTypecheck(
 
   const program = ts.createProgram({
     options: parsedConfig.options,
-    rootNames: withGeneratedTypeFiles(
-      parsedConfig.fileNames,
-      resolveWorkspaceRootFromConfig(configPath, cartridgeRoots),
-    ),
+    rootNames: withGeneratedTypeFiles(parsedConfig.fileNames, configPath, cartridgeRoots),
     projectReferences: parsedConfig.projectReferences,
     host,
   })
@@ -159,8 +157,18 @@ export function runProjectTypecheck(
   return ts.getPreEmitDiagnostics(program)
 }
 
-function withGeneratedTypeFiles(rootNames: string[], workspaceRoot: string): string[] {
-  const generatedTypePaths = getAdditionalTypeFiles(workspaceRoot)
+function withGeneratedTypeFiles(
+  rootNames: string[],
+  configPath: string,
+  cartridgeRoots: string[],
+): string[] {
+  const cartridgesDir = resolveCartridgesDirFromConfig(configPath, cartridgeRoots)
+  const workspaceRoot = resolveWorkspaceRootFromConfig(configPath, cartridgeRoots)
+  const generatedTypePaths = getAdditionalTypeFiles({
+    workspaceRoot,
+    cartridgesDir,
+    cartridgeRoots,
+  })
 
   return [...rootNames, ...generatedTypePaths.filter((filePath) => !rootNames.includes(filePath))]
 }

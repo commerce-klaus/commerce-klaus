@@ -40,7 +40,10 @@ function init(modules: { typescript: typeof import("typescript") }) {
     const cartridgesDir = findCartridgesDir(projectDir)
     const cartridgeRoots = cartridgesDir ? inferCartridgeOrder(cartridgesDir) : []
     const workspaceRoot = resolveWorkspaceRootFromProjectDir(projectDir)
-    const additionalTypeFiles = getAdditionalTypeFiles(workspaceRoot, existsSync)
+    const additionalTypeFiles = getAdditionalTypeFiles(
+      { workspaceRoot, cartridgesDir: cartridgesDir ?? projectDir, cartridgeRoots },
+      existsSync,
+    )
     const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
 
     const host = info.languageServiceHost

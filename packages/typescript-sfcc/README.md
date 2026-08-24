@@ -158,7 +158,7 @@ exports.calculate = calculate
 
 `SfccHooks` includes only hook signatures declared by the synchronized Salesforce Script API types. Shopper API hook documents and project-specific `c_*` response fields remain project-local types.
 
-For Shopper API hooks, add an optional `sfcc-hooks.d.ts` file at the workspace root. It is loaded automatically by both `sfcc-ts-typecheck` and the tsserver plugin, even when cartridge project configs include JavaScript files only. Keep document models narrow and declare only the fields read or written by the hook:
+For Shopper API hooks, add an optional `sfcc-hooks.d.ts` file next to `cartridges/jsconfig.json`. It is loaded automatically by both `sfcc-ts-typecheck` and the tsserver plugin, even when cartridge project configs include JavaScript files only. Keep document models narrow and declare only the fields read or written by the hook:
 
 ```ts
 export {}
@@ -182,6 +182,13 @@ function modifyGETResponse(document) {
 
 exports.modifyGETResponse = modifyGETResponse
 ```
+
+Types that only apply to a single cartridge can instead be declared in an `sfcc-hooks.d.ts` file directly inside that cartridge, next to its own `jsconfig.json` (for example `cartridges/int_storepickup/sfcc-hooks.d.ts`). All discovered files share the same global `SfccHooks` namespace, so cartridge-specific and cartridges-wide declarations can be mixed:
+
+- `cartridges/sfcc-hooks.d.ts`: shared across all cartridges
+- `cartridges/<cartridge>/sfcc-hooks.d.ts`: specific to that cartridge only
+
+Migration from `1.x`: this package previously loaded a single `sfcc-hooks.d.ts` at the workspace root (one level above `cartridges/`). Move that file into `cartridges/` to keep it working.
 
 Recommended `package.json` scripts:
 

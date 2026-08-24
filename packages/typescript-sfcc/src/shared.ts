@@ -82,14 +82,21 @@ export function createSfccPaths(
   return paths
 }
 
-export function resolveWorkspaceRootFromConfig(
+export function resolveCartridgesDirFromConfig(
   configPath: string,
   cartridgeRoots: string[],
 ): string {
   const configDir = path.dirname(configPath)
   const cartridgesDir =
     cartridgeRoots.length > 0 ? path.dirname(cartridgeRoots[0]) : findCartridgesDir(configDir)
-  return cartridgesDir ? path.dirname(cartridgesDir) : path.dirname(configDir)
+  return cartridgesDir ?? configDir
+}
+
+export function resolveWorkspaceRootFromConfig(
+  configPath: string,
+  cartridgeRoots: string[],
+): string {
+  return path.dirname(resolveCartridgesDirFromConfig(configPath, cartridgeRoots))
 }
 
 export function resolveWorkspaceRootFromProjectDir(projectDir: string): string {
@@ -110,8 +117,12 @@ export function resolveGeneratedHookTypesPath(workspaceRoot: string): string {
   return path.join(workspaceRoot, ".b2c-script-types", "types", GENERATED_HOOK_TYPES_FILE_NAME)
 }
 
-export function resolveProjectHookTypesPath(workspaceRoot: string): string {
-  return path.join(workspaceRoot, PROJECT_HOOK_TYPES_FILE_NAME)
+export function resolveProjectHookTypesPath(cartridgesDir: string): string {
+  return path.join(cartridgesDir, PROJECT_HOOK_TYPES_FILE_NAME)
+}
+
+export function resolveCartridgeHookTypesPath(cartridgeRoot: string): string {
+  return path.join(cartridgeRoot, PROJECT_HOOK_TYPES_FILE_NAME)
 }
 
 export function resolveSiteTemplatePath(
@@ -144,20 +155,36 @@ export function getGeneratedHookTypesPathIfPresent(
 }
 
 export function getProjectHookTypesPathIfPresent(
-  workspaceRoot: string,
+  cartridgesDir: string,
   existsSync: (filePath: string) => boolean = nodeExistsSync,
 ): string | undefined {
-  const filePath = resolveProjectHookTypesPath(workspaceRoot)
+  const filePath = resolveProjectHookTypesPath(cartridgesDir)
   return existsSync(filePath) ? filePath : undefined
 }
 
+export function getCartridgeHookTypesPaths(
+  cartridgeRoots: string[],
+  existsSync: (filePath: string) => boolean = nodeExistsSync,
+): string[] {
+  return cartridgeRoots
+    .map((cartridgeRoot) => resolveCartridgeHookTypesPath(cartridgeRoot))
+    .filter((filePath) => existsSync(filePath))
+}
+
+export interface AdditionalTypeFilesOptions {
+  workspaceRoot: string
+  cartridgesDir: string
+  cartridgeRoots: string[]
+}
+
 export function getAdditionalTypeFiles(
-  workspaceRoot: string,
+  { workspaceRoot, cartridgesDir, cartridgeRoots }: AdditionalTypeFilesOptions,
   existsSync: (filePath: string) => boolean = nodeExistsSync,
 ): string[] {
   return [
     getGeneratedCustomAttributesTypesPathIfPresent(workspaceRoot, existsSync),
     getGeneratedHookTypesPathIfPresent(workspaceRoot, existsSync),
-    getProjectHookTypesPathIfPresent(workspaceRoot, existsSync),
+    getProjectHookTypesPathIfPresent(cartridgesDir, existsSync),
+    ...getCartridgeHookTypesPaths(cartridgeRoots, existsSync),
   ].filter((filePath): filePath is string => filePath !== undefined)
 }

@@ -42,16 +42,20 @@ function writeJson(filePath, content) {
   fs.writeFileSync(filePath, `${JSON.stringify(content, null, 2)}\n`)
 }
 
-test("getAdditionalTypeFiles includes generated and project-local hook declarations", () => {
+test("getAdditionalTypeFiles includes generated, cartridges-level, and per-cartridge hook declarations", () => {
   const workspaceRoot = "/workspace"
+  const cartridgesDir = "/workspace/cartridges"
+  const cartridgeRoots = ["/workspace/cartridges/app_custom"]
   const filePaths = new Set([
     "/workspace/.b2c-script-types/types/sfcc-custom-attributes.generated.d.ts",
     "/workspace/.b2c-script-types/types/sfcc-hooks.generated.d.ts",
-    "/workspace/sfcc-hooks.d.ts",
+    "/workspace/cartridges/sfcc-hooks.d.ts",
+    "/workspace/cartridges/app_custom/sfcc-hooks.d.ts",
   ])
 
-  const additionalTypeFiles = getAdditionalTypeFiles(workspaceRoot, (filePath) =>
-    filePaths.has(filePath),
+  const additionalTypeFiles = getAdditionalTypeFiles(
+    { workspaceRoot, cartridgesDir, cartridgeRoots },
+    (filePath) => filePaths.has(filePath),
   )
 
   expect(additionalTypeFiles).toEqual([...filePaths])
@@ -177,7 +181,7 @@ test("runProjectTypecheck resolves generated Salesforce hook aliases in JavaScri
   })
 })
 
-test("runProjectTypecheck resolves project-local Shopper API hook types", () => {
+test("runProjectTypecheck resolves project-local Shopper API hook types from cartridges/sfcc-hooks.d.ts", () => {
   withTempDir((tempDir) => {
     const cartridgesDir = path.join(tempDir, "cartridges")
     const appCustom = path.join(cartridgesDir, "app_custom")
@@ -186,7 +190,7 @@ test("runProjectTypecheck resolves project-local Shopper API hook types", () => 
 
     fs.mkdirSync(path.dirname(sourcePath), { recursive: true })
     fs.writeFileSync(
-      path.join(tempDir, "sfcc-hooks.d.ts"),
+      path.join(cartridgesDir, "sfcc-hooks.d.ts"),
       [
         "export {}",
         "",
@@ -207,6 +211,55 @@ test("runProjectTypecheck resolves project-local Shopper API hook types", () => 
         "  document.c_brand.toUpperCase()",
         "}",
         "exports.modifyGETResponse = modifyGETResponse",
+        "",
+      ].join("\n"),
+    )
+    writeJson(configPath, {
+      compilerOptions: {
+        allowJs: true,
+        checkJs: true,
+        noEmit: true,
+        strict: true,
+      },
+      include: ["cartridge/**/*.js"],
+    })
+
+    const diagnostics = runProjectTypecheck(configPath, [appCustom], tempDir)
+
+    expect(diagnostics).toHaveLength(0)
+  })
+})
+
+test("runProjectTypecheck resolves cartridge-specific sfcc-hooks.d.ts overrides", () => {
+  withTempDir((tempDir) => {
+    const cartridgesDir = path.join(tempDir, "cartridges")
+    const appCustom = path.join(cartridgesDir, "app_custom")
+    const configPath = path.join(appCustom, "jsconfig.json")
+    const sourcePath = path.join(appCustom, "cartridge", "scripts", "provider.js")
+
+    fs.mkdirSync(path.dirname(sourcePath), { recursive: true })
+    fs.writeFileSync(
+      path.join(appCustom, "sfcc-hooks.d.ts"),
+      [
+        "export {}",
+        "",
+        "declare global {",
+        "  namespace SfccHooks {",
+        "    type ProviderGetStores = (args: { latitude: number }) => { id: string }[]",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    )
+    fs.writeFileSync(
+      sourcePath,
+      [
+        "// @ts-check",
+        "/** @type {SfccHooks.ProviderGetStores} */",
+        "function getStores(args) {",
+        "  return [{ id: String(args.latitude) }]",
+        "}",
+        "exports.getStores = getStores",
         "",
       ].join("\n"),
     )
