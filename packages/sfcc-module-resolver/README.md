@@ -11,6 +11,7 @@ This package centralizes SFCC-specific resolution for:
 - cartridge alias paths such as `app_core/cartridge/...`
 - `module.superModule`
 - cartridge order detection from configuration, environment, `jsconfig`, and optional `site.xml`
+- cartridge `hooks.json` registration lookups
 
 ## Why this package?
 
@@ -104,6 +105,21 @@ Notes:
 - `transformSuperModuleSource(sourceCode, filePath, cartridgeRoots): string`
 - `injectTopLevelStatement(sourceCode, statement): string`
 
+### Hook registrations
+
+- `findCartridgeRootForFile(filePath): string | undefined`
+  - Locates the cartridge root (the directory directly under `cartridges/`) that contains a file
+- `getCartridgeHooksJsonPath(cartridgeRoot): string | undefined`
+  - Reads the cartridge's `package.json` and resolves its declared `hooks` path, if any
+- `getHookRegistrationsFromDocument(document): HookRegistration[] | undefined`
+  - Validates a parsed `hooks.json` document and returns its `{ name, script }` entries
+- `resolveHookScriptPath(hooksDirectory, script): string | undefined`
+  - Resolves a registration's `script` field to an existing file, trying `.js`, `.cjs`, `.mjs`, and `.ds`
+- `getRequiredHookExportName(hookName): string | undefined`
+  - Infers the required export name for Salesforce `dw.*` hooks only (the last segment of the extension point)
+- `getRequiredHookExportsForScriptFile(filePath): RequiredHookExport[]`
+  - Given a script file, returns every `{ hookName, exportName }` it must statically export according to its cartridge's `hooks.json`
+
 ### Utilities
 
 - `stripExt(filePath): string`
@@ -139,13 +155,24 @@ const order = getSiteTemplateCartridgePath(
 )
 ```
 
+### 4) Find required hook exports for a script file
+
+```ts
+import { getRequiredHookExportsForScriptFile } from "@commerce-klaus/sfcc-module-resolver"
+
+const requiredExports = getRequiredHookExportsForScriptFile(
+  "/workspace/cartridges/app_custom/cartridge/scripts/hooks/basket.js",
+)
+// [{ hookName: "dw.ocapi.shop.basket.afterPOST", exportName: "afterPOST" }]
+```
+
 ## Design decisions
 
 - A central resolver core with consumer-specific adapters kept in each package.
 - Filesystem-based resolution is intentionally Node-only.
 - Return formats are deterministic: absolute file paths for resolver hooks, cartridge-based specifiers for super module references.
 
-## Entwicklung
+## Development
 
 ```bash
 vp test

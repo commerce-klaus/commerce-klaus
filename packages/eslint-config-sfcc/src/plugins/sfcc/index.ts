@@ -7,6 +7,7 @@ import noTypeAnnotations from "./no-type-annotations.js"
 import preferConst from "./prefer-const.js"
 import rhinoConstCompat from "./rhino-const-compat.js"
 import rhinoConstConflict from "./rhino-const-conflict.js"
+import validHookExport from "./valid-hook-export.js"
 import validRequirePath from "./valid-require-path.js"
 
 const sfcc = {
@@ -20,6 +21,7 @@ const sfcc = {
     "prefer-const": preferConst,
     "rhino-const-compat": rhinoConstCompat,
     "rhino-const-conflict": rhinoConstConflict,
+    "valid-hook-export": validHookExport,
     "valid-require-path": validRequirePath,
   },
 }

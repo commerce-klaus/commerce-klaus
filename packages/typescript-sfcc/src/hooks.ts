@@ -1,17 +1,14 @@
+import {
+  type HookRegistration,
+  getHookRegistrationsFromDocument,
+  getRequiredHookExportName,
+  resolveHookScriptPath,
+} from "@commerce-klaus/sfcc-module-resolver"
 import fs from "node:fs"
 import path from "node:path"
 import ts from "typescript"
 
 const DIAGNOSTIC_CODE = 81001
-
-interface HookRegistration {
-  name: string
-  script: string
-}
-
-interface HookDocument {
-  hooks: HookRegistration[]
-}
 
 export function validateHookRegistrations(cartridgeRoots: string[]): ts.Diagnostic[] {
   return cartridgeRoots.flatMap((cartridgeRoot) => validateCartridgeHooks(cartridgeRoot))
@@ -71,33 +68,14 @@ function parseHooksDocument(
     return { diagnostic: createDiagnostic(hooksFile.fileName, "Could not parse hooks.json.") }
   }
 
-  if (!isHookDocument(document)) {
+  const hooks = getHookRegistrationsFromDocument(document)
+  if (!hooks) {
     return {
       diagnostic: createDiagnostic(hooksFile.fileName, 'hooks.json must contain a "hooks" array.'),
     }
   }
 
-  return { hooks: document.hooks }
-}
-
-function isHookDocument(value: unknown): value is HookDocument {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "hooks" in value &&
-    Array.isArray(value.hooks) &&
-    value.hooks.every(
-      (entry): entry is HookRegistration =>
-        typeof entry === "object" &&
-        entry !== null &&
-        "name" in entry &&
-        typeof entry.name === "string" &&
-        entry.name.length > 0 &&
-        "script" in entry &&
-        typeof entry.script === "string" &&
-        entry.script.length > 0,
-    )
-  )
+  return { hooks }
 }
 
 function validateHookRegistration(
@@ -106,9 +84,7 @@ function validateHookRegistration(
   registrationNode: ts.Node | undefined,
 ): ts.Diagnostic[] {
   const diagnostics: ts.Diagnostic[] = []
-  const methodName = registration.name.startsWith("dw.")
-    ? registration.name.split(".").at(-1)
-    : undefined
+  const methodName = getRequiredHookExportName(registration.name)
   const scriptPath = resolveHookScriptPath(path.dirname(hooksFile.fileName), registration.script)
 
   if (!scriptPath) {
@@ -133,15 +109,6 @@ function validateHookRegistration(
   }
 
   return diagnostics
-}
-
-function resolveHookScriptPath(hooksDirectory: string, script: string): string | undefined {
-  const requestedPath = path.resolve(hooksDirectory, script)
-  const candidates = [
-    requestedPath,
-    ...[".js", ".cjs", ".mjs", ".ds"].map((ext) => `${requestedPath}${ext}`),
-  ]
-  return candidates.find((candidate) => fs.statSync(candidate, { throwIfNoEntry: false })?.isFile())
 }
 
 function hasStaticCommonJsExport(scriptFile: ts.SourceFile, methodName: string): boolean {

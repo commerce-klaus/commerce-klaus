@@ -10,6 +10,7 @@ const sfcc: Linter.RulesRecord = {
   "sfcc/prefer-const": "error",
   "sfcc/rhino-const-compat": "error",
   "sfcc/rhino-const-conflict": "error",
+  "sfcc/valid-hook-export": "error",
   "sfcc/valid-require-path": "error",
 }
 

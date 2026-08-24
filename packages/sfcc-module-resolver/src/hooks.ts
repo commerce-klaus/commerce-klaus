@@ -1,0 +1,137 @@
+import fs from "node:fs"
+import path from "node:path"
+
+export interface HookRegistration {
+  name: string
+  script: string
+}
+
+function isHookRegistration(value: unknown): value is HookRegistration {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as HookRegistration).name === "string" &&
+    (value as HookRegistration).name.length > 0 &&
+    typeof (value as HookRegistration).script === "string" &&
+    (value as HookRegistration).script.length > 0
+  )
+}
+
+export function getHookRegistrationsFromDocument(
+  document: unknown,
+): HookRegistration[] | undefined {
+  if (typeof document !== "object" || document === null || !("hooks" in document)) {
+    return undefined
+  }
+
+  const hooks = (document as { hooks: unknown }).hooks
+  return Array.isArray(hooks) && hooks.every(isHookRegistration) ? hooks : undefined
+}
+
+const HOOK_SCRIPT_EXTENSIONS = [".js", ".cjs", ".mjs", ".ds"]
+
+export function resolveHookScriptPath(hooksDirectory: string, script: string): string | undefined {
+  const requestedPath = path.resolve(hooksDirectory, script)
+  const candidates = [
+    requestedPath,
+    ...HOOK_SCRIPT_EXTENSIONS.map((extension) => `${requestedPath}${extension}`),
+  ]
+
+  return candidates.find((candidate) => {
+    try {
+      return fs.statSync(candidate).isFile()
+    } catch {
+      return false
+    }
+  })
+}
+
+export function getRequiredHookExportName(hookName: string): string | undefined {
+  return hookName.startsWith("dw.") ? hookName.split(".").at(-1) : undefined
+}
+
+// A file belongs to exactly one cartridge: the directory directly under "cartridges".
+export function findCartridgeRootForFile(filePath: string): string | undefined {
+  let current = path.dirname(path.resolve(filePath))
+
+  while (true) {
+    const parent = path.dirname(current)
+    if (path.basename(parent) === "cartridges") {
+      return current
+    }
+
+    if (parent === current) {
+      return undefined
+    }
+
+    current = parent
+  }
+}
+
+export function getCartridgeHooksJsonPath(cartridgeRoot: string): string | undefined {
+  const packagePath = path.join(cartridgeRoot, "package.json")
+  if (!fs.existsSync(packagePath)) {
+    return undefined
+  }
+
+  let packageJson: { hooks?: unknown }
+  try {
+    packageJson = JSON.parse(fs.readFileSync(packagePath, "utf8")) as { hooks?: unknown }
+  } catch {
+    return undefined
+  }
+
+  if (typeof packageJson.hooks !== "string" || packageJson.hooks.length === 0) {
+    return undefined
+  }
+
+  return path.resolve(cartridgeRoot, packageJson.hooks)
+}
+
+export interface RequiredHookExport {
+  hookName: string
+  exportName: string
+}
+
+export function getRequiredHookExportsForScriptFile(filePath: string): RequiredHookExport[] {
+  const cartridgeRoot = findCartridgeRootForFile(filePath)
+  if (!cartridgeRoot) {
+    return []
+  }
+
+  const hooksJsonPath = getCartridgeHooksJsonPath(cartridgeRoot)
+  if (!hooksJsonPath) {
+    return []
+  }
+
+  let registrations: HookRegistration[] | undefined
+  try {
+    registrations = getHookRegistrationsFromDocument(
+      JSON.parse(fs.readFileSync(hooksJsonPath, "utf8")),
+    )
+  } catch {
+    return []
+  }
+
+  if (!registrations) {
+    return []
+  }
+
+  const hooksDirectory = path.dirname(hooksJsonPath)
+  const normalizedFilePath = path.resolve(filePath)
+
+  const requiredExports: RequiredHookExport[] = []
+  for (const registration of registrations) {
+    const resolvedScriptPath = resolveHookScriptPath(hooksDirectory, registration.script)
+    if (resolvedScriptPath !== normalizedFilePath) {
+      continue
+    }
+
+    const exportName = getRequiredHookExportName(registration.name)
+    if (exportName) {
+      requiredExports.push({ hookName: registration.name, exportName })
+    }
+  }
+
+  return requiredExports
+}
