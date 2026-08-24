@@ -261,11 +261,29 @@ Exit codes:
 
 ### Registration validation
 
-When a cartridge `package.json` declares a `hooks` path, `sfcc-ts-typecheck` also validates the referenced `hooks.json` file. It reports malformed registrations and missing hook scripts. For Salesforce `dw.*` hooks, it also reports statically detectable missing CommonJS exports such as `exports.afterPOST` or `module.exports = { afterPOST }`.
+When a cartridge `package.json` declares a `hooks` path, `sfcc-ts-typecheck` also validates the referenced `hooks.json` file:
+
+```json
+// cartridges/app_custom/package.json
+{
+  "hooks": "./cartridge/scripts/hooks.json"
+}
+```
+
+```json
+// cartridges/app_custom/cartridge/scripts/hooks.json
+{
+  "hooks": [{ "name": "dw.order.calculate", "script": "./hooks/calculate" }]
+}
+```
+
+It reports malformed registrations and missing hook scripts. For Salesforce `dw.*` hooks, it also reports statically detectable missing CommonJS exports such as `exports.afterPOST` or `module.exports = { afterPOST }`.
 
 Project-specific hook names do not necessarily identify an exported method, so their registrations are validated structurally without inferring an export name.
 
 The checker does not maintain or validate against a list of known Salesforce extension point names. The vendored hook declarations under `.b2c-script-types/types/dw/**/hooks/*.d.ts` only cover a subset of valid `dw.*` hooks (for example, `CalculateHooks` does not model `dw.order.calculateDiscounts`), so an unmodeled hook name is not necessarily invalid.
+
+Registration validation runs as part of `sfcc-ts-typecheck` only; the tsserver plugin does not validate `hooks.json` in the editor.
 
 `sfcc-ts-sync-types` options:
 
