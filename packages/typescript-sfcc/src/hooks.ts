@@ -44,7 +44,7 @@ function validateCartridgeHooks(cartridgeRoot: string): ts.Diagnostic[] {
   }
 
   const hooksPath = path.resolve(cartridgeRoot, packageJson.hooks)
-  const hooksFile = readSourceFile(hooksPath)
+  const hooksFile = readJsonSourceFile(hooksPath)
   if (!hooksFile) {
     return [createDiagnostic(packagePath, `Could not find hooks file at ${packageJson.hooks}.`)]
   }
@@ -54,13 +54,15 @@ function validateCartridgeHooks(cartridgeRoot: string): ts.Diagnostic[] {
     return [parsedHooks.diagnostic]
   }
 
-  return parsedHooks.hooks.flatMap((registration) =>
-    validateHookRegistration(registration, hooksFile),
+  const registrationNodes = getHookRegistrationNodes(hooksFile)
+
+  return parsedHooks.hooks.flatMap((registration, index) =>
+    validateHookRegistration(registration, hooksFile, registrationNodes[index]),
   )
 }
 
 function parseHooksDocument(
-  hooksFile: ts.SourceFile,
+  hooksFile: ts.JsonSourceFile,
 ): { hooks: HookRegistration[] } | { diagnostic: ts.Diagnostic } {
   let document: unknown
   try {
@@ -101,6 +103,7 @@ function isHookDocument(value: unknown): value is HookDocument {
 function validateHookRegistration(
   registration: HookRegistration,
   hooksFile: ts.SourceFile,
+  registrationNode: ts.Node | undefined,
 ): ts.Diagnostic[] {
   const diagnostics: ts.Diagnostic[] = []
   const methodName = registration.name.startsWith("dw.")
@@ -110,8 +113,9 @@ function validateHookRegistration(
 
   if (!scriptPath) {
     diagnostics.push(
-      createDiagnostic(
-        hooksFile.fileName,
+      createNodeDiagnostic(
+        hooksFile,
+        registrationNode,
         `Could not resolve script "${registration.script}" for hook "${registration.name}".`,
       ),
     )
@@ -201,6 +205,28 @@ function readSourceFile(filePath: string): ts.SourceFile | undefined {
     : ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest)
 }
 
+function readJsonSourceFile(filePath: string): ts.JsonSourceFile | undefined {
+  const content = ts.sys.readFile(filePath)
+  return content === undefined ? undefined : ts.parseJsonText(filePath, content)
+}
+
+// Locates the AST node for each "hooks" array element so diagnostics can point at the specific entry.
+function getHookRegistrationNodes(hooksFile: ts.JsonSourceFile): ts.Expression[] {
+  const root = hooksFile.statements[0]?.expression
+  if (!root || !ts.isObjectLiteralExpression(root)) {
+    return []
+  }
+
+  const hooksProperty = root.properties.find(
+    (property): property is ts.PropertyAssignment =>
+      ts.isPropertyAssignment(property) && getPropertyNameText(property.name) === "hooks",
+  )
+
+  return hooksProperty && ts.isArrayLiteralExpression(hooksProperty.initializer)
+    ? [...hooksProperty.initializer.elements]
+    : []
+}
+
 function createDiagnostic(filePath: string, messageText: string): ts.Diagnostic {
   return {
     category: ts.DiagnosticCategory.Error,
@@ -209,5 +235,24 @@ function createDiagnostic(filePath: string, messageText: string): ts.Diagnostic 
     messageText,
     start: 0,
     length: 0,
+  }
+}
+
+function createNodeDiagnostic(
+  hooksFile: ts.SourceFile,
+  node: ts.Node | undefined,
+  messageText: string,
+): ts.Diagnostic {
+  if (!node) {
+    return createDiagnostic(hooksFile.fileName, messageText)
+  }
+
+  return {
+    category: ts.DiagnosticCategory.Error,
+    code: DIAGNOSTIC_CODE,
+    file: hooksFile,
+    messageText,
+    start: node.getStart(hooksFile),
+    length: node.getWidth(hooksFile),
   }
 }

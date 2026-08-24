@@ -285,6 +285,8 @@ The checker does not maintain or validate against a list of known Salesforce ext
 
 Registration validation runs as part of `sfcc-ts-typecheck` only; the tsserver plugin does not validate `hooks.json` in the editor.
 
+Diagnostics for a specific `hooks.json` registration (unresolved script, missing export) are anchored to that entry, not to the top of the file, so multiple registration issues in the same `hooks.json` are reported at their correct positions.
+
 `sfcc-ts-sync-types` options:
 
 - `--min-version X.Y.Z`: refreshes types if vendored version is older than required

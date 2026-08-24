@@ -3,6 +3,7 @@ import os from "node:os"
 import path from "node:path"
 import { expect, test } from "vite-plus/test"
 
+import { validateHookRegistrations } from "../src/hooks.ts"
 import { main } from "../src/typecheck-cartridges.ts"
 
 function withTempDir(run) {
@@ -237,6 +238,40 @@ test("CLI does not infer export names for project-specific hook registrations", 
     const result = runCli(["--project", path.relative(tempDir, solutionConfigPath)], tempDir)
 
     expect(result.exitCode).toBe(0)
+  })
+})
+
+test("CLI anchors hook diagnostics to the specific hooks.json registration", async () => {
+  await withTempDir(async (tempDir) => {
+    setupValidProject(tempDir)
+    const cartridgeRoot = path.join(tempDir, "cartridges", "app_base")
+    const hooksPath = path.join(cartridgeRoot, "cartridge", "scripts", "hooks.json")
+    const firstScriptPath = path.join(cartridgeRoot, "cartridge", "scripts", "hooks", "auth.js")
+
+    fs.mkdirSync(path.dirname(firstScriptPath), { recursive: true })
+    writeJson(path.join(cartridgeRoot, "package.json"), {
+      hooks: "./cartridge/scripts/hooks.json",
+    })
+    fs.writeFileSync(firstScriptPath, "exports.afterPOST = function () {}\n")
+    writeJson(hooksPath, {
+      hooks: [
+        {
+          name: "dw.ocapi.shop.auth.afterPOST",
+          script: "./hooks/auth",
+        },
+        {
+          name: "dw.ocapi.shop.basket.afterPOST",
+          script: "./hooks/missing",
+        },
+      ],
+    })
+
+    const diagnostics = validateHookRegistrations([cartridgeRoot])
+
+    expect(diagnostics).toHaveLength(1)
+    expect(diagnostics[0].file?.fileName).toBe(hooksPath)
+    // Anchored at the second registration, not file position 0 (line 1).
+    expect(diagnostics[0].start).toBeGreaterThan(0)
   })
 })
 
