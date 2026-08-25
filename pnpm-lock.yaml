@@ -65,7 +65,7 @@ importers:
   packages/eslint-config-sfcc:
     dependencies:
       '@commerce-klaus/sfcc-module-resolver':
-        specifier: ^1.0.0
+        specifier: ^1.1.0
         version: link:../sfcc-module-resolver
       eslint:
         specifier: '>=9.0.0'
@@ -130,7 +130,7 @@ importers:
   packages/typescript-sfcc:
     dependencies:
       '@commerce-klaus/sfcc-module-resolver':
-        specifier: ^1.0.0
+        specifier: ^1.1.0
         version: link:../sfcc-module-resolver
       '@salesforce/b2c-cli':
         specifier: '>=1.18.0'
