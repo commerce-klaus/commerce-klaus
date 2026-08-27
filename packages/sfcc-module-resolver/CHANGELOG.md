@@ -1,5 +1,15 @@
 # @commerce-klaus/sfcc-module-resolver
 
+## 1.2.0
+
+### Minor Changes
+
+- 720f46b: Add shared helpers for resolving cartridge hook registrations: `findCartridgeRootForFile`, `getCartridgeHooksJsonPath`, `getHookRegistrationsFromDocument`, `resolveHookScriptPath`, `getRequiredHookExportName`, and `getRequiredHookExportsForScriptFile`.
+
+### Patch Changes
+
+- 720f46b: Split `src/index.ts` into focused internal modules (`cartridge-order.ts`, `module-resolution.ts`, `super-module.ts`, `hooks.ts`) re-exported from `index.ts`. No public API changes.
+
 ## 1.1.0
 
 ### Minor Changes

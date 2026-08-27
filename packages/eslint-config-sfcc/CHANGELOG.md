@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.5.0
+
+### Minor Changes
+
+- 4d9dda0: Add an Oxlint preset and plugin subpath exports. The preset runs compatible SFCC and SiteGenesis rules in Oxlint, while `eslintAfterOxlint` provides a focused ESLint follow-up for rules Oxlint cannot run.
+- 720f46b: Add `sfcc/valid-hook-export` rule. It requires a static CommonJS export for each Salesforce `dw.*` hook method registered for a file in the cartridge's `hooks.json`, surfacing the same check `sfcc-ts-typecheck` performs directly through ESLint (editors and lint-only CI steps).
+
+### Patch Changes
+
+- 9a382ef: Make the ESLint fallback parser optional. The Oxlint preset and the package root no longer require `@typescript-eslint/parser`; install it only when using the `configs/eslint-after-oxlint` fallback.
+- Updated dependencies [720f46b]
+- Updated dependencies [720f46b]
+  - @commerce-klaus/sfcc-module-resolver@1.2.0
+
 ## 1.4.2
 
 ### Patch Changes

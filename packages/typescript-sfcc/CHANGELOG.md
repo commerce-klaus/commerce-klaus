@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.1
+
+### Patch Changes
+
+- 720f46b: Use the shared `@commerce-klaus/sfcc-module-resolver` hook registration helpers instead of duplicating hook parsing, script resolution, and export-name inference logic.
+- Updated dependencies [720f46b]
+- Updated dependencies [720f46b]
+  - @commerce-klaus/sfcc-module-resolver@1.2.0
+
 ## 1.3.0
 
 ### Minor Changes
