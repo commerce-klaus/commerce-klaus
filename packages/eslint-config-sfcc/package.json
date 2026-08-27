@@ -1,6 +1,6 @@
 {
   "name": "@commerce-klaus/eslint-config-sfcc",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "description": "A collection of shareable ESLint configurations for Salesforce Commerce Cloud (SFCC)",
   "keywords": [
     "commercecloud",
