@@ -30,6 +30,9 @@ const unicorn: Linter.RulesRecord = {
   "unicorn/prefer-string-replace-all": "off",
   "unicorn/prefer-spread": "off",
   "unicorn/prefer-unicode-code-point-escapes": "off",
+
+  // ⚠️ e.g. `dw.io.FileWriter` needs uppercase `UTF-8` encoding, but this rule enforces lowercase `utf-8`.
+  "unicorn/text-encoding-identifier-case": "off",
 }
 
 export default unicorn
