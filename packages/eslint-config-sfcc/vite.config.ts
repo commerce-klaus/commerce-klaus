@@ -2,7 +2,12 @@ import { defineConfig } from "vite-plus"
 
 export default defineConfig({
   pack: {
-    entry: "src/index.ts",
+    entry: [
+      "src/index.ts",
+      "src/configs/oxlint.ts",
+      "src/oxlint/sfcc.ts",
+      "src/oxlint/sitegenesis.ts",
+    ],
     dts: true,
     exports: true,
   },

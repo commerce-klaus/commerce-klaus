@@ -28,6 +28,9 @@
   "types": "./dist/index.d.mts",
   "exports": {
     ".": "./dist/index.mjs",
+    "./configs/oxlint": "./dist/configs/oxlint.mjs",
+    "./oxlint/sfcc": "./dist/oxlint/sfcc.mjs",
+    "./oxlint/sitegenesis": "./dist/oxlint/sitegenesis.mjs",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -44,6 +47,7 @@
   },
   "dependencies": {
     "@commerce-klaus/sfcc-module-resolver": "^1.1.0",
+    "@typescript-eslint/parser": "^8.59.3",
     "eslint-plugin-es-x": "^10.0.0"
   },
   "devDependencies": {
@@ -51,7 +55,6 @@
     "@types/eslint": "^9.6.1",
     "@types/node": "^25.6.0",
     "@typescript-eslint/eslint-plugin": "^8.59.3",
-    "@typescript-eslint/parser": "^8.59.3",
     "@vitest/coverage-v8": "^4.1.5",
     "bumpp": "^12.0.0",
     "eslint-plugin-sonarjs": "^4.2.0",

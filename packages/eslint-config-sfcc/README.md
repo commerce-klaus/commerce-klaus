@@ -54,6 +54,49 @@ export default defineConfig(
 
 By default, JavaScript files under `cartridges/` are linted. Client-side and static asset folders are excluded.
 
+### Use with Oxlint
+
+Oxlint can run the included `sfcc` and `sitegenesis` plugins through its alpha JavaScript plugin API. Create an `oxlint.config.mjs` file that exports the included preset:
+
+```js
+import sfcc from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
+
+export default sfcc
+```
+
+The preset loads both plugins and enables the supported SFCC and SiteGenesis rules. `sfcc/no-ds-files` is excluded because Oxlint ignores `.ds` files. `sfcc/no-e4x-syntax` and `sfcc/no-type-annotations` are excluded because their invalid JavaScript syntax causes Oxlint parser errors before JavaScript plugins can run.
+
+For custom rule severities, import the rule record directly:
+
+```js
+import sfcc, { oxlintRules } from "@commerce-klaus/eslint-config-sfcc"
+
+export default {
+  lint: {
+    ...sfcc.lint,
+    rules: {
+      ...oxlintRules,
+      "sfcc/prefer-const": "warn",
+    },
+  },
+}
+```
+
+Rules use their syntax-based behavior in Oxlint. Oxlint JavaScript plugins do not provide TypeScript parser services, so type-aware refinements are unavailable.
+
+### ESLint after Oxlint
+
+Run ESLint after Oxlint to cover only the three rules that Oxlint cannot run: `sfcc/no-ds-files`, `sfcc/no-e4x-syntax`, and `sfcc/no-type-annotations`.
+
+```js
+import { defineConfig } from "eslint/config"
+import { eslintAfterOxlint } from "@commerce-klaus/eslint-config-sfcc"
+
+export default defineConfig(eslintAfterOxlint)
+```
+
+This config deliberately does not enable the Oxlint-compatible rules, so the second lint pass does not duplicate their diagnostics. Use `createEslintAfterOxlintConfig()` instead when the cartridge path, file globs, or ignored paths differ from the defaults.
+
 ### Customize with helper
 
 ```js

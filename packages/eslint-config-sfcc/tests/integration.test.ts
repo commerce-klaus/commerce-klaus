@@ -1,8 +1,12 @@
 import { ESLint } from "eslint"
 import pluginESx from "eslint-plugin-es-x"
 import globals from "globals"
-import { expect, test, describe } from "vite-plus/test"
+import { execFileSync, spawnSync } from "node:child_process"
+import fs from "node:fs"
+import path from "node:path"
+import { beforeAll, expect, test, describe } from "vite-plus/test"
 
+import { createEslintAfterOxlintConfig } from "../src/configs/eslint-after-oxlint.js"
 import { createRecommendedConfig } from "../src/configs/recommended.js"
 import sfcc from "../src/plugins/sfcc/index.js"
 import sitegenesis from "../src/plugins/sitegenesis/index.js"
@@ -48,6 +52,168 @@ async function lintModule(code: string): Promise<any[]> {
 function hasErrors(messages: any[]): boolean {
   return messages.filter((m) => m.severity > 0).length > 0
 }
+
+async function lintAfterOxlint(
+  code: string,
+  filename = "cartridges/app_sfra/cartridge/scripts/fixture.js",
+): Promise<any[]> {
+  const eslint = new ESLint({
+    overrideConfigFile: true,
+    overrideConfig: createEslintAfterOxlintConfig({
+      files: ["**/*.{js,ds}"],
+      ignores: [],
+    }),
+  })
+  const results = await eslint.lintText(code, { filePath: filename })
+  return results[0]?.messages || []
+}
+
+const packageRoot = path.resolve(import.meta.dirname, "..")
+const workspaceRoot = path.resolve(packageRoot, "../..")
+const vitePlus = path.join(workspaceRoot, "node_modules/.bin/vp")
+const oxlint = path.join(workspaceRoot, "node_modules/.pnpm/node_modules/.bin/oxlint")
+
+function lintWithOxlint(
+  code: string,
+  relativeFilePath = "sample.js",
+  setup?: (temporaryDir: string) => void,
+): string {
+  const temporaryDir = fs.mkdtempSync(path.join(packageRoot, "oxlint-test-"))
+
+  try {
+    const configFile = path.join(temporaryDir, "oxlint.config.mjs")
+    const sampleFile = path.join(temporaryDir, relativeFilePath)
+
+    fs.writeFileSync(
+      configFile,
+      'import oxlint from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"\nexport default oxlint\n',
+    )
+    fs.mkdirSync(path.dirname(sampleFile), { recursive: true })
+    fs.writeFileSync(sampleFile, code)
+    setup?.(temporaryDir)
+
+    const result = spawnSync(oxlint, ["--config", configFile, sampleFile], {
+      cwd: packageRoot,
+      encoding: "utf8",
+    })
+
+    expect(result.status).toBe(1)
+    return `${result.stdout}${result.stderr}`
+  } finally {
+    fs.rmSync(temporaryDir, { recursive: true, force: true })
+  }
+}
+
+describe("ESLint and Oxlint rule compatibility", () => {
+  beforeAll(() => {
+    execFileSync(vitePlus, ["pack"], { cwd: packageRoot })
+  })
+
+  test.each([
+    ["no-empty-global", "empty(customer)\n", "sfcc(no-empty-global)"],
+    ["no-rhino-import-globals", 'importScript("legacy.js")\n', "sfcc(no-rhino-import-globals)"],
+    ["no-string-equals", 'name.equals("customer")\n', "sfcc(no-string-equals)"],
+    ["prefer-const", "function route() { let value = 1; return value }\n", "sfcc(prefer-const)"],
+    [
+      "rhino-const-compat",
+      "for (let index = 0; index < 1; index += 1) { const value = index }\n",
+      "sfcc(rhino-const-compat)",
+    ],
+    [
+      "rhino-const-conflict",
+      "function route() { if (first) { const value = 1 } if (second) { const value = 2 } }\n",
+      "sfcc(rhino-const-conflict)",
+    ],
+    ["valid-require-path", 'require("unsupported")\n', "sfcc(valid-require-path)"],
+  ])("runs %s", async (_ruleName, code, oxlintRuleId, relativeFilePath = "fixture.js") => {
+    const eslintRuleId = oxlintRuleId.replace(/^([^(]+)\((.+)\)$/u, "$1/$2")
+    const messages = await lint(code, `cartridges/app_sfra/cartridge/scripts/${relativeFilePath}`)
+
+    expect(messages.some((message) => message.ruleId === eslintRuleId)).toBe(true)
+    expect(lintWithOxlint(code, relativeFilePath)).toContain(oxlintRuleId)
+  })
+
+  test("runs sitegenesis/no-global-require", async () => {
+    const code = [
+      'const URLUtils = require("dw/web/URLUtils")',
+      'function routeA() { return URLUtils.url("Home-Show") }',
+      'function routeB() { return "ok" }',
+      "",
+    ].join("\n")
+    const filename = "cartridges/app_sfra/cartridge/controllers/Home.js"
+    const messages = await lint(code, filename)
+    const output = lintWithOxlint(code, "cartridges/app_sfra/cartridge/controllers/Home.js")
+
+    expect(messages.some((message) => message.ruleId === "sitegenesis/no-global-require")).toBe(
+      true,
+    )
+    expect(output).toContain("sitegenesis(no-global-require)")
+  })
+
+  test("runs sfcc/valid-hook-export", async () => {
+    const relativeFilePath = "cartridges/app_custom/cartridge/scripts/hooks/basket.js"
+    const code = "exports.afterPATCH = function () {}\n"
+    const writeHookFixture = (temporaryDir: string) => {
+      const cartridgeRoot = path.join(temporaryDir, "cartridges/app_custom")
+      fs.writeFileSync(
+        path.join(cartridgeRoot, "package.json"),
+        JSON.stringify({ hooks: "./cartridge/scripts/hooks.json" }),
+      )
+      fs.writeFileSync(
+        path.join(cartridgeRoot, "cartridge/scripts/hooks.json"),
+        JSON.stringify({
+          hooks: [{ name: "dw.ocapi.shop.basket.afterPOST", script: "./hooks/basket" }],
+        }),
+      )
+    }
+    const eslint = new ESLint({
+      overrideConfigFile: true,
+      overrideConfig: createRecommendedConfig({ files: ["**/*.{js,ds}"], ignores: [] }),
+    })
+    const fixtureRoot = fs.mkdtempSync(path.join(packageRoot, "eslint-hook-test-"))
+
+    try {
+      fs.mkdirSync(path.join(fixtureRoot, path.dirname(relativeFilePath)), { recursive: true })
+      fs.writeFileSync(path.join(fixtureRoot, relativeFilePath), code)
+      writeHookFixture(fixtureRoot)
+      const results = await eslint.lintText(code, {
+        filePath: path.join(fixtureRoot, relativeFilePath),
+      })
+
+      expect(
+        results[0]?.messages.some((message) => message.ruleId === "sfcc/valid-hook-export"),
+      ).toBe(true)
+      expect(lintWithOxlint(code, relativeFilePath, writeHookFixture)).toContain(
+        "sfcc(valid-hook-export)",
+      )
+    } finally {
+      fs.rmSync(fixtureRoot, { recursive: true, force: true })
+    }
+  })
+  test("runs parser-dependent rules through ESLint after Oxlint", async () => {
+    const code = "const x: string = <a/>; empty(customer)"
+    const messages = await lintAfterOxlint(code)
+    const ruleIds = messages.map((message) => message.ruleId)
+
+    expect(ruleIds).toContain("sfcc/no-e4x-syntax")
+    expect(ruleIds).toContain("sfcc/no-type-annotations")
+    expect(ruleIds).not.toContain("sfcc/no-empty-global")
+    expect(lintWithOxlint(code)).not.toContain("sfcc(no-e4x-syntax)")
+    expect(lintWithOxlint(code)).not.toContain("sfcc(no-type-annotations)")
+  })
+
+  test("runs sfcc/no-ds-files through ESLint when Oxlint ignores the file", async () => {
+    const messages = await lintAfterOxlint(
+      "module.exports = {}\n",
+      "cartridges/app_sfra/cartridge/scripts/fixture.ds",
+    )
+
+    expect(messages.some((message) => message.ruleId === "sfcc/no-ds-files")).toBe(true)
+    expect(lintWithOxlint("module.exports = {}\n", "fixture.ds")).toContain(
+      "No files found to lint",
+    )
+  })
+})
 
 describe("✅ ES baseline wiring", () => {
   test("✅ no-optional-chaining comes from recommended baseline, not es overrides", async () => {

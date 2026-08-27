@@ -11,6 +11,9 @@ import validHookExport from "./valid-hook-export.js"
 import validRequirePath from "./valid-require-path.js"
 
 const sfcc = {
+  meta: {
+    name: "sfcc",
+  },
   rules: {
     "no-ds-files": noDsFiles,
     "no-empty-global": noEmptyGlobal,
