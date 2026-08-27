@@ -28,6 +28,7 @@
   "types": "./dist/index.d.mts",
   "exports": {
     ".": "./dist/index.mjs",
+    "./configs/eslint-after-oxlint": "./dist/configs/eslint-after-oxlint.mjs",
     "./configs/oxlint": "./dist/configs/oxlint.mjs",
     "./oxlint/sfcc": "./dist/oxlint/sfcc.mjs",
     "./oxlint/sitegenesis": "./dist/oxlint/sitegenesis.mjs",
@@ -46,8 +47,7 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@commerce-klaus/sfcc-module-resolver": "^1.1.0",
-    "@typescript-eslint/parser": "^8.59.3",
+    "@commerce-klaus/sfcc-module-resolver": "workspace:^",
     "eslint-plugin-es-x": "^10.0.0"
   },
   "devDependencies": {
@@ -55,6 +55,7 @@
     "@types/eslint": "^9.6.1",
     "@types/node": "^25.6.0",
     "@typescript-eslint/eslint-plugin": "^8.59.3",
+    "@typescript-eslint/parser": "^8.59.3",
     "@vitest/coverage-v8": "^4.1.5",
     "bumpp": "^12.0.0",
     "eslint-plugin-sonarjs": "^4.2.0",
@@ -63,8 +64,14 @@
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
+    "@typescript-eslint/parser": "^8.59.3",
     "eslint": ">=9.0.0",
     "globals": ">=13.24.0"
+  },
+  "peerDependenciesMeta": {
+    "@typescript-eslint/parser": {
+      "optional": true
+    }
   },
   "packageManager": "pnpm@11.23.0"
 }

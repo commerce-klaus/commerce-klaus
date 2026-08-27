@@ -88,14 +88,20 @@ Rules use their syntax-based behavior in Oxlint. Oxlint JavaScript plugins do no
 
 Run ESLint after Oxlint to cover only the three rules that Oxlint cannot run: `sfcc/no-ds-files`, `sfcc/no-e4x-syntax`, and `sfcc/no-type-annotations`.
 
+This optional fallback requires `@typescript-eslint/parser`:
+
+```bash
+pnpm add -D @typescript-eslint/parser
+```
+
 ```js
 import { defineConfig } from "eslint/config"
-import { eslintAfterOxlint } from "@commerce-klaus/eslint-config-sfcc"
+import eslintAfterOxlint from "@commerce-klaus/eslint-config-sfcc/configs/eslint-after-oxlint"
 
 export default defineConfig(eslintAfterOxlint)
 ```
 
-This config deliberately does not enable the Oxlint-compatible rules, so the second lint pass does not duplicate their diagnostics. Use `createEslintAfterOxlintConfig()` instead when the cartridge path, file globs, or ignored paths differ from the defaults.
+This config deliberately does not enable the Oxlint-compatible rules, so the second lint pass does not duplicate their diagnostics. The subpath also exports `createEslintAfterOxlintConfig()` when the cartridge path, file globs, or ignored paths differ from the defaults.
 
 ### Customize with helper
 
