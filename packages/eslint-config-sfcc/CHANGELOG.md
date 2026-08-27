@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.1
+
+### Patch Changes
+
+- a0bb827: Disable Unicorn rules that are incompatible with SFCC/Rhino and conflict with the project compatibility configuration.
+
 ## 1.5.0
 
 ### Minor Changes
