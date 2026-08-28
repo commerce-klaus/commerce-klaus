@@ -38,7 +38,7 @@ importers:
         version: 8.0.4
       '@commerce-klaus/sfcc-module-resolver':
         specifier: ^1.1.0
-        version: 1.1.0
+        version: 1.2.0
       imports-visitor:
         specifier: ^2.1.0
         version: 2.1.0(@babel/core@8.0.1)(@babel/runtime@8.0.0)(@babel/types@8.0.4)
@@ -115,7 +115,7 @@ importers:
     dependencies:
       fast-xml-parser:
         specifier: ^5.8.0
-        version: 5.11.0
+        version: 5.11.1
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -137,7 +137,7 @@ importers:
         version: 1.23.2(@types/node@24.13.3)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       fast-xml-parser:
         specifier: ^5.8.0
-        version: 5.11.0
+        version: 5.11.1
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -153,7 +153,7 @@ importers:
     dependencies:
       '@commerce-klaus/sfcc-module-resolver':
         specifier: ^1.1.0
-        version: 1.1.0
+        version: 1.2.0
       vite:
         specifier: npm:@voidzero-dev/vite-plus-core@latest
         version: '@voidzero-dev/vite-plus-core@0.3.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)'
@@ -344,8 +344,8 @@ packages:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
     engines: {node: '>=0.1.90'}
 
-  '@commerce-klaus/sfcc-module-resolver@1.1.0':
-    resolution: {integrity: sha512-SslRxiJi33QucspQWvRapi6QOidnHkI/GyqnxTgrmYvW1X+5raHDHKaeCyYbnu9iSVdMXBQKUyUsDcY8iflXWA==}
+  '@commerce-klaus/sfcc-module-resolver@1.2.0':
+    resolution: {integrity: sha512-HFAE41pWy2vsdadxVW0aTeFxk1ZRAg/ceB/w+eAi0vBSVFKcYVQj+KF719FIdAvGF3z0XoMJqsdCWnMZl9qg5w==}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -2089,8 +2089,8 @@ packages:
   fast-xml-builder@1.3.1:
     resolution: {integrity: sha512-pIM/1n3ntFXKYrUZwW7QCK0gAW7XY+wzj1YMIV3tLDvPj/V+zTGJK5e3/4WJfwj0qWw2ElNXiTixda/R+3YSug==}
 
-  fast-xml-parser@5.11.0:
-    resolution: {integrity: sha512-9IGxMqvqLOnqP+Egi1nqDHKv5k8aZ7r9n558enxcucmyVGEBNPAU+MOg/8jPIS7rO7sSq4gFm1/nHtiaubMruw==}
+  fast-xml-parser@5.11.1:
+    resolution: {integrity: sha512-TBw6K/fxoQGGjCmZDw9w/ZwP3uDcnTM4YH/g+PFRWr8sbe5idXtxNN6vITh4+1ruCZaho6uBFurElsA7F0zzgw==}
     hasBin: true
 
   fastest-levenshtein@1.0.16:
@@ -3637,9 +3637,9 @@ snapshots:
   '@colors/colors@1.5.0':
     optional: true
 
-  '@commerce-klaus/sfcc-module-resolver@1.1.0':
+  '@commerce-klaus/sfcc-module-resolver@1.2.0':
     dependencies:
-      fast-xml-parser: 5.11.0
+      fast-xml-parser: 5.11.1
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
@@ -5311,7 +5311,7 @@ snapshots:
       path-expression-matcher: 1.6.2
       xml-naming: 0.3.0
 
-  fast-xml-parser@5.11.0:
+  fast-xml-parser@5.11.1:
     dependencies:
       '@nodable/entities': 3.0.0
       fast-xml-builder: 1.3.1
