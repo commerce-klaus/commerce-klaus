@@ -10,7 +10,7 @@
     "tsserver",
     "typescript"
   ],
-  "homepage": "https://github.com/commerce-klaus/commerce-klaus/tree/main/packages/sfcc-ts-tooling#readme",
+  "homepage": "https://commerce-klaus.github.io/commerce-klaus/packages/typescript-sfcc/",
   "bugs": {
     "url": "https://github.com/commerce-klaus/commerce-klaus/issues"
   },
@@ -19,7 +19,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/commerce-klaus/commerce-klaus",
-    "directory": "packages/sfcc-ts-tooling"
+    "directory": "packages/typescript-sfcc"
   },
   "bin": {
     "sfcc-ts-sync-types": "./dist/sync-types.cjs",

@@ -54,7 +54,7 @@ const noGlobalRequire: Rule.RuleModule = {
   meta: {
     docs: {
       description: "Prohibites global use of require unless every function is using it.",
-      url: "https://github.com/commerce-klaus/commerce-klaus/blob/main/packages/eslint-config-sfcc/docs/rules/sitegenesis/no-global-require.md",
+      url: "https://commerce-klaus.github.io/commerce-klaus/packages/eslint-config-sfcc/rules/sitegenesis/no-global-require",
       recommended: true,
     },
     schema: [],

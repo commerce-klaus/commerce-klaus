@@ -183,7 +183,7 @@ const noStringEquals: Rule.RuleModule = {
     docs: {
       description:
         "Disallow Java-style String.equals(...) in JavaScript files. Use strict equality (===) instead.",
-      url: "https://github.com/commerce-klaus/commerce-klaus/blob/main/packages/eslint-config-sfcc/docs/rules/sfcc/no-string-equals.md",
+      url: "https://commerce-klaus.github.io/commerce-klaus/packages/eslint-config-sfcc/rules/sfcc/no-string-equals",
       recommended: true,
     },
     hasSuggestions: true,

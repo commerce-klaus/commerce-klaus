@@ -294,7 +294,7 @@ const noEmptyGlobal: Rule.RuleModule = {
     docs: {
       description:
         "Disallow the SFCC-specific empty() global in JavaScript files. Use explicit checks such as .length, Object.keys(), or .isEmpty() instead.",
-      url: "https://github.com/commerce-klaus/commerce-klaus/blob/main/packages/eslint-config-sfcc/docs/rules/sfcc/no-empty-global.md",
+      url: "https://commerce-klaus.github.io/commerce-klaus/packages/eslint-config-sfcc/rules/sfcc/no-empty-global",
       recommended: true,
     },
     hasSuggestions: true,

@@ -14,7 +14,7 @@ const validCustomApiExport: Rule.RuleModule = {
     docs: {
       description:
         "Requires a public static CommonJS export for each Custom API endpoint mapped to this file in the rest-apis api.json.",
-      url: "https://github.com/commerce-klaus/commerce-klaus/blob/main/packages/eslint-config-sfcc/docs/rules/sfcc/valid-custom-api-export.md",
+      url: "https://commerce-klaus.github.io/commerce-klaus/packages/eslint-config-sfcc/rules/sfcc/valid-custom-api-export",
       recommended: true,
     },
     schema: [],

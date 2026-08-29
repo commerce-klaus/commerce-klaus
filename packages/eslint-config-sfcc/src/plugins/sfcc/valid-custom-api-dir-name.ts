@@ -13,7 +13,7 @@ const validCustomApiDirName: Rule.RuleModule = {
     docs: {
       description:
         "Requires Custom API rest-apis directory names to contain only lowercase alphanumeric characters and hyphens.",
-      url: "https://github.com/commerce-klaus/commerce-klaus/blob/main/packages/eslint-config-sfcc/docs/rules/sfcc/valid-custom-api-dir-name.md",
+      url: "https://commerce-klaus.github.io/commerce-klaus/packages/eslint-config-sfcc/rules/sfcc/valid-custom-api-dir-name",
       recommended: true,
     },
     schema: [],

@@ -74,7 +74,7 @@ const noE4xSyntax: Rule.RuleModule = {
     docs: {
       description:
         "Disallow JSX/E4X-like syntax in SFCC JavaScript to avoid parser ambiguity and unsupported runtime patterns.",
-      url: "https://github.com/commerce-klaus/commerce-klaus/blob/main/packages/eslint-config-sfcc/docs/rules/sfcc/no-e4x-syntax.md",
+      url: "https://commerce-klaus.github.io/commerce-klaus/packages/eslint-config-sfcc/rules/sfcc/no-e4x-syntax",
       recommended: true,
     },
     hasSuggestions: true,

@@ -1,0 +1,333 @@
+[![NPM version][npm-image]][npm-url] [![Downloads][npm-downloads-image]][npm-url]
+
+# @commerce-klaus/typescript-sfcc
+
+TypeScript tooling for Salesforce Commerce Cloud cartridge projects.
+
+The package currently ships two main entry points:
+
+- a tsserver plugin that resolves SFCC-specific module patterns such as `~/...`, `*/...`, cartridge aliases, and `module.superModule`
+- a CLI that typechecks cartridge projects with the same resolution behavior
+
+## Install
+
+```bash
+pnpm add -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
+```
+
+## SFCC Script Types Setup
+
+`@commerce-klaus/typescript-sfcc` is compatible with Salesforce `b2c-script-types` output.
+
+For `dw/*` imports, the tool resolves types from a vendored workspace path:
+
+- `.b2c-script-types/types/dw/*`
+
+The path is calculated relative to each project config, so both setups are supported:
+
+- `cartridges/jsconfig.json`
+- `cartridges/<cartridge>/jsconfig.json`
+
+Example workflow with the B2C Developer Tooling CLI:
+
+```bash
+b2c setup ide vscode-types --copy --force --output .b2c-script-types/jsconfig.generated.json
+```
+
+Notes:
+
+- `sfcc-dts` is not required for `dw/*` resolution in this package.
+- Keep `.b2c-script-types/types` available in the workspace before running `sfcc-ts-typecheck`.
+
+## Custom Attributes
+
+- `sfcc-ts-sync-types` extends `b2c-script-types` by reading all XML files under `<siteTemplatePath>/meta/*.xml` (default: `sites/site_template/meta/*.xml`) and generating custom attribute declarations into `.b2c-script-types/types/sfcc-custom-attributes.generated.d.ts`.
+- Custom Object and System Object attribute interfaces are available by name to JavaScript JSDoc from `.b2c-script-types/types/sfcc-custom-attributes.generated.d.ts`, for example `CustomObjectExampleNotificationCustomAttributes` and `ProductCustomAttributes`.
+- The generated declarations are consumed by both `sfcc-ts-typecheck` and the tsserver plugin, so editor diagnostics and CLI diagnostics use the same custom attribute typing.
+- The generated declarations also patch `dw/object/SystemObjectMgr` so supported `type` literals narrow `getAllSystemObjects`, `querySystemObject`, and `querySystemObjects` to the matching system object class.
+- Custom attribute values are inferred by metadata type. For enums, `select-multiple-flag=true` is treated as a multi-value enum and emitted as `SfccEnumValue<T>[]`.
+- Attribute type values follow Salesforce metadata schema (`metadata.xsd`), where enum multi-select is modeled via `enum-of-*` plus `select-multiple-flag=true` (not via `set-of-enum-of-*`).
+
+Custom attribute mapping reference:
+
+| Metadata type                                            | Generated TypeScript type                 |
+| -------------------------------------------------------- | ----------------------------------------- |
+| `boolean`                                                | `boolean`                                 |
+| `date`, `datetime`                                       | `Date`                                    |
+| `double`, `int`, `integer`, `long`, `number`, `quantity` | `number`                                  |
+| `email`, `html`, `password`, `string`, `text`, `url`     | `string`                                  |
+| `enum-of-string` (with value-definitions)                | `SfccEnumValue<"value1" \| "value2" ...>` |
+| `enum-of-int` (with value-definitions)                   | `SfccEnumValue<1 \| 2 ...>`               |
+| `enum-of-*` with `select-multiple-flag=true`             | `SfccEnumValue<...>[]`                    |
+| `enum-of-*` (without value-definitions)                  | `SfccEnumValue<baseType>`                 |
+| unknown `enum-of-*`                                      | `SfccEnumValue<string \| number>`         |
+| `set-of-string`                                          | `string[]`                                |
+| `set-of-int`, `set-of-double`                            | `number[]`                                |
+| invalid `set-of-enum-of-*` (not in `metadata.xsd`)       | `unknown[]`                               |
+| unknown `set-of-*`                                       | `unknown[]`                               |
+| unsupported/unknown single-value type                    | `unknown`                                 |
+
+Example (`Product.custom`):
+
+```ts
+import ProductMgr = require("dw/catalog/ProductMgr")
+
+const product = ProductMgr.getProduct("my-product-id")
+
+if (product) {
+  // enum-of-string -> SfccEnumValue<...>
+  const status = product.custom.status
+  if (status) {
+    const value = status.getValue()
+    const label = status.getDisplayValue()
+    void value
+    void label
+  }
+
+  // enum-of-int + select-multiple-flag=true -> SfccEnumValue<...>[]
+  const modes = product.custom.modes
+  if (modes && modes.length > 0) {
+    const firstModeValue = modes[0].getValue()
+    void firstModeValue
+  }
+
+  // unknown custom attribute -> TypeScript error
+  // @ts-expect-error Property 'doesNotExist' does not exist
+  product.custom.doesNotExist
+}
+```
+
+Named Custom Object attribute types can be referenced directly from JavaScript JSDoc:
+
+```js
+// @ts-check
+
+/**
+ * @param {CustomObjectExampleNotificationCustomAttributes} custom
+ * @returns {string | undefined}
+ */
+function readNotification(custom) {
+  return custom.eventCode
+}
+```
+
+System Object attributes use the same pattern:
+
+```js
+// @ts-check
+
+/**
+ * @param {ProductCustomAttributes} custom
+ * @returns {string | undefined}
+ */
+function readProductOrigin(custom) {
+  return custom.origin
+}
+```
+
+Schema-driven assumptions:
+
+- The generator follows the Salesforce metadata schema namespace `http://www.demandware.com/xml/impex/metadata/2006-10-31`.
+- Type inference uses these fields from attribute definitions:
+  - `type`
+  - `value-definitions` and `value-definition/value`
+  - `select-multiple-flag` (for enum multi-select)
+  - `mandatory-flag` (required vs optional property)
+- Supported metadata roots are `type-extension/custom-attribute-definitions` and `custom-type/attribute-definitions`.
+- `type-extension` object types are assigned to `dw/*` modules via a preferred mapping table for known SFCC system objects (for example `Product` -> `dw/catalog/Product`, `Order` -> `dw/order/Order`).
+- If no preferred mapping exists, a system object type is only assigned when its `dw/*` basename match is unique; ambiguous matches are skipped.
+- For enum attributes, multi-value behavior is derived from `select-multiple-flag=true`.
+- For set attributes, valid values follow `metadata.xsd` (`set-of-string`, `set-of-int`, `set-of-double`); non-schema variants fall back to `unknown[]`.
+
+## Hook Handling
+
+`sfcc-ts-sync-types` generates `.b2c-script-types/types/sfcc-hooks.generated.d.ts` with `SfccHooks` aliases for Salesforce system hook interfaces available in the vendored Script API types. For example, `SfccHooks.OrderCalculate` refers to the `dw.order.calculate` signature.
+
+Existing Salesforce system hook signatures can be used from JavaScript JSDoc without duplicating their parameters or return type:
+
+```js
+// @ts-check
+
+/** @type {SfccHooks.OrderCalculate} */
+function calculate(lineItemCtnr) {
+  // lineItemCtnr is typed from dw/order/hooks/CalculateHooks
+}
+
+exports.calculate = calculate
+```
+
+`SfccHooks` includes only hook signatures declared by the synchronized Salesforce Script API types. Shopper API hook documents and project-specific `c_*` response fields remain project-local types.
+
+For Shopper API hooks, add an optional `sfcc-hooks.d.ts` file next to `cartridges/jsconfig.json`. It is loaded automatically by both `sfcc-ts-typecheck` and the tsserver plugin, even when cartridge project configs include JavaScript files only. Keep document models narrow and declare only the fields read or written by the hook:
+
+```ts
+export {}
+
+declare global {
+  namespace SfccHooks {
+    type ShopperProductModifyGetResponse = (document: { c_brand: string }) => void
+  }
+}
+```
+
+Use the project-local alias from the hook implementation:
+
+```js
+// @ts-check
+
+/** @type {SfccHooks.ShopperProductModifyGetResponse} */
+function modifyGETResponse(document) {
+  document.c_brand = "Example"
+}
+
+exports.modifyGETResponse = modifyGETResponse
+```
+
+Types that only apply to a single cartridge can instead be declared in an `sfcc-hooks.d.ts` file directly inside that cartridge, next to its own `jsconfig.json` (for example `cartridges/int_storepickup/sfcc-hooks.d.ts`). All discovered files share the same global `SfccHooks` namespace, so cartridge-specific and cartridges-wide declarations can be mixed:
+
+- `cartridges/sfcc-hooks.d.ts`: shared across all cartridges
+- `cartridges/<cartridge>/sfcc-hooks.d.ts`: specific to that cartridge only
+
+Migration from `1.x`: this package previously loaded a single `sfcc-hooks.d.ts` at the workspace root (one level above `cartridges/`). Move that file into `cartridges/` to keep it working.
+
+Recommended `package.json` scripts:
+
+```json
+{
+  "scripts": {
+    "types:sfcc:sync": "sfcc-ts-sync-types --min-version 26.7.0",
+    "types:sfcc:sync:force": "sfcc-ts-sync-types --force",
+    "prepare": "pnpm types:sfcc:sync",
+    "typecheck:cartridges": "sfcc-ts-typecheck"
+  }
+}
+```
+
+If your CI install uses `--ignore-scripts`, run `pnpm types:sfcc:sync` explicitly before `sfcc-ts-typecheck`.
+
+## Custom APIs
+
+`sfcc-ts-sync-types` generates `.b2c-script-types/types/sfcc-custom-apis.generated.d.ts` from [Custom API](https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-apis.html) contracts. It scans every `api.json` found under `cartridge/rest-apis/**` and parses the referenced OAS 3.0 `schema.yaml` files to derive:
+
+- `SfccCustomApis.Schemas`: one entry per named schema in `components.schemas`.
+- `SfccCustomApis.Operations`: one entry per `operationId`, with `Parameters` (grouped by `path`/`query`/`header`), an optional `RequestBody`, and the `Response` type resolved from the first successful (`2xx`) `application/json` response.
+
+Type the endpoint implementation script with the generated operation type:
+
+```js
+// @ts-check
+
+const RESTResponseMgr = require("dw/system/RESTResponseMgr")
+
+/** @type {SfccCustomApis.Operations["getLoyaltyInfo"]} */
+function getLoyaltyInfo() {
+  const customerId = request.getHttpParameterMap().get("c_customer_id").getStringValue()
+
+  /** @type {SfccCustomApis.Operations["getLoyaltyInfo"]["Response"]} */
+  const info = { tier: "silver", points: 14275 }
+
+  return RESTResponseMgr.createSuccess(info).render()
+}
+
+exports.getLoyaltyInfo = getLoyaltyInfo
+exports.getLoyaltyInfo.public = true
+```
+
+Notes:
+
+- `$ref` values are resolved for `components.schemas`, `components.parameters`, `components.requestBodies`, and `components.responses`.
+- `allOf`/`oneOf`/`anyOf` compositions are not resolved yet and fall back to `unknown`.
+- Schema and operation names are expected to be unique across all scanned cartridges; on a name collision, the first occurrence found wins.
+
+## tsserver Plugin
+
+Add the plugin to your cartridge `jsconfig.json` or `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "plugins": [{ "name": "@commerce-klaus/typescript-sfcc" }]
+  }
+}
+```
+
+## CLI
+
+The package ships these CLI binaries:
+
+- `sfcc-ts-typecheck`
+- `sfcc-ts-sync-types`
+
+Default behavior (no flags):
+
+- searches from the current working directory upwards for `cartridges/jsconfig.json`
+- if no `references` are present, it typechecks the given config itself
+
+Basic calls:
+
+```bash
+pnpm exec sfcc-ts-typecheck
+pnpm exec sfcc-ts-typecheck --project cartridges/jsconfig.json
+pnpm exec sfcc-ts-typecheck --project cartridges/tsconfig.json
+```
+
+If your project config is outside the cartridges folder, pass the cartridges root explicitly:
+
+```bash
+pnpm exec sfcc-ts-typecheck --project config/tsconfig.cartridges.json --cartridges-dir cartridges
+```
+
+`package.json` example:
+
+```json
+{
+  "scripts": {
+    "typecheck:cartridges": "sfcc-ts-typecheck --project cartridges/tsconfig.json"
+  }
+}
+```
+
+Exit codes:
+
+- `0`: no diagnostics
+- `2`: diagnostics found
+- `1`: runtime/config error (for example missing config file)
+
+### Registration validation
+
+When a cartridge `package.json` declares a `hooks` path, `sfcc-ts-typecheck` also validates the referenced `hooks.json` file:
+
+```json
+// cartridges/app_custom/package.json
+{
+  "hooks": "./cartridge/scripts/hooks.json"
+}
+```
+
+```json
+// cartridges/app_custom/cartridge/scripts/hooks.json
+{
+  "hooks": [{ "name": "dw.order.calculate", "script": "./hooks/calculate" }]
+}
+```
+
+It reports malformed registrations and missing hook scripts. For Salesforce `dw.*` hooks, it also reports statically detectable missing CommonJS exports such as `exports.afterPOST` or `module.exports = { afterPOST }`.
+
+Project-specific hook names do not necessarily identify an exported method, so their registrations are validated structurally without inferring an export name.
+
+The checker does not maintain or validate against a list of known Salesforce extension point names. The vendored hook declarations under `.b2c-script-types/types/dw/**/hooks/*.d.ts` only cover a subset of valid `dw.*` hooks (for example, `CalculateHooks` does not model `dw.order.calculateDiscounts`), so an unmodeled hook name is not necessarily invalid.
+
+Registration validation runs as part of `sfcc-ts-typecheck` only; the tsserver plugin does not validate `hooks.json` in the editor.
+
+Diagnostics for a specific `hooks.json` registration (unresolved script, missing export) are anchored to that entry, not to the top of the file, so multiple registration issues in the same `hooks.json` are reported at their correct positions.
+
+`sfcc-ts-sync-types` options:
+
+- `--min-version X.Y.Z`: refreshes types if vendored version is older than required
+- `--force`: always refreshes vendored types
+- `--output <path>`: optional output path for generated `jsconfig` metadata
+- `--site-template-path <path>`: optional path to the site template directory (relative to current directory or absolute). The tool reads metadata from `<path>/meta/*.xml`.
+
+[npm-url]: https://www.npmjs.com/package/@commerce-klaus/typescript-sfcc
+[npm-image]: https://badgen.net/npm/v/@commerce-klaus/typescript-sfcc
+[npm-downloads-image]: https://badgen.net/npm/dw/@commerce-klaus/typescript-sfcc

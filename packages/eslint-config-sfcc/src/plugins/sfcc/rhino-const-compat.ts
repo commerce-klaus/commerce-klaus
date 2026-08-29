@@ -12,7 +12,7 @@ const rhinoConstCompat: Rule.RuleModule = {
     type: "problem",
     docs: {
       description: "Enforce let instead of const in Rhino-unsafe loop-related scopes.",
-      url: "https://github.com/commerce-klaus/commerce-klaus/blob/main/packages/eslint-config-sfcc/docs/rules/sfcc/rhino-const-compat.md",
+      url: "https://commerce-klaus.github.io/commerce-klaus/packages/eslint-config-sfcc/rules/sfcc/rhino-const-compat",
       recommended: true,
     },
     fixable: "code",

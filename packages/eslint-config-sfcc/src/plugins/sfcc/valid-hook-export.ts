@@ -10,7 +10,7 @@ const validHookExport: Rule.RuleModule = {
     docs: {
       description:
         "Requires a static CommonJS export for each Salesforce hook method registered for this file in the cartridge's hooks.json.",
-      url: "https://github.com/commerce-klaus/commerce-klaus/blob/main/packages/eslint-config-sfcc/docs/rules/sfcc/valid-hook-export.md",
+      url: "https://commerce-klaus.github.io/commerce-klaus/packages/eslint-config-sfcc/rules/sfcc/valid-hook-export",
       recommended: true,
     },
     schema: [],

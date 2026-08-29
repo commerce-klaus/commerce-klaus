@@ -16,7 +16,7 @@ const noCustomApiAdditionalProperties: Rule.RuleModule = {
     docs: {
       description:
         "Disallows additionalProperties in Custom API request body schemas, since the platform does not register such endpoints.",
-      url: "https://github.com/commerce-klaus/commerce-klaus/blob/main/packages/eslint-config-sfcc/docs/rules/sfcc/no-custom-api-additional-properties.md",
+      url: "https://commerce-klaus.github.io/commerce-klaus/packages/eslint-config-sfcc/rules/sfcc/no-custom-api-additional-properties",
       recommended: true,
     },
     schema: [],

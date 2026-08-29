@@ -159,9 +159,9 @@
 
 ### Minor Changes
 
-- f99d236: Initial Commerce-Klaus release baseline for `@commerce-klaus/typescript-sfcc`.
+- f99d236: Initial Commerce Klaus release baseline for `@commerce-klaus/typescript-sfcc`.
 
-  - Prepare the first scoped release under the Commerce-Klaus organization.
+  - Prepare the first scoped release under the Commerce Klaus organization.
   - Introduces this package as a solution to typecheck SFCC code.
 
 All notable changes to this package are documented in this file.

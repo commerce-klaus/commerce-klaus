@@ -11,7 +11,7 @@ const noDsFiles: Rule.RuleModule = {
     type: "problem",
     docs: {
       description: "Disallow .ds files in SFCC projects. Use .js files instead.",
-      url: "https://github.com/commerce-klaus/commerce-klaus/blob/main/packages/eslint-config-sfcc/docs/rules/sfcc/no-ds-files.md",
+      url: "https://commerce-klaus.github.io/commerce-klaus/packages/eslint-config-sfcc/rules/sfcc/no-ds-files",
       recommended: true,
     },
     schema: [],

@@ -63,7 +63,7 @@ const noCustomApiResponseMethods: Rule.RuleModule = {
     docs: {
       description:
         "Disallows legacy global response APIs in Custom API implementations, which must return JSON through RESTResponseMgr.",
-      url: "https://github.com/commerce-klaus/commerce-klaus/blob/main/packages/eslint-config-sfcc/docs/rules/sfcc/no-custom-api-response-methods.md",
+      url: "https://commerce-klaus.github.io/commerce-klaus/packages/eslint-config-sfcc/rules/sfcc/no-custom-api-response-methods",
       recommended: true,
     },
     schema: [],
