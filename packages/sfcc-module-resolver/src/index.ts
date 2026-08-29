@@ -37,3 +37,32 @@ export {
   resolveSuperModuleSpecifier,
   transformSuperModuleSource,
 } from "./super-module.ts"
+
+export {
+  findApiJsonFiles,
+  findCustomApiDefinitions,
+  findOperationByOperationId,
+  findSuccessOasResponse,
+  getRequiredCustomApiExportsForScriptFile,
+  loadOasDocument,
+  resolveCustomApiScriptPath,
+  resolveOasParameter,
+  resolveOasRef,
+  resolveOasRequestBody,
+  schemaContainsAdditionalProperties,
+} from "./custom-api.ts"
+export type {
+  ApiJsonEndpoint,
+  ApiJsonFile,
+  CustomApiDefinition,
+  CustomApiOperationMatch,
+  OasDocument,
+  OasMediaType,
+  OasOperation,
+  OasParameter,
+  OasPathItem,
+  OasRequestBody,
+  OasResponse,
+  OasSchema,
+  RequiredCustomApiExport,
+} from "./custom-api.ts"

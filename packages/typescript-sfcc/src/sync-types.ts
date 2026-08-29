@@ -11,6 +11,7 @@ import {
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
+import { generateCustomApiTypes } from "./custom-apis.ts"
 import { generateCustomAttributesTypes } from "./custom-attributes.ts"
 import { generateHookTypes } from "./hook-types.ts"
 import { resolveSiteTemplatePath } from "./shared.ts"
@@ -99,6 +100,17 @@ export function runSyncTypesCli(args: string[], options: SyncTypesCliOptions = {
       writeStdout(
         `Generated ${generatedHookTypes.declarationsCount} Salesforce hook declaration aliases at ${generatedHookTypes.outputFilePath}.\n`,
       )
+      const generatedCustomApiTypes = generateCustomApiTypes({
+        workspaceRoot: currentDirectory,
+        existsSync,
+        mkdirSync,
+        writeFileSync,
+      })
+      if (generatedCustomApiTypes.written) {
+        writeStdout(
+          `Generated ${generatedCustomApiTypes.schemasCount} custom API schema(s) and ${generatedCustomApiTypes.operationsCount} operation(s) at ${generatedCustomApiTypes.outputFilePath}.\n`,
+        )
+      }
       return 0
     }
   }
@@ -156,6 +168,18 @@ export function runSyncTypesCli(args: string[], options: SyncTypesCliOptions = {
   writeStdout(
     `Generated ${generatedHookTypes.declarationsCount} Salesforce hook declaration aliases at ${generatedHookTypes.outputFilePath}.\n`,
   )
+
+  const generatedCustomApiTypes = generateCustomApiTypes({
+    workspaceRoot: currentDirectory,
+    existsSync,
+    mkdirSync,
+    writeFileSync,
+  })
+  if (generatedCustomApiTypes.written) {
+    writeStdout(
+      `Generated ${generatedCustomApiTypes.schemasCount} custom API schema(s) and ${generatedCustomApiTypes.operationsCount} operation(s) at ${generatedCustomApiTypes.outputFilePath}.\n`,
+    )
+  }
 
   return 0
 }

@@ -205,6 +205,40 @@ Recommended `package.json` scripts:
 
 If your CI install uses `--ignore-scripts`, run `pnpm types:sfcc:sync` explicitly before `sfcc-ts-typecheck`.
 
+## Custom APIs
+
+`sfcc-ts-sync-types` generates `.b2c-script-types/types/sfcc-custom-apis.generated.d.ts` from [Custom API](https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-apis.html) contracts. It scans every `api.json` found under `cartridge/rest-apis/**` and parses the referenced OAS 3.0 `schema.yaml` files to derive:
+
+- `SfccCustomApis.Schemas`: one entry per named schema in `components.schemas`.
+- `SfccCustomApis.Operations`: one entry per `operationId`, with `Parameters` (grouped by `path`/`query`/`header`), an optional `RequestBody`, and the `Response` type resolved from the first successful (`2xx`) `application/json` response.
+
+Type the endpoint implementation script with the generated operation type:
+
+```js
+// @ts-check
+
+const RESTResponseMgr = require("dw/system/RESTResponseMgr")
+
+/** @type {SfccCustomApis.Operations["getLoyaltyInfo"]} */
+function getLoyaltyInfo() {
+  const customerId = request.getHttpParameterMap().get("c_customer_id").getStringValue()
+
+  /** @type {SfccCustomApis.Operations["getLoyaltyInfo"]["Response"]} */
+  const info = { tier: "silver", points: 14275 }
+
+  return RESTResponseMgr.createSuccess(info).render()
+}
+
+exports.getLoyaltyInfo = getLoyaltyInfo
+exports.getLoyaltyInfo.public = true
+```
+
+Notes:
+
+- `$ref` values are resolved for `components.schemas`, `components.parameters`, `components.requestBodies`, and `components.responses`.
+- `allOf`/`oneOf`/`anyOf` compositions are not resolved yet and fall back to `unknown`.
+- Schema and operation names are expected to be unique across all scanned cartridges; on a name collision, the first occurrence found wins.
+
 ## tsserver Plugin
 
 Add the plugin to your cartridge `jsconfig.json` or `tsconfig.json`:

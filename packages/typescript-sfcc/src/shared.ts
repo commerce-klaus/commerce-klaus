@@ -21,6 +21,7 @@ import path from "node:path"
 
 export const GENERATED_CUSTOM_ATTRIBUTES_FILE_NAME = "sfcc-custom-attributes.generated.d.ts"
 export const GENERATED_HOOK_TYPES_FILE_NAME = "sfcc-hooks.generated.d.ts"
+export const GENERATED_CUSTOM_APIS_FILE_NAME = "sfcc-custom-apis.generated.d.ts"
 export const PROJECT_HOOK_TYPES_FILE_NAME = "sfcc-hooks.d.ts"
 
 export {
@@ -117,6 +118,10 @@ export function resolveGeneratedHookTypesPath(workspaceRoot: string): string {
   return path.join(workspaceRoot, ".b2c-script-types", "types", GENERATED_HOOK_TYPES_FILE_NAME)
 }
 
+export function resolveGeneratedCustomApiTypesPath(workspaceRoot: string): string {
+  return path.join(workspaceRoot, ".b2c-script-types", "types", GENERATED_CUSTOM_APIS_FILE_NAME)
+}
+
 export function resolveProjectHookTypesPath(cartridgesDir: string): string {
   return path.join(cartridgesDir, PROJECT_HOOK_TYPES_FILE_NAME)
 }
@@ -154,6 +159,14 @@ export function getGeneratedHookTypesPathIfPresent(
   return existsSync(filePath) ? filePath : undefined
 }
 
+export function getGeneratedCustomApiTypesPathIfPresent(
+  workspaceRoot: string,
+  existsSync: (filePath: string) => boolean = nodeExistsSync,
+): string | undefined {
+  const filePath = resolveGeneratedCustomApiTypesPath(workspaceRoot)
+  return existsSync(filePath) ? filePath : undefined
+}
+
 export function getProjectHookTypesPathIfPresent(
   cartridgesDir: string,
   existsSync: (filePath: string) => boolean = nodeExistsSync,
@@ -184,6 +197,7 @@ export function getAdditionalTypeFiles(
   return [
     getGeneratedCustomAttributesTypesPathIfPresent(workspaceRoot, existsSync),
     getGeneratedHookTypesPathIfPresent(workspaceRoot, existsSync),
+    getGeneratedCustomApiTypesPathIfPresent(workspaceRoot, existsSync),
     getProjectHookTypesPathIfPresent(cartridgesDir, existsSync),
     ...getCartridgeHookTypesPaths(cartridgeRoots, existsSync),
   ].filter((filePath): filePath is string => filePath !== undefined)

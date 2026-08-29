@@ -25,5 +25,6 @@ export {
 
 export { validateHookRegistrations } from "./hooks.ts"
 export { generateHookTypes } from "./hook-types.ts"
+export { generateCustomApiTypes } from "./custom-apis.ts"
 
 export { main as syncTypesMain, runSyncTypesCli } from "./sync-types.ts"

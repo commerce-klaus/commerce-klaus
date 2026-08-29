@@ -116,6 +116,9 @@ importers:
       fast-xml-parser:
         specifier: ^5.8.0
         version: 5.11.1
+      yaml:
+        specifier: ^2.9.0
+        version: 2.9.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
