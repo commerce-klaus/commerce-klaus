@@ -37,7 +37,7 @@ jobs:
           run-install: false
 
       - name: Set up Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v6
 
       - name: Install dependencies
         run: vp install --frozen-lockfile -- --link-workspace-packages
