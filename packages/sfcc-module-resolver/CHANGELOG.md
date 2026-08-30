@@ -1,5 +1,15 @@
 # @commerce-klaus/sfcc-module-resolver
 
+## 1.3.0
+
+### Minor Changes
+
+- 2aa9712: Add shared Custom API discovery and OpenAPI (OAS 3.0) parsing helpers: `findApiJsonFiles`, `findCustomApiDefinitions`, `findOperationByOperationId`, `findSuccessOasResponse`, `getRequiredCustomApiExportsForScriptFile`, `loadOasDocument`, `resolveCustomApiScriptPath`, `resolveOasParameter`, `resolveOasRef`, `resolveOasRequestBody`, and `schemaContainsAdditionalProperties`. These back the Custom API type generation in `@commerce-klaus/typescript-sfcc` and the new `sfcc/valid-custom-api-export`, `sfcc/valid-custom-api-dir-name`, and `sfcc/no-custom-api-additional-properties` rules in `@commerce-klaus/eslint-config-sfcc`.
+
+### Patch Changes
+
+- 1ae5516: Point package homepage metadata to the canonical Commerce Klaus documentation pages and correct the TypeScript package repository directory.
+
 ## 1.2.0
 
 ### Minor Changes

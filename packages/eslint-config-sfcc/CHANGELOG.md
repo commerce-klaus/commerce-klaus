@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.6.0
+
+### Minor Changes
+
+- 2aa9712: Add `sfcc/no-custom-api-additional-properties`, `sfcc/no-custom-api-response-methods`, and `sfcc/valid-custom-api-dir-name` rules. They enforce supported request body schemas, JSON responses through `RESTResponseMgr`, and valid Custom API directory names.
+- 2aa9712: Add `sfcc/valid-custom-api-export` rule. It requires a static CommonJS export marked `public = true` for each [Custom API](https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-apis.html) endpoint mapped to a script file in the rest-apis `api.json`, surfacing missing or non-public endpoint exports directly through ESLint.
+
+### Patch Changes
+
+- 1ae5516: Point all ESLint rule documentation URLs to their canonical pages on the Commerce Klaus documentation site.
+- 1ae5516: Point package homepage metadata to the canonical Commerce Klaus documentation pages and correct the TypeScript package repository directory.
+- Updated dependencies [2aa9712]
+- Updated dependencies [1ae5516]
+  - @commerce-klaus/sfcc-module-resolver@1.3.0
+
 ## 1.5.1
 
 ### Patch Changes
