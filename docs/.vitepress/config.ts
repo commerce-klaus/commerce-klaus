@@ -1,19 +1,21 @@
 import { defineConfig } from "vitepress"
 
 const repository = "https://github.com/commerce-klaus/commerce-klaus"
+const base = "/commerce-klaus/"
 
 export default defineConfig({
   lang: "en-US",
   title: "Commerce Klaus",
   titleTemplate: ":title | Commerce Klaus",
   description: "Pragmatic developer tooling for Salesforce Commerce Cloud.",
-  base: "/commerce-klaus/",
+  base,
   cleanUrls: true,
   lastUpdated: true,
   sitemap: {
     hostname: "https://commerce-klaus.github.io/commerce-klaus/",
   },
   head: [
+    ["link", { rel: "icon", type: "image/png", sizes: "64x64", href: `${base}favicon.png` }],
     ["meta", { name: "theme-color", content: "#146b4a" }],
     ["meta", { property: "og:type", content: "website" }],
     ["meta", { property: "og:site_name", content: "Commerce Klaus" }],
