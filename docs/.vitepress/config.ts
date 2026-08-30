@@ -2,12 +2,16 @@ import { defineConfig } from "vitepress"
 
 const repository = "https://github.com/commerce-klaus/commerce-klaus"
 const base = "/commerce-klaus/"
+const noWrap = (text: string) =>
+  text
+    .replaceAll("Salesforce Commerce Cloud", "Salesforce\u00a0Commerce\u00a0Cloud")
+    .replaceAll("Commerce Klaus", "Commerce\u00a0Klaus")
 
 export default defineConfig({
   lang: "en-US",
-  title: "Commerce Klaus",
-  titleTemplate: ":title | Commerce Klaus",
-  description: "Pragmatic developer tooling for Salesforce Commerce Cloud.",
+  title: noWrap("Commerce Klaus"),
+  titleTemplate: noWrap(":title | Commerce Klaus"),
+  description: noWrap("Pragmatic developer tooling for Salesforce Commerce Cloud."),
   base,
   cleanUrls: true,
   lastUpdated: true,
@@ -18,11 +22,22 @@ export default defineConfig({
     ["link", { rel: "icon", type: "image/png", sizes: "64x64", href: `${base}favicon.png` }],
     ["meta", { name: "theme-color", content: "#146b4a" }],
     ["meta", { property: "og:type", content: "website" }],
-    ["meta", { property: "og:site_name", content: "Commerce Klaus" }],
+    ["meta", { property: "og:site_name", content: noWrap("Commerce Klaus") }],
   ],
+  markdown: {
+    config(markdown) {
+      markdown.core.ruler.after("inline", "non-breaking-brand-names", (state) => {
+        for (const token of state.tokens) {
+          for (const child of token.children ?? []) {
+            if (child.type === "text") child.content = noWrap(child.content)
+          }
+        }
+      })
+    },
+  },
   themeConfig: {
     logo: "https://avatars.githubusercontent.com/u/294446121?s=96&v=4",
-    siteTitle: "Commerce Klaus",
+    siteTitle: noWrap("Commerce Klaus"),
     nav: [
       { text: "Guide", link: "/guide/getting-started" },
       { text: "Packages", link: "/packages/" },
@@ -146,7 +161,7 @@ export default defineConfig({
           items: [
             { text: "All posts", link: "/blog/" },
             {
-              text: "Why Commerce Klaus?",
+              text: noWrap("Why Commerce Klaus?"),
               link: "/blog/why-commerce-klaus",
             },
           ],
@@ -172,7 +187,7 @@ export default defineConfig({
     docFooter: { prev: "Previous", next: "Next" },
     footer: {
       message: "Released under the MIT License.",
-      copyright: "Commerce Klaus",
+      copyright: noWrap("Commerce Klaus"),
     },
   },
 })

@@ -2,12 +2,12 @@
 layout: home
 
 hero:
-  name: Commerce Klaus
+  name: "Commerce\u00a0Klaus"
   text: Tame the SFCC Rhino.
-  tagline: Pragmatic bridges between Salesforce Commerce Cloud and the modern JavaScript toolchain.
+  tagline: "Pragmatic bridges between Salesforce\u00a0Commerce\u00a0Cloud and the modern JavaScript toolchain."
   image:
     src: https://avatars.githubusercontent.com/u/294446121?s=480&v=4
-    alt: Commerce Klaus logo
+    alt: "Commerce\u00a0Klaus logo"
   actions:
     - theme: brand
       text: Get started
