@@ -42,7 +42,7 @@ pnpm add -D eslint @commerce-klaus/eslint-config-sfcc
 
 ### Use in `eslint.config.js`
 
-```js
+```js{2,6} [eslint.config.js]
 import { defineConfig } from "eslint/config"
 import sfcc from "@commerce-klaus/eslint-config-sfcc"
 
@@ -71,7 +71,7 @@ These overrides only take effect for rules enabled by another config in your ESL
 
 Oxlint can run the included `sfcc` and `sitegenesis` plugins through its alpha JavaScript plugin API. Create an `oxlint.config.mjs` file that exports the included preset:
 
-```js
+```js{1,3} [oxlint.config.mjs]
 import sfcc from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
 
 export default sfcc
@@ -81,7 +81,7 @@ The preset loads both plugins and enables the supported SFCC and SiteGenesis rul
 
 For custom rule severities, import the rule record directly:
 
-```js
+```js{1,7} [oxlint.config.mjs]
 import sfcc, { oxlintRules } from "@commerce-klaus/eslint-config-sfcc"
 
 export default {
@@ -107,7 +107,7 @@ This optional fallback requires `@typescript-eslint/parser`:
 pnpm add -D @typescript-eslint/parser
 ```
 
-```js
+```js{2,4} [eslint.config.js]
 import { defineConfig } from "eslint/config"
 import eslintAfterOxlint from "@commerce-klaus/eslint-config-sfcc/configs/eslint-after-oxlint"
 
@@ -118,7 +118,7 @@ This config deliberately does not enable the Oxlint-compatible rules, so the sec
 
 ### Customize with helper
 
-```js
+```js{2,6-11} [eslint.config.js]
 import { defineConfig } from "eslint/config"
 import { createRecommendedConfig } from "@commerce-klaus/eslint-config-sfcc"
 
@@ -183,7 +183,7 @@ By default, `sfcc/valid-require-path` validates path patterns only and allows ba
 
 Use `createRecommendedConfig({ sfcc: ... })` to define shared SFCC plugin options centrally. These values are exposed through ESLint `settings.sfcc`, so future `sfcc/*` rules can reuse them without adding per-rule options.
 
-```js
+```js{2,6-19} [eslint.config.js]
 import { defineConfig } from "eslint/config"
 import { createRecommendedConfig } from "@commerce-klaus/eslint-config-sfcc"
 
@@ -212,19 +212,19 @@ Example:
 
 ```js
 function route() {
-  let topLevel = 1 // sfcc/prefer-const -> const
+  let topLevel = 1 // sfcc/prefer-const -> const // [!code highlight]
 
   for (let i = 0; i < 3; i += 1) {
-    const loopValue = i * 2 // sfcc/rhino-const-compat -> let
+    const loopValue = i * 2 // sfcc/rhino-const-compat -> let // [!code warning]
     process(loopValue)
   }
 
   if (flagA) {
-    const temp = 1 // with another nested const temp below: sfcc/rhino-const-conflict -> let
+    const temp = 1 // with another nested const temp below: sfcc/rhino-const-conflict -> let // [!code error]
     process(temp)
   }
   if (flagB) {
-    const temp = 2 // sfcc/rhino-const-conflict -> let
+    const temp = 2 // sfcc/rhino-const-conflict -> let // [!code error]
     process(temp)
   }
 
@@ -234,7 +234,7 @@ function route() {
 
 ### Direct plugin usage
 
-```js
+```js{2-5,8-16} [eslint.config.js]
 import { defineConfig } from "eslint/config"
 import eslintConfigSfcc, {
   sfcc as sfccPlugin,
@@ -265,7 +265,7 @@ export default defineConfig(eslintConfigSfcc.configs.recommended, {
 
 Q: Is this safe?
 
-```js
+```js{2}
 if (foo === "bar") {
   const value = 1
 }
@@ -277,11 +277,11 @@ Q: What about this?
 
 ```js
 if (foo === "bar") {
-  const test = 1
+  const test = 1 // [!code error]
 }
 
 if (foo === "baz") {
-  const test = 2
+  const test = 2 // [!code error]
 }
 ```
 
@@ -331,7 +331,7 @@ Use these patterns when modernizing legacy SFCC code.
 
 Before:
 
-```js
+```js{1}
 for each (item in items) {
   process(item)
 }
@@ -339,8 +339,8 @@ for each (item in items) {
 
 After:
 
-```js
-for (const item of items) {
+```js{1}
+for (let item of items) {
   process(item)
 }
 ```
@@ -349,7 +349,7 @@ for (const item of items) {
 
 Before:
 
-```js
+```js{1}
 for each (value in obj) {
   process(value)
 }
@@ -357,10 +357,10 @@ for each (value in obj) {
 
 After:
 
-```js
-for (const key in obj) {
+```js{1,3}
+for (let key in obj) {
   if (Object.prototype.hasOwnProperty.call(obj, key)) {
-    const value = obj[key]
+    let value = obj[key]
     process(value)
   }
 }
@@ -370,7 +370,7 @@ for (const key in obj) {
 
 Before:
 
-```js
+```js{2-4}
 const payload = (
   <request>
     <id>{id}</id>
@@ -380,7 +380,7 @@ const payload = (
 
 After:
 
-```js
+```js{1}
 const payload = XML(`<request><id>${id}</id></request>`)
 ```
 

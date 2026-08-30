@@ -25,16 +25,14 @@ Rhino and E4X-era parsers may tolerate syntax that is invalid in standard JavaSc
 
 ## Example
 
-```js
-// bad
-const count: number = 1
-function load(user: User): Result {
+```js [Invalid]
+const count: number = 1 // [!code error]
+function load(user: User): Result { // [!code error]
   return getResult(user)
 }
 ```
 
-```js
-// good
+```js{1-2,4-5} [Valid]
 /** @type {number} */
 const count = 1
 

@@ -23,8 +23,7 @@ Custom API endpoints are only registered when the implementation script exports 
 
 ## Example
 
-```json
-// cartridges/app_custom/cartridge/rest-apis/loyalty-info/api.json
+```json{3} [api.json]
 {
   "endpoints": [
     { "endpoint": "getLoyaltyInfo", "schema": "schema.yaml", "implementation": "script" }
@@ -32,13 +31,11 @@ Custom API endpoints are only registered when the implementation script exports 
 }
 ```
 
-```js
-// bad: cartridges/app_custom/cartridge/rest-apis/loyalty-info/script.js
+```js [Invalid script.js]
 exports.getLoyaltyInfo = function () {}
 ```
 
-```js
-// good
+```js{2} [Valid script.js]
 exports.getLoyaltyInfo = function () {}
 exports.getLoyaltyInfo.public = true
 ```

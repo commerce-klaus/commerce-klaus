@@ -18,16 +18,19 @@ Disallows legacy `.ds` files in SFCC projects. Rename them to `.js` and keep the
 
 ## Example
 
-```js
-// bad: cart.ds
+::: code-group
+
+```js [cart.ds]
+module.exports = function () {
+  // [!code error:3]
+  return true
+}
+```
+
+```js{1-3} [cart.js]
 module.exports = function () {
   return true
 }
 ```
 
-```js
-// good: cart.js
-module.exports = function () {
-  return true
-}
-```
+:::

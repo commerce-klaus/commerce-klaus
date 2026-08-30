@@ -22,19 +22,17 @@ This is a Rhino-specific safeguard. A pattern that is legal in modern JavaScript
 
 ## Example
 
-```js
-// bad
+```js [Invalid]
 if (flagA) {
-  const temp = 1
+  const temp = 1 // [!code error]
 }
 
 if (flagB) {
-  const temp = 2
+  const temp = 2 // [!code error]
 }
 ```
 
-```js
-// good
+```js{2,6} [Valid]
 if (flagA) {
   let temp = 1
 }

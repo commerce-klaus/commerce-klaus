@@ -20,8 +20,7 @@ pnpm add -D eslint typescript @salesforce/b2c-cli \
 
 Add the recommended ESLint flat config:
 
-```js
-// eslint.config.js
+```js{2,4} [eslint.config.js]
 import { defineConfig } from "eslint/config"
 import sfcc from "@commerce-klaus/eslint-config-sfcc"
 
@@ -30,7 +29,7 @@ export default defineConfig(sfcc.configs.recommended)
 
 Enable cartridge-aware TypeScript resolution:
 
-```json
+```json{3} [cartridges/jsconfig.json]
 {
   "compilerOptions": {
     "plugins": [{ "name": "@commerce-klaus/typescript-sfcc" }]

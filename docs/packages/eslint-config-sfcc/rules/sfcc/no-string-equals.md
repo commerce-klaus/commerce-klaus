@@ -24,15 +24,14 @@ Using strict equality makes intent explicit and keeps code idiomatic JavaScript.
 
 ## Example
 
-```js
-// bad
+```js [Invalid]
 if (customerNo.equals("12345")) {
+  // [!code error]
   // ...
 }
 ```
 
-```js
-// good
+```js{1} [Valid]
 if (customerNo === "12345") {
   // ...
 }

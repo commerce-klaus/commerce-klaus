@@ -9,7 +9,7 @@ It originates from `@commerce-klaus/babel-plugin-sfcc-modules` and is the port t
 
 ## TL;DR
 
-```ts
+```ts{1,4-8} [vite.config.ts]
 import sfccModules from "@commerce-klaus/vite-plugin-sfcc-modules"
 
 export default defineConfig({
@@ -53,27 +53,27 @@ This plugin resolves those patterns according to cartridge path order and rewrit
 
 ## Installation
 
-```bash
+::: code-group
+
+```bash [pnpm]
 pnpm add -D @commerce-klaus/vite-plugin-sfcc-modules
 ```
 
-or
-
-```bash
+```bash [npm]
 npm i -D @commerce-klaus/vite-plugin-sfcc-modules
 ```
 
-or
-
-```bash
+```bash [Yarn]
 yarn add -D @commerce-klaus/vite-plugin-sfcc-modules
 ```
+
+:::
 
 ## Usage
 
 Add the plugin to your Vite config:
 
-```ts
+```ts{2,5-9} [vite.config.ts]
 import { defineConfig } from "vite"
 import sfccModules from "@commerce-klaus/vite-plugin-sfcc-modules"
 
@@ -89,7 +89,7 @@ export default defineConfig({
 
 Example with cartridge order inferred from site template (`sites/<site>/site.xml`):
 
-```ts
+```ts{2,5-9} [vite.config.ts]
 import { defineConfig } from "vite"
 import sfccModules from "@commerce-klaus/vite-plugin-sfcc-modules"
 
@@ -106,7 +106,7 @@ export default defineConfig({
 
 Example with explicit env-style override (`envCartridgePath`):
 
-```ts
+```ts{2,5-8} [vite.config.ts]
 import { defineConfig } from "vite"
 import sfccModules from "@commerce-klaus/vite-plugin-sfcc-modules"
 

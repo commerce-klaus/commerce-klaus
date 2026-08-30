@@ -29,7 +29,7 @@ Typical consumers in this monorepo:
 
 Inside this workspace:
 
-```json
+```json{3} [package.json]
 {
   "dependencies": {
     "@commerce-klaus/sfcc-module-resolver": "workspace:*"
@@ -39,7 +39,7 @@ Inside this workspace:
 
 ## Quick start
 
-```ts
+```ts{2,5-8,11,14} [resolver.ts]
 import path from "node:path"
 import { createSfccModuleResolver, inferCartridgeOrder } from "@commerce-klaus/sfcc-module-resolver"
 
@@ -157,7 +157,7 @@ const order = getSiteTemplateCartridgePath(
 
 ### 4) Find required hook exports for a script file
 
-```ts
+```ts{1,3} [hooks.ts]
 import { getRequiredHookExportsForScriptFile } from "@commerce-klaus/sfcc-module-resolver"
 
 const requiredExports = getRequiredHookExportsForScriptFile(

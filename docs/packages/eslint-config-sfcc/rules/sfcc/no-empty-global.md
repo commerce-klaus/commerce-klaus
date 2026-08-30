@@ -22,15 +22,13 @@ Disallows the SFCC-specific `empty(...)` global in JavaScript files. Use explici
 
 When you know a value is only a nullable object reference, for example `dw.catalog.Product | null`, a null check can be the clearest replacement.
 
-```js
-// before
+```js{1} [Invalid]
 if (empty(product)) {
   return
 }
 ```
 
-```js
-// valid when `product` is only nullable, not a collection/string/object to inspect
+```js{1} [Valid for nullable references]
 if (!product) {
   return
 }
@@ -42,29 +40,25 @@ With type information enabled, the rule narrows suggestions for identifier/membe
 
 ## Examples
 
-```js
-// bad
+```js{1} [Invalid]
 if (empty(productIds)) {
   return
 }
 ```
 
-```js
-// good
+```js{1} [Valid for arrays and strings]
 if (productIds.length === 0) {
   return
 }
 ```
 
-```js
-// good
+```js{1} [Valid for plain objects]
 if (Object.keys(product).length === 0) {
   return
 }
 ```
 
-```js
-// good
+```js{1} [Valid for SFCC collections]
 if (collection.isEmpty()) {
   return
 }

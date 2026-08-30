@@ -38,12 +38,10 @@ SFCC projects often mix cartridge-relative imports, template-path lookups, and l
 
 ## Example
 
-```js
-// bad
-const helper = require("helpers")
+```js [Invalid]
+const helper = require("helpers") // [!code error]
 ```
 
-```js
-// good
+```js{1} [Valid]
 const helper = require("*/cartridge/scripts/helpers")
 ```

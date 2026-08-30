@@ -69,7 +69,7 @@ Custom attribute mapping reference:
 
 Example (`Product.custom`):
 
-```ts
+```ts{3,6,14-15,21-22} [product.ts]
 import ProductMgr = require("dw/catalog/ProductMgr")
 
 const product = ProductMgr.getProduct("my-product-id")
@@ -99,7 +99,7 @@ if (product) {
 
 Named Custom Object attribute types can be referenced directly from JavaScript JSDoc:
 
-```js
+```js{4-7} [notification.js]
 // @ts-check
 
 /**
@@ -113,7 +113,7 @@ function readNotification(custom) {
 
 System Object attributes use the same pattern:
 
-```js
+```js{4-7} [product.js]
 // @ts-check
 
 /**
@@ -145,7 +145,7 @@ Schema-driven assumptions:
 
 Existing Salesforce system hook signatures can be used from JavaScript JSDoc without duplicating their parameters or return type:
 
-```js
+```js{3-4,9} [calculate.js]
 // @ts-check
 
 /** @type {SfccHooks.OrderCalculate} */
@@ -160,7 +160,7 @@ exports.calculate = calculate
 
 For Shopper API hooks, add an optional `sfcc-hooks.d.ts` file next to `cartridges/jsconfig.json`. It is loaded automatically by both `sfcc-ts-typecheck` and the tsserver plugin, even when cartridge project configs include JavaScript files only. Keep document models narrow and declare only the fields read or written by the hook:
 
-```ts
+```ts{4-6} [cartridges/sfcc-hooks.d.ts]
 export {}
 
 declare global {
@@ -172,7 +172,7 @@ declare global {
 
 Use the project-local alias from the hook implementation:
 
-```js
+```js{3-4,6,9} [modifyGETResponse.js]
 // @ts-check
 
 /** @type {SfccHooks.ShopperProductModifyGetResponse} */
@@ -192,7 +192,7 @@ Migration from `1.x`: this package previously loaded a single `sfcc-hooks.d.ts` 
 
 Recommended `package.json` scripts:
 
-```json
+```json{3-6} [package.json]
 {
   "scripts": {
     "types:sfcc:sync": "sfcc-ts-sync-types --min-version 26.7.0",
@@ -214,7 +214,7 @@ If your CI install uses `--ignore-scripts`, run `pnpm types:sfcc:sync` explicitl
 
 Type the endpoint implementation script with the generated operation type:
 
-```js
+```js{5,7,10-11,17-18} [script.js]
 // @ts-check
 
 const RESTResponseMgr = require("dw/system/RESTResponseMgr")
@@ -243,7 +243,7 @@ Notes:
 
 Add the plugin to your cartridge `jsconfig.json` or `tsconfig.json`:
 
-```json
+```json{3} [cartridges/jsconfig.json]
 {
   "compilerOptions": {
     "plugins": [{ "name": "@commerce-klaus/typescript-sfcc" }]
@@ -279,7 +279,7 @@ pnpm exec sfcc-ts-typecheck --project config/tsconfig.cartridges.json --cartridg
 
 `package.json` example:
 
-```json
+```json{3} [package.json]
 {
   "scripts": {
     "typecheck:cartridges": "sfcc-ts-typecheck --project cartridges/tsconfig.json"
@@ -297,15 +297,13 @@ Exit codes:
 
 When a cartridge `package.json` declares a `hooks` path, `sfcc-ts-typecheck` also validates the referenced `hooks.json` file:
 
-```json
-// cartridges/app_custom/package.json
+```json{2} [cartridges/app_custom/package.json]
 {
   "hooks": "./cartridge/scripts/hooks.json"
 }
 ```
 
-```json
-// cartridges/app_custom/cartridge/scripts/hooks.json
+```json{2} [cartridges/app_custom/cartridge/scripts/hooks.json]
 {
   "hooks": [{ "name": "dw.order.calculate", "script": "./hooks/calculate" }]
 }

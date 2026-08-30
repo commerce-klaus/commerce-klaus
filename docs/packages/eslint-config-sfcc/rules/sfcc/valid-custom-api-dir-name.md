@@ -19,10 +19,7 @@ Salesforce B2C Commerce requires Custom API directory names to only contain alph
 
 ## Example
 
-```
-// bad
-cartridges/app_custom/cartridge/rest-apis/loyaltyInfo/api.json
-
-// good
-cartridges/app_custom/cartridge/rest-apis/loyalty-info/api.json
+```diff
+- cartridges/app_custom/cartridge/rest-apis/loyaltyInfo/api.json
++ cartridges/app_custom/cartridge/rest-apis/loyalty-info/api.json
 ```

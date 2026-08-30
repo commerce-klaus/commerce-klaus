@@ -25,16 +25,15 @@ SFCC code may be parsed in toolchains that are tolerant of E4X-like syntax, but 
 
 ## Example
 
-```js
-// bad
-const payload = (
-  <request>
-    <id>{id}</id>
-  </request>
-)
+```js [Invalid]
+const payload = // [!code error:5]
+  (
+    <request>
+      <id>{id}</id>
+    </request>
+  )
 ```
 
-```js
-// better
+```js{1} [Valid]
 const payload = XML(`<request><id>${id}</id></request>`)
 ```

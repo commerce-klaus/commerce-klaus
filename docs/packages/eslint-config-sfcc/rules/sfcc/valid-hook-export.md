@@ -24,19 +24,16 @@ Requires a static CommonJS export for each Salesforce hook method registered for
 
 ## Example
 
-```json
-// cartridges/app_custom/cartridge/scripts/hooks.json
+```json{2} [hooks.json]
 {
   "hooks": [{ "name": "dw.ocapi.shop.basket.afterPOST", "script": "./hooks/basket" }]
 }
 ```
 
-```js
-// bad: cartridges/app_custom/cartridge/scripts/hooks/basket.js
-exports.afterPATCH = function (basket) {}
+```js [Invalid basket.js]
+exports.afterPATCH = function (basket) {} // [!code error]
 ```
 
-```js
-// good
+```js{1} [Valid basket.js]
 exports.afterPOST = function (basket) {}
 ```

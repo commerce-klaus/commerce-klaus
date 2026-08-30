@@ -21,21 +21,19 @@ Salesforce B2C Commerce does not register a Custom API endpoint whose request bo
 
 ## Example
 
-```yaml
-# bad: cartridges/app_custom/cartridge/rest-apis/loyalty-info/schema.yaml
+```yaml [Invalid schema.yaml]
 requestBody:
   content:
     application/json:
       schema:
         type: object
-        additionalProperties: true
+        additionalProperties: true # [!code error]
         properties:
           points:
             type: number
 ```
 
-```yaml
-# good
+```yaml{6-8} [Valid schema.yaml]
 requestBody:
   content:
     application/json:

@@ -8,7 +8,7 @@ This package continues the original `babel-plugin-sfcc-modules` under the Commer
 
 ## TL;DR
 
-```json
+```json{3-8} [.babelrc]
 {
   "plugins": [
     [
@@ -60,27 +60,27 @@ This plugin rewrites SFCC module patterns to relative require paths that Node.js
 
 ## Installation
 
-```sh
+::: code-group
+
+```sh [pnpm]
 pnpm add -D @commerce-klaus/babel-plugin-sfcc-modules
 ```
 
-or
-
-```sh
+```sh [npm]
 npm i -D @commerce-klaus/babel-plugin-sfcc-modules
 ```
 
-or
-
-```sh
+```sh [Yarn]
 yarn add -D @commerce-klaus/babel-plugin-sfcc-modules
 ```
+
+:::
 
 ## Usage
 
 Add to your Babel configuration:
 
-```json
+```json{2-9} [.babelrc]
 "plugins": [
   ["@commerce-klaus/babel-plugin-sfcc-modules", {
     "cartridgePath": [
@@ -95,7 +95,7 @@ Add to your Babel configuration:
 
 Example with cartridge order inferred from `site.xml` (`custom-cartridges`):
 
-```json
+```json{2-6} [.babelrc]
 "plugins": [
   ["@commerce-klaus/babel-plugin-sfcc-modules", {
     "basePath": "./cartridges",
@@ -107,7 +107,7 @@ Example with cartridge order inferred from `site.xml` (`custom-cartridges`):
 
 Example with explicit env-style override (`envCartridgePath`):
 
-```json
+```json{2-5} [.babelrc]
 "plugins": [
   ["@commerce-klaus/babel-plugin-sfcc-modules", {
     "basePath": "./cartridges",

@@ -18,12 +18,10 @@ Those globals come from older Rhino-based environments. They make code harder to
 
 ## Example
 
-```js
-// bad
-importPackage(java.lang)
+```js [Invalid]
+importPackage(java.lang) // [!code error]
 ```
 
-```js
-// good
+```js{1} [Valid]
 const javaLang = require("dw/system/SomeModule")
 ```

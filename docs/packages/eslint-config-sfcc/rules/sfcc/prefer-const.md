@@ -24,12 +24,10 @@ The config aims to preserve the safe use of `const` while avoiding patterns that
 
 ## Example
 
-```js
-// bad
-let value = compute()
+```js [Invalid]
+let value = compute() // [!code error]
 ```
 
-```js
-// good
+```js{1} [Valid]
 const value = compute()
 ```
