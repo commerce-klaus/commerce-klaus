@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.1
+
+### Patch Changes
+
+- 1ae5516: Point package homepage metadata to the canonical Commerce Klaus documentation pages and correct the TypeScript package repository directory.
+- Updated dependencies [2aa9712]
+- Updated dependencies [1ae5516]
+  - @commerce-klaus/sfcc-module-resolver@1.3.0
+
 ## 1.1.0
 
 ### Minor Changes

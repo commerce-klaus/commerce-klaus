@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.4.0
+
+### Minor Changes
+
+- 2aa9712: Add Custom API type generation. `sfcc-ts-sync-types` now scans `cartridge/rest-apis/**/api.json` files and their referenced OAS 3.0 `schema.yaml` contracts (via the shared `@commerce-klaus/sfcc-module-resolver` discovery helpers) to generate `.b2c-script-types/types/sfcc-custom-apis.generated.d.ts` with a `SfccCustomApis.Schemas` and `SfccCustomApis.Operations` namespace, so Custom API endpoint scripts can be typed via JSDoc `@type` annotations.
+
+### Patch Changes
+
+- 1ae5516: Point package homepage metadata to the canonical Commerce Klaus documentation pages and correct the TypeScript package repository directory.
+- Updated dependencies [2aa9712]
+- Updated dependencies [1ae5516]
+  - @commerce-klaus/sfcc-module-resolver@1.3.0
+
 ## 1.3.1
 
 ### Patch Changes
