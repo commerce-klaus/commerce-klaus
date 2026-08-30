@@ -54,6 +54,19 @@ export default defineConfig(
 
 By default, JavaScript files under `cartridges/` are linted. Client-side and static asset folders are excluded.
 
+### Compatibility with other recommended configs
+
+The recommended config deliberately disables selected rules from commonly used ESLint presets when they suggest syntax, APIs, or module patterns that SFCC/Rhino does not support. This allows you to combine the SFCC config with those presets without forcing otherwise valid server-side SFCC code into incompatible modern JavaScript patterns.
+
+The compatibility overrides cover:
+
+- **ESLint recommended and core rules:** disables rules such as `object-shorthand`, `prefer-object-spread`, `prefer-rest-params`, and `prefer-spread` that can suggest unsupported syntax or APIs. The core `prefer-const` rule is replaced by SFCC-aware rules that account for Rhino's scoping behavior.
+- **`eslint-plugin-unicorn`:** disables modern syntax and API preferences such as `prefer-at`, `prefer-module`, `prefer-spread`, and `prefer-string-replace-all`, as well as rules whose fixes or assumptions are unsafe for Rhino and SFCC APIs.
+- **`typescript-eslint`:** disables `@typescript-eslint/no-require-imports` because SFCC server-side modules use CommonJS `require()`.
+- **`eslint-plugin-sonarjs`:** disables `sonarjs/no-implicit-global` because its assumptions conflict with SFCC's server-side module environment.
+
+These overrides only take effect for rules enabled by another config in your ESLint setup; this package does not otherwise enable the external presets.
+
 ### Use with Oxlint
 
 Oxlint can run the included `sfcc` and `sitegenesis` plugins through its alpha JavaScript plugin API. Create an `oxlint.config.mjs` file that exports the included preset:
