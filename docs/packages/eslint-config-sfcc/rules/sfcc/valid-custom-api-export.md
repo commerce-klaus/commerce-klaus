@@ -8,7 +8,8 @@ Requires a public static CommonJS export for each [Custom API](https://developer
 - For every endpoint entry whose `implementation` resolves to the linted file, requires:
   - a static export named after the `endpoint` (for example `exports.getLoyaltyInfo = ...`)
   - that export marked as public: `exports.getLoyaltyInfo.public = true`
-- Recognizes `exports.method = ...` and `module.exports.method = ...` as valid static exports, and `exports.method.public = true` / `module.exports.method.public = true` as the public flag
+- Recognizes `exports.method = ...` and `module.exports.method = ...` as valid static exports
+- Accepts the public flag either directly on the export (`exports.method.public = true`) or on the same local handler assigned to that export (`handler.public = true`; `exports.method = handler`)
 - Applies only to JavaScript-like inputs: `.js`, `.mjs`, `.cjs`, `.ds`, and `<input>`
 - Has no effect on files that are not referenced as an `implementation` by any `api.json`
 
@@ -36,7 +37,8 @@ Custom API endpoints are only registered when the implementation script exports 
 exports.getLoyaltyInfo = function () {}
 ```
 
-```js{2} [Valid script.js]
-exports.getLoyaltyInfo = function () {}
-exports.getLoyaltyInfo.public = true
+```js{2-3} [Valid script.js]
+function accountLookup() {}
+accountLookup.public = true
+exports.getLoyaltyInfo = accountLookup
 ```

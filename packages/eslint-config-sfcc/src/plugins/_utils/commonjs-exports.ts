@@ -155,7 +155,69 @@ export function hasStaticCommonJsExportMarkedPublic(
       assignment.right.type === "Literal" &&
       (assignment.right as unknown as { value: unknown }).value === true
 
-    return isPublicLiteral && isPublicPropertyOfExport(assignment.left, exportName)
+    if (!isPublicLiteral) {
+      return false
+    }
+
+    if (isPublicPropertyOfExport(assignment.left, exportName)) {
+      return true
+    }
+
+    const localBindingName = getPublicPropertyObjectName(assignment.left)
+    return (
+      localBindingName !== undefined &&
+      hasStaticCommonJsExportOfLocalBinding(program, exportName, localBindingName)
+    )
+  })
+}
+
+function getPublicPropertyObjectName(left: Rule.Node): string | undefined {
+  const memberExpression = left as Rule.Node & {
+    object?: Rule.Node & { name?: string }
+    property?: Rule.Node & { name?: string }
+    computed?: boolean
+  }
+
+  if (
+    left.type !== "MemberExpression" ||
+    memberExpression.computed ||
+    memberExpression.object?.type !== "Identifier" ||
+    memberExpression.property?.type !== "Identifier" ||
+    memberExpression.property.name !== "public"
+  ) {
+    return undefined
+  }
+
+  return memberExpression.object.name
+}
+
+function hasStaticCommonJsExportOfLocalBinding(
+  program: Rule.Node & { body: Rule.Node[] },
+  exportName: string,
+  localBindingName: string,
+): boolean {
+  return program.body.some((statement) => {
+    if (statement.type !== "ExpressionStatement") {
+      return false
+    }
+
+    const expression = (statement as Rule.Node & { expression: Rule.Node }).expression
+    if (expression.type !== "AssignmentExpression") {
+      return false
+    }
+
+    const assignment = expression as Rule.Node & {
+      operator: string
+      left: Rule.Node
+      right: Rule.Node & { name?: string }
+    }
+
+    return (
+      assignment.operator === "=" &&
+      isExportsPropertyAssignment(assignment.left, exportName) &&
+      assignment.right.type === "Identifier" &&
+      assignment.right.name === localBindingName
+    )
   })
 }
 

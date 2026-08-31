@@ -87,6 +87,46 @@ test("allows a static export marked public", () => {
   })
 })
 
+test("allows an exported handler marked public through its local binding", () => {
+  withTempCartridgesCwd((tempDir) => {
+    writeApiJson(tempDir)
+    const relativeScriptPath = `${restApiDir}/script.js`
+    const code = `
+function accountLookup() {}
+accountLookup.public = true
+exports.getLoyaltyInfo = accountLookup
+`
+    fs.mkdirSync(path.dirname(path.join(tempDir, relativeScriptPath)), { recursive: true })
+    fs.writeFileSync(path.join(tempDir, relativeScriptPath), code)
+
+    const messages = lint(code, relativeScriptPath)
+    expect(messages.some((message) => message.ruleId === "sfcc/valid-custom-api-export")).toBe(
+      false,
+    )
+  })
+})
+
+test("reports when a different local handler is marked public", () => {
+  withTempCartridgesCwd((tempDir) => {
+    writeApiJson(tempDir)
+    const relativeScriptPath = `${restApiDir}/script.js`
+    const code = `
+function accountLookup() {}
+function otherHandler() {}
+otherHandler.public = true
+exports.getLoyaltyInfo = accountLookup
+`
+    fs.mkdirSync(path.dirname(path.join(tempDir, relativeScriptPath)), { recursive: true })
+    fs.writeFileSync(path.join(tempDir, relativeScriptPath), code)
+
+    const messages = lint(code, relativeScriptPath)
+    const hits = messages.filter((message) => message.ruleId === "sfcc/valid-custom-api-export")
+
+    expect(hits).toHaveLength(1)
+    expect(hits[0]?.messageId).toBe("missingPublicFlag")
+  })
+})
+
 test("ignores files not referenced as an implementation by any api.json", () => {
   withTempCartridgesCwd((tempDir) => {
     const relativeScriptPath = "cartridges/app_custom/cartridge/scripts/helper.js"
