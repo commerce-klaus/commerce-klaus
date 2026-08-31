@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.1
+
+### Patch Changes
+
+- 0d5ae31: Accept Custom API handlers marked public on their local binding before assignment to the endpoint export.
+
 ## 1.6.0
 
 ### Minor Changes
