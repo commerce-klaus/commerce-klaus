@@ -42,6 +42,9 @@ jobs:
       - name: Bootstrap TypeScript tooling package
         run: cd packages/typescript-sfcc && vp pack
 
+      - name: Bootstrap ESLint config package
+        run: cd packages/eslint-config-sfcc && vp pack
+
       - name: Generate example SFCC types
         run: cd examples/eslint-typescript-sfcc && vp run types:sfcc:sync
 

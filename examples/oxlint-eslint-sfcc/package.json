@@ -1,0 +1,21 @@
+{
+  "name": "@commerce-klaus/example-oxlint-eslint-sfcc",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vp run lint && vp run typecheck:cartridges && vp run test",
+    "typecheck:cartridges": "sfcc-ts-typecheck"
+  },
+  "devDependencies": {
+    "@commerce-klaus/eslint-config-sfcc": "workspace:*",
+    "@commerce-klaus/typescript-sfcc": "workspace:*",
+    "@commerce-klaus/vite-plugin-sfcc-modules": "workspace:*",
+    "@types/node": "^24",
+    "@typescript-eslint/parser": "^8.68.0",
+    "eslint": "^10.0.1",
+    "globals": "^17.4.0",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vite-plus": "^0.3.0"
+  }
+}

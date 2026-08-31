@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "module": "commonjs",
+    "noEmit": true,
+    "plugins": [{ "name": "@commerce-klaus/typescript-sfcc" }],
+    "strict": true
+  },
+  "include": ["cartridge/**/*.js"]
+}
