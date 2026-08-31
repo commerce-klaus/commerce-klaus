@@ -39,6 +39,12 @@ jobs:
       - name: Bootstrap shared resolver package
         run: cd packages/sfcc-module-resolver && vp pack
 
+      - name: Bootstrap TypeScript tooling package
+        run: cd packages/typescript-sfcc && vp pack
+
+      - name: Generate example SFCC types
+        run: cd examples/eslint-typescript-sfcc && vp run types:sfcc:sync
+
       - name: Run checks
         run: vp check
 
