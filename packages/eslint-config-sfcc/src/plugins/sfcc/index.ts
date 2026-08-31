@@ -3,6 +3,7 @@ import noCustomApiResponseMethods from "./no-custom-api-response-methods.js"
 import noDsFiles from "./no-ds-files.js"
 import noE4xSyntax from "./no-e4x-syntax.js"
 import noEmptyGlobal from "./no-empty-global.js"
+import noProprietaryModuleSyntax from "./no-proprietary-module-syntax.js"
 import noRhinoImportGlobals from "./no-rhino-import-globals.js"
 import noStringEquals from "./no-string-equals.js"
 import noTypeAnnotations from "./no-type-annotations.js"
@@ -24,6 +25,7 @@ const sfcc = {
     "no-ds-files": noDsFiles,
     "no-empty-global": noEmptyGlobal,
     "no-e4x-syntax": noE4xSyntax,
+    "no-proprietary-module-syntax": noProprietaryModuleSyntax,
     "no-type-annotations": noTypeAnnotations,
     "no-rhino-import-globals": noRhinoImportGlobals,
     "no-string-equals": noStringEquals,

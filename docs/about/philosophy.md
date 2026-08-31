@@ -18,6 +18,12 @@ The packages meet developers in different tools, but they should agree on SFCC b
 
 Each package solves a bounded problem. Teams can begin with compatibility linting, add cartridge-aware type checking, and then bring server-side modules into local tests. No framework migration is required.
 
+## Treat recommended configs as a baseline, not a ranking
+
+A rule does not become unimportant because it is opt-in. Recommended configs provide conservative defaults that can be adopted broadly without assuming a team's architecture or migration policy. Opt-in rules are equally intentional: they let teams encode stricter conventions where the right choice depends on project context.
+
+Commerce Klaus makes both kinds of rules available so platform constraints and architectural decisions can be explicit, reviewable, and enforced close to the editor.
+
 ## Why “Klaus”?
 
 Klaus is a traditional, down-to-earth German first name. Here it personifies the practical colleague who rolls up his sleeves and deals with the platform quirks that interrupt everyday development.

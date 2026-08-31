@@ -95,6 +95,10 @@ export default defineConfig({
                   link: "/packages/eslint-config-sfcc/rules/sfcc/no-empty-global",
                 },
                 {
+                  text: "no-proprietary-module-syntax",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc/no-proprietary-module-syntax",
+                },
+                {
                   text: "no-rhino-import-globals",
                   link: "/packages/eslint-config-sfcc/rules/sfcc/no-rhino-import-globals",
                 },
