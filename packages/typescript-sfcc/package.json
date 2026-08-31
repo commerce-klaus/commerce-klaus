@@ -22,10 +22,11 @@
     "directory": "packages/typescript-sfcc"
   },
   "bin": {
-    "sfcc-ts-sync-types": "./dist/sync-types.cjs",
-    "sfcc-ts-typecheck": "./dist/typecheck-cartridges.cjs"
+    "sfcc-ts-sync-types": "./bin/sfcc-ts-sync-types.cjs",
+    "sfcc-ts-typecheck": "./bin/sfcc-ts-typecheck.cjs"
   },
   "files": [
+    "bin",
     "dist"
   ],
   "type": "module",

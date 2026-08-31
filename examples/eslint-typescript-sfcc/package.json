@@ -6,7 +6,6 @@
   "scripts": {
     "build": "pnpm run lint && pnpm run typecheck:cartridges && pnpm test",
     "lint": "eslint cartridges",
-    "prepare": "pnpm types:sfcc:sync",
     "test": "vp test",
     "typecheck:cartridges": "pnpm types:sfcc:sync && sfcc-ts-typecheck",
     "types:sfcc:sync": "sfcc-ts-sync-types --min-version 26.7.0",

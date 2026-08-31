@@ -28,8 +28,7 @@ vp run build
 ```
 
 The cartridge typecheck first synchronizes Salesforce script types with a
-minimum version of `26.7.0`. The `prepare` script performs the same incremental
-sync after dependencies are installed. Existing up-to-date types are reused.
+minimum version of `26.7.0`. Existing up-to-date types are reused.
 
 The example metadata defines an `ExampleNotification` custom object with a
 string `eventCode` attribute. Type synchronization generates
