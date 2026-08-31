@@ -95,8 +95,16 @@ export default defineConfig({
                   link: "/packages/eslint-config-sfcc/rules/sfcc/no-empty-global",
                 },
                 {
+                  text: "no-platform-globals",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc/no-platform-globals",
+                },
+                {
                   text: "no-proprietary-module-syntax",
                   link: "/packages/eslint-config-sfcc/rules/sfcc/no-proprietary-module-syntax",
+                },
+                {
+                  text: "no-rhino-extensions",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc/no-rhino-extensions",
                 },
                 {
                   text: "no-rhino-import-globals",
@@ -109,6 +117,10 @@ export default defineConfig({
                 {
                   text: "no-type-annotations",
                   link: "/packages/eslint-config-sfcc/rules/sfcc/no-type-annotations",
+                },
+                {
+                  text: "prefer-native-collections",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc/prefer-native-collections",
                 },
                 {
                   text: "prefer-const",
