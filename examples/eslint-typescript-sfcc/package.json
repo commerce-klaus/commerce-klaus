@@ -4,9 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm run lint && pnpm run typecheck:cartridges && pnpm test",
+    "build": "pnpm run lint && pnpm run typecheck:cartridges && vp run test",
     "lint": "eslint cartridges",
-    "test": "vp test",
     "typecheck:cartridges": "pnpm types:sfcc:sync && sfcc-ts-typecheck",
     "types:sfcc:sync": "sfcc-ts-sync-types --min-version 26.7.0",
     "types:sfcc:sync:force": "sfcc-ts-sync-types --force"

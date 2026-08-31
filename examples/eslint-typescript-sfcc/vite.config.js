@@ -13,4 +13,12 @@ export default defineConfig({
       site: "Example",
     }),
   ],
+  run: {
+    tasks: {
+      test: {
+        command: "vp test",
+        dependsOn: ["@commerce-klaus/vite-plugin-sfcc-modules#build"],
+      },
+    },
+  },
 })
