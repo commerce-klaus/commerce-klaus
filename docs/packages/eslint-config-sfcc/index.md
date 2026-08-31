@@ -6,31 +6,38 @@ Shareable ESLint flat config for Salesforce Commerce Cloud (SFCC) projects.
 
 This package continues `@jenssimon/eslint-config-sfcc` under the [Commerce Klaus](https://github.com/commerce-klaus) organization.
 
-## Key Features Checked (Allow/Block)
+## Modern JavaScript where SFCC supports it
 
-**Allowed:**
+This config is not an ES5 style guide. Its goal is to let SFCC projects use the most modern, idiomatic JavaScript that is known to run reliably on the platform, while catching unsupported features before deployment.
 
-- ES5 syntax and common patterns that are guaranteed to work on SFCC/Rhino
-- Selected ES2015+ features that are proven to work on SFCC, including:
-- `const`/`let` declarations
-- Arrow functions, destructuring, template literals, and generator functions
-- `String.raw`
-- `Object.values(...)` and `Object.entries(...)`
-- `for...of` loops
-- Selected ES2015+ standard APIs documented for SFCC from API version 21.2, including `Array.from`, `Array.of`, `Array.prototype.find`, `Array.prototype.findIndex`, `String.prototype.includes`, `String.prototype.startsWith`, `String.prototype.endsWith`, `String.prototype.repeat`, `String.prototype.padStart`, `String.prototype.padEnd`, `String.fromCodePoint`, `Object.assign`, and selected `Number` validation/parsing methods
+::: tip Compatibility policy
 
-**Blocked:**
+Write modern JavaScript by default. A feature is restricted only when SFCC/Rhino does not support it reliably or when it conflicts with an SFCC-specific runtime contract.
 
-- Modern language features not supported on SFCC/Rhino (e.g. optional chaining, nullish coalescing, async/await, object spread, many ES2015+ builtins)
-- Top-level `await`, dynamic `import()`, class fields, new builtins like `Map`, `Set`, `Promise`, `Symbol`, etc.
-- JSX/E4X-like tag syntax (e.g. `<a/>`) that may be misparsed in JavaScript linting workflows
-- SFCC-specific globals that are easy to confuse with standard JavaScript, such as `empty()`
-- Features that would cause runtime or syntax errors on SFCC
-- Many ES2015+ Array/String/Object methods missing in Rhino
-- ECMAScript modules (`import`/`export`), as SFCC only supports CommonJS
-- Common pitfalls like duplicate `const` declarations in blocks (Rhino scoping)
+:::
 
-See the integration tests for concrete examples.
+| Area                       | Policy                                       | Examples                                                                                          |
+| -------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Verified modern JavaScript | Use it                                       | `const`/`let`, arrow functions, destructuring, template literals, generators, `for...of`          |
+| Standard library APIs      | Use APIs verified on supported SFCC versions | `Array.from`, `String.prototype.includes`, `Object.values`, `Number.isFinite`                     |
+| Known runtime gaps         | Report before the code reaches a sandbox     | classes, default parameters, spread syntax, `Promise`, dynamic `import()`, unsupported builtins   |
+| SFCC runtime contracts     | Prefer platform-compatible patterns          | CommonJS modules, valid cartridge paths, public Custom API exports, registered hook exports       |
+| Rhino-specific behavior    | Apply targeted compatibility rules           | safe `const` usage, loop declarations, repeated names in nested blocks                            |
+| Legacy or ambiguous syntax | Reject or migrate to standard JavaScript     | `.ds` files, E4X-like markup, Rhino import globals, `empty(...)`, Java-style `String.equals(...)` |
+
+ES5 code remains valid, but it is the compatibility floor, not the target style.
+
+::: details Verified modern syntax and APIs
+
+- **Language syntax:** `const` and `let`, arrow functions, destructuring, template literals, generator functions, exponentiation, and `for...of`
+- **Array:** `Array.from`, `Array.of`, `Array.prototype.find`, `Array.prototype.findIndex`, and `Array.prototype.includes`
+- **String:** `String.raw`, `String.fromCodePoint`, and the `includes`, `startsWith`, `endsWith`, `repeat`, `padStart`, and `padEnd` prototype methods
+- **Object:** `Object.assign`, `Object.values`, and `Object.entries`
+- **Number:** `Number.isFinite`, `Number.isNaN`, `Number.isSafeInteger`, `Number.parseInt`, and `Number.parseFloat`
+
+The rule configuration and integration tests define the compatibility contract. Features outside this verified set may still be restricted when the sandbox cannot execute them reliably.
+
+:::
 
 ## Recommended Config
 
@@ -116,25 +123,158 @@ export default defineConfig(eslintAfterOxlint)
 
 This config deliberately does not enable the Oxlint-compatible rules, so the second lint pass does not duplicate their diagnostics. The subpath also exports `createEslintAfterOxlintConfig()` when the cartridge path, file globs, or ignored paths differ from the defaults.
 
-### Customize with helper
+### Customize with shared SFCC settings
 
-```js{2,6-11} [eslint.config.js]
+By default, `sfcc/valid-require-path` validates path patterns only and allows bare `server` requires.
+
+Use `createRecommendedConfig({ sfcc: ... })` to define shared SFCC plugin options centrally. These values are exposed through ESLint `settings.sfcc`, so future `sfcc/*` rules can reuse them without adding per-rule options.
+
+```js{2,6-19} [eslint.config.js]
 import { defineConfig } from "eslint/config"
 import { createRecommendedConfig } from "@commerce-klaus/eslint-config-sfcc"
 
 export default defineConfig(
   createRecommendedConfig({
-    cartridgesDir: "cartridges/",
+    cartridgesDir: "cartridges",
     sfcc: {
-      checkCartridgeExists: true,
+      // Optional: allow additional bare module ids
       allowBareModules: ["server", "proxyquire"],
+      // Optional: verify cartridgeName/* plus */* and ~/* against filesystem
+      checkCartridgeExists: true,
+      // Optional: explicit cartridge order for */* lookup (otherwise folders in cartridgesDir are used)
       cartridgePath: ["app_storefront", "modules", "app_custom"],
+      // Optional: path to site template directory (defaults to sites/site_template when site is set)
+      siteTemplatePath: "sites/site_template",
+      // Optional: site id under <siteTemplatePath>/sites/<site>/site.xml
+      site: "example",
     },
   }),
 )
 ```
 
----
+### Register plugins manually
+
+The recommended config already registers both built-in plugins. Register them manually only when composing individual rules without the preset.
+
+```js{2,5-13} [eslint.config.js]
+import { defineConfig } from "eslint/config"
+import { sfcc as sfccPlugin, sitegenesis } from "@commerce-klaus/eslint-config-sfcc"
+
+export default defineConfig({
+  plugins: {
+    sfcc: sfccPlugin,
+    sitegenesis,
+  },
+  rules: {
+    "sfcc/prefer-const": "error",
+    "sitegenesis/no-global-require": "error",
+  },
+})
+```
+
+## Compatibility Guide
+
+Use this section to decide whether a pattern is safe on SFCC, requires a targeted lint fix, or must be migrated before ESLint can parse it.
+
+### Quick reference
+
+| Pattern                                             | Result       | Recommended action                                                                                     |
+| --------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------ |
+| `XML` and `XMLList` identifiers                     | Allowed      | Constructor-style references remain available.                                                         |
+| Static JSX/E4X-like markup                          | Lint error   | Convert it to `XML(\`...\`)`; see [`sfcc/no-e4x-syntax`](rules/sfcc/no-e4x-syntax.md).                 |
+| Dynamic JSX/E4X-like markup                         | Lint error   | Refactor manually; no automatic conversion is offered.                                                 |
+| Type annotations in `.js`                           | Lint error   | Move types to JSDoc; see [`sfcc/no-type-annotations`](rules/sfcc/no-type-annotations.md).              |
+| `importScript`, `importPackage`, or `importClass`   | Lint error   | Use CommonJS `require()`; see [`sfcc/no-rhino-import-globals`](rules/sfcc/no-rhino-import-globals.md). |
+| SFCC `empty(...)`                                   | Lint error   | Use an explicit type-appropriate check; see [`sfcc/no-empty-global`](rules/sfcc/no-empty-global.md).   |
+| Java-style `String.equals(...)`                     | Lint error   | Use strict equality; see [`sfcc/no-string-equals`](rules/sfcc/no-string-equals.md).                    |
+| `.ds` file                                          | Lint error   | Rename it to `.js`; see [`sfcc/no-ds-files`](rules/sfcc/no-ds-files.md).                               |
+| `default xml namespace = "..."` or `for each (...)` | Parser error | Rewrite it before lint rules can run.                                                                  |
+
+### Rhino `const` strategy
+
+Use `const` wherever Rhino can handle it reliably. Three coordinated rules keep declarations modern without introducing Rhino scoping failures.
+
+| Context                                            | Declaration | Rule                                                              |
+| -------------------------------------------------- | ----------- | ----------------------------------------------------------------- |
+| Function top level, never reassigned               | `const`     | [`sfcc/prefer-const`](rules/sfcc/prefer-const.md)                 |
+| Loop header or declaration inside a loop body      | `let`       | [`sfcc/rhino-const-compat`](rules/sfcc/rhino-const-compat.md)     |
+| Nested block with a unique name                    | `const`     | Allowed; no rule reports it.                                      |
+| Nested blocks that reuse the same declaration name | `let`       | [`sfcc/rhino-const-conflict`](rules/sfcc/rhino-const-conflict.md) |
+
+The rules are designed to run together: `sfcc/prefer-const` modernizes safe bindings, while the Rhino-specific rules protect loop and nested-block scopes. Repeated `--fix` runs therefore remain stable.
+
+::: details See all three rules in one example
+
+```js
+function route() {
+  let topLevel = 1 // sfcc/prefer-const -> const // [!code highlight]
+
+  for (let i = 0; i < 3; i += 1) {
+    const loopValue = i * 2 // sfcc/rhino-const-compat -> let // [!code warning]
+    process(loopValue)
+  }
+
+  if (flagA) {
+    const temp = 1 // sfcc/rhino-const-conflict -> let // [!code error]
+    process(temp)
+  }
+  if (flagB) {
+    const temp = 2 // sfcc/rhino-const-conflict -> let // [!code error]
+    process(temp)
+  }
+
+  return topLevel
+}
+```
+
+Rhino can treat nested `const` declarations as function-scoped. A unique nested binding is safe, but reusing the same name in another nested block can produce a redeclaration error even though modern JavaScript accepts it.
+
+:::
+
+### E4X and parser boundaries
+
+`sfcc/no-e4x-syntax` runs only after ESLint has parsed the file. It can report JSX/E4X-like elements and fragments that the configured parser accepts. Static markup receives an explicit `XML(...)` conversion suggestion; dynamic markup is reported without a suggestion because preserving escaping and runtime behavior requires manual review.
+
+Some Rhino/E4X-era constructs are rejected earlier. `default xml namespace = "..."` and `for each (value in collection)` cause fatal parser errors, so no ESLint rule can inspect them. Rewrite these constructs manually using explicit XML handling and standard loops.
+
+## Migration Recipes
+
+These focused replacements cover the legacy syntax most likely to prevent modern linting.
+
+### Iterate values
+
+```diff
+- for each (item in items) {
++ for (let item of items) {
+    process(item)
+  }
+```
+
+### Iterate object keys and values
+
+```diff
+- for each (value in obj) {
+-   process(value)
++ for (let key in obj) {
++   if (Object.prototype.hasOwnProperty.call(obj, key)) {
++     let value = obj[key]
++     process(value)
++   }
+  }
+```
+
+### Replace E4X literal markup
+
+```diff
+- const payload = (
+-   <request>
+-     <id>{id}</id>
+-   </request>
+- )
++ const payload = XML(`<request><id>${id}</id></request>`)
+```
+
+`default xml namespace = "..."` is also parser-incompatible in modern JavaScript and must be refactored manually.
 
 ## Built-in Plugins
 
@@ -176,217 +316,6 @@ That rule is enabled in the recommended config by default, because it is still u
 | Rule                                                                    | Description                                                                                                                                              | Default |
 | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
 | [sitegenesis/no-global-require](rules/sitegenesis/no-global-require.md) | Disallows top-level `require()` calls in controller files when not every route function uses them. Only applies to files under `cartridge/controllers/`. | `error` |
-
-### Shared `sfcc` options
-
-By default, `sfcc/valid-require-path` validates path patterns only and allows bare `server` requires.
-
-Use `createRecommendedConfig({ sfcc: ... })` to define shared SFCC plugin options centrally. These values are exposed through ESLint `settings.sfcc`, so future `sfcc/*` rules can reuse them without adding per-rule options.
-
-```js{2,6-19} [eslint.config.js]
-import { defineConfig } from "eslint/config"
-import { createRecommendedConfig } from "@commerce-klaus/eslint-config-sfcc"
-
-export default defineConfig(
-  createRecommendedConfig({
-    cartridgesDir: "cartridges",
-    sfcc: {
-      // Optional: allow additional bare module ids
-      allowBareModules: ["server", "proxyquire"],
-      // Optional: verify cartridgeName/* plus */* and ~/* against filesystem
-      checkCartridgeExists: true,
-      // Optional: explicit cartridge order for */* lookup (otherwise folders in cartridgesDir are used)
-      cartridgePath: ["app_storefront", "modules", "app_custom"],
-      // Optional: path to site template directory (defaults to sites/site_template when site is set)
-      siteTemplatePath: "sites/site_template",
-      // Optional: site id under <siteTemplatePath>/sites/<site>/site.xml
-      site: "example",
-    },
-  }),
-)
-```
-
-### Rhino const strategy example
-
-Example:
-
-```js
-function route() {
-  let topLevel = 1 // sfcc/prefer-const -> const // [!code highlight]
-
-  for (let i = 0; i < 3; i += 1) {
-    const loopValue = i * 2 // sfcc/rhino-const-compat -> let // [!code warning]
-    process(loopValue)
-  }
-
-  if (flagA) {
-    const temp = 1 // with another nested const temp below: sfcc/rhino-const-conflict -> let // [!code error]
-    process(temp)
-  }
-  if (flagB) {
-    const temp = 2 // sfcc/rhino-const-conflict -> let // [!code error]
-    process(temp)
-  }
-
-  return topLevel
-}
-```
-
-### Direct plugin usage
-
-```js{2-5,8-16} [eslint.config.js]
-import { defineConfig } from "eslint/config"
-import eslintConfigSfcc, {
-  sfcc as sfccPlugin,
-  sitegenesis,
-} from "@commerce-klaus/eslint-config-sfcc"
-
-export default defineConfig(eslintConfigSfcc.configs.recommended, {
-  plugins: {
-    sfcc: sfccPlugin,
-    sitegenesis,
-  },
-  rules: {
-    "sfcc/prefer-const": "error",
-    "sitegenesis/no-global-require": "error",
-  },
-})
-```
-
-### Decision matrix: `const` vs `let`
-
-- Function top-level (`function route() { ... }`) and never reassigned: use `const` (`sfcc/prefer-const`)
-- Loop header (`for (const x of xs)`, `for (const k in obj)`, `for (const i = 0; ...)`): use `let` (`sfcc/rhino-const-compat`)
-- Declaration inside a loop body: use `let` (`sfcc/rhino-const-compat`)
-- Nested block with unique name in same function: `const` is allowed
-- Nested block with same `const` name reused in sibling/other nested blocks of same function: use `let` (`sfcc/rhino-const-conflict`)
-
-### Mini-FAQ
-
-Q: Is this safe?
-
-```js{2}
-if (foo === "bar") {
-  const value = 1
-}
-```
-
-A: Yes. A single nested-block `const` with a unique name in that function is allowed.
-
-Q: What about this?
-
-```js
-if (foo === "bar") {
-  const test = 1 // [!code error]
-}
-
-if (foo === "baz") {
-  const test = 2 // [!code error]
-}
-```
-
-A: Not safe for Rhino. Both declarations are treated as function-scoped const bindings with the same name. `sfcc/rhino-const-conflict` reports this and auto-fixes to `let`.
-
-Q: Are `XML` and `XMLList` identifiers allowed?
-
-A: Yes. Constructor-style usage such as `const xmlCtor = XML` and `const xmlListCtor = XMLList` is allowed. `sfcc/no-e4x-syntax` only targets JSX/E4X-like tag syntax (for example `<a/>`).
-
-Q: Are type annotations allowed in `.js` files?
-
-A: No. `sfcc/no-type-annotations` reports annotation syntax in JavaScript files (for example `const x: string = "foo"` or `function y(): number {}`). Rhino/E4X may accept this syntax, but `.js` here follows standard JavaScript where it is invalid. Use JSDoc types instead.
-
-Q: Are legacy Rhino import globals allowed?
-
-A: No. `sfcc/no-rhino-import-globals` reports `importScript(...)`, `importPackage(...)`, and `importClass(...)` and points you to CommonJS `require()` instead.
-
-Q: Is `empty()` allowed?
-
-A: No. `sfcc/no-empty-global` reports the SFCC-specific `empty(...)` global and nudges you toward explicit checks such as `.length === 0`, `Object.keys(...).length === 0`, or `.isEmpty()` depending on the value type.
-
-Q: Is `String.equals(...)` allowed?
-
-A: No. `sfcc/no-string-equals` reports Java-style `.equals(...)` calls and suggests strict equality (`===`) instead.
-
-Q: Are `.ds` files still allowed?
-
-A: No. `sfcc/no-ds-files` reports `.ds` files and enforces `.js` files instead.
-
-Q: What suggestion is shown for multiline static markup?
-
-A: For static multiline JSX/E4X-like markup, `sfcc/no-e4x-syntax` suggests converting to `XML(\`...\`)`. For dynamic markup (for example with `{value}`), no conversion suggestion is offered.
-
-Q: Does `sfcc/no-e4x-syntax` report `default xml namespace = "..."`?
-
-A: No. That construct fails during parsing before rules run, so ESLint reports a fatal parsing error first. The rule cannot execute on code that does not parse.
-
-Q: Is `for each (x in y)` allowed?
-
-A: No. `for each` is Rhino/E4X-era syntax and not valid modern JavaScript, so ESLint fails with a parsing error before rules run. Treat it as unsupported project syntax and migrate to standard constructs such as `for (x of y)`.
-
-### Migration recipes (Rhino/E4X -> modern JS)
-
-Use these patterns when modernizing legacy SFCC code.
-
-1. Iterate values (`for each` -> `for...of`)
-
-Before:
-
-```js{1}
-for each (item in items) {
-  process(item)
-}
-```
-
-After:
-
-```js{1}
-for (let item of items) {
-  process(item)
-}
-```
-
-2. Iterate object keys and values (legacy `for each` on objects -> explicit key/value handling)
-
-Before:
-
-```js{1}
-for each (value in obj) {
-  process(value)
-}
-```
-
-After:
-
-```js{1,3}
-for (let key in obj) {
-  if (Object.prototype.hasOwnProperty.call(obj, key)) {
-    let value = obj[key]
-    process(value)
-  }
-}
-```
-
-3. Replace E4X literal markup with explicit XML construction
-
-Before:
-
-```js{2-4}
-const payload = (
-  <request>
-    <id>{id}</id>
-  </request>
-)
-```
-
-After:
-
-```js{1}
-const payload = XML(`<request><id>${id}</id></request>`)
-```
-
-Notes:
-
-- `default xml namespace = "..."` is also parser-incompatible in modern JS/ESLint and must be refactored manually.
 
 ---
 
