@@ -22,7 +22,8 @@ Disallows the SFCC-specific `empty(...)` global in JavaScript files. Use explici
 
 When you know a value is only a nullable object reference, for example `dw.catalog.Product | null`, a null check can be the clearest replacement.
 
-```js{1} [Invalid]
+```js [Invalid]
+// [!code error:1]
 if (empty(product)) {
   return
 }
@@ -40,7 +41,8 @@ With type information enabled, the rule narrows suggestions for identifier/membe
 
 ## Examples
 
-```js{1} [Invalid]
+```js [Invalid]
+// [!code error:1]
 if (empty(productIds)) {
   return
 }

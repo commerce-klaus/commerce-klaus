@@ -21,8 +21,8 @@ Disallows legacy `.ds` files in SFCC projects. Rename them to `.js` and keep the
 ::: code-group
 
 ```js [cart.ds]
+// [!code error:3]
 module.exports = function () {
-  // [!code error:3]
   return true
 }
 ```

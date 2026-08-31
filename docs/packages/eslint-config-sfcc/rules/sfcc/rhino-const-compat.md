@@ -23,8 +23,8 @@ Rhino does not handle `const` reliably in some loop-related contexts. This rule 
 ## Example
 
 ```js [Invalid]
+// [!code error:1]
 for (const item of items) {
-  // [!code error]
   process(item)
 }
 ```
