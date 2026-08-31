@@ -1,0 +1,12 @@
+{
+  "hooks": [
+    {
+      "name": "dw.order.calculate",
+      "script": "./hooks/calculate"
+    },
+    {
+      "name": "dw.ocapi.shop.product.modifyGETResponse",
+      "script": "./hooks/shopper-product"
+    }
+  ]
+}

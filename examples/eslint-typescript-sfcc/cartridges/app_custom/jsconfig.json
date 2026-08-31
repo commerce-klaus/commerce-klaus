@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "paths": {
+      "dw/*": ["../../.b2c-script-types/types/dw/*"],
+      "~/*": ["./*"],
+      "*/cartridge/scripts/greeting": ["./cartridge/scripts/greeting"],
+      "app_example/*": ["../app_example/*"]
+    },
+    "plugins": [{ "name": "@commerce-klaus/typescript-sfcc" }],
+    "strict": true
+  },
+  "include": ["cartridge/**/*.js", "../../.b2c-script-types/types/*.generated.d.ts"]
+}

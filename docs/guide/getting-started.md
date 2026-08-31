@@ -53,6 +53,10 @@ Choose the adapter that matches the tool running your server-side code:
 
 Both use the same resolver core, so `*/`, `~/`, cartridge aliases, and `module.superModule` follow the same ordering rules.
 
+## Complete example
+
+See the [ESLint, TypeScript, and Vite SFCC example](https://github.com/commerce-klaus/commerce-klaus/tree/main/examples/eslint-typescript-sfcc) for a runnable two-cartridge setup. It demonstrates a shared cartridge path loaded from the site template, generated SFCC types, custom attributes, hooks, a Custom API, cartridge overrides, and a Vitest integration test.
+
 ## Next step
 
 [Choose the packages for your workflow →](/guide/choosing-a-package)

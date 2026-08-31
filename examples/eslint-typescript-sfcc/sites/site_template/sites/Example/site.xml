@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site xmlns="http://www.demandware.com/xml/impex/site/2007-04-30" site-id="Example">
+  <custom-cartridges>app_custom:app_example</custom-cartridges>
+</site>

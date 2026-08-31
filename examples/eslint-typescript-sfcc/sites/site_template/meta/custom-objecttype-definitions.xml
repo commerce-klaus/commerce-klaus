@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">
+  <custom-type type-id="ExampleNotification">
+    <display-name xml:lang="x-default">Example Notification</display-name>
+    <description xml:lang="x-default">Notification details used by the example cartridge</description>
+    <attribute-definitions>
+      <attribute-definition attribute-id="eventCode">
+        <display-name xml:lang="x-default">Event Code</display-name>
+        <description xml:lang="x-default">Code identifying the notification event</description>
+        <type>string</type>
+        <mandatory-flag>false</mandatory-flag>
+      </attribute-definition>
+    </attribute-definitions>
+  </custom-type>
+</metadata>

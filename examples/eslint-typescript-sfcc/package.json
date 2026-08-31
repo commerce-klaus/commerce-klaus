@@ -1,0 +1,31 @@
+{
+  "name": "@commerce-klaus/example-eslint-typescript-sfcc",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm run lint && pnpm run typecheck:cartridges && pnpm test",
+    "lint": "eslint cartridges",
+    "prepare": "pnpm types:sfcc:sync",
+    "test": "vp test",
+    "typecheck:cartridges": "pnpm types:sfcc:sync && sfcc-ts-typecheck",
+    "types:sfcc:sync": "sfcc-ts-sync-types --min-version 26.7.0",
+    "types:sfcc:sync:force": "sfcc-ts-sync-types --force"
+  },
+  "devDependencies": {
+    "@commerce-klaus/eslint-config-sfcc": "workspace:*",
+    "@commerce-klaus/typescript-sfcc": "workspace:*",
+    "@commerce-klaus/vite-plugin-sfcc-modules": "workspace:*",
+    "@eslint/js": "^10.0.1",
+    "@salesforce/b2c-cli": "^1.23.2",
+    "@types/node": "^24",
+    "@typescript-eslint/eslint-plugin": "^8.68.0",
+    "@typescript-eslint/parser": "^8.68.0",
+    "eslint": "^10.0.1",
+    "eslint-plugin-sonarjs": "^4.2.0",
+    "eslint-plugin-unicorn": "^74.0.0",
+    "globals": "^17.4.0",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vite-plus": "^0.3.0"
+  }
+}

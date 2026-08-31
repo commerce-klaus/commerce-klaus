@@ -12,6 +12,10 @@ Pragmatic developer tooling for Salesforce Commerce Cloud (SFCC). Commerce Klaus
 | [`@commerce-klaus/babel-plugin-sfcc-modules`](https://www.npmjs.com/package/@commerce-klaus/babel-plugin-sfcc-modules) | SFCC module resolution for Babel-based tooling                 |
 | [`@commerce-klaus/sfcc-module-resolver`](https://www.npmjs.com/package/@commerce-klaus/sfcc-module-resolver)           | Shared cartridge and module resolution utilities               |
 
+## Examples
+
+- [`eslint-typescript-sfcc`](examples/eslint-typescript-sfcc) combines the recommended ESLint config with cartridge-aware JavaScript type checking.
+
 ## Documentation
 
 Guides, package references, ESLint rule documentation, and the ideas behind the project are available at:

@@ -1,0 +1,33 @@
+openapi: 3.0.0
+info:
+  title: Loyalty Information API
+  version: 1.0.0
+paths:
+  /customers:
+    get:
+      operationId: getLoyaltyInfo
+      parameters:
+        - in: query
+          name: c_customer_id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Loyalty information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoyaltyInfo"
+components:
+  schemas:
+    LoyaltyInfo:
+      type: object
+      required:
+        - tier
+        - points
+      properties:
+        tier:
+          type: string
+        points:
+          type: integer
