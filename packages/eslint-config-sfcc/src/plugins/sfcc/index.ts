@@ -1,3 +1,4 @@
+import noControllers from "./no-controllers.js"
 import noCustomApiAdditionalProperties from "./no-custom-api-additional-properties.js"
 import noCustomApiResponseMethods from "./no-custom-api-response-methods.js"
 import noDsFiles from "./no-ds-files.js"
@@ -25,6 +26,7 @@ const sfcc = {
   rules: {
     "no-custom-api-additional-properties": noCustomApiAdditionalProperties,
     "no-custom-api-response-methods": noCustomApiResponseMethods,
+    "no-controllers": noControllers,
     "no-ds-files": noDsFiles,
     "no-empty-global": noEmptyGlobal,
     "no-e4x-syntax": noE4xSyntax,
