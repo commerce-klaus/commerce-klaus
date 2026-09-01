@@ -10,6 +10,7 @@ Shareable ESLint flat config for Salesforce Commerce Cloud projects. It catches 
 - Checks SFCC module paths, hooks, and Custom API exports
 - Handles Rhino-specific `const` and scoping behavior
 - Includes SFCC and SiteGenesis rules
+- Provides Storefront Next, PWA, SFRA, and SiteGenesis policy presets
 - Supports ESLint and an Oxlint-compatible preset
 
 ## Install

@@ -61,6 +61,53 @@ export default defineConfig(
 
 By default, JavaScript files under `cartridges/` are linted. Client-side and static asset folders are excluded.
 
+### Storefront architecture presets
+
+Storefront presets are policy overlays that describe which controller architecture a project uses. Compose one after `recommended`:
+
+```js{5-6} [eslint.config.js]
+import { defineConfig } from "eslint/config"
+import sfcc from "@commerce-klaus/eslint-config-sfcc"
+
+export default defineConfig(
+  sfcc.configs.recommended,
+  sfcc.configs["storefront-next"],
+)
+```
+
+| Preset                    | Controller policy                                                                          |
+| ------------------------- | ------------------------------------------------------------------------------------------ |
+| `storefront-next`         | Disallows controller files.                                                                |
+| `pwa`                     | Disallows controller files.                                                                |
+| `sfra`                    | Allows controllers and disables the SiteGenesis-specific require check.                    |
+| `sitegenesis-controllers` | Allows controllers and enables `sitegenesis/no-global-require`.                            |
+| `sitegenesis-pipelines`   | Disallows controller files and disables the SiteGenesis controller-specific require check. |
+
+`pwa` and `storefront-next` currently enforce the same controller-free boundary. They have separate semantic names so their policies can evolve independently as their platform contracts diverge.
+
+The `sitegenesis-pipelines` preset applies to JavaScript only. ESLint cannot validate pipeline XML files; the preset expresses that cartridges using the pipeline architecture must not introduce controllers.
+
+#### Restrict a preset to selected cartridges
+
+Use `createStorefrontConfig()` when a repository contains multiple storefront architectures:
+
+```js{2,7-14} [eslint.config.js]
+import { defineConfig } from "eslint/config"
+import sfcc, { createStorefrontConfig } from "@commerce-klaus/eslint-config-sfcc"
+
+export default defineConfig(
+  sfcc.configs.recommended,
+  createStorefrontConfig("sitegenesis-controllers", {
+    cartridges: ["app_sitegenesis"],
+  }),
+  createStorefrontConfig("pwa", {
+    cartridges: ["app_pwa", "int_pwa_backend"],
+  }),
+)
+```
+
+The helper accepts `cartridgesDir`, `cartridges`, and `files`. Explicit `files` globs take precedence over generated cartridge globs. Because each overlay both enables its own policy and disables incompatible controller rules, later presets can safely override `recommended` for their selected files.
+
 ### Compatibility with other recommended configs
 
 The recommended config deliberately disables selected rules from commonly used ESLint presets when they suggest syntax, APIs, or module patterns that SFCC/Rhino does not support. This allows you to combine the SFCC config with those presets without forcing otherwise valid server-side SFCC code into incompatible modern JavaScript patterns.
