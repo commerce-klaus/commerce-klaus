@@ -75,15 +75,15 @@ export default defineConfig(
 )
 ```
 
-| Preset                    | Controller policy                                                                          |
-| ------------------------- | ------------------------------------------------------------------------------------------ |
-| `storefront-next`         | Disallows controller files.                                                                |
-| `pwa`                     | Disallows controller files.                                                                |
-| `sfra`                    | Allows controllers and disables the SiteGenesis-specific require check.                    |
-| `sitegenesis-controllers` | Allows controllers and enables `sitegenesis/no-global-require`.                            |
-| `sitegenesis-pipelines`   | Disallows controller files and disables the SiteGenesis controller-specific require check. |
+| Preset                    | Enabled architecture rules                                                 |
+| ------------------------- | -------------------------------------------------------------------------- |
+| `storefront-next`         | `no-controllers`, `no-isml-rendering`, `no-pipeline-api`, `no-sfra-server` |
+| `pwa`                     | `no-controllers`, `no-isml-rendering`, `no-pipeline-api`, `no-sfra-server` |
+| `sfra`                    | `no-pipeline-api`                                                          |
+| `sitegenesis-controllers` | `no-sfra-server`, `sitegenesis/no-global-require`                          |
+| `sitegenesis-pipelines`   | `no-controllers`, `no-sfra-server`                                         |
 
-`pwa` and `storefront-next` currently enforce the same controller-free boundary. They have separate semantic names so their policies can evolve independently as their platform contracts diverge.
+`pwa` and `storefront-next` currently enforce the same headless boundaries. They have separate semantic names so their policies can evolve independently as their platform contracts diverge.
 
 The `sitegenesis-pipelines` preset applies to JavaScript only. ESLint cannot validate pipeline XML files; the preset expresses that cartridges using the pipeline architecture must not introduce controllers.
 
@@ -346,6 +346,8 @@ Every rule in this plugin addresses an intentional compatibility or project-poli
 | [sfcc/no-ds-files](rules/sfcc/no-ds-files.md)                                                 | Disallows legacy `.ds` files in SFCC projects. Use `.js` files instead.                                                                                                                                      | `error` |
 | [sfcc/no-e4x-syntax](rules/sfcc/no-e4x-syntax.md)                                             | Disallows JSX/E4X-like tag syntax (e.g. `<a/>`) in SFCC JavaScript to avoid parser ambiguity and unsupported runtime patterns.                                                                               | `error` |
 | [sfcc/no-empty-global](rules/sfcc/no-empty-global.md)                                         | Disallows the SFCC-specific `empty(...)` global. Use explicit checks such as `.length === 0`, `Object.keys(...).length === 0`, or `.isEmpty()` instead.                                                      | `error` |
+| [sfcc/no-isml-rendering](rules/sfcc/no-isml-rendering.md)                                     | Disallows ISML/template modules and SFRA response rendering in headless cartridges.                                                                                                                          | Off     |
+| [sfcc/no-pipeline-api](rules/sfcc/no-pipeline-api.md)                                         | Disallows JavaScript access to the legacy `dw/system/Pipeline` API.                                                                                                                                          | Off     |
 | [sfcc/no-platform-globals](rules/sfcc/no-platform-globals.md)                                 | Disallows stateful SFCC globals (`customer`, `request`, `response`, and `session`) in favor of explicit dependencies.                                                                                        | Off     |
 | [sfcc/no-proprietary-module-syntax](rules/sfcc/no-proprietary-module-syntax.md)               | Disallows configurable SFCC-specific module syntax (`*/*`, `~/*`, and `module.superModule`) for projects that require portable modules.                                                                      | Off     |
 | [sfcc/no-custom-api-additional-properties](rules/sfcc/no-custom-api-additional-properties.md) | Disallows `additionalProperties` in Custom API request body schemas, since the platform does not register such endpoints.                                                                                    | `error` |
@@ -354,6 +356,7 @@ Every rule in this plugin addresses an intentional compatibility or project-poli
 | [sfcc/no-type-annotations](rules/sfcc/no-type-annotations.md)                                 | Disallows type annotation syntax in JavaScript files (e.g. `const x: string = ...`, `function y(): number {}`). Rhino/E4X may accept it, but it is invalid in standard JavaScript; use JSDoc typing instead. | `error` |
 | [sfcc/no-rhino-import-globals](rules/sfcc/no-rhino-import-globals.md)                         | Disallows legacy Rhino globals `importScript(...)`, `importPackage(...)`, and `importClass(...)`. Use CommonJS `require()` instead.                                                                          | `error` |
 | [sfcc/no-rhino-extensions](rules/sfcc/no-rhino-extensions.md)                                 | Disallows Rhino and LiveConnect runtime globals such as `Iterator`, `Packages`, `java`, and `javax`.                                                                                                         | Off     |
+| [sfcc/no-sfra-server](rules/sfcc/no-sfra-server.md)                                           | Disallows the SFRA `server` module in headless and SiteGenesis cartridges.                                                                                                                                   | Off     |
 | [sfcc/prefer-native-collections](rules/sfcc/prefer-native-collections.md)                     | Prefers native `Array`, `Map`, and `Set` collections over explicit imports of concrete `dw/util` collection implementations.                                                                                 | Off     |
 | [sfcc/prefer-const](rules/sfcc/prefer-const.md)                                               | Requires `const` for `let` declarations that are never reassigned, excluding Rhino-sensitive nested/loop contexts.                                                                                           | `error` |
 | [sfcc/rhino-const-compat](rules/sfcc/rhino-const-compat.md)                                   | Enforces `let` instead of `const` in Rhino loop-critical contexts (loop headers and declarations inside loop bodies) and supports auto-fix.                                                                  | `error` |

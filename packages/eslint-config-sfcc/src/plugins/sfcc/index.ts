@@ -4,10 +4,13 @@ import noCustomApiResponseMethods from "./no-custom-api-response-methods.js"
 import noDsFiles from "./no-ds-files.js"
 import noE4xSyntax from "./no-e4x-syntax.js"
 import noEmptyGlobal from "./no-empty-global.js"
+import noIsmlRendering from "./no-isml-rendering.js"
+import noPipelineApi from "./no-pipeline-api.js"
 import noPlatformGlobals from "./no-platform-globals.js"
 import noProprietaryModuleSyntax from "./no-proprietary-module-syntax.js"
 import noRhinoExtensions from "./no-rhino-extensions.js"
 import noRhinoImportGlobals from "./no-rhino-import-globals.js"
+import noSfraServer from "./no-sfra-server.js"
 import noStringEquals from "./no-string-equals.js"
 import noTypeAnnotations from "./no-type-annotations.js"
 import preferConst from "./prefer-const.js"
@@ -30,11 +33,14 @@ const sfcc = {
     "no-ds-files": noDsFiles,
     "no-empty-global": noEmptyGlobal,
     "no-e4x-syntax": noE4xSyntax,
+    "no-isml-rendering": noIsmlRendering,
+    "no-pipeline-api": noPipelineApi,
     "no-platform-globals": noPlatformGlobals,
     "no-proprietary-module-syntax": noProprietaryModuleSyntax,
     "no-rhino-extensions": noRhinoExtensions,
     "no-type-annotations": noTypeAnnotations,
     "no-rhino-import-globals": noRhinoImportGlobals,
+    "no-sfra-server": noSfraServer,
     "no-string-equals": noStringEquals,
     "prefer-native-collections": preferNativeCollections,
     "prefer-const": preferConst,

@@ -19,28 +19,42 @@ export interface StorefrontConfigOptions {
   files?: string[]
 }
 
-const controllerRules: Linter.RulesRecord = {
+const storefrontRules: Linter.RulesRecord = {
   "sfcc/no-controllers": "off",
+  "sfcc/no-isml-rendering": "off",
+  "sfcc/no-pipeline-api": "off",
+  "sfcc/no-sfra-server": "off",
   "sitegenesis/no-global-require": "off",
 }
 
 const presetRules: Record<StorefrontPreset, Linter.RulesRecord> = {
   "storefront-next": {
-    ...controllerRules,
+    ...storefrontRules,
     "sfcc/no-controllers": "error",
+    "sfcc/no-isml-rendering": "error",
+    "sfcc/no-pipeline-api": "error",
+    "sfcc/no-sfra-server": "error",
   },
   pwa: {
-    ...controllerRules,
+    ...storefrontRules,
     "sfcc/no-controllers": "error",
+    "sfcc/no-isml-rendering": "error",
+    "sfcc/no-pipeline-api": "error",
+    "sfcc/no-sfra-server": "error",
   },
-  sfra: controllerRules,
+  sfra: {
+    ...storefrontRules,
+    "sfcc/no-pipeline-api": "error",
+  },
   "sitegenesis-controllers": {
-    ...controllerRules,
+    ...storefrontRules,
+    "sfcc/no-sfra-server": "error",
     "sitegenesis/no-global-require": "error",
   },
   "sitegenesis-pipelines": {
-    ...controllerRules,
+    ...storefrontRules,
     "sfcc/no-controllers": "error",
+    "sfcc/no-sfra-server": "error",
   },
 }
 

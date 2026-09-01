@@ -13,18 +13,29 @@ import {
 } from "../src/index.js"
 
 test.each([
-  ["storefront-next", storefrontNext, "error", "off"],
-  ["pwa", pwa, "error", "off"],
-  ["sfra", sfra, "off", "off"],
-  ["sitegenesis-controllers", sitegenesisControllers, "off", "error"],
-  ["sitegenesis-pipelines", sitegenesisPipelines, "error", "off"],
+  ["storefront-next", storefrontNext, "error", "error", "error", "error", "off"],
+  ["pwa", pwa, "error", "error", "error", "error", "off"],
+  ["sfra", sfra, "off", "off", "error", "off", "off"],
+  ["sitegenesis-controllers", sitegenesisControllers, "off", "off", "off", "error", "error"],
+  ["sitegenesis-pipelines", sitegenesisPipelines, "error", "off", "off", "error", "off"],
 ] as const)(
   "exports the %s storefront preset",
-  (preset, config, noControllers, noGlobalRequire) => {
+  (
+    preset,
+    config,
+    noControllers,
+    noIsmlRendering,
+    noPipelineApi,
+    noSfraServer,
+    noGlobalRequire,
+  ) => {
     expect(configs[preset]).toBe(config)
     expect(config).toHaveLength(1)
     expect(config[0]?.rules).toMatchObject({
       "sfcc/no-controllers": noControllers,
+      "sfcc/no-isml-rendering": noIsmlRendering,
+      "sfcc/no-pipeline-api": noPipelineApi,
+      "sfcc/no-sfra-server": noSfraServer,
       "sitegenesis/no-global-require": noGlobalRequire,
     })
   },
