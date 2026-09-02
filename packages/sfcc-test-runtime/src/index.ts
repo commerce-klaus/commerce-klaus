@@ -14,6 +14,7 @@ import { ArrayList, HashMap } from "./platform/collections.js"
 import { Status, StatusItem } from "./platform/status.js"
 import { createStringUtilsModule } from "./platform/string-utils.js"
 import { GlobalsRuntime, type SfccGlobals } from "./runtime/globals.js"
+import { HooksRuntime, type SfccHookImplementation } from "./runtime/hooks.js"
 
 export type { SfccCalendar } from "./platform/calendar.js"
 export type {
@@ -49,6 +50,7 @@ export type {
 export type { SfccStatus, SfccStatusItem } from "./platform/status.js"
 export type { SfccStringUtils } from "./platform/string-utils.js"
 export type { SfccGlobals } from "./runtime/globals.js"
+export type { HookCall, SfccHookImplementation } from "./runtime/hooks.js"
 
 export type SfccModule = object | ((...args: never[]) => unknown)
 export type SfccModuleFallback = () => SfccModule
@@ -58,14 +60,6 @@ export interface LoggerEntry {
   message: string
   parameters: unknown[]
 }
-
-export interface HookCall {
-  extensionPoint: string
-  functionName: string
-  args: unknown[]
-}
-
-export type SfccHookImplementation = Record<string, unknown>
 
 export interface SfccTestRuntimeOptions {
   site?: {
@@ -92,7 +86,7 @@ function createLoggerModule(entries: LoggerEntry[]): SfccModule {
 }
 
 export class SfccTestRuntime {
-  readonly hookCalls: HookCall[] = []
+  readonly hookCalls: HooksRuntime["calls"]
   readonly loggerEntries: LoggerEntry[] = []
   readonly transactionCalls: string[] = []
 
@@ -100,12 +94,13 @@ export class SfccTestRuntime {
   private readonly controllerRuntime = new ControllerRuntime()
   private readonly defaults = new Map<string, SfccModule>()
   private readonly globalsRuntime = new GlobalsRuntime()
-  private readonly hooks = new Map<string, SfccHookImplementation>()
+  private readonly hooksRuntime = new HooksRuntime()
   private readonly mocks = new Map<string, SfccModule>()
   private readonly resolvedMocks = new Map<string, SfccModule>()
 
   constructor(options: SfccTestRuntimeOptions = {}) {
     this.options = options
+    this.hookCalls = this.hooksRuntime.calls
     this.installDefaults()
     this.globalsRuntime.installDefaults()
   }
@@ -123,19 +118,15 @@ export class SfccTestRuntime {
   }
 
   registerHook(extensionPoint: string, implementation: SfccHookImplementation): void {
-    if (!this.hooks.has(extensionPoint)) {
-      this.hooks.set(extensionPoint, implementation)
-    }
+    this.hooksRuntime.register(extensionPoint, implementation)
   }
 
   hasHook(extensionPoint: string): boolean {
-    return this.hooks.has(extensionPoint)
+    return this.hooksRuntime.has(extensionPoint)
   }
 
   callHook(extensionPoint: string, functionName: string, ...args: unknown[]): unknown {
-    this.hookCalls.push({ extensionPoint, functionName, args })
-    const hookFunction = this.hooks.get(extensionPoint)?.[functionName]
-    return typeof hookFunction === "function" ? hookFunction(...args) : undefined
+    return this.hooksRuntime.call(extensionPoint, functionName, ...args)
   }
 
   controller(controller: SfccController): SfccControllerHarness {
@@ -168,8 +159,7 @@ export class SfccTestRuntime {
   reset(): void {
     this.controllerRuntime.reset()
     this.globalsRuntime.reset()
-    this.hooks.clear()
-    this.hookCalls.length = 0
+    this.hooksRuntime.reset()
     this.mocks.clear()
     this.resolvedMocks.clear()
     this.loggerEntries.length = 0
@@ -178,11 +168,7 @@ export class SfccTestRuntime {
 
   private installDefaults(): void {
     this.defaults.set("server", this.controllerRuntime.createServerModule())
-    this.defaults.set("dw/system/HookMgr", {
-      callHook: (extensionPoint: string, functionName: string, ...args: unknown[]) =>
-        this.callHook(extensionPoint, functionName, ...args),
-      hasHook: (extensionPoint: string) => this.hasHook(extensionPoint),
-    })
+    this.defaults.set("dw/system/HookMgr", this.hooksRuntime.createModule())
     this.defaults.set("dw/system/Status", Status)
     this.defaults.set("dw/system/StatusItem", StatusItem)
     this.defaults.set("dw/util/ArrayList", ArrayList)
