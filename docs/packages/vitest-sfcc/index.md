@@ -52,7 +52,9 @@ it("uses the test payment provider", async () => {
 })
 ```
 
-Mocks can target `dw/*`, `*/`, and `~/` module identifiers. Without a cartridge mock, `*/` and `~/` load the real file selected by cartridge resolution.
+Mocks can target `dw/*`, `*/`, `~/`, and cartridge-alias module identifiers. Without a cartridge mock, the real file selected by cartridge resolution is loaded.
+
+`module.superModule` loads the next matching implementation in cartridge-path order. Transitive supermodule chains pass through the same CommonJS transformation.
 
 ## Current CommonJS scope
 
@@ -65,7 +67,7 @@ const provider = require("*/cartridge/scripts/provider")
 module.exports = { authorizePayment: authorizePayment }
 ```
 
-Dynamic or nested `require()` calls and named `exports.foo` assignments fail with an explicit diagnostic. Supporting those patterns and `module.superModule` is planned as the transformer matures.
+Dynamic or nested `require()` calls and named `exports.foo` assignments fail with an explicit diagnostic. Supporting those CommonJS patterns is planned as the transformer matures.
 
 ## License
 

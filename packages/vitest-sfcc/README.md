@@ -25,8 +25,9 @@ getSfccRuntime().mock("*/cartridge/scripts/provider", providerMock)
 const subject = await import("../cartridge/scripts/subject.js")
 ```
 
-The initial release resolves `dw/*`, `*/`, and `~/` dependencies. Runtime modules
-include `Status`, `Transaction`, `Logger`, and `Site`.
+The initial release resolves `dw/*`, `*/`, `~/`, cartridge aliases, and
+`module.superModule`. Runtime modules include `Status`, `Transaction`, `Logger`,
+and `Site`.
 
 ## License
 

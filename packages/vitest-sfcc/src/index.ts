@@ -1,6 +1,7 @@
 import {
   createSfccModuleResolver,
   resolveCartridgeRoots,
+  resolveSuperModuleFilePath,
 } from "@commerce-klaus/sfcc-module-resolver"
 import {
   createSfccTestRuntime,
@@ -74,8 +75,21 @@ function markCartridgeImports(code: string, importer: string, cartridgeRoots: st
   )
 }
 
-function transformCartridgeCommonJs(code: string, id: string): string {
-  let transformed = code.replace(
+function transformCartridgeCommonJs(code: string, id: string, cartridgeRoots: string[]): string {
+  let transformed = code
+
+  if (transformed.includes("module.superModule")) {
+    const superModulePath = resolveSuperModuleFilePath(id, cartridgeRoots)
+    if (superModulePath) {
+      transformed =
+        `import __sfcc_superModule__ from ${JSON.stringify(superModulePath)}\n` +
+        transformed.replace(/\bmodule\.superModule\b/g, "__sfcc_superModule__")
+    } else {
+      transformed = transformed.replace(/\bmodule\.superModule\b/g, "undefined")
+    }
+  }
+
+  transformed = transformed.replace(
     /\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*require\(\s*(["'])([^"']+)\2\s*\)\s*;?/g,
     (_match, binding: string, _quote: string, moduleId: string) =>
       `import ${binding} from ${JSON.stringify(moduleId)}\n`,
@@ -127,11 +141,9 @@ export default function sfccVitest(options: SfccVitestOptions): SfccVitestPlugin
         return encodeVirtualModule({ moduleId: source })
       }
 
-      if (source.startsWith("*/") || source.startsWith("~/")) {
-        const resolvedPath = resolveSfccModule(source, importer ?? process.cwd())
-        if (resolvedPath) {
-          return encodeVirtualModule({ moduleId: source, resolvedPath })
-        }
+      const resolvedSfccModule = resolveSfccModule(source, importer ?? process.cwd())
+      if (resolvedSfccModule) {
+        return encodeVirtualModule({ moduleId: source, resolvedPath: resolvedSfccModule })
       }
 
       if (source.endsWith(CARTRIDGE_MODULE_SUFFIX)) {
@@ -163,7 +175,11 @@ export default function sfccVitest(options: SfccVitestOptions): SfccVitestPlugin
     transform(code, id) {
       if (id.endsWith(CARTRIDGE_MODULE_SUFFIX)) {
         return {
-          code: transformCartridgeCommonJs(code, id.slice(0, -CARTRIDGE_MODULE_SUFFIX.length)),
+          code: transformCartridgeCommonJs(
+            code,
+            id.slice(0, -CARTRIDGE_MODULE_SUFFIX.length),
+            cartridgeRoots,
+          ),
           map: null,
         }
       }
