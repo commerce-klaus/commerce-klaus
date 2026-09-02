@@ -81,6 +81,8 @@ export default defineConfig({
             { text: "TypeScript tooling", link: "/packages/typescript-sfcc/" },
             { text: "Vite plugin", link: "/packages/vite-plugin-sfcc-modules/" },
             { text: "Babel plugin", link: "/packages/babel-plugin-sfcc-modules/" },
+            { text: "Vitest integration", link: "/packages/vitest-sfcc/" },
+            { text: "Test runtime", link: "/packages/sfcc-test-runtime/" },
             { text: "Module resolver", link: "/packages/sfcc-module-resolver/" },
           ],
         },

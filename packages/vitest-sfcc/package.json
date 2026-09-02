@@ -1,0 +1,64 @@
+{
+  "name": "@commerce-klaus/vitest-sfcc",
+  "version": "0.1.0",
+  "description": "Cartridge-aware SFCC runtime and dependency mocking for Vitest",
+  "keywords": [
+    "cartridge",
+    "commercecloud",
+    "mocking",
+    "salesforce",
+    "sfcc",
+    "vitest"
+  ],
+  "homepage": "https://commerce-klaus.github.io/commerce-klaus/packages/vitest-sfcc/",
+  "bugs": {
+    "url": "https://github.com/commerce-klaus/commerce-klaus/issues"
+  },
+  "license": "MIT",
+  "author": "Jens Simon <https://github.com/jenssimon>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/commerce-klaus/commerce-klaus",
+    "directory": "packages/vitest-sfcc"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "registry": "https://registry.npmjs.org"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "test": "vp test",
+    "check": "vp check",
+    "prepublishOnly": "pnpm run build"
+  },
+  "dependencies": {
+    "@commerce-klaus/sfcc-module-resolver": "workspace:*",
+    "@commerce-klaus/sfcc-test-runtime": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "vite": ">=5.0.0",
+    "vitest": ">=2.0.0"
+  },
+  "packageManager": "pnpm@11.25.0"
+}

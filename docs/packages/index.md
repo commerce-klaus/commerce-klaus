@@ -10,10 +10,13 @@ Commerce Klaus covers the development loop around SFCC server-side JavaScript: s
 | [`@commerce-klaus/typescript-sfcc`](./typescript-sfcc/)                     | Editor resolution, cartridge typechecking, and generated project types |
 | [`@commerce-klaus/vite-plugin-sfcc-modules`](./vite-plugin-sfcc-modules/)   | SFCC module resolution in Vite and Vitest                              |
 | [`@commerce-klaus/babel-plugin-sfcc-modules`](./babel-plugin-sfcc-modules/) | SFCC module rewriting in Babel-based pipelines                         |
+| [`@commerce-klaus/vitest-sfcc`](./vitest-sfcc/)                             | SFCC runtime modules and cartridge-aware dependency mocking in Vitest  |
 
 ## Shared foundation
 
 [`@commerce-klaus/sfcc-module-resolver`](./sfcc-module-resolver/) is the common Node.js resolution core used by the project-facing packages. It is also public for authors building additional SFCC-aware tools.
+
+[`@commerce-klaus/sfcc-test-runtime`](./sfcc-test-runtime/) is the framework-independent runtime core used by the Vitest integration. It provides isolated module replacements and focused implementations of common `dw/*` modules.
 
 ## What is shared?
 

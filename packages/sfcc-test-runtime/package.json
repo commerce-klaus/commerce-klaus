@@ -1,0 +1,55 @@
+{
+  "name": "@commerce-klaus/sfcc-test-runtime",
+  "version": "0.1.0",
+  "description": "Framework-independent SFCC runtime modules and dependency mocking for local tests",
+  "keywords": [
+    "commercecloud",
+    "mocking",
+    "salesforce",
+    "sfcc",
+    "testing"
+  ],
+  "homepage": "https://commerce-klaus.github.io/commerce-klaus/packages/sfcc-test-runtime/",
+  "bugs": {
+    "url": "https://github.com/commerce-klaus/commerce-klaus/issues"
+  },
+  "license": "MIT",
+  "author": "Jens Simon <https://github.com/jenssimon>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/commerce-klaus/commerce-klaus",
+    "directory": "packages/sfcc-test-runtime"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "registry": "https://registry.npmjs.org"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "test": "vp test",
+    "check": "vp check",
+    "prepublishOnly": "pnpm run build"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vite-plus": "catalog:"
+  },
+  "packageManager": "pnpm@11.25.0"
+}
