@@ -36,6 +36,8 @@ import {
   type SfccJobStepParameters,
   type SfccList,
   type SfccMapEntry,
+  type SfccStatus,
+  type SfccStatusItem,
   type SfccTestRuntime,
   type SfccTestRuntimeOptions,
 } from "@commerce-klaus/sfcc-test-runtime"
@@ -525,6 +527,8 @@ export type {
   SfccJobStepParameters,
   SfccList,
   SfccMapEntry,
+  SfccStatus,
+  SfccStatusItem,
   SfccTestRuntime,
   SfccTestRuntimeOptions,
 }

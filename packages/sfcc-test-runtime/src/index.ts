@@ -184,6 +184,28 @@ export interface SfccJobStepHarnessOptions {
   stepTypeId?: string
 }
 
+export interface SfccStatusItem {
+  readonly code: string | null
+  readonly details: SfccJobContext
+  readonly error: boolean
+  readonly message: string | null
+  readonly parameters: SfccList<string>
+  readonly status: number
+  getCode(): string | null
+  getDetails(): SfccJobContext
+  getMessage(): string | null
+  getParameters(): SfccList<string>
+  getStatus(): number
+  isError(): boolean
+}
+
+export interface SfccStatus extends SfccStatusItem {
+  readonly items: SfccList<SfccStatusItem>
+  addDetail(key: string, value: unknown): void
+  getDetail(key: string): unknown
+  getItems(): SfccList<SfccStatusItem>
+}
+
 export interface SfccTestRuntimeOptions {
   site?: {
     id?: string
@@ -191,20 +213,75 @@ export interface SfccTestRuntimeOptions {
   }
 }
 
-class Status {
+class Status implements SfccStatus {
   static readonly OK = 0
   static readonly ERROR = 1
 
   readonly status: number
   readonly code: string | null
   readonly message: string | null
-  readonly details: unknown
+  readonly details: SfccJobContext
+  readonly parameters: SfccList<string>
+  readonly items: SfccList<SfccStatusItem>
 
-  constructor(status: number, code?: string, message?: string, details?: unknown) {
+  constructor(status = Status.OK, code?: string, message?: string, ...parameters: string[]) {
     this.status = status
     this.code = code ?? null
     this.message = message ?? null
-    this.details = details
+    this.details = createJobContext({})
+    this.parameters = createList(parameters)
+    const error = status === Status.ERROR
+    const item: SfccStatusItem = {
+      code: this.code,
+      details: this.details,
+      error,
+      getCode: () => this.code,
+      getDetails: () => this.details,
+      getMessage: () => this.message,
+      getParameters: () => this.parameters,
+      getStatus: () => this.status,
+      isError: () => error,
+      message: this.message,
+      parameters: this.parameters,
+      status: this.status,
+    }
+    this.items = createList([item])
+  }
+
+  get error(): boolean {
+    return this.isError()
+  }
+
+  addDetail(key: string, value: unknown): void {
+    this.details.put(key, value)
+  }
+
+  getCode(): string | null {
+    return this.code
+  }
+
+  getDetail(key: string): unknown {
+    return this.details.get(key)
+  }
+
+  getDetails(): SfccJobContext {
+    return this.details
+  }
+
+  getItems(): SfccList<SfccStatusItem> {
+    return this.items
+  }
+
+  getMessage(): string | null {
+    return this.message
+  }
+
+  getParameters(): SfccList<string> {
+    return this.parameters
+  }
+
+  getStatus(): number {
+    return this.status
   }
 
   isError(): boolean {

@@ -34,6 +34,59 @@ describe("SFCC test runtime", () => {
     })
   })
 
+  it("provides an SFCC-like status with getters, parameters, and details", () => {
+    const Status = runtime.resolve("dw/system/Status") as unknown as {
+      ERROR: number
+      new (
+        status: number,
+        code: string,
+        message: string,
+        ...parameters: string[]
+      ): {
+        addDetail(key: string, value: unknown): void
+        code: string
+        details: { get(key: string): unknown }
+        error: boolean
+        getCode(): string
+        getDetail(key: string): unknown
+        getDetails(): unknown
+        getItems(): { get(index: number): unknown; length: number }
+        getMessage(): string
+        getParameters(): { toArray(): string[] }
+        getStatus(): number
+        isError(): boolean
+        message: string
+        parameters: { toArray(): string[] }
+        status: number
+      }
+    }
+    const status = new Status(Status.ERROR, "FAILED", "Import {0}", "orders.xml")
+
+    expect(status).toMatchObject({
+      code: "FAILED",
+      error: true,
+      message: "Import {0}",
+      status: Status.ERROR,
+    })
+    expect(status.getCode()).toBe("FAILED")
+    expect(status.getMessage()).toBe("Import {0}")
+    expect(status.getStatus()).toBe(Status.ERROR)
+    expect(status.isError()).toBe(true)
+    expect(status.parameters.toArray()).toEqual(["orders.xml"])
+    expect(status.getParameters()).toBe(status.parameters)
+    expect(status.getItems().get(0)).toMatchObject({
+      code: "FAILED",
+      error: true,
+      message: "Import {0}",
+      status: Status.ERROR,
+    })
+    expect(status.getItems().get(0)).not.toBe(status)
+    status.addDetail("fileName", "orders.xml")
+    expect(status.details.get("fileName")).toBe("orders.xml")
+    expect(status.getDetail("fileName")).toBe("orders.xml")
+    expect(status.getDetails()).toBe(status.details)
+  })
+
   it("stops controller middleware that does not call next", async () => {
     const calls: string[] = []
     const controller: SfccController = {

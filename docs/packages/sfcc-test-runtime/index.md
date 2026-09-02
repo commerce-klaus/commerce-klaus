@@ -22,6 +22,10 @@ The initial runtime provides focused implementations of:
 
 These implementations model behavior needed by tests and expose call history where useful. They do not attempt to emulate the complete SFCC platform.
 
+### Status
+
+`dw/system/Status` supports `new Status(status, code, message, ...parameters)` for the common single-item case. It exposes `status`/`getStatus()`, `code`/`getCode()`, `message`/`getMessage()`, `parameters`/`getParameters()`, `details`/`getDetails()`, `error`/`isError()`, and `items`/`getItems()`. `addDetail()` and `getDetail()` use an SFCC-like map, while parameters and items are independent `SfccList` values. Multi-item aggregation through `addItem()` is not yet modeled.
+
 ```ts
 import { createSfccTestRuntime } from "@commerce-klaus/sfcc-test-runtime"
 

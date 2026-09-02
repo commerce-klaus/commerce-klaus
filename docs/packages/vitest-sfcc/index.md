@@ -131,6 +131,8 @@ The harness clones inherited routes and preserves the resulting middleware order
 
 CommonJS job modules use the same cartridge transformation and runtime mocks as controllers and hooks:
 
+The built-in `dw/system/Status` supports its common single-item constructor, message parameters, details, property/getter pairs, and error state.
+
 ```ts
 const jobModule = await import("../cartridge/scripts/jobs/GenerateFeed.js")
 const jobStep = getSfccRuntime().jobStep(jobModule, {
