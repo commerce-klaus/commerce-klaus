@@ -30,9 +30,14 @@ test("getStepTypeDefinitionsFromDocument parses script and chunk steps", () => {
         "script-module-step": [
           {
             "@type-id": "custom.GenerateFeed",
+            "@supports-organization-context": "false",
+            "@supports-parallel-execution": true,
+            "@supports-site-context": "true",
+            description: "Generate the product feed.",
             function: "Run",
             module: "app_jobs/cartridge/scripts/generate-feed",
             "timeout-in-seconds": "900",
+            transactional: "false",
             parameters: {
               parameter: [
                 {
@@ -57,6 +62,7 @@ test("getStepTypeDefinitionsFromDocument parses script and chunk steps", () => {
         "chunk-script-module-step": [
           {
             "@type-id": "custom.ExportProducts",
+            "@supports-site-context": false,
             "after-step-function": "finish",
             "before-step-function": "prepare",
             "chunk-size": "250",
@@ -81,6 +87,7 @@ test("getStepTypeDefinitionsFromDocument parses script and chunk steps", () => {
     }),
   ).toEqual([
     {
+      description: "Generate the product feed.",
       functionName: "Run",
       kind: "script-module-step",
       module: "app_jobs/cartridge/scripts/generate-feed",
@@ -94,7 +101,11 @@ test("getStepTypeDefinitionsFromDocument parses script and chunk steps", () => {
         },
       ],
       statusCodes: ["OK", "ERROR"],
+      supportsOrganizationContext: false,
+      supportsParallelExecution: true,
+      supportsSiteContext: true,
       timeoutSeconds: 900,
+      transactional: false,
       typeId: "custom.GenerateFeed",
     },
     {
@@ -126,6 +137,7 @@ test("getStepTypeDefinitionsFromDocument parses script and chunk steps", () => {
         },
       ],
       statusCodes: [],
+      supportsSiteContext: false,
       typeId: "custom.ExportProducts",
     },
   ])
@@ -138,6 +150,20 @@ test("getStepTypeDefinitionsFromDocument rejects malformed definitions", () => {
     getStepTypeDefinitionsFromDocument({
       "step-types": {
         "script-module-step": [{ "@type-id": "custom.MissingFunction", module: "job" }],
+      },
+    }),
+  ).toBeUndefined()
+  expect(
+    getStepTypeDefinitionsFromDocument({
+      "step-types": {
+        "script-module-step": [
+          {
+            "@type-id": "custom.InvalidCapabilities",
+            "@supports-site-context": "yes",
+            function: "Run",
+            module: "job",
+          },
+        ],
       },
     }),
   ).toBeUndefined()

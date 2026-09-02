@@ -6,6 +6,7 @@ import {
   resolveCartridgeRoots,
   resolveSuperModuleFilePath,
   type ResolvedStepTypeDefinition,
+  type StepTypeExecutionMetadata,
   type StepTypeParameterDefinition,
 } from "@commerce-klaus/sfcc-module-resolver"
 import {
@@ -491,6 +492,7 @@ export async function loadSfccJobStep(
 
 export type {
   ResolvedStepTypeDefinition,
+  StepTypeExecutionMetadata,
   StepTypeParameterDefinition,
   SfccController,
   SfccControllerHarness,

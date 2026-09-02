@@ -61,7 +61,8 @@ const jobStep = await loadSfccJobStep("custom.ExportProducts", {
 const result = await jobStep.run({ TargetFolder: "IMPEX/src/feeds" })
 ```
 
-`jobStep.definition` exposes the resolved metadata, while
+`jobStep.definition` exposes the resolved metadata, including optional site,
+organization, parallel-execution, and transactional capabilities, while
 `jobStep.jobExecution.context` contains shared execution state. Duplicate type
 IDs use cartridge-path priority, and unknown or unresolvable IDs fail with an
 explicit diagnostic.

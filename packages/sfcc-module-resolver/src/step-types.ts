@@ -3,7 +3,15 @@ import path from "node:path"
 
 import { resolveCandidateFile } from "./module-resolution.ts"
 
-export interface ScriptModuleStepTypeDefinition {
+export interface StepTypeExecutionMetadata {
+  description?: string
+  supportsOrganizationContext?: boolean
+  supportsParallelExecution?: boolean
+  supportsSiteContext?: boolean
+  transactional?: boolean
+}
+
+export interface ScriptModuleStepTypeDefinition extends StepTypeExecutionMetadata {
   functionName: string
   kind: "script-module-step"
   module: string
@@ -32,7 +40,7 @@ export interface ChunkStepFunctions {
   write: string
 }
 
-export interface ChunkScriptModuleStepTypeDefinition {
+export interface ChunkScriptModuleStepTypeDefinition extends StepTypeExecutionMetadata {
   chunkSize: number
   functions: ChunkStepFunctions
   kind: "chunk-script-module-step"
@@ -75,12 +83,54 @@ function readBoolean(record: UnknownRecord, name: string): boolean | undefined {
   return undefined
 }
 
+function readDeclaredBoolean(record: UnknownRecord, name: string): boolean | undefined {
+  const value = record[name]
+  if (typeof value === "boolean") {
+    return value
+  }
+  if (value === "true" || value === "false") {
+    return value === "true"
+  }
+  return undefined
+}
+
 function readPositiveInteger(record: UnknownRecord, name: string): number | undefined {
   const value = record[name]
   const numberValue = typeof value === "string" && value.length > 0 ? Number(value) : value
   return typeof numberValue === "number" && Number.isInteger(numberValue) && numberValue > 0
     ? numberValue
     : undefined
+}
+
+const EXECUTION_BOOLEAN_FIELDS = {
+  supportsOrganizationContext: "@supports-organization-context",
+  supportsParallelExecution: "@supports-parallel-execution",
+  supportsSiteContext: "@supports-site-context",
+  transactional: "transactional",
+} as const
+
+function parseExecutionMetadata(record: UnknownRecord): StepTypeExecutionMetadata | undefined {
+  const metadata: StepTypeExecutionMetadata = {}
+  if (Object.hasOwn(record, "description")) {
+    const description = readString(record, "description")
+    if (!description) {
+      return undefined
+    }
+    metadata.description = description
+  }
+
+  for (const [name, field] of Object.entries(EXECUTION_BOOLEAN_FIELDS)) {
+    if (!Object.hasOwn(record, field)) {
+      continue
+    }
+    const value = readDeclaredBoolean(record, field)
+    if (value === undefined) {
+      return undefined
+    }
+    metadata[name as keyof Omit<StepTypeExecutionMetadata, "description">] = value
+  }
+
+  return metadata
 }
 
 function parseParameter(value: unknown): StepTypeParameterDefinition | undefined {
@@ -152,14 +202,16 @@ function parseScriptModuleStep(value: unknown): ScriptModuleStepTypeDefinition |
   const typeId = readString(value, "@type-id")
   const module = readString(value, "module")
   const functionName = readString(value, "function")
+  const executionMetadata = parseExecutionMetadata(value)
   const parameters = parseParameters(value)
   const statusCodes = parseStatusCodes(value)
   const timeoutSeconds = readPositiveInteger(value, "timeout-in-seconds")
   if (Object.hasOwn(value, "timeout-in-seconds") && timeoutSeconds === undefined) {
     return undefined
   }
-  return typeId && module && functionName && parameters && statusCodes
+  return typeId && module && functionName && executionMetadata && parameters && statusCodes
     ? {
+        ...executionMetadata,
         functionName,
         kind: "script-module-step",
         module,
@@ -198,6 +250,7 @@ function parseChunkScriptModuleStep(
       : rawChunkSize
   const read = readString(value, CHUNK_FUNCTION_FIELDS.read)
   const write = readString(value, CHUNK_FUNCTION_FIELDS.write)
+  const executionMetadata = parseExecutionMetadata(value)
   const parameters = parseParameters(value)
   const statusCodes = parseStatusCodes(value)
   if (
@@ -207,6 +260,7 @@ function parseChunkScriptModuleStep(
     (chunkSize as number) <= 0 ||
     !read ||
     !write ||
+    !executionMetadata ||
     !parameters ||
     !statusCodes
   ) {
@@ -225,6 +279,7 @@ function parseChunkScriptModuleStep(
   }
 
   return {
+    ...executionMetadata,
     chunkSize: chunkSize as number,
     functions,
     kind: "chunk-script-module-step",

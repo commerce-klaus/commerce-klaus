@@ -133,10 +133,13 @@ Notes:
   - Preserves parameter names, types, required and trim flags, and default values from both SFCC parameter container forms
   - Exposes declared status codes as a normalized string array
   - Normalizes task `timeout-in-seconds` metadata into an optional positive `timeoutSeconds` number
+  - Preserves descriptions and normalizes site, organization, parallel-execution, and transactional flags from JSON booleans or SFCC string forms
 - `findResolvedStepTypeDefinitions(cartridgeRoots): ResolvedStepTypeDefinition[]`
   - Reads `steptypes.json` from each cartridge root
   - Resolves module paths with the standard SFCC runtime extensions and index-module fallback
   - Keeps the first resolvable definition for each type ID in cartridge-path order
+
+Capability fields remain optional so consumers can distinguish an omitted declaration from an explicit `false`. The resolver exposes this metadata without inferring or enforcing a job context.
 
 ### Utilities
 

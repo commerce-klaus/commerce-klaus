@@ -49,6 +49,7 @@ export type {
   ChunkStepFunctions,
   ResolvedStepTypeDefinition,
   ScriptModuleStepTypeDefinition,
+  StepTypeExecutionMetadata,
   StepTypeParameterDefinition,
   StepTypeDefinition,
 } from "./step-types.ts"
