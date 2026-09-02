@@ -465,7 +465,10 @@ export async function loadSfccJobStep(
     typeof defaultExport === "object" && defaultExport !== null
       ? { ...defaultExport, ...importedModule }
       : importedModule
-  const harness = getSfccRuntime().jobStep(jobStepModule, options)
+  const harness = getSfccRuntime().jobStep(jobStepModule, {
+    ...options,
+    stepTypeId: definition.typeId,
+  })
 
   return {
     definition,

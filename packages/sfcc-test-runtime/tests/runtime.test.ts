@@ -105,13 +105,36 @@ describe("SFCC test runtime", () => {
           return `${String(parameters.prefix)}:${String(jobExecution.context.runs)}`
         },
       },
-      { context: { runs: 2 } },
+      {
+        context: { runs: 2 },
+        jobExecutionId: "job-execution-1",
+        jobId: "NightlyFeed",
+        stepExecutionId: "step-execution-1",
+        stepId: "GenerateFeed",
+        stepTypeId: "custom.GenerateFeed",
+      },
     )
 
     await expect(jobStep.run("Run", { prefix: "feed" })).resolves.toBe("feed:3")
     await expect(jobStep.run("Run", { prefix: "feed" })).resolves.toBe("feed:4")
     expect(jobStep.jobExecution.context).toEqual({ runs: 4 })
+    expect(jobStep.jobExecution.getContext()).toBe(jobStep.jobExecution.context)
+    expect(jobStep.jobExecution.getID()).toBe("job-execution-1")
+    expect(jobStep.jobExecution.getJobID()).toBe("NightlyFeed")
+    expect(jobStep.jobExecution).toMatchObject({
+      ID: "job-execution-1",
+      jobID: "NightlyFeed",
+    })
     expect(jobStep.stepExecution.getJobExecution()).toBe(jobStep.jobExecution)
+    expect(jobStep.stepExecution.getID()).toBe("step-execution-1")
+    expect(jobStep.stepExecution.getStepID()).toBe("GenerateFeed")
+    expect(jobStep.stepExecution.getStepTypeID()).toBe("custom.GenerateFeed")
+    expect(jobStep.stepExecution).toMatchObject({
+      ID: "step-execution-1",
+      jobExecution: jobStep.jobExecution,
+      stepID: "GenerateFeed",
+      stepTypeID: "custom.GenerateFeed",
+    })
   })
 
   it("rejects a missing script-module job step function", async () => {

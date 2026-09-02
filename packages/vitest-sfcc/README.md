@@ -65,7 +65,8 @@ const result = await jobStep.run({ TargetFolder: "IMPEX/src/feeds" })
 organization, parallel-execution, and transactional capabilities, while
 `jobStep.jobExecution.context` contains shared execution state. Duplicate type
 IDs use cartridge-path priority, and unknown or unresolvable IDs fail with an
-explicit diagnostic.
+explicit diagnostic. The loaded definition's type ID is also available through
+`jobStep.stepExecution.stepTypeID` and `getStepTypeID()`.
 
 Before each run, declared defaults are applied and strings marked with `@trim`
 are trimmed. Values declared as `boolean`, `long`, or `double` are converted

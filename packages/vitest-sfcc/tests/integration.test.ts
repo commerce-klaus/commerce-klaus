@@ -209,6 +209,7 @@ describe("vitest-sfcc", () => {
       functionName: "Parameters",
       kind: "script-module-step",
     })
+    expect(jobStep.stepExecution.getStepTypeID()).toBe("custom.TestTask")
     expect(jobStep.jobExecution.context).toEqual({
       executions: 1,
       parameters: { DryRun: true, Prefix: "feed", RetryCount: 3 },

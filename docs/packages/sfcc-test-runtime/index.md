@@ -140,6 +140,11 @@ Task-oriented `script-module-step` modules can be executed by their configured f
 const jobModule = await import("../cartridge/scripts/jobs/GenerateFeed.js")
 const jobStep = runtime.jobStep(jobModule, {
   context: { previousFile: "feed-1.csv" },
+  jobExecutionId: "execution-1",
+  jobId: "NightlyFeed",
+  stepExecutionId: "step-execution-1",
+  stepId: "GenerateFeed",
+  stepTypeId: "custom.GenerateFeed",
 })
 
 const status = await jobStep.run("Run", {
@@ -151,7 +156,7 @@ expect(jobStep.jobExecution.context).toMatchObject({
 })
 ```
 
-The configured function receives `(parameters, stepExecution)`. `stepExecution.getJobExecution()` returns the same job execution for every call, so scripts can share mutable `context` state across steps or repeated runs. Missing and non-function exports fail with an explicit diagnostic.
+The configured function receives `(parameters, stepExecution)`. `stepExecution.getJobExecution()` returns the same job execution for every call, so scripts can share mutable `context` state across steps or repeated runs. The execution objects expose the platform properties and equivalent getters: `ID`/`getID()`, `jobID`/`getJobID()`, `stepID`/`getStepID()`, `stepTypeID`/`getStepTypeID()`, and `context`/`getContext()`. Their IDs can be set through `SfccJobStepHarnessOptions`; omitted IDs receive stable test defaults. Missing and non-function exports fail with an explicit diagnostic.
 
 Chunk-oriented modules use `runChunk()` with the function names declared in `steptypes.json`:
 

@@ -29,7 +29,9 @@ run, while repeated `next()` calls fail with an explicit diagnostic.
 
 Script-module job steps can be executed with
 `runtime.jobStep(jobModule).run(functionName, parameters)`. The harness supplies
-`stepExecution.getJobExecution()` and keeps its mutable `context` across runs.
+SFCC-like job and step execution objects and keeps their mutable `context`
+across runs. Configure job, step, and execution IDs through the harness options;
+properties such as `stepTypeID` and `jobID` have matching platform getters.
 Chunk modules run through `runChunk({ chunkSize, functions, parameters })`,
 which orchestrates step and chunk callbacks, filters null process results, and
 passes an SFCC-like list to `write`.

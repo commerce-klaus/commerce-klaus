@@ -69,11 +69,23 @@ export type SfccJobStepModule = Record<string, unknown>
 export type SfccJobStepParameters = Record<string, unknown>
 
 export interface SfccJobExecution {
+  readonly ID: string
   context: Record<string, unknown>
+  readonly jobID: string
+  getContext(): Record<string, unknown>
+  getID(): string
+  getJobID(): string
 }
 
 export interface SfccJobStepExecution {
+  readonly ID: string
+  readonly jobExecution: SfccJobExecution
+  readonly stepID: string
+  readonly stepTypeID: string
+  getID(): string
   getJobExecution(): SfccJobExecution
+  getStepID(): string
+  getStepTypeID(): string
 }
 
 export interface SfccChunkItems<Item = unknown> extends Iterable<Item> {
@@ -119,6 +131,11 @@ export interface SfccJobStepHarness {
 
 export interface SfccJobStepHarnessOptions {
   context?: Record<string, unknown>
+  jobExecutionId?: string
+  jobId?: string
+  stepExecutionId?: string
+  stepId?: string
+  stepTypeId?: string
 }
 
 export interface SfccTestRuntimeOptions {
@@ -299,8 +316,30 @@ export class SfccTestRuntime {
     jobStepModule: SfccJobStepModule,
     options: SfccJobStepHarnessOptions = {},
   ): SfccJobStepHarness {
-    const jobExecution = { context: options.context ?? {} }
-    const stepExecution = { getJobExecution: () => jobExecution }
+    const context = options.context ?? {}
+    const jobExecutionId = options.jobExecutionId ?? "TestJobExecution"
+    const jobId = options.jobId ?? "TestJob"
+    const jobExecution: SfccJobExecution = {
+      ID: jobExecutionId,
+      context,
+      getContext: () => context,
+      getID: () => jobExecutionId,
+      getJobID: () => jobId,
+      jobID: jobId,
+    }
+    const stepExecutionId = options.stepExecutionId ?? "TestStepExecution"
+    const stepId = options.stepId ?? "TestStep"
+    const stepTypeId = options.stepTypeId ?? "custom.TestStep"
+    const stepExecution: SfccJobStepExecution = {
+      ID: stepExecutionId,
+      getID: () => stepExecutionId,
+      getJobExecution: () => jobExecution,
+      getStepID: () => stepId,
+      getStepTypeID: () => stepTypeId,
+      jobExecution,
+      stepID: stepId,
+      stepTypeID: stepTypeId,
+    }
     const requireFunction = (functionName: string): ((...args: unknown[]) => unknown) => {
       const stepFunction = jobStepModule[functionName]
       if (typeof stepFunction !== "function") {
