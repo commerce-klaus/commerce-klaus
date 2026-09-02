@@ -91,6 +91,37 @@ describe("SFCC test runtime", () => {
     )
   })
 
+  it("runs a script-module job step with parameters and execution context", async () => {
+    const jobStep = runtime.jobStep(
+      {
+        Run: (
+          parameters: Record<string, unknown>,
+          stepExecution: {
+            getJobExecution: () => { context: Record<string, unknown> }
+          },
+        ) => {
+          const jobExecution = stepExecution.getJobExecution()
+          jobExecution.context.runs = Number(jobExecution.context.runs ?? 0) + 1
+          return `${String(parameters.prefix)}:${String(jobExecution.context.runs)}`
+        },
+      },
+      { context: { runs: 2 } },
+    )
+
+    await expect(jobStep.run("Run", { prefix: "feed" })).resolves.toBe("feed:3")
+    await expect(jobStep.run("Run", { prefix: "feed" })).resolves.toBe("feed:4")
+    expect(jobStep.jobExecution.context).toEqual({ runs: 4 })
+    expect(jobStep.stepExecution.getJobExecution()).toBe(jobStep.jobExecution)
+  })
+
+  it("rejects a missing script-module job step function", async () => {
+    const jobStep = runtime.jobStep({ execute: "not callable" })
+
+    await expect(jobStep.run("execute")).rejects.toThrow(
+      "SFCC job step does not export function execute.",
+    )
+  })
+
   it("installs globals and restores their original descriptors on reset", () => {
     const testGlobal = globalThis as typeof globalThis & {
       __sfccRequest?: unknown

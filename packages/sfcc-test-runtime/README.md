@@ -27,6 +27,12 @@ stop the remaining middleware chain.
 Middleware can stop by omitting `next()`. Calling `next(error)` rejects the route
 run, while repeated `next()` calls fail with an explicit diagnostic.
 
+Script-module job steps can be executed with
+`runtime.jobStep(jobModule).run(functionName, parameters)`. The harness supplies
+`stepExecution.getJobExecution()` and keeps its mutable `context` across runs.
+The current harness targets task-oriented `script-module-step` definitions;
+chunk step lifecycle functions are not orchestrated yet.
+
 ## License
 
 MIT

@@ -42,6 +42,11 @@ Redirect assertions use `redirectUrl`, `redirectStatus`, `headers`,
 `cachePeriod`, and `messageLog`; pending redirects stop subsequent middleware.
 Middleware may stop without `next()`, and `next(error)` rejects the route run.
 
+Imported script-module job steps run through the same cartridge transformer:
+`getSfccRuntime().jobStep(jobModule).run("Run", parameters)`. The generated
+`stepExecution` exposes a persistent `getJobExecution().context` object. Chunk
+step lifecycle orchestration is not included yet.
+
 Static relative dependencies such as `require("./helper")` use the same registry.
 Use `mockResolved(absolutePath, implementation)` when only one exact file should
 be replaced.

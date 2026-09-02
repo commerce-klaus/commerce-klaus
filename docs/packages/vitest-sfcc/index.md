@@ -127,6 +127,26 @@ The harness clones inherited routes and preserves the resulting middleware order
 
 `module.superModule` loads the next matching implementation in cartridge-path order. Transitive supermodule chains pass through the same CommonJS transformation.
 
+## Job steps
+
+CommonJS job modules use the same cartridge transformation and runtime mocks as controllers and hooks:
+
+```ts
+const jobModule = await import("../cartridge/scripts/jobs/GenerateFeed.js")
+const jobStep = getSfccRuntime().jobStep(jobModule, {
+  context: { feedNumber: 1 },
+})
+
+const result = await jobStep.run("Run", {
+  TargetFolder: "IMPEX/src/feeds",
+})
+
+expect(result).toBe("OK")
+expect(jobStep.jobExecution.context.feedNumber).toBe(2)
+```
+
+This models task-oriented `script-module-step` functions with the SFCC `(parameters, stepExecution)` signature. `stepExecution.getJobExecution()` returns a stable execution object whose `context` is shared across calls. The current harness does not orchestrate chunk step lifecycle functions.
+
 ## Hook execution
 
 `dw/system/HookMgr` automatically discovers `hooks.json` through each cartridge's `package.json`. If multiple cartridges register the same extension point, the first resolvable registration in cartridge-path order is used.

@@ -152,6 +152,15 @@ describe("vitest-sfcc", () => {
     expect(subject.readConstant()).toBe("export-mocked")
   })
 
+  it("runs a transformed script-module job step", async () => {
+    const jobModule = await import("./cartridges/app_custom/cartridge/scripts/job-step.js")
+    const jobStep = getSfccRuntime().jobStep(jobModule, { context: { executions: 1 } })
+
+    await expect(jobStep.run("Run", { prefix: "feed" })).resolves.toBe("feed:2")
+    await expect(jobStep.run("Run", { prefix: "feed" })).resolves.toBe("feed:3")
+    expect(jobStep.jobExecution.context).toEqual({ executions: 3 })
+  })
+
   it("rejects mutable require aliases", () => {
     const plugin = sfccVitest({
       basePath: path.resolve(import.meta.dirname, "cartridges"),

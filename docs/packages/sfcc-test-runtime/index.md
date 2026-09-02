@@ -132,6 +132,27 @@ runtime.callHook("app.payment.authorize", "authorize", "payment-1")
 
 `runtime.hookCalls` records extension point, function name, and arguments for assertions. A missing extension point or function returns `undefined`; hook exceptions propagate to the caller.
 
+## Job steps
+
+Task-oriented `script-module-step` modules can be executed by their configured function name:
+
+```ts
+const jobModule = await import("../cartridge/scripts/jobs/GenerateFeed.js")
+const jobStep = runtime.jobStep(jobModule, {
+  context: { previousFile: "feed-1.csv" },
+})
+
+const status = await jobStep.run("Run", {
+  TargetFolder: "IMPEX/src/feeds",
+})
+
+expect(jobStep.jobExecution.context).toMatchObject({
+  previousFile: "feed-2.csv",
+})
+```
+
+The configured function receives `(parameters, stepExecution)`. `stepExecution.getJobExecution()` returns the same job execution for every call, so scripts can share mutable `context` state across steps or repeated runs. Missing and non-function exports fail with an explicit diagnostic. Chunk step lifecycle orchestration is outside the current harness.
+
 An unknown module fails with an actionable error unless the caller supplies a real cartridge fallback. This prevents incomplete platform behavior from making tests pass accidentally.
 
 ## License

@@ -65,6 +65,27 @@ export interface SfccControllerHarness {
   run(routeName: string, request?: SfccControllerRequest): Promise<SfccControllerResponse>
 }
 
+export type SfccJobStepModule = Record<string, unknown>
+export type SfccJobStepParameters = Record<string, unknown>
+
+export interface SfccJobExecution {
+  context: Record<string, unknown>
+}
+
+export interface SfccJobStepExecution {
+  getJobExecution(): SfccJobExecution
+}
+
+export interface SfccJobStepHarness {
+  readonly jobExecution: SfccJobExecution
+  readonly stepExecution: SfccJobStepExecution
+  run(functionName: string, parameters?: SfccJobStepParameters): Promise<unknown>
+}
+
+export interface SfccJobStepHarnessOptions {
+  context?: Record<string, unknown>
+}
+
 export interface SfccTestRuntimeOptions {
   site?: {
     id?: string
@@ -224,6 +245,26 @@ export class SfccTestRuntime {
 
         await dispatch(0)
         return response
+      },
+    }
+  }
+
+  jobStep(
+    jobStepModule: SfccJobStepModule,
+    options: SfccJobStepHarnessOptions = {},
+  ): SfccJobStepHarness {
+    const jobExecution = { context: options.context ?? {} }
+    const stepExecution = { getJobExecution: () => jobExecution }
+
+    return {
+      jobExecution,
+      stepExecution,
+      run: async (functionName, parameters = {}) => {
+        const stepFunction = jobStepModule[functionName]
+        if (typeof stepFunction !== "function") {
+          throw new Error(`SFCC job step does not export function ${functionName}.`)
+        }
+        return stepFunction(parameters, stepExecution)
       },
     }
   }
