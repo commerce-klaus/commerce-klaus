@@ -1,6 +1,7 @@
 import noControllers from "./no-controllers.js"
 import noCustomApiAdditionalProperties from "./no-custom-api-additional-properties.js"
 import noCustomApiResponseMethods from "./no-custom-api-response-methods.js"
+import noCustomApi from "./no-custom-api.js"
 import noDsFiles from "./no-ds-files.js"
 import noDwApi from "./no-dw-api.js"
 import noE4xSyntax from "./no-e4x-syntax.js"
@@ -30,6 +31,7 @@ const sfcc = {
     name: "sfcc",
   },
   rules: {
+    "no-custom-api": noCustomApi,
     "no-custom-api-additional-properties": noCustomApiAdditionalProperties,
     "no-custom-api-response-methods": noCustomApiResponseMethods,
     "no-controllers": noControllers,
