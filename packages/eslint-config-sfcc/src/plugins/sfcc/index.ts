@@ -15,6 +15,7 @@ import noPlatformGlobals from "./no-platform-globals.js"
 import noProprietaryModuleSyntax from "./no-proprietary-module-syntax.js"
 import noRhinoExtensions from "./no-rhino-extensions.js"
 import noRhinoImportGlobals from "./no-rhino-import-globals.js"
+import noServiceFramework from "./no-service-framework.js"
 import noSfraServer from "./no-sfra-server.js"
 import noStringEquals from "./no-string-equals.js"
 import noTypeAnnotations from "./no-type-annotations.js"
@@ -50,6 +51,7 @@ const sfcc = {
     "no-rhino-extensions": noRhinoExtensions,
     "no-type-annotations": noTypeAnnotations,
     "no-rhino-import-globals": noRhinoImportGlobals,
+    "no-service-framework": noServiceFramework,
     "no-sfra-server": noSfraServer,
     "no-string-equals": noStringEquals,
     "prefer-native-collections": preferNativeCollections,
