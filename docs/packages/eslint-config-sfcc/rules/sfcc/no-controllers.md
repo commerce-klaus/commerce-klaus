@@ -33,7 +33,7 @@ export default [
 ]
 ```
 
-The `storefront-next`, `pwa`, and `sitegenesis-pipelines` presets enable this rule. It can still be configured manually when no architecture preset fits the project.
+The `storefront-next` and `pwa` presets enable this rule. It can still be configured manually when no architecture preset fits the project.
 
 ## Default behavior
 

@@ -65,6 +65,9 @@ By default, JavaScript files under `cartridges/` are linted. Client-side and sta
 
 Storefront presets are policy overlays that describe which controller architecture a project uses. Compose one after `recommended`:
 
+They do not change the JavaScript compatibility baseline: modern syntax and standard library APIs supported by SFCC remain allowed in every storefront preset.
+`sitegenesis/no-global-require` also remains enabled in every preset because the rule limits itself to files under `cartridge/controllers/`.
+
 ```js{5-6} [eslint.config.js]
 import { defineConfig } from "eslint/config"
 import sfcc from "@commerce-klaus/eslint-config-sfcc"
@@ -80,12 +83,12 @@ export default defineConfig(
 | `storefront-next`         | `no-controllers`, `no-forms`, `no-isml-rendering`, `no-pipeline-api`, `no-sfra-server` |
 | `pwa`                     | `no-controllers`, `no-forms`, `no-isml-rendering`, `no-pipeline-api`, `no-sfra-server` |
 | `sfra`                    | `no-pipeline-api`                                                                      |
-| `sitegenesis-controllers` | `no-sfra-server`, `sitegenesis/no-global-require`                                      |
-| `sitegenesis-pipelines`   | `no-controllers`, `no-sfra-server`                                                     |
+| `sitegenesis-controllers` | `no-pipeline-api`, `no-sfra-server`                                                    |
+| `sitegenesis-pipelines`   | `no-sfra-server`                                                                       |
 
 `pwa` and `storefront-next` currently enforce the same headless boundaries. They have separate semantic names so their policies can evolve independently as their platform contracts diverge.
 
-The `sitegenesis-pipelines` preset applies to JavaScript only. ESLint cannot validate pipeline XML files; the preset expresses that cartridges using the pipeline architecture must not introduce controllers.
+The `sitegenesis-pipelines` preset applies to JavaScript only. It is the only preset that permits access to `dw/system/Pipeline`; all other presets reject pipeline execution. ESLint cannot validate pipeline XML files.
 
 #### Restrict a preset to selected cartridges
 

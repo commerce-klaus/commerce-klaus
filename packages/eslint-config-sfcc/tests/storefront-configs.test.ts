@@ -13,11 +13,20 @@ import {
 } from "../src/index.js"
 
 test.each([
-  ["storefront-next", storefrontNext, "error", "error", "error", "error", "error", "off"],
-  ["pwa", pwa, "error", "error", "error", "error", "error", "off"],
-  ["sfra", sfra, "off", "off", "off", "error", "off", "off"],
-  ["sitegenesis-controllers", sitegenesisControllers, "off", "off", "off", "off", "error", "error"],
-  ["sitegenesis-pipelines", sitegenesisPipelines, "error", "off", "off", "off", "error", "off"],
+  ["storefront-next", storefrontNext, "error", "error", "error", "error", "error", "error"],
+  ["pwa", pwa, "error", "error", "error", "error", "error", "error"],
+  ["sfra", sfra, "off", "off", "off", "error", "off", "error"],
+  [
+    "sitegenesis-controllers",
+    sitegenesisControllers,
+    "off",
+    "off",
+    "off",
+    "error",
+    "error",
+    "error",
+  ],
+  ["sitegenesis-pipelines", sitegenesisPipelines, "off", "off", "off", "off", "error", "error"],
 ] as const)(
   "exports the %s storefront preset",
   (
@@ -91,4 +100,35 @@ test("enforces a headless policy only in selected cartridges", async () => {
 
   expect(pwaResult?.messages.map((message) => message.ruleId)).toContain("sfcc/no-controllers")
   expect(sfraResult?.messages).toHaveLength(0)
+})
+
+test.each([
+  ["storefront-next", storefrontNext],
+  ["pwa", pwa],
+  ["sfra", sfra],
+  ["sitegenesis-controllers", sitegenesisControllers],
+  ["sitegenesis-pipelines", sitegenesisPipelines],
+] as const)("%s allows supported modern JavaScript", async (_preset, storefrontConfig) => {
+  const eslint = new ESLint({
+    overrideConfigFile: true,
+    overrideConfig: [...recommended, ...storefrontConfig],
+  })
+
+  const [result] = await eslint.lintText(
+    `
+      const source = { items: ["a", "b"] }
+      const { items } = source
+      const normalize = (value) => \`item:\${value}\`
+      const labels = Array.from(items, normalize)
+      const entries = Object.entries({ labels })
+      function* values() { yield* labels }
+      for (let value of values()) {
+        if (value.startsWith("item:")) break
+      }
+      module.exports = { entries, labels }
+    `,
+    { filePath: "cartridges/app_storefront/cartridge/scripts/modern.js" },
+  )
+
+  expect(result?.messages).toHaveLength(0)
 })

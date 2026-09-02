@@ -23,9 +23,9 @@ const storefrontRules: Linter.RulesRecord = {
   "sfcc/no-controllers": "off",
   "sfcc/no-forms": "off",
   "sfcc/no-isml-rendering": "off",
-  "sfcc/no-pipeline-api": "off",
+  "sfcc/no-pipeline-api": "error",
   "sfcc/no-sfra-server": "off",
-  "sitegenesis/no-global-require": "off",
+  "sitegenesis/no-global-require": "error",
 }
 
 const presetRules: Record<StorefrontPreset, Linter.RulesRecord> = {
@@ -34,7 +34,6 @@ const presetRules: Record<StorefrontPreset, Linter.RulesRecord> = {
     "sfcc/no-controllers": "error",
     "sfcc/no-forms": "error",
     "sfcc/no-isml-rendering": "error",
-    "sfcc/no-pipeline-api": "error",
     "sfcc/no-sfra-server": "error",
   },
   pwa: {
@@ -42,21 +41,18 @@ const presetRules: Record<StorefrontPreset, Linter.RulesRecord> = {
     "sfcc/no-controllers": "error",
     "sfcc/no-forms": "error",
     "sfcc/no-isml-rendering": "error",
-    "sfcc/no-pipeline-api": "error",
     "sfcc/no-sfra-server": "error",
   },
   sfra: {
     ...storefrontRules,
-    "sfcc/no-pipeline-api": "error",
   },
   "sitegenesis-controllers": {
     ...storefrontRules,
     "sfcc/no-sfra-server": "error",
-    "sitegenesis/no-global-require": "error",
   },
   "sitegenesis-pipelines": {
     ...storefrontRules,
-    "sfcc/no-controllers": "error",
+    "sfcc/no-pipeline-api": "off",
     "sfcc/no-sfra-server": "error",
   },
 }

@@ -2,7 +2,7 @@
 
 Disallows the legacy SFCC Pipeline API in JavaScript.
 
-This rule is opt-in and is not part of the recommended config. It is enabled by the SFRA, PWA, and Storefront Next architecture presets.
+This rule is opt-in and is not part of the recommended config. Every storefront architecture preset enables it except `sitegenesis-pipelines`, which permits the legacy Pipeline API by design.
 
 ## What it checks
 
