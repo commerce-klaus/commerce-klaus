@@ -94,6 +94,17 @@ next()
 
 The result exposes `redirectUrl`, `redirectStatus`, `headers`, `cachePeriod`, and `messageLog`. Matching SFRA routing behavior, a pending redirect stops the remaining middleware when `next()` is called.
 
+## Middleware control
+
+A middleware function controls the route chain through `next()`:
+
+- Calling `next()` executes the next registered middleware.
+- Returning without `next()` stops the chain normally.
+- Calling `next(error)` logs the error and rejects the Promise returned by `run()`.
+- Calling `next()` more than once from the same middleware rejects with an explicit diagnostic.
+
+Both synchronous SFRA-style `next()` calls and awaited calls are supported.
+
 Extended cartridges can inherit and modify routes using the standard SFRA pattern:
 
 ```js

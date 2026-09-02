@@ -43,7 +43,7 @@ export interface SfccControllerResponse {
   setViewData(data: Record<string, unknown>): void
 }
 
-export type SfccControllerNext = () => Promise<void>
+export type SfccControllerNext = (error?: Error) => Promise<void>
 export type SfccControllerMiddleware = (
   request: SfccControllerRequest,
   response: SfccControllerResponse,
@@ -207,11 +207,16 @@ export class SfccTestRuntime {
           }
 
           let nextCall: Promise<void> | undefined
-          await middleware(request, response, () => {
+          await middleware(request, response, (error) => {
             if (nextCall) {
               throw new Error(`SFCC controller route ${routeName} called next() more than once.`)
             }
-            nextCall = dispatch(index + 1)
+            if (error) {
+              response.log(error)
+              nextCall = Promise.reject(error)
+            } else {
+              nextCall = dispatch(index + 1)
+            }
             return nextCall
           })
           await nextCall

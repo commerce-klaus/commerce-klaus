@@ -24,6 +24,8 @@ Controller inheritance supports `extend()`, `prepend()`, `append()`, and
 `replace()`. Raw responses expose status code, content type, and printed output.
 Redirect responses expose status, headers, cache period, and message logs, and
 stop the remaining middleware chain.
+Middleware can stop by omitting `next()`. Calling `next(error)` rejects the route
+run, while repeated `next()` calls fail with an explicit diagnostic.
 
 ## License
 

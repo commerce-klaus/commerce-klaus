@@ -108,6 +108,8 @@ The harness supports `server.get()`, `server.post()`, ordered middleware with `n
 
 Redirect metadata from `setRedirectStatus()`, `setHttpHeader()`, `cacheExpiration()`, and `log()` is available through the corresponding response state. A pending redirect stops subsequent middleware when the route calls `next()`, matching the SFRA server lifecycle.
 
+Middleware can intentionally stop the chain by omitting `next()`. Passing an `Error` to `next(error)` rejects the Promise returned by `run()`, and calling `next()` repeatedly from one middleware produces an explicit diagnostic.
+
 Controller inheritance works through the same `module.superModule` resolution used by scripts:
 
 ```js
