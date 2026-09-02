@@ -41,6 +41,18 @@ export {
 } from "./super-module.ts"
 
 export {
+  findResolvedStepTypeDefinitions,
+  getStepTypeDefinitionsFromDocument,
+} from "./step-types.ts"
+export type {
+  ChunkScriptModuleStepTypeDefinition,
+  ChunkStepFunctions,
+  ResolvedStepTypeDefinition,
+  ScriptModuleStepTypeDefinition,
+  StepTypeDefinition,
+} from "./step-types.ts"
+
+export {
   findApiJsonFiles,
   findCustomApiDefinitions,
   findOperationByOperationId,

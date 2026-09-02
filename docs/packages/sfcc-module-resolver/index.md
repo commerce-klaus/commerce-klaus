@@ -12,6 +12,7 @@ This package centralizes SFCC-specific resolution for:
 - `module.superModule`
 - cartridge order detection from configuration, environment, `jsconfig`, and optional `site.xml`
 - cartridge `hooks.json` registration lookups
+- cartridge `steptypes.json` job step discovery
 
 ## Why this package?
 
@@ -124,6 +125,16 @@ Notes:
 - `getRequiredHookExportsForScriptFile(filePath): RequiredHookExport[]`
   - Given a script file, returns every `{ hookName, exportName }` it must statically export according to its cartridge's `hooks.json`
 
+### Job step definitions
+
+- `getStepTypeDefinitionsFromDocument(document): StepTypeDefinition[] | undefined`
+  - Validates task-oriented `script-module-step` and `chunk-script-module-step` entries from a parsed `steptypes.json`
+  - Normalizes task function names, chunk sizes, and chunk lifecycle function names into discriminated definitions
+- `findResolvedStepTypeDefinitions(cartridgeRoots): ResolvedStepTypeDefinition[]`
+  - Reads `steptypes.json` from each cartridge root
+  - Resolves module paths with the standard SFCC runtime extensions and index-module fallback
+  - Keeps the first resolvable definition for each type ID in cartridge-path order
+
 ### Utilities
 
 - `stripExt(filePath): string`
@@ -175,6 +186,23 @@ const requiredExports = getRequiredHookExportsForScriptFile(
 )
 // [{ hookName: "dw.ocapi.shop.basket.afterPOST", exportName: "afterPOST" }]
 ```
+
+### 5) Discover job step definitions
+
+```ts
+import { findResolvedStepTypeDefinitions } from "@commerce-klaus/sfcc-module-resolver"
+
+const definitions = findResolvedStepTypeDefinitions(cartridgeRoots)
+const exportStep = definitions.find((definition) => definition.typeId === "custom.ExportProducts")
+
+if (exportStep?.kind === "chunk-script-module-step") {
+  console.log(exportStep.modulePath)
+  console.log(exportStep.chunkSize)
+  console.log(exportStep.functions.read)
+}
+```
+
+Malformed documents and definitions whose modules cannot be resolved are skipped during filesystem discovery. Duplicate type IDs use the same first-cartridge-wins priority as module and hook resolution.
 
 ## Design decisions
 

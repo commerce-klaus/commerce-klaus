@@ -11,6 +11,7 @@ Shared Node.js utilities for SFCC cartridge order, module resolution, super modu
 - Provides deterministic filesystem helpers for SFCC-aware tooling
 - Reads and resolves cartridge hook registrations
 - Discovers effective hook scripts in cartridge-path order
+- Reads and resolves script and chunk job step definitions from `steptypes.json`
 
 ## Install
 
