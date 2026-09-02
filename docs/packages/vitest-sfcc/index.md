@@ -54,6 +54,24 @@ it("uses the test payment provider", async () => {
 
 Mocks can target `dw/*`, `*/`, `~/`, and cartridge-alias module identifiers. Without a cartridge mock, the real file selected by cartridge resolution is loaded.
 
+Static relative imports are mockable as well, covering a common `proxyquire` pattern:
+
+```ts
+getSfccRuntime().mock("./helpers/storeOpeningHours", storeOpeningHoursMock)
+const storesHook = await import("../cartridge/scripts/hooks/stores.js")
+```
+
+A relative identifier can occur below multiple directories. Use an absolute resolved mock to replace exactly one file:
+
+```ts
+getSfccRuntime().mockResolved(
+  "/workspace/cartridges/app_custom/cartridge/scripts/helpers/storeOpeningHours.js",
+  storeOpeningHoursMock,
+)
+```
+
+Resolved mocks take precedence over module-identifier mocks. `runtime.reset()` clears both kinds.
+
 `module.superModule` loads the next matching implementation in cartridge-path order. Transitive supermodule chains pass through the same CommonJS transformation.
 
 ## Hook execution

@@ -1,6 +1,7 @@
 import {
   createSfccModuleResolver,
   findResolvedHookRegistrations,
+  resolveCandidateFile,
   resolveCartridgeRoots,
   resolveSuperModuleFilePath,
 } from "@commerce-klaus/sfcc-module-resolver"
@@ -162,17 +163,16 @@ export default function sfccVitest(options: SfccVitestOptions): SfccVitestPlugin
         return `${resolvedPath}${CARTRIDGE_MODULE_SUFFIX}`
       }
 
-      const candidatePath = path.isAbsolute(source)
+      const unresolvedCandidatePath = path.isAbsolute(source)
         ? source
         : importer && source.startsWith(".")
           ? path.resolve(path.dirname(importer), source)
           : undefined
-      if (
-        candidatePath &&
-        fs.existsSync(candidatePath) &&
-        isCartridgeModule(candidatePath, cartridgeRoots)
-      ) {
-        return `${candidatePath}${CARTRIDGE_MODULE_SUFFIX}`
+      const candidatePath = unresolvedCandidatePath
+        ? resolveCandidateFile(unresolvedCandidatePath, source)
+        : undefined
+      if (candidatePath && isCartridgeModule(candidatePath, cartridgeRoots)) {
+        return encodeVirtualModule({ moduleId: source, resolvedPath: candidatePath })
       }
 
       return undefined
@@ -208,7 +208,7 @@ export default function sfccVitest(options: SfccVitestOptions): SfccVitestPlugin
         const imports = hookRegistrations
           .map(
             (registration, index) =>
-              `import * as hook${index} from ${JSON.stringify(registration.scriptPath)}`,
+              `import * as hook${index} from ${JSON.stringify(`${registration.scriptPath}${CARTRIDGE_MODULE_SUFFIX}`)}`,
           )
           .join("\n")
         const registrations = hookRegistrations
@@ -227,12 +227,13 @@ export default runtime.resolve("dw/system/HookMgr")
       }
 
       const fallbackImport = resolvedPath
-        ? `import fallback from ${JSON.stringify(resolvedPath)}\n`
+        ? `import fallback from ${JSON.stringify(`${resolvedPath}${CARTRIDGE_MODULE_SUFFIX}`)}\n`
         : ""
       const fallbackArgument = resolvedPath ? ", () => fallback" : ""
+      const resolvedArgument = resolvedPath ? `, ${JSON.stringify(resolvedPath)}` : ""
 
       return `${fallbackImport}import { requireSfccModule } from "@commerce-klaus/sfcc-test-runtime"
-const implementation = requireSfccModule(${JSON.stringify(moduleId)}${fallbackArgument})
+const implementation = requireSfccModule(${JSON.stringify(moduleId)}${fallbackArgument}${resolvedArgument})
 export default implementation
 `
     },

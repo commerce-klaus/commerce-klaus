@@ -25,6 +25,10 @@ getSfccRuntime().mock("*/cartridge/scripts/provider", providerMock)
 const subject = await import("../cartridge/scripts/subject.js")
 ```
 
+Static relative dependencies such as `require("./helper")` use the same registry.
+Use `mockResolved(absolutePath, implementation)` when only one exact file should
+be replaced.
+
 The initial release resolves `dw/*`, `*/`, `~/`, cartridge aliases, and
 `module.superModule`. Runtime modules include `Status`, `Transaction`, `Logger`,
 `Site`, and `HookMgr`. Hook registrations are discovered automatically from each

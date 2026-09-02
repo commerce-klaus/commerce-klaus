@@ -29,6 +29,29 @@ describe("SFCC test runtime", () => {
     })
   })
 
+  it("prefers an exact resolved mock and removes it on reset", () => {
+    runtime.mock("./provider", { value: "specifier" })
+    runtime.mockResolved("/cartridges/app_custom/provider.js", { value: "resolved" })
+
+    expect(
+      requireSfccModule(
+        "./provider",
+        () => ({ value: "real" }),
+        "/cartridges/app_custom/provider.js",
+      ),
+    ).toEqual({ value: "resolved" })
+
+    runtime.reset()
+
+    expect(
+      requireSfccModule(
+        "./provider",
+        () => ({ value: "real" }),
+        "/cartridges/app_custom/provider.js",
+      ),
+    ).toEqual({ value: "real" })
+  })
+
   it("provides isolated transaction, logger, and site modules", () => {
     const Transaction = requireSfccModule("dw/system/Transaction") as {
       wrap: <Result>(callback: () => Result) => Result

@@ -33,8 +33,11 @@ const runtime = createSfccTestRuntime({
 })
 
 runtime.mock("dw/system/Logger", loggerMock)
+runtime.mockResolved("/workspace/cartridges/app_custom/cartridge/scripts/provider.js", providerMock)
 runtime.reset()
 ```
+
+`mock()` targets the original module identifier. This is useful for platform modules and shared identifiers such as `*/cartridge/scripts/provider` or `./helper`. `mockResolved()` targets exactly one absolute cartridge file and takes precedence when identical relative identifiers occur in different directories.
 
 Hook implementations can also be registered directly. The first registration for an extension point wins, matching cartridge-path priority:
 

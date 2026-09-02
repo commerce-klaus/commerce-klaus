@@ -69,6 +69,7 @@ export class SfccTestRuntime {
   private readonly defaults = new Map<string, SfccModule>()
   private readonly hooks = new Map<string, SfccHookImplementation>()
   private readonly mocks = new Map<string, SfccModule>()
+  private readonly resolvedMocks = new Map<string, SfccModule>()
 
   constructor(options: SfccTestRuntimeOptions = {}) {
     this.options = options
@@ -77,6 +78,10 @@ export class SfccTestRuntime {
 
   mock(moduleId: string, implementation: SfccModule): void {
     this.mocks.set(moduleId, implementation)
+  }
+
+  mockResolved(resolvedId: string, implementation: SfccModule): void {
+    this.resolvedMocks.set(resolvedId, implementation)
   }
 
   registerHook(extensionPoint: string, implementation: SfccHookImplementation): void {
@@ -95,8 +100,11 @@ export class SfccTestRuntime {
     return typeof hookFunction === "function" ? hookFunction(...args) : undefined
   }
 
-  resolve(moduleId: string, fallback?: SfccModuleFallback): SfccModule {
-    const implementation = this.mocks.get(moduleId) ?? this.defaults.get(moduleId)
+  resolve(moduleId: string, fallback?: SfccModuleFallback, resolvedId?: string): SfccModule {
+    const implementation =
+      (resolvedId ? this.resolvedMocks.get(resolvedId) : undefined) ??
+      this.mocks.get(moduleId) ??
+      this.defaults.get(moduleId)
     if (implementation) {
       return implementation
     }
@@ -112,6 +120,7 @@ export class SfccTestRuntime {
     this.hooks.clear()
     this.hookCalls.length = 0
     this.mocks.clear()
+    this.resolvedMocks.clear()
     this.loggerEntries.length = 0
     this.transactionCalls.length = 0
   }
@@ -166,6 +175,10 @@ export function setSfccTestRuntime(runtime: SfccTestRuntime): void {
   runtimeGlobal()[ACTIVE_RUNTIME] = runtime
 }
 
-export function requireSfccModule(moduleId: string, fallback?: SfccModuleFallback): SfccModule {
-  return getSfccTestRuntime().resolve(moduleId, fallback)
+export function requireSfccModule(
+  moduleId: string,
+  fallback?: SfccModuleFallback,
+  resolvedId?: string,
+): SfccModule {
+  return getSfccTestRuntime().resolve(moduleId, fallback, resolvedId)
 }
