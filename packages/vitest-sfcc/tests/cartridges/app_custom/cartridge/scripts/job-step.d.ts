@@ -5,3 +5,6 @@ export function Parameters(
   parameters: SfccJobStepParameters,
   stepExecution: SfccJobStepExecution,
 ): SfccJobStepParameters
+export function Status(
+  parameters: SfccJobStepParameters,
+): { code: unknown } | { getCode(): unknown }

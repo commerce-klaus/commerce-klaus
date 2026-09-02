@@ -8,6 +8,7 @@ export interface ScriptModuleStepTypeDefinition {
   kind: "script-module-step"
   module: string
   parameters: StepTypeParameterDefinition[]
+  statusCodes: string[]
   typeId: string
 }
 
@@ -36,6 +37,7 @@ export interface ChunkScriptModuleStepTypeDefinition {
   kind: "chunk-script-module-step"
   module: string
   parameters: StepTypeParameterDefinition[]
+  statusCodes: string[]
   typeId: string
 }
 
@@ -116,6 +118,23 @@ function parseParameters(record: UnknownRecord): StepTypeParameterDefinition[] |
     : undefined
 }
 
+function parseStatusCodes(record: UnknownRecord): string[] | undefined {
+  const container = record["status-codes"]
+  if (container === undefined) {
+    return []
+  }
+  if (!isRecord(container) || !Array.isArray(container.status)) {
+    return undefined
+  }
+
+  const statusCodes = container.status.map((status) =>
+    isRecord(status) ? readString(status, "@code") : undefined,
+  )
+  return statusCodes.every((statusCode) => statusCode !== undefined)
+    ? (statusCodes as string[])
+    : undefined
+}
+
 function parseScriptModuleStep(value: unknown): ScriptModuleStepTypeDefinition | undefined {
   if (!isRecord(value)) {
     return undefined
@@ -125,8 +144,9 @@ function parseScriptModuleStep(value: unknown): ScriptModuleStepTypeDefinition |
   const module = readString(value, "module")
   const functionName = readString(value, "function")
   const parameters = parseParameters(value)
-  return typeId && module && functionName && parameters
-    ? { functionName, kind: "script-module-step", module, parameters, typeId }
+  const statusCodes = parseStatusCodes(value)
+  return typeId && module && functionName && parameters && statusCodes
+    ? { functionName, kind: "script-module-step", module, parameters, statusCodes, typeId }
     : undefined
 }
 
@@ -158,6 +178,7 @@ function parseChunkScriptModuleStep(
   const read = readString(value, CHUNK_FUNCTION_FIELDS.read)
   const write = readString(value, CHUNK_FUNCTION_FIELDS.write)
   const parameters = parseParameters(value)
+  const statusCodes = parseStatusCodes(value)
   if (
     !typeId ||
     !module ||
@@ -165,7 +186,8 @@ function parseChunkScriptModuleStep(
     (chunkSize as number) <= 0 ||
     !read ||
     !write ||
-    !parameters
+    !parameters ||
+    !statusCodes
   ) {
     return undefined
   }
@@ -187,6 +209,7 @@ function parseChunkScriptModuleStep(
     kind: "chunk-script-module-step",
     module,
     parameters,
+    statusCodes,
     typeId,
   }
 }

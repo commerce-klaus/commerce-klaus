@@ -8,3 +8,7 @@ exports.Parameters = function (parameters, stepExecution) {
   stepExecution.getJobExecution().context.parameters = parameters
   return parameters
 }
+
+exports.Status = function (parameters) {
+  return parameters.UseGetter ? { getCode: () => parameters.Code } : { code: parameters.Code }
+}

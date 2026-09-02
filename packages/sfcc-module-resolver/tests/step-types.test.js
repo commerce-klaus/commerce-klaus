@@ -42,6 +42,9 @@ test("getStepTypeDefinitionsFromDocument parses script and chunk steps", () => {
                 },
               ],
             },
+            "status-codes": {
+              status: [{ "@code": "OK" }, { "@code": "ERROR" }],
+            },
           },
           {
             "@type-id": "custom.EmptyParameters",
@@ -89,6 +92,7 @@ test("getStepTypeDefinitionsFromDocument parses script and chunk steps", () => {
           type: "boolean",
         },
       ],
+      statusCodes: ["OK", "ERROR"],
       typeId: "custom.GenerateFeed",
     },
     {
@@ -96,6 +100,7 @@ test("getStepTypeDefinitionsFromDocument parses script and chunk steps", () => {
       kind: "script-module-step",
       module: "app_jobs/cartridge/scripts/empty-parameters",
       parameters: [],
+      statusCodes: [],
       typeId: "custom.EmptyParameters",
     },
     {
@@ -118,6 +123,7 @@ test("getStepTypeDefinitionsFromDocument parses script and chunk steps", () => {
           type: "long",
         },
       ],
+      statusCodes: [],
       typeId: "custom.ExportProducts",
     },
   ])
@@ -130,6 +136,20 @@ test("getStepTypeDefinitionsFromDocument rejects malformed definitions", () => {
     getStepTypeDefinitionsFromDocument({
       "step-types": {
         "script-module-step": [{ "@type-id": "custom.MissingFunction", module: "job" }],
+      },
+    }),
+  ).toBeUndefined()
+  expect(
+    getStepTypeDefinitionsFromDocument({
+      "step-types": {
+        "script-module-step": [
+          {
+            "@type-id": "custom.InvalidStatus",
+            function: "Run",
+            module: "job",
+            "status-codes": { status: [{ description: "missing code" }] },
+          },
+        ],
       },
     }),
   ).toBeUndefined()
@@ -199,6 +219,7 @@ test("findResolvedStepTypeDefinitions resolves modules and honors cartridge prio
         module: "app_custom/cartridge/scripts/jobs/feed",
         modulePath: path.join(customRoot, "cartridge", "scripts", "jobs", "feed.js"),
         parameters: [],
+        statusCodes: [],
         typeId: "custom.GenerateFeed",
       },
     ])

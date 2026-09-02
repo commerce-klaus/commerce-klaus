@@ -252,6 +252,24 @@ describe("vitest-sfcc", () => {
     )
   })
 
+  it("validates status-like job step results against declared codes", async () => {
+    const jobStep = await loadSfccJobStep("custom.TestStatus")
+
+    await expect(jobStep.run({ Code: "OK" })).resolves.toEqual({ code: "OK" })
+    await expect(jobStep.run({ Code: "WARN", UseGetter: true })).resolves.toMatchObject({
+      getCode: expect.any(Function),
+    })
+    await expect(jobStep.run({ Code: "UNKNOWN" })).rejects.toThrow(
+      "SFCC job step custom.TestStatus returned undeclared status code UNKNOWN. Expected one of: OK, WARN.",
+    )
+  })
+
+  it("allows status-like results without declared status codes", async () => {
+    const jobStep = await loadSfccJobStep("custom.TestStatusWithoutCodes")
+
+    await expect(jobStep.run({ Code: "CUSTOM" })).resolves.toEqual({ code: "CUSTOM" })
+  })
+
   it("rejects mutable require aliases", () => {
     const plugin = sfccVitest({
       basePath: path.resolve(import.meta.dirname, "cartridges"),

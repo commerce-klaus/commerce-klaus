@@ -158,6 +158,34 @@ function resolveJobStepParameters(
   return resolved
 }
 
+function getJobStepStatusCode(result: unknown): string | undefined {
+  if (typeof result !== "object" || result === null) {
+    return undefined
+  }
+  if ("code" in result && typeof result.code === "string") {
+    return result.code
+  }
+  if ("getCode" in result && typeof result.getCode === "function") {
+    const code = result.getCode()
+    return typeof code === "string" ? code : undefined
+  }
+  return undefined
+}
+
+function validateJobStepStatus(definition: ResolvedStepTypeDefinition, result: unknown): unknown {
+  const statusCode = getJobStepStatusCode(result)
+  if (
+    statusCode &&
+    definition.statusCodes.length > 0 &&
+    !definition.statusCodes.includes(statusCode)
+  ) {
+    throw new Error(
+      `SFCC job step ${definition.typeId} returned undeclared status code ${statusCode}. Expected one of: ${definition.statusCodes.join(", ")}.`,
+    )
+  }
+  return result
+}
+
 function isCartridgeModule(filePath: string, cartridgeRoots: string[]): boolean {
   const normalizedPath = path.resolve(filePath)
   return cartridgeRoots.some((root) => {
@@ -417,13 +445,15 @@ export async function loadSfccJobStep(
     stepExecution: harness.stepExecution,
     run: async (parameters) => {
       const resolvedParameters = resolveJobStepParameters(definition, parameters)
-      return definition.kind === "script-module-step"
-        ? harness.run(definition.functionName, resolvedParameters)
-        : harness.runChunk({
-            chunkSize: definition.chunkSize,
-            functions: definition.functions,
-            parameters: resolvedParameters,
-          })
+      const result =
+        definition.kind === "script-module-step"
+          ? await harness.run(definition.functionName, resolvedParameters)
+          : await harness.runChunk({
+              chunkSize: definition.chunkSize,
+              functions: definition.functions,
+              parameters: resolvedParameters,
+            })
+      return validateJobStepStatus(definition, result)
     },
   }
 }

@@ -192,6 +192,8 @@ The plugin discovers definitions at configuration time using cartridge-path prio
 
 Before invoking the module, `run()` applies declared defaults and `@trim`, then normalizes `boolean`, `long`, `double`, `string`, and `time-string` values. This covers SFCC metadata that stores Boolean and numeric defaults as strings. Missing required parameters, invalid booleans, non-finite numbers, and non-integer `long` values reject with a diagnostic containing the type ID and parameter name. Parameters not declared in `steptypes.json` pass through unchanged for test-specific inputs.
 
+If the definition declares `status-codes`, the completed result is validated when it exposes a string `code` property or `getCode()` value, matching `dw.system.Status`. An undeclared code rejects with the type ID and allowed codes. Definitions without declared status codes remain permissive, as do ordinary data results and `undefined`.
+
 ## Hook execution
 
 `dw/system/HookMgr` automatically discovers `hooks.json` through each cartridge's `package.json`. If multiple cartridges register the same extension point, the first resolvable registration in cartridge-path order is used.

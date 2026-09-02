@@ -26,7 +26,34 @@
               "default-value": "3"
             }
           ]
+        },
+        "status-codes": {
+          "status": [
+            {
+              "@code": "OK"
+            }
+          ]
         }
+      },
+      {
+        "@type-id": "custom.TestStatus",
+        "module": "app_custom/cartridge/scripts/job-step.js",
+        "function": "Status",
+        "status-codes": {
+          "status": [
+            {
+              "@code": "OK"
+            },
+            {
+              "@code": "WARN"
+            }
+          ]
+        }
+      },
+      {
+        "@type-id": "custom.TestStatusWithoutCodes",
+        "module": "app_custom/cartridge/scripts/job-step.js",
+        "function": "Status"
       }
     ],
     "chunk-script-module-step": [
@@ -49,6 +76,13 @@
               "@type": "double",
               "@required": false,
               "default-value": "2"
+            }
+          ]
+        },
+        "status-codes": {
+          "status": [
+            {
+              "@code": "OK"
             }
           ]
         }
