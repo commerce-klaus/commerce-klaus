@@ -68,18 +68,39 @@ export interface SfccControllerHarness {
 export type SfccJobStepModule = Record<string, unknown>
 export type SfccJobStepParameters = Record<string, unknown>
 
+export interface SfccCollection<Item> extends Iterable<Item> {
+  readonly empty: boolean
+  readonly length: number
+  contains(value: Item): boolean
+  getLength(): number
+  isEmpty(): boolean
+  size(): number
+  toArray(): Item[]
+  toArray(start: number, size: number): Item[]
+}
+
+export interface SfccMapEntry<Key, Value> {
+  readonly key: Key
+  readonly value: Value
+  getKey(): Key
+  getValue(): Value
+}
+
 export interface SfccJobContext extends Record<string, unknown> {
   readonly empty: boolean
   readonly length: number
   clear(): void
   containsKey(key: string): boolean
   containsValue(value: unknown): boolean
+  entrySet(): SfccCollection<SfccMapEntry<string, unknown>>
   get(key: string): unknown
   getLength(): number
   isEmpty(): boolean
+  keySet(): SfccCollection<string>
   put(key: string, value: unknown): unknown
   remove(key: string): unknown
   size(): number
+  values(): SfccCollection<unknown>
 }
 
 export interface SfccJobExecution {
@@ -221,6 +242,38 @@ function createChunkItems<Item>(items: Item[]): SfccChunkItems<Item> {
   }
 }
 
+function createCollection<Item>(getItems: () => Item[]): SfccCollection<Item> {
+  return {
+    get empty() {
+      return getItems().length === 0
+    },
+    get length() {
+      return getItems().length
+    },
+    contains: (value) => getItems().includes(value),
+    getLength: () => getItems().length,
+    isEmpty: () => getItems().length === 0,
+    size: () => getItems().length,
+    toArray: (start?: number, size?: number) => {
+      const items = getItems()
+      if (start === undefined || size === undefined) {
+        return items
+      }
+      return items.slice(Math.max(0, start), Math.max(0, start) + Math.max(0, size))
+    },
+    [Symbol.iterator]: () => getItems()[Symbol.iterator](),
+  }
+}
+
+function createMapEntry<Key, Value>(key: Key, value: Value): SfccMapEntry<Key, Value> {
+  return {
+    getKey: () => key,
+    getValue: () => value,
+    key,
+    value,
+  }
+}
+
 const JOB_CONTEXT = Symbol("sfccJobContext")
 
 function createJobContext(values: Record<string, unknown>): SfccJobContext {
@@ -235,9 +288,13 @@ function createJobContext(values: Record<string, unknown>): SfccJobContext {
     containsKey: { value: containsKey },
     containsValue: { value: (value: unknown) => Object.values(values).includes(value) },
     empty: { get: () => keys().length === 0 },
+    entrySet: {
+      value: () => createCollection(() => keys().map((key) => createMapEntry(key, values[key]))),
+    },
     get: { value: (key: string) => (containsKey(key) ? values[key] : null) },
     getLength: { value: () => keys().length },
     isEmpty: { value: () => keys().length === 0 },
+    keySet: { value: () => createCollection(keys) },
     length: { get: () => keys().length },
     put: {
       value: (key: string, value: unknown) => {
@@ -253,6 +310,7 @@ function createJobContext(values: Record<string, unknown>): SfccJobContext {
       },
     },
     size: { value: () => keys().length },
+    values: { value: () => createCollection(() => Object.values(values)) },
   })
   return values as SfccJobContext
 }

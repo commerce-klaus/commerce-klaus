@@ -20,6 +20,7 @@ import {
   type SfccControllerRequest,
   type SfccControllerResponse,
   type SfccControllerRoute,
+  type SfccCollection,
   type SfccChunkItems,
   type SfccChunkStepFunctions,
   type SfccChunkStepResult,
@@ -32,6 +33,7 @@ import {
   type SfccJobStepHarnessOptions,
   type SfccJobStepModule,
   type SfccJobStepParameters,
+  type SfccMapEntry,
   type SfccTestRuntime,
   type SfccTestRuntimeOptions,
 } from "@commerce-klaus/sfcc-test-runtime"
@@ -505,6 +507,7 @@ export type {
   SfccControllerRequest,
   SfccControllerResponse,
   SfccControllerRoute,
+  SfccCollection,
   SfccChunkItems,
   SfccChunkStepFunctions,
   SfccChunkStepResult,
@@ -517,6 +520,7 @@ export type {
   SfccJobStepHarnessOptions,
   SfccJobStepModule,
   SfccJobStepParameters,
+  SfccMapEntry,
   SfccTestRuntime,
   SfccTestRuntimeOptions,
 }
