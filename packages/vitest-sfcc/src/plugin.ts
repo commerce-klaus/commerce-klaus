@@ -98,7 +98,7 @@ export default function sfccVitest(options: SfccVitestOptions): SfccVitestPlugin
       const candidatePath = unresolvedCandidatePath
         ? resolveCandidateFile(unresolvedCandidatePath, source)
         : undefined
-      if (candidatePath && isCartridgeModule(candidatePath, cartridgeRoots)) {
+      if (candidatePath?.endsWith(".js") && isCartridgeModule(candidatePath, cartridgeRoots)) {
         return encodeVirtualModule({ moduleId: source, resolvedPath: candidatePath })
       }
 

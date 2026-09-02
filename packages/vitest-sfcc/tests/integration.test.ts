@@ -102,6 +102,26 @@ describe("vitest-sfcc", () => {
     expect(plugin.load(resolvedId!)).toContain("relative-helper.js?vitest-sfcc-cjs")
   })
 
+  it("leaves TypeScript files inside cartridge roots to Vite", () => {
+    const plugin = sfccVitest({
+      basePath: path.resolve(import.meta.dirname, "cartridges"),
+      cartridgePath: ["app_custom", "app_base"],
+    })
+    const setupPath = path.resolve(import.meta.dirname, "cartridges/app_custom/test/setup.ts")
+
+    expect(plugin.resolveId(setupPath)).toBeUndefined()
+  })
+
+  it("leaves JavaScript files outside cartridge roots to Vite", () => {
+    const plugin = sfccVitest({
+      basePath: path.resolve(import.meta.dirname, "cartridges"),
+      cartridgePath: ["app_custom", "app_base"],
+    })
+    const applicationPath = path.resolve(import.meta.dirname, "application-module.js")
+
+    expect(plugin.resolveId(applicationPath)).toBeUndefined()
+  })
+
   it("resolves and replaces cartridge aliases", async () => {
     getSfccRuntime().mock("app_base/cartridge/scripts/provider", {
       value: () => "alias-mocked",
@@ -137,6 +157,16 @@ describe("vitest-sfcc", () => {
     const subject = await import("./cartridges/app_custom/cartridge/scripts/relative-subject.js")
 
     expect(subject.default.execute()).toBe("resolved-mocked")
+  })
+
+  it("does not evaluate a cartridge fallback when its module is mocked", async () => {
+    getSfccRuntime().mock("./unloadable-helper", { value: () => "mocked" })
+
+    const subject = await vi.importActual<{
+      default: { execute: () => string }
+    }>("./cartridges/app_custom/cartridge/scripts/lazy-subject.js")
+
+    expect(subject.default.execute()).toBe("mocked")
   })
 
   it("loads direct named CommonJS exports", async () => {

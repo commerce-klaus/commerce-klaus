@@ -46,14 +46,22 @@ export default runtime.resolve("dw/system/HookMgr")
 `
   }
 
-  const fallbackImport = resolvedPath
-    ? `import fallback from ${JSON.stringify(`${resolvedPath}${CARTRIDGE_MODULE_SUFFIX}`)}\n`
-    : ""
-  const fallbackArgument = resolvedPath ? ", () => fallback" : ""
-  const resolvedArgument = resolvedPath ? `, ${JSON.stringify(resolvedPath)}` : ""
+  if (resolvedPath) {
+    return `import { getSfccTestRuntime } from "@commerce-klaus/sfcc-test-runtime"
+const runtime = getSfccTestRuntime()
+let implementation
+try {
+  implementation = runtime.resolve(${JSON.stringify(moduleId)}, undefined, ${JSON.stringify(resolvedPath)})
+} catch {
+  const fallback = (await import(${JSON.stringify(`${resolvedPath}${CARTRIDGE_MODULE_SUFFIX}`)})).default
+  implementation = runtime.resolve(${JSON.stringify(moduleId)}, () => fallback, ${JSON.stringify(resolvedPath)})
+}
+export default implementation
+`
+  }
 
-  return `${fallbackImport}import { requireSfccModule } from "@commerce-klaus/sfcc-test-runtime"
-const implementation = requireSfccModule(${JSON.stringify(moduleId)}${fallbackArgument}${resolvedArgument})
+  return `import { requireSfccModule } from "@commerce-klaus/sfcc-test-runtime"
+const implementation = requireSfccModule(${JSON.stringify(moduleId)})
 export default implementation
 `
 }
