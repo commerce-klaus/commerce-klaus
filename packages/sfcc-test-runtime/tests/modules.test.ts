@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vite-plus/test"
 
 import { createSfccTestRuntime, requireSfccModule, setSfccTestRuntime } from "../src/index.js"
 
-describe("SFCC test runtime", () => {
+describe("SFCC module registry", () => {
   const runtime = createSfccTestRuntime({
     site: { id: "RefArch", preferences: { reviewsEnabled: true } },
   })
