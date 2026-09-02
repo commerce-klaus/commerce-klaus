@@ -54,8 +54,7 @@ import {
   transformCartridgeCommonJs,
 } from "./cartridge-transform.js"
 import { setActiveStepTypes } from "./job-step.js"
-
-const VIRTUAL_PREFIX = "\0vitest-sfcc:"
+import { encodeVirtualModule, loadVirtualModule, VIRTUAL_PREFIX } from "./virtual-modules.js"
 
 export interface SfccVitestOptions {
   cartridgePath?: string[]
@@ -68,11 +67,6 @@ export interface SfccVitestOptions {
   runtime?: SfccTestRuntimeOptions
 }
 
-interface VirtualModule {
-  moduleId: string
-  resolvedPath?: string
-}
-
 export interface SfccVitestPlugin {
   name: string
   enforce: "pre"
@@ -80,16 +74,6 @@ export interface SfccVitestPlugin {
   resolveId(source: string, importer?: string): string | undefined
   transform(code: string, id: string): { code: string; map: null } | undefined
   load(id: string): string | undefined
-}
-
-function encodeVirtualModule(module: VirtualModule): string {
-  return `${VIRTUAL_PREFIX}${Buffer.from(JSON.stringify(module)).toString("base64url")}`
-}
-
-function decodeVirtualModule(id: string): VirtualModule {
-  return JSON.parse(
-    Buffer.from(id.slice(VIRTUAL_PREFIX.length), "base64url").toString(),
-  ) as VirtualModule
 }
 
 export default function sfccVitest(options: SfccVitestOptions): SfccVitestPlugin {
@@ -179,40 +163,7 @@ export default function sfccVitest(options: SfccVitestOptions): SfccVitestPlugin
       if (!id.startsWith(VIRTUAL_PREFIX)) {
         return undefined
       }
-
-      const { moduleId, resolvedPath } = decodeVirtualModule(id)
-      if (moduleId === "dw/system/HookMgr") {
-        const imports = hookRegistrations
-          .map(
-            (registration, index) =>
-              `import * as hook${index} from ${JSON.stringify(`${registration.scriptPath}${CARTRIDGE_MODULE_SUFFIX}`)}`,
-          )
-          .join("\n")
-        const registrations = hookRegistrations
-          .map(
-            (registration, index) =>
-              `runtime.registerHook(${JSON.stringify(registration.name)}, "default" in hook${index} ? hook${index}.default : hook${index})`,
-          )
-          .join("\n")
-
-        return `${imports}
-import { getSfccTestRuntime } from "@commerce-klaus/sfcc-test-runtime"
-const runtime = getSfccTestRuntime()
-${registrations}
-export default runtime.resolve("dw/system/HookMgr")
-`
-      }
-
-      const fallbackImport = resolvedPath
-        ? `import fallback from ${JSON.stringify(`${resolvedPath}${CARTRIDGE_MODULE_SUFFIX}`)}\n`
-        : ""
-      const fallbackArgument = resolvedPath ? ", () => fallback" : ""
-      const resolvedArgument = resolvedPath ? `, ${JSON.stringify(resolvedPath)}` : ""
-
-      return `${fallbackImport}import { requireSfccModule } from "@commerce-klaus/sfcc-test-runtime"
-const implementation = requireSfccModule(${JSON.stringify(moduleId)}${fallbackArgument}${resolvedArgument})
-export default implementation
-`
+      return loadVirtualModule(id, hookRegistrations)
     },
   }
 
