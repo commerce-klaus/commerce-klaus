@@ -66,7 +66,8 @@ organization, parallel-execution, and transactional capabilities, while
 `jobStep.jobExecution.context` contains shared execution state and common
 `dw.util.Map` operations without losing normal property access. Live
 `keySet()`, `values()`, and `entrySet()` collection views are available for
-collection-oriented assertions. Duplicate type
+collection-oriented assertions and support `iterator().hasNext()/next()`.
+Duplicate type
 IDs use cartridge-path priority, and unknown or unresolvable IDs fail with an
 explicit diagnostic. The loaded definition's type ID is also available through
 `jobStep.stepExecution.stepTypeID` and `getStepTypeID()`.

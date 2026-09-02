@@ -160,7 +160,7 @@ The configured function receives `(parameters, stepExecution)`. `stepExecution.g
 
 `SfccJobContext` preserves the supplied object's identity and normal property access while adding a non-enumerable `dw.util.Map`-like core: `get()`, `put()`, `remove()`, `clear()`, `containsKey()`, `containsValue()`, `size()`, `getLength()`, `isEmpty()`, `length`, and `empty`. Missing keys return `null`, matching the platform API. This keeps existing object assertions and production-style `context[key]` code working together.
 
-`keySet()`, `values()`, and `entrySet()` return live `SfccCollection` views. They expose `length`, `empty`, `size()`, `getLength()`, `isEmpty()`, `contains()`, iteration, and both `toArray()` forms. `SfccMapEntry` exposes `key`/`getKey()` and `value`/`getValue()`. The harness intentionally leaves mutating collection-view operations out until their platform back-propagation semantics can be represented faithfully; mutate the context itself with `put()`, `remove()`, or `clear()`.
+`keySet()`, `values()`, and `entrySet()` return live `SfccCollection` views. They expose `length`, `empty`, `size()`, `getLength()`, `isEmpty()`, `contains()`, JavaScript iteration, `iterator()`, and both `toArray()` forms. `SfccIterator` implements the production-style `hasNext()`/`next()` loop over the elements present when the iterator is created. `SfccMapEntry` exposes `key`/`getKey()` and `value`/`getValue()`. The harness intentionally leaves mutating collection-view operations and `Iterator.asList()` out until their platform semantics can be represented faithfully; mutate the context itself with `put()`, `remove()`, or `clear()`.
 
 Chunk-oriented modules use `runChunk()` with the function names declared in `steptypes.json`:
 

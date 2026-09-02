@@ -74,9 +74,15 @@ export interface SfccCollection<Item> extends Iterable<Item> {
   contains(value: Item): boolean
   getLength(): number
   isEmpty(): boolean
+  iterator(): SfccIterator<Item>
   size(): number
   toArray(): Item[]
   toArray(start: number, size: number): Item[]
+}
+
+export interface SfccIterator<Item> {
+  hasNext(): boolean
+  next(): Item
 }
 
 export interface SfccMapEntry<Key, Value> {
@@ -253,6 +259,14 @@ function createCollection<Item>(getItems: () => Item[]): SfccCollection<Item> {
     contains: (value) => getItems().includes(value),
     getLength: () => getItems().length,
     isEmpty: () => getItems().length === 0,
+    iterator: () => {
+      const items = getItems()
+      let index = 0
+      return {
+        hasNext: () => index < items.length,
+        next: () => items[index++] as Item,
+      }
+    },
     size: () => getItems().length,
     toArray: (start?: number, size?: number) => {
       const items = getItems()
