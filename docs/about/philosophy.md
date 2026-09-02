@@ -31,5 +31,3 @@ Klaus is a traditional, down-to-earth German first name. Here it personifies the
 The name pairs the corporate world of Salesforce Commerce Cloud with a friendly, no-nonsense developer persona:
 
 > Klaus is here to tame the SFCC Rhino.
-
-This description carries forward the idea introduced on the [Commerce Klaus GitHub organization](https://github.com/commerce-klaus).
