@@ -37,6 +37,10 @@ The built-in `dw/util/ArrayList` accepts arrays, SFCC collections, iterators,
 and variadic values. It provides `add()`, `addAll()`, `push()`, `sort()`,
 `reverse()`, `clone()`, indexed access, iteration, and collection inspection.
 
+The built-in `dw/util/HashMap` supports arbitrary key types, `put()`, `putAll()`,
+lookup, removal, clearing, independent clones, and live key, value, and entry
+views.
+
 Script-module job steps can be executed with
 `runtime.jobStep(jobModule).run(functionName, parameters)`. The harness supplies
 SFCC-like job and step execution objects and keeps their mutable `context`

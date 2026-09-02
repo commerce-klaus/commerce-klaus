@@ -135,6 +135,8 @@ The built-in `dw/system/Status` and `dw/system/StatusItem` support message param
 
 The built-in `dw/util/ArrayList` supports common construction, mutation, sorting, cloning, and iteration patterns used by cartridge scripts.
 
+The built-in `dw/util/HashMap` supports arbitrary key types, common map operations, bulk copying, cloning, and live collection views.
+
 ```ts
 const jobModule = await import("../cartridge/scripts/jobs/GenerateFeed.js")
 const jobStep = getSfccRuntime().jobStep(jobModule, {

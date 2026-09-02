@@ -104,9 +104,9 @@ literal are resolved too; mutable or computed module IDs are rejected.
 
 The initial release resolves `dw/*`, `*/`, `~/`, cartridge aliases, and
 `module.superModule`. Runtime modules include `Status`, `StatusItem`, `ArrayList`,
-`Transaction`, `Logger`, `Site`, and `HookMgr`. Hook registrations are discovered
-automatically from each cartridge's declared `hooks.json`, using cartridge-path
-priority.
+`HashMap`, `Transaction`, `Logger`, `Site`, and `HookMgr`. Hook registrations are
+discovered automatically from each cartridge's declared `hooks.json`, using
+cartridge-path priority.
 
 ## License
 

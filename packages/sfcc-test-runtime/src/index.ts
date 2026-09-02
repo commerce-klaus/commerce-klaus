@@ -106,6 +106,25 @@ export interface SfccMapEntry<Key, Value> {
   getValue(): Value
 }
 
+export interface SfccHashMap<Key, Value> {
+  readonly empty: boolean
+  readonly length: number
+  clear(): void
+  clone(): SfccHashMap<Key, Value>
+  containsKey(key: Key): boolean
+  containsValue(value: Value): boolean
+  entrySet(): SfccCollection<SfccMapEntry<Key, Value>>
+  get(key: Key): Value | null
+  getLength(): number
+  isEmpty(): boolean
+  keySet(): SfccCollection<Key>
+  put(key: Key, value: Value): Value
+  putAll(other: SfccHashMap<Key, Value>): void
+  remove(key: Key): Value | null
+  size(): number
+  values(): SfccCollection<Value>
+}
+
 export interface SfccJobContext extends Record<string, unknown> {
   readonly empty: boolean
   readonly length: number
@@ -581,6 +600,83 @@ class ArrayList<Item> implements SfccArrayList<Item> {
 
   [Symbol.iterator](): ArrayIterator<Item> {
     return this.values[Symbol.iterator]()
+  }
+}
+
+class HashMap<Key, Value> implements SfccHashMap<Key, Value> {
+  private readonly entries = new Map<Key, Value>()
+
+  get empty(): boolean {
+    return this.entries.size === 0
+  }
+
+  get length(): number {
+    return this.entries.size
+  }
+
+  clear(): void {
+    this.entries.clear()
+  }
+
+  clone(): SfccHashMap<Key, Value> {
+    const clone = new HashMap<Key, Value>()
+    clone.putAll(this)
+    return clone
+  }
+
+  containsKey(key: Key): boolean {
+    return this.entries.has(key)
+  }
+
+  containsValue(value: Value): boolean {
+    return [...this.entries.values()].includes(value)
+  }
+
+  entrySet(): SfccCollection<SfccMapEntry<Key, Value>> {
+    return createCollection(() =>
+      [...this.entries].map(([key, value]) => createMapEntry(key, value)),
+    )
+  }
+
+  get(key: Key): Value | null {
+    return this.entries.get(key) ?? null
+  }
+
+  getLength(): number {
+    return this.entries.size
+  }
+
+  isEmpty(): boolean {
+    return this.entries.size === 0
+  }
+
+  keySet(): SfccCollection<Key> {
+    return createCollection(() => [...this.entries.keys()])
+  }
+
+  put(key: Key, value: Value): Value {
+    this.entries.set(key, value)
+    return value
+  }
+
+  putAll(other: SfccHashMap<Key, Value>): void {
+    for (const entry of other.entrySet()) {
+      this.put(entry.getKey(), entry.getValue())
+    }
+  }
+
+  remove(key: Key): Value | null {
+    const value = this.get(key)
+    this.entries.delete(key)
+    return value
+  }
+
+  size(): number {
+    return this.entries.size
+  }
+
+  values(): SfccCollection<Value> {
+    return createCollection(() => [...this.entries.values()])
   }
 }
 
@@ -1080,6 +1176,7 @@ export class SfccTestRuntime {
     this.defaults.set("dw/system/Status", Status)
     this.defaults.set("dw/system/StatusItem", StatusItem)
     this.defaults.set("dw/util/ArrayList", ArrayList)
+    this.defaults.set("dw/util/HashMap", HashMap)
     this.defaults.set("dw/system/Logger", createLoggerModule(this.loggerEntries))
     this.defaults.set("dw/system/Transaction", {
       begin: () => this.transactionCalls.push("begin"),

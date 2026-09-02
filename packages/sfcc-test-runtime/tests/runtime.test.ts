@@ -187,6 +187,44 @@ describe("SFCC test runtime", () => {
     expect(iterator.hasNext()).toBe(false)
   })
 
+  it("provides mutable SFCC hash maps with live views", () => {
+    interface HashMap<Key, Value> {
+      clone(): HashMap<Key, Value>
+      containsKey(key: Key): boolean
+      entrySet(): { length: number }
+      get(key: Key): Value | null
+      keySet(): { contains(key: Key): boolean; length: number }
+      put(key: Key, value: Value): Value
+      putAll(other: HashMap<Key, Value>): void
+      remove(key: Key): Value | null
+      values(): { contains(value: Value): boolean; length: number }
+    }
+
+    const HashMap = runtime.resolve("dw/util/HashMap") as unknown as {
+      new <Key, Value>(): HashMap<Key, Value>
+    }
+    const key = { id: "order" }
+    const source = new HashMap<object | string, number>()
+    const target = new HashMap<object | string, number>()
+    const keys = target.keySet()
+    const values = target.values()
+    const entries = target.entrySet()
+
+    expect(source.put(key, 1)).toBe(1)
+    source.put("retry", 2)
+    target.putAll(source)
+    expect(target.get(key)).toBe(1)
+    expect(keys.contains("retry")).toBe(true)
+    expect(values.contains(2)).toBe(true)
+    expect(entries.length).toBe(2)
+    expect(target.remove("missing")).toBeNull()
+
+    const clone = target.clone()
+    clone.put("clone-only", 3)
+    expect(target.containsKey("clone-only")).toBe(false)
+    expect(clone.remove(key)).toBe(1)
+  })
+
   it("stops controller middleware that does not call next", async () => {
     const calls: string[] = []
     const controller: SfccController = {

@@ -32,6 +32,10 @@ These implementations model behavior needed by tests and expose call history whe
 
 `dw/util/ArrayList` accepts arrays, SFCC collections, iterators, and variadic values. It supports `add()`, `addAll()`, `push()`, `sort()`, `reverse()`, and `clone()` alongside indexed access, collection inspection, JavaScript iteration, and SFCC iterators. Clones and input arrays are copied, while constructing from an iterator consumes its remaining items.
 
+### HashMap
+
+`dw/util/HashMap` supports arbitrary key types and provides `put()`, `putAll()`, `get()`, `remove()`, `clear()`, containment checks, size inspection, and `clone()`. Missing keys return `null`. `keySet()`, `values()`, and `entrySet()` are live `SfccCollection` views, while clones use an independent backing map.
+
 ```ts
 import { createSfccTestRuntime } from "@commerce-klaus/sfcc-test-runtime"
 
