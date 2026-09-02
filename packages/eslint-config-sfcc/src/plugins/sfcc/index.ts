@@ -2,6 +2,7 @@ import noControllers from "./no-controllers.js"
 import noCustomApiAdditionalProperties from "./no-custom-api-additional-properties.js"
 import noCustomApiResponseMethods from "./no-custom-api-response-methods.js"
 import noDsFiles from "./no-ds-files.js"
+import noDwApi from "./no-dw-api.js"
 import noE4xSyntax from "./no-e4x-syntax.js"
 import noEmptyGlobal from "./no-empty-global.js"
 import noIsmlRendering from "./no-isml-rendering.js"
@@ -31,6 +32,7 @@ const sfcc = {
     "no-custom-api-response-methods": noCustomApiResponseMethods,
     "no-controllers": noControllers,
     "no-ds-files": noDsFiles,
+    "no-dw-api": noDwApi,
     "no-empty-global": noEmptyGlobal,
     "no-e4x-syntax": noE4xSyntax,
     "no-isml-rendering": noIsmlRendering,
