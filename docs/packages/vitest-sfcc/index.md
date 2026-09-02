@@ -169,6 +169,27 @@ const result = await getSfccRuntime()
 
 The lifecycle supports asynchronous callbacks, skipped process results, persistent job context, and configurable function names. The write callback receives an iterable SFCC-like list with `size()`, `get()`, `toArray()`, and `isEmpty()`. `afterStep` receives the success state even when another lifecycle function throws.
 
+### Load by type ID
+
+Use `loadSfccJobStep()` to execute the effective `steptypes.json` definition without duplicating its module path, function names, or chunk size in the test:
+
+```ts
+import { loadSfccJobStep } from "@commerce-klaus/vitest-sfcc"
+
+const jobStep = await loadSfccJobStep("custom.ExportProducts", {
+  context: { exportedFiles: [] },
+})
+
+const result = await jobStep.run({
+  TargetFolder: "IMPEX/src/feeds",
+})
+
+expect(jobStep.definition.kind).toBe("chunk-script-module-step")
+expect(jobStep.jobExecution.context.exportedFiles).toHaveLength(1)
+```
+
+The plugin discovers definitions at configuration time using cartridge-path priority. Loading remains lazy, so unrelated job modules and their platform dependencies are not evaluated. Task definitions invoke their configured `function`; chunk definitions automatically apply their configured lifecycle names and `chunk-size`. Unknown IDs and registrations whose module cannot be resolved produce the same explicit missing-step diagnostic.
+
 ## Hook execution
 
 `dw/system/HookMgr` automatically discovers `hooks.json` through each cartridge's `package.json`. If multiple cartridges register the same extension point, the first resolvable registration in cartridge-path order is used.

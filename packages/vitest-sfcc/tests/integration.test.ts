@@ -1,7 +1,7 @@
 import path from "node:path"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
-import sfccVitest, { getSfccRuntime } from "../src/index.js"
+import sfccVitest, { getSfccRuntime, loadSfccJobStep } from "../src/index.js"
 
 describe("vitest-sfcc", () => {
   beforeEach(() => {
@@ -193,6 +193,42 @@ describe("vitest-sfcc", () => {
       chunks: 2,
       startedChunks: 2,
     })
+  })
+
+  it("loads and runs a script-module job step by type ID", async () => {
+    const jobStep = await loadSfccJobStep("custom.TestTask", {
+      context: { executions: 1 },
+    })
+
+    await expect(jobStep.run({ prefix: "feed" })).resolves.toBe("feed:2")
+    expect(jobStep.definition).toMatchObject({
+      functionName: "Run",
+      kind: "script-module-step",
+    })
+    expect(jobStep.jobExecution.context).toEqual({ executions: 2 })
+  })
+
+  it("loads and runs a chunk job step by type ID", async () => {
+    const jobStep = await loadSfccJobStep("custom.TestChunk", {
+      context: { batches: [] },
+    })
+
+    await expect(jobStep.run({ items: [1, 2, 3], multiplier: 2 })).resolves.toMatchObject({
+      chunkCount: 2,
+      totalCount: 3,
+      writtenCount: 3,
+    })
+    expect(jobStep.definition).toMatchObject({
+      chunkSize: 2,
+      kind: "chunk-script-module-step",
+    })
+    expect(jobStep.jobExecution.context.batches).toEqual([[2, 4], [6]])
+  })
+
+  it("rejects an unknown job step type ID", async () => {
+    await expect(loadSfccJobStep("custom.Missing")).rejects.toThrow(
+      "vitest-sfcc could not find an SFCC job step with type ID custom.Missing.",
+    )
   })
 
   it("rejects mutable require aliases", () => {

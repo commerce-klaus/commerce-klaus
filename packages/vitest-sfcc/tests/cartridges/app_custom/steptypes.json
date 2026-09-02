@@ -1,0 +1,26 @@
+{
+  "step-types": {
+    "script-module-step": [
+      {
+        "@type-id": "custom.TestTask",
+        "module": "app_custom/cartridge/scripts/job-step.js",
+        "function": "Run"
+      }
+    ],
+    "chunk-script-module-step": [
+      {
+        "@type-id": "custom.TestChunk",
+        "module": "app_custom/cartridge/scripts/chunk-job-step.js",
+        "before-step-function": "prepare",
+        "total-count-function": "count",
+        "before-chunk-function": "startChunk",
+        "read-function": "readNext",
+        "process-function": "transform",
+        "write-function": "writeBatch",
+        "after-chunk-function": "completeChunk",
+        "after-step-function": "finish",
+        "chunk-size": 2
+      }
+    ]
+  }
+}

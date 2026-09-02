@@ -1,9 +1,11 @@
 import {
   createSfccModuleResolver,
   findResolvedHookRegistrations,
+  findResolvedStepTypeDefinitions,
   resolveCandidateFile,
   resolveCartridgeRoots,
   resolveSuperModuleFilePath,
+  type ResolvedStepTypeDefinition,
 } from "@commerce-klaus/sfcc-module-resolver"
 import {
   createSfccTestRuntime,
@@ -35,6 +37,18 @@ import path from "node:path"
 
 const VIRTUAL_PREFIX = "\0vitest-sfcc:"
 const CARTRIDGE_MODULE_SUFFIX = "?vitest-sfcc-cjs"
+const ACTIVE_STEP_TYPES = Symbol.for("@commerce-klaus/vitest-sfcc.step-types")
+
+type StepTypeGlobal = typeof globalThis & {
+  [ACTIVE_STEP_TYPES]?: Map<string, ResolvedStepTypeDefinition>
+}
+
+export interface SfccLoadedJobStep {
+  readonly definition: ResolvedStepTypeDefinition
+  readonly jobExecution: SfccJobExecution
+  readonly stepExecution: SfccJobStepExecution
+  run(parameters?: SfccJobStepParameters): Promise<unknown>
+}
 
 export interface SfccVitestOptions {
   cartridgePath?: string[]
@@ -69,6 +83,12 @@ function decodeVirtualModule(id: string): VirtualModule {
   return JSON.parse(
     Buffer.from(id.slice(VIRTUAL_PREFIX.length), "base64url").toString(),
   ) as VirtualModule
+}
+
+function setActiveStepTypes(definitions: ResolvedStepTypeDefinition[]): void {
+  ;(globalThis as StepTypeGlobal)[ACTIVE_STEP_TYPES] = new Map(
+    definitions.map((definition) => [definition.typeId, definition]),
+  )
 }
 
 function isCartridgeModule(filePath: string, cartridgeRoots: string[]): boolean {
@@ -172,6 +192,8 @@ export default function sfccVitest(options: SfccVitestOptions): SfccVitestPlugin
   const cartridgeRoots = resolveCartridgeRoots(options)
   const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
   const hookRegistrations = findResolvedHookRegistrations(cartridgeRoots)
+  const stepTypeDefinitions = findResolvedStepTypeDefinitions(cartridgeRoots)
+  setActiveStepTypes(stepTypeDefinitions)
   setSfccTestRuntime(createSfccTestRuntime(options.runtime))
 
   const sfccPlugin: SfccVitestPlugin = {
@@ -303,7 +325,42 @@ export function resetSfccRuntime(options?: SfccTestRuntimeOptions): SfccTestRunt
   return runtime
 }
 
+export async function loadSfccJobStep(
+  typeId: string,
+  options?: SfccJobStepHarnessOptions,
+): Promise<SfccLoadedJobStep> {
+  const definition = (globalThis as StepTypeGlobal)[ACTIVE_STEP_TYPES]?.get(typeId)
+  if (!definition) {
+    throw new Error(`vitest-sfcc could not find an SFCC job step with type ID ${typeId}.`)
+  }
+
+  const importedModule = (await import(
+    /* @vite-ignore */ `${definition.modulePath}${CARTRIDGE_MODULE_SUFFIX}`
+  )) as SfccJobStepModule & { default?: unknown }
+  const defaultExport = importedModule.default
+  const jobStepModule =
+    typeof defaultExport === "object" && defaultExport !== null
+      ? { ...defaultExport, ...importedModule }
+      : importedModule
+  const harness = getSfccRuntime().jobStep(jobStepModule, options)
+
+  return {
+    definition,
+    jobExecution: harness.jobExecution,
+    stepExecution: harness.stepExecution,
+    run: (parameters) =>
+      definition.kind === "script-module-step"
+        ? harness.run(definition.functionName, parameters)
+        : harness.runChunk({
+            chunkSize: definition.chunkSize,
+            functions: definition.functions,
+            parameters,
+          }),
+  }
+}
+
 export type {
+  ResolvedStepTypeDefinition,
   SfccController,
   SfccControllerHarness,
   SfccControllerMiddleware,

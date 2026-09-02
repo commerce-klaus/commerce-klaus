@@ -49,6 +49,23 @@ Imported script-module job steps run through the same cartridge transformer:
 the function names declared in `steptypes.json` and supplies an SFCC-like list
 to the configured write function.
 
+For cartridge metadata-driven tests, `loadSfccJobStep(typeId, options)` discovers
+the effective `steptypes.json` entry, lazily imports its module, and selects task
+or chunk execution automatically:
+
+```ts
+const jobStep = await loadSfccJobStep("custom.ExportProducts", {
+  context: { exportedFiles: [] },
+})
+
+const result = await jobStep.run({ TargetFolder: "IMPEX/src/feeds" })
+```
+
+`jobStep.definition` exposes the resolved metadata, while
+`jobStep.jobExecution.context` contains shared execution state. Duplicate type
+IDs use cartridge-path priority, and unknown or unresolvable IDs fail with an
+explicit diagnostic.
+
 Static relative dependencies such as `require("./helper")` use the same registry.
 Use `mockResolved(absolutePath, implementation)` when only one exact file should
 be replaced.
