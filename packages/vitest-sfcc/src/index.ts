@@ -80,6 +80,8 @@ function markCartridgeImports(code: string, importer: string, cartridgeRoots: st
 function transformCartridgeCommonJs(code: string, id: string, cartridgeRoots: string[]): string {
   let transformed = code
   let requireIndex = 0
+  const requireImports: string[] = []
+  const requiredBindings = new Map<string, string>()
 
   if (transformed.includes("module.superModule")) {
     const superModulePath = resolveSuperModuleFilePath(id, cartridgeRoots)
@@ -93,17 +95,20 @@ function transformCartridgeCommonJs(code: string, id: string, cartridgeRoots: st
   }
 
   transformed = transformed.replace(
-    /\b(?:const|let|var)\s+(\{[^}]+\})\s*=\s*require\(\s*(["'])([^"']+)\2\s*\)\s*;?/g,
-    (_match, binding: string, _quote: string, moduleId: string) => {
+    /\brequire\(\s*(["'])([^"']+)\1\s*\)/g,
+    (_match, _quote: string, moduleId: string) => {
+      const existingBinding = requiredBindings.get(moduleId)
+      if (existingBinding) {
+        return existingBinding
+      }
+
       const importedBinding = `__sfcc_required_${requireIndex++}`
-      return `import ${importedBinding} from ${JSON.stringify(moduleId)}\nconst ${binding} = ${importedBinding}\n`
+      requireImports.push(`import ${importedBinding} from ${JSON.stringify(moduleId)}`)
+      requiredBindings.set(moduleId, importedBinding)
+      return importedBinding
     },
   )
-  transformed = transformed.replace(
-    /\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*require\(\s*(["'])([^"']+)\2\s*\)\s*;?/g,
-    (_match, binding: string, _quote: string, moduleId: string) =>
-      `import ${binding} from ${JSON.stringify(moduleId)}\n`,
-  )
+  transformed = `${requireImports.join("\n")}\n${transformed}`
 
   transformed = transformed.replace(
     /^\s*(?:module\.)?exports\.([A-Za-z_$][\w$]*)\s*=\s*([A-Za-z_$][\w$]*)\s*;?\s*$/gm,
@@ -117,7 +122,7 @@ function transformCartridgeCommonJs(code: string, id: string, cartridgeRoots: st
 
   if (/\brequire\s*\(/.test(transformed)) {
     throw new Error(
-      `vitest-sfcc cannot transform a dynamic or nested require() in ${id}. Use a static top-level binding.`,
+      `vitest-sfcc cannot transform a dynamic require() in ${id}. Use a string literal module ID.`,
     )
   }
   if (/\b(?:module\.)?exports\s*\./.test(transformed)) {

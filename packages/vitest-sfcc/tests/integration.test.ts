@@ -1,7 +1,7 @@
 import path from "node:path"
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
-import { getSfccRuntime } from "../src/index.js"
+import sfccVitest, { getSfccRuntime } from "../src/index.js"
 
 describe("vitest-sfcc", () => {
   beforeEach(() => {
@@ -18,6 +18,22 @@ describe("vitest-sfcc", () => {
 
     expect(subject.default.execute()).toBe("mocked")
     expect(getSfccRuntime().transactionCalls).toEqual(["wrap"])
+  })
+
+  it("marks relative dependencies resolved from transformed cartridge modules", () => {
+    const plugin = sfccVitest({
+      basePath: path.resolve(import.meta.dirname, "cartridges"),
+      cartridgePath: ["app_custom", "app_base"],
+    })
+    const importer = `${path.resolve(
+      import.meta.dirname,
+      "cartridges/app_custom/cartridge/scripts/direct-exports.js",
+    )}?vitest-sfcc-cjs`
+
+    const resolvedId = plugin.resolveId("./relative-helper", importer)
+
+    expect(resolvedId).toContain("vitest-sfcc:")
+    expect(plugin.load(resolvedId!)).toContain("relative-helper.js?vitest-sfcc-cjs")
   })
 
   it("resolves and replaces cartridge aliases", async () => {
@@ -66,6 +82,7 @@ describe("vitest-sfcc", () => {
 
     expect(subject.execute("named")).toBe("named:export-mocked")
     expect(subject.label).toBe("direct")
+    expect(subject.readInline()).toBe("export-mocked")
   })
 
   it("loads module.superModule from the next cartridge", async () => {

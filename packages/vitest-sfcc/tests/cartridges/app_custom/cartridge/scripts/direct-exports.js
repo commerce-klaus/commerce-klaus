@@ -5,3 +5,7 @@ exports.execute = function (prefix) {
 }
 
 module.exports.label = "direct"
+
+exports.readInline = function () {
+  return require("./relative-helper").value()
+}

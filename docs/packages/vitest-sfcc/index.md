@@ -88,9 +88,9 @@ if (HookMgr.hasHook("app.payment.authorize")) {
 
 Hook scripts run through the same cartridge transformer and can use `dw/*`, `*/`, `~/`, aliases, and `module.superModule`. `getSfccRuntime().hookCalls` exposes calls for test assertions.
 
-## Current CommonJS scope
+## CommonJS scope
 
-The initial transformer supports static top-level bindings such as:
+The transformer supports static bindings such as:
 
 ```js
 const Transaction = require("dw/system/Transaction")
@@ -111,7 +111,15 @@ exports.modifyGETResponse = function (document) {
 module.exports.status = "active"
 ```
 
-Dynamic or nested `require()` calls and mutations of an existing export property fail with an explicit diagnostic. Supporting additional CommonJS patterns is planned as the transformer matures.
+Static literal requires may appear anywhere in an expression, including inside functions:
+
+```js
+function getLogger() {
+  return require("dw/system/Logger").getLogger("checkout")
+}
+```
+
+Dynamic module IDs and mutations of an existing export property fail with an explicit diagnostic. Supporting additional CommonJS patterns is planned as the transformer matures.
 
 ## License
 
