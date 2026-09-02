@@ -66,12 +66,12 @@ This plugin rewrites SFCC module patterns to relative require paths that Node.js
 pnpm add -D @commerce-klaus/babel-plugin-sfcc-modules
 ```
 
-```sh [npm]
-npm i -D @commerce-klaus/babel-plugin-sfcc-modules
+```sh [yarn]
+yarn add -D @commerce-klaus/babel-plugin-sfcc-modules
 ```
 
-```sh [Yarn]
-yarn add -D @commerce-klaus/babel-plugin-sfcc-modules
+```sh [npm]
+npm install -D @commerce-klaus/babel-plugin-sfcc-modules
 ```
 
 :::

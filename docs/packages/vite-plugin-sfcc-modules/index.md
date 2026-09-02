@@ -59,12 +59,12 @@ This plugin resolves those patterns according to cartridge path order and rewrit
 pnpm add -D @commerce-klaus/vite-plugin-sfcc-modules
 ```
 
-```bash [npm]
-npm i -D @commerce-klaus/vite-plugin-sfcc-modules
+```bash [yarn]
+yarn add -D @commerce-klaus/vite-plugin-sfcc-modules
 ```
 
-```bash [Yarn]
-yarn add -D @commerce-klaus/vite-plugin-sfcc-modules
+```bash [npm]
+npm install -D @commerce-klaus/vite-plugin-sfcc-modules
 ```
 
 :::

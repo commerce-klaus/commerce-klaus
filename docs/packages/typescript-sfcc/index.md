@@ -11,9 +11,21 @@ The package currently ships two main entry points:
 
 ## Install
 
-```bash
+::: code-group
+
+```bash [pnpm]
 pnpm add -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
 ```
+
+```bash [yarn]
+yarn add -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
+```
+
+```bash [npm]
+npm install -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
+```
+
+:::
 
 ## SFCC Script Types Setup
 

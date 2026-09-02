@@ -43,9 +43,21 @@ The rule configuration and integration tests define the compatibility contract. 
 
 ### Install
 
-```bash
+::: code-group
+
+```bash [pnpm]
 pnpm add -D eslint @commerce-klaus/eslint-config-sfcc
 ```
+
+```bash [yarn]
+yarn add -D eslint @commerce-klaus/eslint-config-sfcc
+```
+
+```bash [npm]
+npm install -D eslint @commerce-klaus/eslint-config-sfcc
+```
+
+:::
 
 ### Use in `eslint.config.js`
 
@@ -160,9 +172,21 @@ Run ESLint after Oxlint to cover only the three rules that Oxlint cannot run: `s
 
 This optional fallback requires `@typescript-eslint/parser`:
 
-```bash
+::: code-group
+
+```bash [pnpm]
 pnpm add -D @typescript-eslint/parser
 ```
+
+```bash [yarn]
+yarn add -D @typescript-eslint/parser
+```
+
+```bash [npm]
+npm install -D @typescript-eslint/parser
+```
+
+:::
 
 ```js{2,4} [eslint.config.js]
 import { defineConfig } from "eslint/config"

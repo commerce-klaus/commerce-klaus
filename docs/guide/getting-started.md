@@ -12,11 +12,27 @@ Commerce Klaus is a set of focused packages. Adopt only the parts your project n
 
 Start with static runtime checks and cartridge-aware types:
 
-```bash
+::: code-group
+
+```bash [pnpm]
 pnpm add -D eslint typescript @salesforce/b2c-cli \
   @commerce-klaus/eslint-config-sfcc \
   @commerce-klaus/typescript-sfcc
 ```
+
+```bash [yarn]
+yarn add -D eslint typescript @salesforce/b2c-cli \
+  @commerce-klaus/eslint-config-sfcc \
+  @commerce-klaus/typescript-sfcc
+```
+
+```bash [npm]
+npm install -D eslint typescript @salesforce/b2c-cli \
+  @commerce-klaus/eslint-config-sfcc \
+  @commerce-klaus/typescript-sfcc
+```
+
+:::
 
 Add the recommended ESLint flat config:
 
