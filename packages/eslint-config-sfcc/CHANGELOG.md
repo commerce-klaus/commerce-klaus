@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.7.0
+
+### Minor Changes
+
+- 09e9b98: Add the opt-in `sfcc/no-rhino-extensions`, `sfcc/no-platform-globals`, and `sfcc/prefer-native-collections` rules for projects that deliberately favor standard JavaScript and explicit platform boundaries.
+- 9a2a006: Correct the storefront architecture policies: keep `sitegenesis/no-global-require` enabled across all presets, reject Pipeline API access except for SiteGenesis Pipelines, and allow controller files in the SiteGenesis Pipelines preset.
+- 98e0eb5: Add the opt-in `sfcc/no-service-framework` rule to reject `dw/svc/*` dependencies in selected cartridges.
+- 1f929b6: Add the opt-in `sfcc/no-controllers` rule and composable Storefront Next, PWA, SFRA, SiteGenesis Controllers, and SiteGenesis Pipelines policy presets. The `createStorefrontConfig()` helper can apply a policy to all or selected cartridges in mixed-architecture repositories.
+- 2ad2256: Add the opt-in `sfcc/no-forms` rule to reject the `dw/web/Form*` module family and scope-resolved SFRA `server.forms` access.
+- 8c40eb3: Add the opt-in `sfcc/no-isml-rendering` rule to disallow ISML modules, template modules, and SFRA response rendering in headless cartridges.
+- 2ad2256: Expand the PWA and Storefront Next presets with `sfcc/no-forms` so headless cartridges cannot depend on SFCC or SFRA form APIs.
+- fab51c8: Add the opt-in `sfcc/no-page-designer` rule to reject static `dw/experience/*` imports in cartridges that must remain independent of Page Designer.
+- 8c40eb3: Add the opt-in `sfcc/no-pipeline-api` rule to prevent JavaScript from loading the legacy `dw/system/Pipeline` API.
+- 882d215: Add the opt-in `sfcc/no-dw-api` rule for portable cartridges. It rejects static `dw/*` imports and supports allow-listing exact modules or namespaces ending in `/*`.
+- 271fd33: Add the opt-in `sfcc/no-proprietary-module-syntax` rule to prohibit `*/` and `~/` require paths and `module.superModule` with a configurable allow list.
+- c9ad493: Add the opt-in `sfcc/no-hooks` rule to reject registered Salesforce and project-specific hook implementation scripts in selected cartridges.
+- 3a486fd: Add the opt-in `sfcc/no-custom-api` rule to reject JavaScript below `cartridge/rest-apis/` in cartridges that must not expose Custom APIs.
+- 8c40eb3: Expand the storefront architecture presets with explicit Pipeline API, SFRA server, and ISML rendering policies. Headless presets reject all three features, SFRA rejects Pipeline API access, and SiteGenesis presets reject the SFRA server module.
+- 8c40eb3: Add the opt-in `sfcc/no-sfra-server` rule to prevent the SFRA `server` module from being used by incompatible storefront architectures.
+
+### Patch Changes
+
+- Updated dependencies [c9ad493]
+  - @commerce-klaus/sfcc-module-resolver@1.4.0
+
 ## 1.6.1
 
 ### Patch Changes
