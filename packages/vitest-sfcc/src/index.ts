@@ -82,6 +82,25 @@ function transformCartridgeCommonJs(code: string, id: string, cartridgeRoots: st
   let requireIndex = 0
   const requireImports: string[] = []
   const requiredBindings = new Map<string, string>()
+  const constantModuleIds = new Map<string, string>()
+
+  for (const match of transformed.matchAll(
+    /\bconst\s+([A-Za-z_$][\w$]*)\s*=\s*(["'])([^"']+)\2\s*;?/g,
+  )) {
+    constantModuleIds.set(match[1], match[3])
+  }
+
+  const importRequiredModule = (moduleId: string): string => {
+    const existingBinding = requiredBindings.get(moduleId)
+    if (existingBinding) {
+      return existingBinding
+    }
+
+    const importedBinding = `__sfcc_required_${requireIndex++}`
+    requireImports.push(`import ${importedBinding} from ${JSON.stringify(moduleId)}`)
+    requiredBindings.set(moduleId, importedBinding)
+    return importedBinding
+  }
 
   if (transformed.includes("module.superModule")) {
     const superModulePath = resolveSuperModuleFilePath(id, cartridgeRoots)
@@ -96,16 +115,13 @@ function transformCartridgeCommonJs(code: string, id: string, cartridgeRoots: st
 
   transformed = transformed.replace(
     /\brequire\(\s*(["'])([^"']+)\1\s*\)/g,
-    (_match, _quote: string, moduleId: string) => {
-      const existingBinding = requiredBindings.get(moduleId)
-      if (existingBinding) {
-        return existingBinding
-      }
-
-      const importedBinding = `__sfcc_required_${requireIndex++}`
-      requireImports.push(`import ${importedBinding} from ${JSON.stringify(moduleId)}`)
-      requiredBindings.set(moduleId, importedBinding)
-      return importedBinding
+    (_match, _quote: string, moduleId: string) => importRequiredModule(moduleId),
+  )
+  transformed = transformed.replace(
+    /\brequire\(\s*([A-Za-z_$][\w$]*)\s*\)/g,
+    (match, constantName: string) => {
+      const moduleId = constantModuleIds.get(constantName)
+      return moduleId ? importRequiredModule(moduleId) : match
     },
   )
   transformed = `${requireImports.join("\n")}\n${transformed}`

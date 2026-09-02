@@ -119,7 +119,17 @@ function getLogger() {
 }
 ```
 
-Dynamic module IDs and mutations of an existing export property fail with an explicit diagnostic. Supporting additional CommonJS patterns is planned as the transformer matures.
+Local `const` aliases initialized with a string literal are also resolved:
+
+```js
+const HOOK_MANAGER = "*/cartridge/scripts/hooks/libHookExtMgr"
+
+function getHookManager() {
+  return require(HOOK_MANAGER)
+}
+```
+
+Mutable or computed module IDs and mutations of an existing export property fail with an explicit diagnostic. Supporting additional CommonJS patterns is planned as the transformer matures.
 
 ## License
 

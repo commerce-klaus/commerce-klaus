@@ -32,7 +32,8 @@ be replaced.
 The cartridge transformer supports default `module.exports`, direct named
 `exports.foo` and `module.exports.foo` assignments, and destructured static
 requires. Static literal requires can also be used in expressions such as
-`require("./helper").foo()`; dynamic module IDs are rejected.
+`require("./helper").foo()`. Local `const` aliases initialized with a string
+literal are resolved too; mutable or computed module IDs are rejected.
 
 The initial release resolves `dw/*`, `*/`, `~/`, cartridge aliases, and
 `module.superModule`. Runtime modules include `Status`, `Transaction`, `Logger`,

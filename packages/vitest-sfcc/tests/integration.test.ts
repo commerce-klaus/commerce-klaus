@@ -83,6 +83,25 @@ describe("vitest-sfcc", () => {
     expect(subject.execute("named")).toBe("named:export-mocked")
     expect(subject.label).toBe("direct")
     expect(subject.readInline()).toBe("export-mocked")
+    expect(subject.readConstant()).toBe("export-mocked")
+  })
+
+  it("rejects mutable require aliases", () => {
+    const plugin = sfccVitest({
+      basePath: path.resolve(import.meta.dirname, "cartridges"),
+      cartridgePath: ["app_custom", "app_base"],
+    })
+    const id = `${path.resolve(
+      import.meta.dirname,
+      "cartridges/app_custom/cartridge/scripts/dynamic-require.js",
+    )}?vitest-sfcc-cjs`
+
+    expect(() =>
+      plugin.transform(
+        'let helperId = "./relative-helper"\nmodule.exports = require(helperId)',
+        id,
+      ),
+    ).toThrow(/cannot transform a dynamic require/)
   })
 
   it("loads module.superModule from the next cartridge", async () => {
