@@ -9,6 +9,13 @@ import {
   createSfccTestRuntime,
   getSfccTestRuntime,
   setSfccTestRuntime,
+  type SfccController,
+  type SfccControllerHarness,
+  type SfccControllerMiddleware,
+  type SfccControllerNext,
+  type SfccControllerRequest,
+  type SfccControllerResponse,
+  type SfccControllerRoute,
   type SfccGlobals,
   type SfccTestRuntime,
   type SfccTestRuntimeOptions,
@@ -178,7 +185,7 @@ export default function sfccVitest(options: SfccVitestOptions): SfccVitestPlugin
         return source
       }
 
-      if (source.startsWith("dw/")) {
+      if (source.startsWith("dw/") || source === "server") {
         return encodeVirtualModule({ moduleId: source })
       }
 
@@ -286,4 +293,15 @@ export function resetSfccRuntime(options?: SfccTestRuntimeOptions): SfccTestRunt
   return runtime
 }
 
-export type { SfccGlobals, SfccTestRuntime, SfccTestRuntimeOptions }
+export type {
+  SfccController,
+  SfccControllerHarness,
+  SfccControllerMiddleware,
+  SfccControllerNext,
+  SfccControllerRequest,
+  SfccControllerResponse,
+  SfccControllerRoute,
+  SfccGlobals,
+  SfccTestRuntime,
+  SfccTestRuntimeOptions,
+}

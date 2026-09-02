@@ -55,6 +55,22 @@ The runtime provides `empty()` by default. Matching the Script API, it returns `
 
 `reset()` removes globals added by the runtime, restores the complete property descriptor of values that existed before the test, and reinstalls the default `empty()`. Call it after each test so the worker does not retain request state. Because globals are process-wide within a worker, do not run tests that install different global contexts concurrently in the same worker.
 
+## SFRA controllers
+
+The built-in `server` module captures `server.get()` and `server.post()` registrations from SFRA controllers. Pass the exported controller to the harness and run a route with a request object:
+
+```ts
+const controller = await import("../cartridge/controllers/Checkout.js")
+const response = await runtime.controller(controller.default).run("Begin", {
+  querystring: { stage: "shipping" },
+})
+
+expect(response.view).toBe("checkout/checkout")
+expect(response.viewData).toMatchObject({ currentStage: "shipping" })
+```
+
+Middleware runs in registration order when it calls `next()`. The initial response implementation supports `render()`, `json()`, `redirect()`, `setViewData()`, and `getViewData()`. Route extension methods such as `append()`, `prepend()`, `replace()`, and `extend()` are not part of this initial slice.
+
 Hook implementations can also be registered directly. The first registration for an extension point wins, matching cartridge-path priority:
 
 ```ts

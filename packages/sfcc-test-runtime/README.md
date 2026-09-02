@@ -17,6 +17,10 @@ session, customer })` exposes additional controlled globals to cartridge code.
 `runtime.reset()` removes added globals, restores previous values, and reinstalls
 the default `empty()` implementation.
 
+The built-in `server` module registers SFRA `get` and `post` routes. Execute an
+exported controller with `runtime.controller(controller).run(routeName,
+request)` and inspect its render, JSON, redirect, and view-data response state.
+
 ## License
 
 MIT

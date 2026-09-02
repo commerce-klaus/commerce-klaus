@@ -41,6 +41,28 @@ describe("vitest-sfcc", () => {
     })
   })
 
+  it("registers and executes an SFRA controller route", async () => {
+    const controller = await import("./cartridges/app_custom/cartridge/controllers/Test.js")
+
+    const response = await getSfccRuntime()
+      .controller(controller.default)
+      .run("Show", {
+        querystring: { value: "request-value" },
+      })
+
+    expect(response.view).toBe("test/show")
+    expect(response.viewData).toEqual({ first: "request-value", second: true })
+
+    const jsonResponse = await getSfccRuntime()
+      .controller(controller.default)
+      .run("Submit", {
+        form: { accepted: true },
+      })
+    expect(jsonResponse.isJson).toBe(true)
+    expect(jsonResponse.viewData).toEqual({ accepted: true })
+    expect(controller.default.__routes.Submit.method).toBe("POST")
+  })
+
   it("marks relative dependencies resolved from transformed cartridge modules", () => {
     const plugin = sfccVitest({
       basePath: path.resolve(import.meta.dirname, "cartridges"),

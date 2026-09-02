@@ -88,6 +88,24 @@ The SFCC `empty()` global is installed automatically and covers nullish values, 
 
 `runtime.reset()` removes added globals, restores values that existed before the test, and reinstalls the default `empty()`. Use it in `afterEach` as well as test setup to prevent the final test in a worker from leaking context.
 
+## SFRA controllers
+
+The plugin resolves `require("server")` to the runtime's SFRA test server. Import a controller after resetting modules, then execute one of its exported routes:
+
+```ts
+const controller = await import("../cartridge/controllers/Checkout.js")
+const response = await getSfccRuntime()
+  .controller(controller.default)
+  .run("Begin", {
+    querystring: { stage: "shipping" },
+  })
+
+expect(response.view).toBe("checkout/checkout")
+expect(response.viewData).toMatchObject({ currentStage: "shipping" })
+```
+
+The initial harness supports `server.get()`, `server.post()`, ordered middleware with `next()`, and response state from `render()`, `json()`, `redirect()`, `setViewData()`, and `getViewData()`.
+
 `module.superModule` loads the next matching implementation in cartridge-path order. Transitive supermodule chains pass through the same CommonJS transformation.
 
 ## Hook execution

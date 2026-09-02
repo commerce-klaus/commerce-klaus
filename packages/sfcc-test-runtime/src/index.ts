@@ -15,6 +15,41 @@ export interface HookCall {
 
 export type SfccHookImplementation = Record<string, unknown>
 export type SfccGlobals = Record<string, unknown>
+export type SfccControllerRequest = Record<string, unknown>
+
+export interface SfccControllerResponse {
+  isJson: boolean
+  redirectUrl: string | null
+  view: string | null
+  viewData: Record<string, unknown>
+  getViewData(): Record<string, unknown>
+  json(data: Record<string, unknown>): void
+  redirect(url: string): void
+  render(name: string, data?: Record<string, unknown>): void
+  setViewData(data: Record<string, unknown>): void
+}
+
+export type SfccControllerNext = () => Promise<void>
+export type SfccControllerMiddleware = (
+  request: SfccControllerRequest,
+  response: SfccControllerResponse,
+  next: SfccControllerNext,
+) => unknown
+
+export interface SfccControllerRoute {
+  method: "GET" | "POST"
+  name: string
+  middleware: SfccControllerMiddleware[]
+}
+
+export interface SfccController {
+  __routes: Record<string, SfccControllerRoute>
+  [routeName: string]: unknown
+}
+
+export interface SfccControllerHarness {
+  run(routeName: string, request?: SfccControllerRequest): Promise<SfccControllerResponse>
+}
 
 export interface SfccTestRuntimeOptions {
   site?: {
@@ -81,6 +116,7 @@ export class SfccTestRuntime {
 
   private readonly options: SfccTestRuntimeOptions
   private readonly defaults = new Map<string, SfccModule>()
+  private readonly controllerRoutes = new Map<string, SfccControllerRoute>()
   private readonly hooks = new Map<string, SfccHookImplementation>()
   private readonly mocks = new Map<string, SfccModule>()
   private readonly resolvedMocks = new Map<string, SfccModule>()
@@ -138,6 +174,38 @@ export class SfccTestRuntime {
     return typeof hookFunction === "function" ? hookFunction(...args) : undefined
   }
 
+  controller(controller: SfccController): SfccControllerHarness {
+    return {
+      run: async (routeName, request = {}) => {
+        const route = controller.__routes[routeName]
+        if (!route) {
+          throw new Error(`SFCC controller does not define route ${routeName}.`)
+        }
+
+        const response = this.createControllerResponse()
+        const dispatch = async (index: number): Promise<void> => {
+          const middleware = route.middleware[index]
+          if (!middleware) {
+            return
+          }
+
+          let nextCall: Promise<void> | undefined
+          await middleware(request, response, () => {
+            if (nextCall) {
+              throw new Error(`SFCC controller route ${routeName} called next() more than once.`)
+            }
+            nextCall = dispatch(index + 1)
+            return nextCall
+          })
+          await nextCall
+        }
+
+        await dispatch(0)
+        return response
+      },
+    }
+  }
+
   resolve(moduleId: string, fallback?: SfccModuleFallback, resolvedId?: string): SfccModule {
     const implementation =
       (resolvedId ? this.resolvedMocks.get(resolvedId) : undefined) ??
@@ -163,6 +231,7 @@ export class SfccTestRuntime {
       }
     }
     this.restoredGlobals.clear()
+    this.controllerRoutes.clear()
     this.hooks.clear()
     this.hookCalls.length = 0
     this.mocks.clear()
@@ -176,7 +245,64 @@ export class SfccTestRuntime {
     this.setGlobals({ empty })
   }
 
+  private createControllerResponse(): SfccControllerResponse {
+    return {
+      isJson: false,
+      redirectUrl: null,
+      view: null,
+      viewData: {},
+      getViewData() {
+        return this.viewData
+      },
+      json(data) {
+        this.isJson = true
+        Object.assign(this.viewData, data)
+      },
+      redirect(url) {
+        this.redirectUrl = url
+      },
+      render(name, data) {
+        this.view = name
+        Object.assign(this.viewData, data)
+      },
+      setViewData(data) {
+        Object.assign(this.viewData, data)
+      },
+    }
+  }
+
+  private createServerModule(): SfccModule {
+    const register = (
+      method: SfccControllerRoute["method"],
+      name: string,
+      middleware: SfccControllerMiddleware[],
+    ): SfccControllerRoute => {
+      if (typeof name !== "string" || middleware.some((item) => typeof item !== "function")) {
+        throw new Error("SFCC server routes require a name followed by middleware functions.")
+      }
+      if (this.controllerRoutes.has(name)) {
+        throw new Error(`SFCC server route ${name} is already registered.`)
+      }
+
+      const route = { method, name, middleware }
+      this.controllerRoutes.set(name, route)
+      return route
+    }
+
+    return {
+      exports: (): SfccController => {
+        const routes = Object.fromEntries(this.controllerRoutes)
+        return { ...routes, __routes: routes }
+      },
+      get: (name: string, ...middleware: SfccControllerMiddleware[]) =>
+        register("GET", name, middleware),
+      post: (name: string, ...middleware: SfccControllerMiddleware[]) =>
+        register("POST", name, middleware),
+    }
+  }
+
   private installDefaults(): void {
+    this.defaults.set("server", this.createServerModule())
     this.defaults.set("dw/system/HookMgr", {
       callHook: (extensionPoint: string, functionName: string, ...args: unknown[]) =>
         this.callHook(extensionPoint, functionName, ...args),
