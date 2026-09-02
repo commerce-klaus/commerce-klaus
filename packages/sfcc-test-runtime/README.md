@@ -33,6 +33,10 @@ computes the overall error state across all items. The built-in
 `dw/system/StatusItem` supports the SFCC setters, message parameters, and
 details using the same list and map APIs as job contexts.
 
+The built-in `dw/util/ArrayList` accepts arrays, SFCC collections, iterators,
+and variadic values. It provides `add()`, `addAll()`, `push()`, `sort()`,
+`reverse()`, `clone()`, indexed access, iteration, and collection inspection.
+
 Script-module job steps can be executed with
 `runtime.jobStep(jobModule).run(functionName, parameters)`. The harness supplies
 SFCC-like job and step execution objects and keeps their mutable `context`

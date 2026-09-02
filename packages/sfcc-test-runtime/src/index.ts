@@ -90,6 +90,15 @@ export interface SfccList<Item> extends SfccCollection<Item> {
   get(index: number): Item
 }
 
+export interface SfccArrayList<Item> extends SfccList<Item> {
+  add(...values: Item[]): boolean
+  addAll(values: SfccCollection<Item>): boolean
+  clone(): SfccArrayList<Item>
+  push(...values: Item[]): number
+  reverse(): void
+  sort(comparator?: (left: Item, right: Item) => number): void
+}
+
 export interface SfccMapEntry<Key, Value> {
   readonly key: Key
   readonly value: Value
@@ -463,6 +472,116 @@ function createList<Item>(items: Item[]): SfccList<Item> {
       get: (index: number) => items[index] as Item,
     },
   )
+}
+
+class ArrayList<Item> implements SfccArrayList<Item> {
+  private readonly values: Item[]
+
+  constructor()
+  constructor(source: SfccCollection<Item> | SfccIterator<Item> | readonly Item[])
+  constructor(...values: Item[])
+  constructor(
+    ...valuesOrSource: Item[] | [SfccCollection<Item> | SfccIterator<Item> | readonly Item[]]
+  ) {
+    if (valuesOrSource.length !== 1) {
+      this.values = [...(valuesOrSource as Item[])]
+      return
+    }
+
+    const [source] = valuesOrSource
+    if (Array.isArray(source)) {
+      this.values = [...source] as Item[]
+      return
+    }
+    if (
+      typeof source === "object" &&
+      source !== null &&
+      "hasNext" in source &&
+      typeof source.hasNext === "function"
+    ) {
+      this.values = []
+      const iterator = source as SfccIterator<Item>
+      while (iterator.hasNext()) {
+        this.values.push(iterator.next())
+      }
+      return
+    }
+    if (typeof source === "object" && source !== null && Symbol.iterator in source) {
+      this.values = [...(source as SfccCollection<Item>)]
+      return
+    }
+    this.values = [source as Item]
+  }
+
+  get empty(): boolean {
+    return this.values.length === 0
+  }
+
+  get length(): number {
+    return this.values.length
+  }
+
+  add(...values: Item[]): boolean {
+    this.values.push(...values)
+    return values.length > 0
+  }
+
+  addAll(values: SfccCollection<Item>): boolean {
+    return this.add(...values)
+  }
+
+  clone(): SfccArrayList<Item> {
+    return new ArrayList(this.values)
+  }
+
+  contains(value: Item): boolean {
+    return this.values.includes(value)
+  }
+
+  get(index: number): Item {
+    return this.values[index] as Item
+  }
+
+  getLength(): number {
+    return this.values.length
+  }
+
+  isEmpty(): boolean {
+    return this.values.length === 0
+  }
+
+  iterator(): SfccIterator<Item> {
+    return createList(this.values).iterator()
+  }
+
+  push(...values: Item[]): number {
+    return this.values.push(...values)
+  }
+
+  reverse(): void {
+    this.values.reverse()
+  }
+
+  size(): number {
+    return this.values.length
+  }
+
+  sort(comparator?: (left: Item, right: Item) => number): void {
+    this.values.sort(comparator)
+  }
+
+  toArray(): Item[]
+  toArray(start: number, size: number): Item[]
+  toArray(start?: number, size?: number): Item[] {
+    if (start === undefined || size === undefined) {
+      return [...this.values]
+    }
+    return this.values.slice(Math.max(0, start), Math.max(0, start) + Math.max(0, size))
+  }
+
+  [Symbol.iterator](): ArrayIterator<Item> {
+    return this.values[Symbol.iterator]()
+  }
 }
 
 function createMapEntry<Key, Value>(key: Key, value: Value): SfccMapEntry<Key, Value> {
@@ -960,6 +1079,7 @@ export class SfccTestRuntime {
     })
     this.defaults.set("dw/system/Status", Status)
     this.defaults.set("dw/system/StatusItem", StatusItem)
+    this.defaults.set("dw/util/ArrayList", ArrayList)
     this.defaults.set("dw/system/Logger", createLoggerModule(this.loggerEntries))
     this.defaults.set("dw/system/Transaction", {
       begin: () => this.transactionCalls.push("begin"),

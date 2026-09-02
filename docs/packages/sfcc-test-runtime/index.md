@@ -28,6 +28,10 @@ These implementations model behavior needed by tests and expose call history whe
 
 `dw/system/StatusItem` is also built in. Its constructors, property/getter pairs, details, and `setStatus()`, `setCode()`, `setMessage()`, and `setParameters()` methods allow tests to build and mutate multi-item statuses.
 
+### ArrayList
+
+`dw/util/ArrayList` accepts arrays, SFCC collections, iterators, and variadic values. It supports `add()`, `addAll()`, `push()`, `sort()`, `reverse()`, and `clone()` alongside indexed access, collection inspection, JavaScript iteration, and SFCC iterators. Clones and input arrays are copied, while constructing from an iterator consumes its remaining items.
+
 ```ts
 import { createSfccTestRuntime } from "@commerce-klaus/sfcc-test-runtime"
 

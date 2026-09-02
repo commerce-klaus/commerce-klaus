@@ -151,6 +151,42 @@ describe("SFCC test runtime", () => {
     expect(status.getDetail("attempt")).toBe(2)
   })
 
+  it("provides mutable SFCC array lists", () => {
+    interface ArrayList<Item> extends Iterable<Item> {
+      add(...values: Item[]): boolean
+      addAll(values: ArrayList<Item>): boolean
+      clone(): ArrayList<Item>
+      iterator(): { hasNext(): boolean; next(): Item }
+      push(...values: Item[]): number
+      reverse(): void
+      sort(comparator?: (left: Item, right: Item) => number): void
+      toArray(): Item[]
+    }
+
+    const ArrayList = runtime.resolve("dw/util/ArrayList") as unknown as {
+      new <Item>(source?: Item[] | ArrayList<Item>): ArrayList<Item>
+      new <Item>(...values: Item[]): ArrayList<Item>
+      new <Item>(source: { hasNext(): boolean; next(): Item }): ArrayList<Item>
+    }
+    const list = new ArrayList("beta", "alpha")
+
+    expect(list.add("delta")).toBe(true)
+    expect(list.addAll(new ArrayList(["gamma"]))).toBe(true)
+    expect(list.push("epsilon")).toBe(5)
+    list.sort()
+    list.reverse()
+    expect(list.toArray()).toEqual(["gamma", "epsilon", "delta", "beta", "alpha"])
+
+    const clone = list.clone()
+    clone.add("clone-only")
+    expect(list.toArray()).not.toContain("clone-only")
+
+    const iterator = list.iterator()
+    expect(iterator.next()).toBe("gamma")
+    expect(new ArrayList(iterator).toArray()).toEqual(["epsilon", "delta", "beta", "alpha"])
+    expect(iterator.hasNext()).toBe(false)
+  })
+
   it("stops controller middleware that does not call next", async () => {
     const calls: string[] = []
     const controller: SfccController = {

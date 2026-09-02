@@ -133,6 +133,8 @@ CommonJS job modules use the same cartridge transformation and runtime mocks as 
 
 The built-in `dw/system/Status` and `dw/system/StatusItem` support message parameters, details, mutable items, property/getter pairs, and multi-item error aggregation.
 
+The built-in `dw/util/ArrayList` supports common construction, mutation, sorting, cloning, and iteration patterns used by cartridge scripts.
+
 ```ts
 const jobModule = await import("../cartridge/scripts/jobs/GenerateFeed.js")
 const jobStep = getSfccRuntime().jobStep(jobModule, {
