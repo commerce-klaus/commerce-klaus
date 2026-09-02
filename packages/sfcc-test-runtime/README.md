@@ -31,7 +31,9 @@ Script-module job steps can be executed with
 `runtime.jobStep(jobModule).run(functionName, parameters)`. The harness supplies
 SFCC-like job and step execution objects and keeps their mutable `context`
 across runs. Configure job, step, and execution IDs through the harness options;
-properties such as `stepTypeID` and `jobID` have matching platform getters.
+properties such as `stepTypeID` and `jobID` have matching platform getters. The
+context preserves property access while also providing common `dw.util.Map`
+operations such as `get()`, `put()`, `remove()`, `containsKey()`, and `size()`.
 Chunk modules run through `runChunk({ chunkSize, functions, parameters })`,
 which orchestrates step and chunk callbacks, filters null process results, and
 passes an SFCC-like list to `write`.

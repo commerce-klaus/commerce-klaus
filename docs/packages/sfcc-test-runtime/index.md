@@ -158,6 +158,8 @@ expect(jobStep.jobExecution.context).toMatchObject({
 
 The configured function receives `(parameters, stepExecution)`. `stepExecution.getJobExecution()` returns the same job execution for every call, so scripts can share mutable `context` state across steps or repeated runs. The execution objects expose the platform properties and equivalent getters: `ID`/`getID()`, `jobID`/`getJobID()`, `stepID`/`getStepID()`, `stepTypeID`/`getStepTypeID()`, and `context`/`getContext()`. Their IDs can be set through `SfccJobStepHarnessOptions`; omitted IDs receive stable test defaults. Missing and non-function exports fail with an explicit diagnostic.
 
+`SfccJobContext` preserves the supplied object's identity and normal property access while adding a non-enumerable `dw.util.Map`-like core: `get()`, `put()`, `remove()`, `clear()`, `containsKey()`, `containsValue()`, `size()`, `getLength()`, `isEmpty()`, `length`, and `empty`. Missing keys return `null`, matching the platform API. This keeps existing object assertions and production-style `context[key]` code working together.
+
 Chunk-oriented modules use `runChunk()` with the function names declared in `steptypes.json`:
 
 ```ts

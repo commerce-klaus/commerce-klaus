@@ -92,6 +92,7 @@ describe("SFCC test runtime", () => {
   })
 
   it("runs a script-module job step with parameters and execution context", async () => {
+    const context = { runs: 2 }
     const jobStep = runtime.jobStep(
       {
         Run: (
@@ -106,7 +107,7 @@ describe("SFCC test runtime", () => {
         },
       },
       {
-        context: { runs: 2 },
+        context,
         jobExecutionId: "job-execution-1",
         jobId: "NightlyFeed",
         stepExecutionId: "step-execution-1",
@@ -117,7 +118,19 @@ describe("SFCC test runtime", () => {
 
     await expect(jobStep.run("Run", { prefix: "feed" })).resolves.toBe("feed:3")
     await expect(jobStep.run("Run", { prefix: "feed" })).resolves.toBe("feed:4")
+    expect(jobStep.jobExecution.context).toBe(context)
     expect(jobStep.jobExecution.context).toEqual({ runs: 4 })
+    expect(jobStep.jobExecution.context.get("runs")).toBe(4)
+    expect(jobStep.jobExecution.context.containsKey("runs")).toBe(true)
+    expect(jobStep.jobExecution.context.containsValue(4)).toBe(true)
+    expect(jobStep.jobExecution.context.isEmpty()).toBe(false)
+    expect(jobStep.jobExecution.context.size()).toBe(1)
+    expect(jobStep.jobExecution.context.getLength()).toBe(1)
+    expect(jobStep.jobExecution.context).toMatchObject({ empty: false, length: 1 })
+    jobStep.jobExecution.context.put("fileName", "feed.xml")
+    expect(jobStep.jobExecution.context.fileName).toBe("feed.xml")
+    expect(jobStep.jobExecution.context.remove("fileName")).toBe("feed.xml")
+    expect(jobStep.jobExecution.context.get("fileName")).toBeNull()
     expect(jobStep.jobExecution.getContext()).toBe(jobStep.jobExecution.context)
     expect(jobStep.jobExecution.getID()).toBe("job-execution-1")
     expect(jobStep.jobExecution.getJobID()).toBe("NightlyFeed")
@@ -135,6 +148,9 @@ describe("SFCC test runtime", () => {
       stepID: "GenerateFeed",
       stepTypeID: "custom.GenerateFeed",
     })
+    expect(() => runtime.jobStep({}, { context })).not.toThrow()
+    jobStep.jobExecution.context.clear()
+    expect(jobStep.jobExecution.context).toMatchObject({ empty: true, length: 0 })
   })
 
   it("rejects a missing script-module job step function", async () => {

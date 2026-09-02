@@ -68,11 +68,25 @@ export interface SfccControllerHarness {
 export type SfccJobStepModule = Record<string, unknown>
 export type SfccJobStepParameters = Record<string, unknown>
 
+export interface SfccJobContext extends Record<string, unknown> {
+  readonly empty: boolean
+  readonly length: number
+  clear(): void
+  containsKey(key: string): boolean
+  containsValue(value: unknown): boolean
+  get(key: string): unknown
+  getLength(): number
+  isEmpty(): boolean
+  put(key: string, value: unknown): unknown
+  remove(key: string): unknown
+  size(): number
+}
+
 export interface SfccJobExecution {
   readonly ID: string
-  context: Record<string, unknown>
+  context: SfccJobContext
   readonly jobID: string
-  getContext(): Record<string, unknown>
+  getContext(): SfccJobContext
   getID(): string
   getJobID(): string
 }
@@ -207,6 +221,42 @@ function createChunkItems<Item>(items: Item[]): SfccChunkItems<Item> {
   }
 }
 
+const JOB_CONTEXT = Symbol("sfccJobContext")
+
+function createJobContext(values: Record<string, unknown>): SfccJobContext {
+  if (JOB_CONTEXT in values) {
+    return values as unknown as SfccJobContext
+  }
+  const keys = () => Object.keys(values)
+  const containsKey = (key: string) => Object.prototype.propertyIsEnumerable.call(values, key)
+  Object.defineProperties(values, {
+    [JOB_CONTEXT]: { value: true },
+    clear: { value: () => keys().forEach((key) => Reflect.deleteProperty(values, key)) },
+    containsKey: { value: containsKey },
+    containsValue: { value: (value: unknown) => Object.values(values).includes(value) },
+    empty: { get: () => keys().length === 0 },
+    get: { value: (key: string) => (containsKey(key) ? values[key] : null) },
+    getLength: { value: () => keys().length },
+    isEmpty: { value: () => keys().length === 0 },
+    length: { get: () => keys().length },
+    put: {
+      value: (key: string, value: unknown) => {
+        values[key] = value
+        return value
+      },
+    },
+    remove: {
+      value: (key: string) => {
+        const previousValue = containsKey(key) ? values[key] : null
+        Reflect.deleteProperty(values, key)
+        return previousValue
+      },
+    },
+    size: { value: () => keys().length },
+  })
+  return values as SfccJobContext
+}
+
 export class SfccTestRuntime {
   readonly hookCalls: HookCall[] = []
   readonly loggerEntries: LoggerEntry[] = []
@@ -316,7 +366,7 @@ export class SfccTestRuntime {
     jobStepModule: SfccJobStepModule,
     options: SfccJobStepHarnessOptions = {},
   ): SfccJobStepHarness {
-    const context = options.context ?? {}
+    const context = createJobContext(options.context ?? {})
     const jobExecutionId = options.jobExecutionId ?? "TestJobExecution"
     const jobId = options.jobId ?? "TestJob"
     const jobExecution: SfccJobExecution = {
