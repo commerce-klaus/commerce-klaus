@@ -39,6 +39,21 @@ runtime.reset()
 
 `mock()` targets the original module identifier. This is useful for platform modules and shared identifiers such as `*/cartridge/scripts/provider` or `./helper`. `mockResolved()` targets exactly one absolute cartridge file and takes precedence when identical relative identifiers occur in different directories.
 
+## SFCC globals
+
+Use `setGlobals()` for process globals referenced directly by cartridge code:
+
+```ts
+runtime.setGlobals({
+  customer: { authenticated: true },
+  empty: (value) => value == null || value === "",
+  request: { locale: "de_DE", querystring: {} },
+  session: { custom: {} },
+})
+```
+
+`reset()` removes globals added by the runtime and restores the complete property descriptor of values that existed before the test. Call it after each test so the worker does not retain request state. Because globals are process-wide within a worker, do not run tests that install different global contexts concurrently in the same worker.
+
 Hook implementations can also be registered directly. The first registration for an extension point wins, matching cartridge-path priority:
 
 ```ts

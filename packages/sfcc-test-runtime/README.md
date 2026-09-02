@@ -11,6 +11,10 @@ Use `@commerce-klaus/vitest-sfcc` to connect the runtime to cartridge modules in
 `runtime.mockResolved(absolutePath, implementation)` targets one resolved file
 and takes precedence over a specifier mock.
 
+`runtime.setGlobals({ request, session, customer, empty })` exposes controlled
+SFCC globals to cartridge code. `runtime.reset()` removes added globals and
+restores values that existed before the test.
+
 ## License
 
 MIT

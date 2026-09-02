@@ -72,6 +72,21 @@ getSfccRuntime().mockResolved(
 
 Resolved mocks take precedence over module-identifier mocks. `runtime.reset()` clears both kinds.
 
+## SFCC globals
+
+Cartridge code can access controlled SFCC globals without imports:
+
+```ts
+getSfccRuntime().setGlobals({
+  customer: { authenticated: true },
+  empty: (value) => value == null || value === "",
+  request: { locale: "de_DE", querystring: {} },
+  session: { custom: {} },
+})
+```
+
+`runtime.reset()` removes added globals and restores values that existed before the test. Use it in `afterEach` as well as test setup to prevent the final test in a worker from leaking context.
+
 `module.superModule` loads the next matching implementation in cartridge-path order. Transitive supermodule chains pass through the same CommonJS transformation.
 
 ## Hook execution

@@ -1,11 +1,15 @@
 import path from "node:path"
-import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import sfccVitest, { getSfccRuntime } from "../src/index.js"
 
 describe("vitest-sfcc", () => {
   beforeEach(() => {
     vi.resetModules()
+    getSfccRuntime().reset()
+  })
+
+  afterEach(() => {
     getSfccRuntime().reset()
   })
 
@@ -18,6 +22,24 @@ describe("vitest-sfcc", () => {
 
     expect(subject.default.execute()).toBe("mocked")
     expect(getSfccRuntime().transactionCalls).toEqual(["wrap"])
+  })
+
+  it("provides isolated SFCC globals to cartridge modules", async () => {
+    getSfccRuntime().setGlobals({
+      customer: { authenticated: true },
+      empty: (value: unknown) => value == null || value === "",
+      request: { locale: "de_DE", querystring: { value: "" } },
+      session: { custom: { id: "session-1" } },
+    })
+
+    const subject = await import("./cartridges/app_custom/cartridge/scripts/global-subject.js")
+
+    expect(subject.default()).toEqual({
+      authenticated: true,
+      empty: true,
+      locale: "de_DE",
+      sessionId: "session-1",
+    })
   })
 
   it("marks relative dependencies resolved from transformed cartridge modules", () => {

@@ -14,6 +14,7 @@ export interface HookCall {
 }
 
 export type SfccHookImplementation = Record<string, unknown>
+export type SfccGlobals = Record<string, unknown>
 
 export interface SfccTestRuntimeOptions {
   site?: {
@@ -70,6 +71,7 @@ export class SfccTestRuntime {
   private readonly hooks = new Map<string, SfccHookImplementation>()
   private readonly mocks = new Map<string, SfccModule>()
   private readonly resolvedMocks = new Map<string, SfccModule>()
+  private readonly restoredGlobals = new Map<string, PropertyDescriptor | undefined>()
 
   constructor(options: SfccTestRuntimeOptions = {}) {
     this.options = options
@@ -82,6 +84,28 @@ export class SfccTestRuntime {
 
   mockResolved(resolvedId: string, implementation: SfccModule): void {
     this.resolvedMocks.set(resolvedId, implementation)
+  }
+
+  setGlobals(globals: SfccGlobals): void {
+    const entries = Object.entries(globals)
+    for (const [name] of entries) {
+      const descriptor = Object.getOwnPropertyDescriptor(globalThis, name)
+      if (!this.restoredGlobals.has(name) && descriptor && !descriptor.configurable) {
+        throw new Error(`SFCC test runtime cannot override non-configurable global ${name}.`)
+      }
+    }
+
+    for (const [name, value] of entries) {
+      if (!this.restoredGlobals.has(name)) {
+        this.restoredGlobals.set(name, Object.getOwnPropertyDescriptor(globalThis, name))
+      }
+      Object.defineProperty(globalThis, name, {
+        configurable: true,
+        enumerable: true,
+        value,
+        writable: true,
+      })
+    }
   }
 
   registerHook(extensionPoint: string, implementation: SfccHookImplementation): void {
@@ -117,6 +141,14 @@ export class SfccTestRuntime {
   }
 
   reset(): void {
+    for (const [name, descriptor] of this.restoredGlobals) {
+      if (descriptor) {
+        Object.defineProperty(globalThis, name, descriptor)
+      } else {
+        Reflect.deleteProperty(globalThis, name)
+      }
+    }
+    this.restoredGlobals.clear()
     this.hooks.clear()
     this.hookCalls.length = 0
     this.mocks.clear()

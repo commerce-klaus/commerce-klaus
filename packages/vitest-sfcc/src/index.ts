@@ -9,6 +9,7 @@ import {
   createSfccTestRuntime,
   getSfccTestRuntime,
   setSfccTestRuntime,
+  type SfccGlobals,
   type SfccTestRuntime,
   type SfccTestRuntimeOptions,
 } from "@commerce-klaus/sfcc-test-runtime"
@@ -285,4 +286,4 @@ export function resetSfccRuntime(options?: SfccTestRuntimeOptions): SfccTestRunt
   return runtime
 }
 
-export type { SfccTestRuntime, SfccTestRuntimeOptions }
+export type { SfccGlobals, SfccTestRuntime, SfccTestRuntimeOptions }

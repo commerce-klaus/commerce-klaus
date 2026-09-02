@@ -29,6 +29,44 @@ describe("SFCC test runtime", () => {
     })
   })
 
+  it("installs globals and restores their original descriptors on reset", () => {
+    const testGlobal = globalThis as typeof globalThis & {
+      __sfccRequest?: unknown
+      __sfccSession?: unknown
+    }
+    Object.defineProperty(testGlobal, "__sfccSession", {
+      configurable: true,
+      enumerable: false,
+      value: "original",
+      writable: false,
+    })
+    const originalSession = Object.getOwnPropertyDescriptor(testGlobal, "__sfccSession")
+
+    runtime.setGlobals({
+      __sfccRequest: { locale: "de_DE" },
+      __sfccSession: { privacy: {} },
+    })
+    runtime.setGlobals({ __sfccRequest: { locale: "en_US" } })
+
+    expect(testGlobal.__sfccRequest).toEqual({ locale: "en_US" })
+    expect(testGlobal.__sfccSession).toEqual({ privacy: {} })
+
+    runtime.reset()
+
+    expect("__sfccRequest" in testGlobal).toBe(false)
+    expect(Object.getOwnPropertyDescriptor(testGlobal, "__sfccSession")).toEqual(originalSession)
+    Reflect.deleteProperty(testGlobal, "__sfccSession")
+  })
+
+  it("rejects non-configurable globals without applying partial changes", () => {
+    const testGlobal = globalThis as typeof globalThis & { __sfccRequest?: unknown }
+
+    expect(() => runtime.setGlobals({ __sfccRequest: {}, Infinity: 1 })).toThrow(
+      /cannot override non-configurable global Infinity/,
+    )
+    expect("__sfccRequest" in testGlobal).toBe(false)
+  })
+
   it("prefers an exact resolved mock and removes it on reset", () => {
     runtime.mock("./provider", { value: "specifier" })
     runtime.mockResolved("/cartridges/app_custom/provider.js", { value: "resolved" })
