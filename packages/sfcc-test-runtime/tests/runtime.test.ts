@@ -239,6 +239,52 @@ describe("SFCC test runtime", () => {
     expect(StringUtils.decodeBase64(encoded)).toBe("Grüße aus Köln")
   })
 
+  it("provides an SFCC calendar core with UTC field operations", () => {
+    interface CalendarInstance {
+      add(field: number, value: number): void
+      after(other: CalendarInstance): boolean
+      before(other: CalendarInstance): boolean
+      compareTo(other: CalendarInstance): number
+      get(field: number): number
+      getTime(): Date
+      isSameDay(other: CalendarInstance): boolean
+      set(field: number, value: number): void
+      setTime(value: Date): void
+      time: Date
+    }
+
+    const Calendar = runtime.resolve("dw/util/Calendar") as unknown as {
+      DATE: number
+      HOUR_OF_DAY: number
+      MINUTE: number
+      MONTH: number
+      YEAR: number
+      new (date?: Date): CalendarInstance
+    }
+    const input = new Date("2026-01-31T23:58:59.123Z")
+    const calendar = new Calendar(input)
+
+    input.setUTCFullYear(2000)
+    expect(calendar.get(Calendar.YEAR)).toBe(2026)
+    expect(calendar.get(Calendar.MONTH)).toBe(0)
+    expect(calendar.get(Calendar.DATE)).toBe(31)
+
+    calendar.set(Calendar.MINUTE, 5)
+    calendar.add(Calendar.HOUR_OF_DAY, 2)
+    expect(calendar.getTime().toISOString()).toBe("2026-02-01T01:05:59.123Z")
+
+    const earlier = new Calendar(new Date("2026-02-01T00:00:00.000Z"))
+    expect(calendar.after(earlier)).toBe(true)
+    expect(earlier.before(calendar)).toBe(true)
+    expect(calendar.compareTo(earlier)).toBe(1)
+    expect(calendar.isSameDay(earlier)).toBe(true)
+
+    const replacement = new Date("2026-03-04T05:06:07.008Z")
+    calendar.time = replacement
+    replacement.setUTCFullYear(2000)
+    expect(calendar.getTime().toISOString()).toBe("2026-03-04T05:06:07.008Z")
+  })
+
   it("stops controller middleware that does not call next", async () => {
     const calls: string[] = []
     const controller: SfccController = {

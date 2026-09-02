@@ -139,6 +139,8 @@ The built-in `dw/util/HashMap` supports arbitrary key types, common map operatio
 
 The built-in `dw/util/StringUtils` supports numbered message formatting and UTF-8 Base64 encoding and decoding. Locale-sensitive formatting remains mockable application behavior.
 
+The built-in `dw/util/Calendar` supports deterministic UTC field operations, date arithmetic, and comparisons. Parsing, locale patterns, and time zones remain mockable application behavior.
+
 ```ts
 const jobModule = await import("../cartridge/scripts/jobs/GenerateFeed.js")
 const jobStep = getSfccRuntime().jobStep(jobModule, {

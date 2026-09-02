@@ -45,6 +45,11 @@ The built-in `dw/util/StringUtils` supports numbered `format()` placeholders and
 UTF-8 `encodeBase64()`/`decodeBase64()` helpers. Locale, date, number, money, and
 resource formatting remain application-provided mocks.
 
+The built-in `dw/util/Calendar` provides deterministic UTC construction, date
+copies, common field reads and writes, date arithmetic, comparisons, leap-year
+checks, and same-day checks. Parsing, rolling, clearing, and time zones remain
+application-provided mocks.
+
 Script-module job steps can be executed with
 `runtime.jobStep(jobModule).run(functionName, parameters)`. The harness supplies
 SFCC-like job and step execution objects and keeps their mutable `context`
