@@ -104,7 +104,22 @@ expect(response.view).toBe("checkout/checkout")
 expect(response.viewData).toMatchObject({ currentStage: "shipping" })
 ```
 
-The initial harness supports `server.get()`, `server.post()`, ordered middleware with `next()`, and response state from `render()`, `json()`, `redirect()`, `setViewData()`, and `getViewData()`.
+The harness supports `server.get()`, `server.post()`, ordered middleware with `next()`, and response state from `render()`, `json()`, `redirect()`, `setViewData()`, and `getViewData()`.
+
+Controller inheritance works through the same `module.superModule` resolution used by scripts:
+
+```js
+const server = require("server")
+
+server.extend(module.superModule)
+server.prepend("Show", authorizeCustomer)
+server.append("Show", addViewData)
+server.replace("Submit", submitReplacement)
+
+module.exports = server.exports()
+```
+
+The harness clones inherited routes and preserves the resulting middleware order for assertions and execution.
 
 `module.superModule` loads the next matching implementation in cartridge-path order. Transitive supermodule chains pass through the same CommonJS transformation.
 

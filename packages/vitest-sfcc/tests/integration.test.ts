@@ -43,15 +43,18 @@ describe("vitest-sfcc", () => {
 
   it("registers and executes an SFRA controller route", async () => {
     const controller = await import("./cartridges/app_custom/cartridge/controllers/Test.js")
+    const trace: string[] = []
 
     const response = await getSfccRuntime()
       .controller(controller.default)
       .run("Show", {
         querystring: { value: "request-value" },
+        trace,
       })
 
     expect(response.view).toBe("test/show")
-    expect(response.viewData).toEqual({ first: "request-value", second: true })
+    expect(response.viewData).toEqual({ base: true, custom: true, first: "request-value" })
+    expect(trace).toEqual(["prepend", "base", "append"])
 
     const jsonResponse = await getSfccRuntime()
       .controller(controller.default)
@@ -61,6 +64,13 @@ describe("vitest-sfcc", () => {
     expect(jsonResponse.isJson).toBe(true)
     expect(jsonResponse.viewData).toEqual({ accepted: true })
     expect(controller.default.__routes.Submit.method).toBe("POST")
+
+    const replaceTrace: string[] = []
+    const replacedResponse = await getSfccRuntime()
+      .controller(controller.default)
+      .run("Replace", { trace: replaceTrace })
+    expect(replacedResponse.viewData).toEqual({ replaced: true })
+    expect(replaceTrace).toEqual(["replacement"])
   })
 
   it("marks relative dependencies resolved from transformed cartridge modules", () => {

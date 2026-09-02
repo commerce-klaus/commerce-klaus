@@ -272,14 +272,24 @@ export class SfccTestRuntime {
   }
 
   private createServerModule(): SfccModule {
+    const validateMiddleware = (name: string, middleware: SfccControllerMiddleware[]): void => {
+      if (typeof name !== "string" || middleware.some((item) => typeof item !== "function")) {
+        throw new Error("SFCC server routes require a name followed by middleware functions.")
+      }
+    }
+    const requireRoute = (name: string): SfccControllerRoute => {
+      const route = this.controllerRoutes.get(name)
+      if (!route) {
+        throw new Error(`SFCC server route ${name} does not exist.`)
+      }
+      return route
+    }
     const register = (
       method: SfccControllerRoute["method"],
       name: string,
       middleware: SfccControllerMiddleware[],
     ): SfccControllerRoute => {
-      if (typeof name !== "string" || middleware.some((item) => typeof item !== "function")) {
-        throw new Error("SFCC server routes require a name followed by middleware functions.")
-      }
+      validateMiddleware(name, middleware)
       if (this.controllerRoutes.has(name)) {
         throw new Error(`SFCC server route ${name} is already registered.`)
       }
@@ -290,14 +300,41 @@ export class SfccTestRuntime {
     }
 
     return {
+      append: (name: string, ...middleware: SfccControllerMiddleware[]) => {
+        validateMiddleware(name, middleware)
+        requireRoute(name).middleware.push(...middleware)
+      },
+      extend: (controller: SfccController) => {
+        const routes = Object.values(controller.__routes ?? {})
+        if (routes.length === 0) {
+          throw new Error("SFCC server can only extend a controller with routes.")
+        }
+        this.controllerRoutes.clear()
+        for (const route of routes) {
+          this.controllerRoutes.set(route.name, {
+            ...route,
+            middleware: [...route.middleware],
+          })
+        }
+      },
       exports: (): SfccController => {
         const routes = Object.fromEntries(this.controllerRoutes)
         return { ...routes, __routes: routes }
       },
       get: (name: string, ...middleware: SfccControllerMiddleware[]) =>
         register("GET", name, middleware),
+      getRoute: (name: string) => this.controllerRoutes.get(name),
       post: (name: string, ...middleware: SfccControllerMiddleware[]) =>
         register("POST", name, middleware),
+      prepend: (name: string, ...middleware: SfccControllerMiddleware[]) => {
+        validateMiddleware(name, middleware)
+        requireRoute(name).middleware.unshift(...middleware)
+      },
+      replace: (name: string, ...middleware: SfccControllerMiddleware[]) => {
+        validateMiddleware(name, middleware)
+        const route = requireRoute(name)
+        this.controllerRoutes.set(name, { ...route, middleware })
+      },
     }
   }
 

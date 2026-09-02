@@ -69,7 +69,22 @@ expect(response.view).toBe("checkout/checkout")
 expect(response.viewData).toMatchObject({ currentStage: "shipping" })
 ```
 
-Middleware runs in registration order when it calls `next()`. The initial response implementation supports `render()`, `json()`, `redirect()`, `setViewData()`, and `getViewData()`. Route extension methods such as `append()`, `prepend()`, `replace()`, and `extend()` are not part of this initial slice.
+Middleware runs in registration order when it calls `next()`. The response implementation supports `render()`, `json()`, `redirect()`, `setViewData()`, and `getViewData()`.
+
+Extended cartridges can inherit and modify routes using the standard SFRA pattern:
+
+```js
+const server = require("server")
+
+server.extend(module.superModule)
+server.prepend("Show", authorizeCustomer)
+server.append("Show", addViewData)
+server.replace("Submit", submitReplacement)
+
+module.exports = server.exports()
+```
+
+`extend()` clones the inherited route registry. `prepend()` and `append()` preserve middleware order, while `replace()` removes the previous chain for that route. Modifying a missing route fails with an explicit error.
 
 Hook implementations can also be registered directly. The first registration for an extension point wins, matching cartridge-path priority:
 
