@@ -99,7 +99,19 @@ const provider = require("*/cartridge/scripts/provider")
 module.exports = { authorizePayment: authorizePayment }
 ```
 
-Dynamic or nested `require()` calls and named `exports.foo` assignments fail with an explicit diagnostic. Supporting those CommonJS patterns is planned as the transformer matures.
+It also supports object destructuring and direct named exports used by hooks, job steps, and legacy controllers:
+
+```js
+const { enrichStoreOpeningHours } = require("./helpers/storeOpeningHours")
+
+exports.modifyGETResponse = function (document) {
+  enrichStoreOpeningHours(document)
+}
+
+module.exports.status = "active"
+```
+
+Dynamic or nested `require()` calls and mutations of an existing export property fail with an explicit diagnostic. Supporting additional CommonJS patterns is planned as the transformer matures.
 
 ## License
 

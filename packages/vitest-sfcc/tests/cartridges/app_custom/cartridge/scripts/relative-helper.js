@@ -1,5 +1,3 @@
 module.exports = {
-  value: function () {
-    return "relative-real"
-  },
+  value: () => "relative-real",
 }

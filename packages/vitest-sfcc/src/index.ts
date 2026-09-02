@@ -79,6 +79,7 @@ function markCartridgeImports(code: string, importer: string, cartridgeRoots: st
 
 function transformCartridgeCommonJs(code: string, id: string, cartridgeRoots: string[]): string {
   let transformed = code
+  let requireIndex = 0
 
   if (transformed.includes("module.superModule")) {
     const superModulePath = resolveSuperModuleFilePath(id, cartridgeRoots)
@@ -92,25 +93,36 @@ function transformCartridgeCommonJs(code: string, id: string, cartridgeRoots: st
   }
 
   transformed = transformed.replace(
+    /\b(?:const|let|var)\s+(\{[^}]+\})\s*=\s*require\(\s*(["'])([^"']+)\2\s*\)\s*;?/g,
+    (_match, binding: string, _quote: string, moduleId: string) => {
+      const importedBinding = `__sfcc_required_${requireIndex++}`
+      return `import ${importedBinding} from ${JSON.stringify(moduleId)}\nconst ${binding} = ${importedBinding}\n`
+    },
+  )
+  transformed = transformed.replace(
     /\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*require\(\s*(["'])([^"']+)\2\s*\)\s*;?/g,
     (_match, binding: string, _quote: string, moduleId: string) =>
       `import ${binding} from ${JSON.stringify(moduleId)}\n`,
   )
 
-  transformed = transformed.replace(/\bmodule\.exports\s*=/g, "export default")
   transformed = transformed.replace(
-    /^\s*exports\.([A-Za-z_$][\w$]*)\s*=\s*([A-Za-z_$][\w$]*)\s*;?\s*$/gm,
+    /^\s*(?:module\.)?exports\.([A-Za-z_$][\w$]*)\s*=\s*([A-Za-z_$][\w$]*)\s*;?\s*$/gm,
     (_match, exportName: string, binding: string) => `export { ${binding} as ${exportName} }`,
   )
+  transformed = transformed.replace(
+    /^\s*(?:module\.)?exports\.([A-Za-z_$][\w$]*)\s*=/gm,
+    (_match, exportName: string) => `export const ${exportName} =`,
+  )
+  transformed = transformed.replace(/\bmodule\.exports\s*=/g, "export default")
 
   if (/\brequire\s*\(/.test(transformed)) {
     throw new Error(
       `vitest-sfcc cannot transform a dynamic or nested require() in ${id}. Use a static top-level binding.`,
     )
   }
-  if (/\bexports\s*\./.test(transformed)) {
+  if (/\b(?:module\.)?exports\s*\./.test(transformed)) {
     throw new Error(
-      `vitest-sfcc cannot transform named CommonJS exports in ${id} yet. Use module.exports for this initial release.`,
+      `vitest-sfcc cannot transform this named CommonJS export in ${id}. Use a top-level export assignment.`,
     )
   }
 

@@ -57,6 +57,17 @@ describe("vitest-sfcc", () => {
     expect(subject.default.execute()).toBe("resolved-mocked")
   })
 
+  it("loads direct named CommonJS exports", async () => {
+    getSfccRuntime().mock("./relative-helper", {
+      value: () => "export-mocked",
+    })
+
+    const subject = await import("./cartridges/app_custom/cartridge/scripts/direct-exports.js")
+
+    expect(subject.execute("named")).toBe("named:export-mocked")
+    expect(subject.label).toBe("direct")
+  })
+
   it("loads module.superModule from the next cartridge", async () => {
     const inherited = await import("./cartridges/app_custom/cartridge/scripts/inherited.js")
 
