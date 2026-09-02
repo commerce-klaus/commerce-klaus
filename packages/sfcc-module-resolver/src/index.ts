@@ -13,6 +13,7 @@ export {
 export type { InferCartridgeOrderOptions, ResolveCartridgeRootsOptions } from "./cartridge-order.ts"
 
 export {
+  findResolvedHookRegistrations,
   getCartridgeHooksJsonPath,
   findCartridgeRootForFile,
   getHookRegistrationsForScriptFile,
@@ -21,7 +22,7 @@ export {
   getRequiredHookExportsForScriptFile,
   resolveHookScriptPath,
 } from "./hooks.ts"
-export type { HookRegistration, RequiredHookExport } from "./hooks.ts"
+export type { HookRegistration, RequiredHookExport, ResolvedHookRegistration } from "./hooks.ts"
 
 export {
   SUPPORTED_RUNTIME_EXTENSIONS,

@@ -7,6 +7,14 @@ export interface LoggerEntry {
   parameters: unknown[]
 }
 
+export interface HookCall {
+  extensionPoint: string
+  functionName: string
+  args: unknown[]
+}
+
+export type SfccHookImplementation = Record<string, unknown>
+
 export interface SfccTestRuntimeOptions {
   site?: {
     id?: string
@@ -53,11 +61,13 @@ function createLoggerModule(entries: LoggerEntry[]): SfccModule {
 }
 
 export class SfccTestRuntime {
+  readonly hookCalls: HookCall[] = []
   readonly loggerEntries: LoggerEntry[] = []
   readonly transactionCalls: string[] = []
 
   private readonly options: SfccTestRuntimeOptions
   private readonly defaults = new Map<string, SfccModule>()
+  private readonly hooks = new Map<string, SfccHookImplementation>()
   private readonly mocks = new Map<string, SfccModule>()
 
   constructor(options: SfccTestRuntimeOptions = {}) {
@@ -67,6 +77,22 @@ export class SfccTestRuntime {
 
   mock(moduleId: string, implementation: SfccModule): void {
     this.mocks.set(moduleId, implementation)
+  }
+
+  registerHook(extensionPoint: string, implementation: SfccHookImplementation): void {
+    if (!this.hooks.has(extensionPoint)) {
+      this.hooks.set(extensionPoint, implementation)
+    }
+  }
+
+  hasHook(extensionPoint: string): boolean {
+    return this.hooks.has(extensionPoint)
+  }
+
+  callHook(extensionPoint: string, functionName: string, ...args: unknown[]): unknown {
+    this.hookCalls.push({ extensionPoint, functionName, args })
+    const hookFunction = this.hooks.get(extensionPoint)?.[functionName]
+    return typeof hookFunction === "function" ? hookFunction(...args) : undefined
   }
 
   resolve(moduleId: string, fallback?: SfccModuleFallback): SfccModule {
@@ -83,12 +109,19 @@ export class SfccTestRuntime {
   }
 
   reset(): void {
+    this.hooks.clear()
+    this.hookCalls.length = 0
     this.mocks.clear()
     this.loggerEntries.length = 0
     this.transactionCalls.length = 0
   }
 
   private installDefaults(): void {
+    this.defaults.set("dw/system/HookMgr", {
+      callHook: (extensionPoint: string, functionName: string, ...args: unknown[]) =>
+        this.callHook(extensionPoint, functionName, ...args),
+      hasHook: (extensionPoint: string) => this.hasHook(extensionPoint),
+    })
     this.defaults.set("dw/system/Status", Status)
     this.defaults.set("dw/system/Logger", createLoggerModule(this.loggerEntries))
     this.defaults.set("dw/system/Transaction", {

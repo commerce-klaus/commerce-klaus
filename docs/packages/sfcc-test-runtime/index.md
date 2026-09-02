@@ -18,6 +18,7 @@ The initial runtime provides focused implementations of:
 - `dw/system/Transaction`
 - `dw/system/Logger`
 - `dw/system/Site`
+- `dw/system/HookMgr`
 
 These implementations model behavior needed by tests and expose call history where useful. They do not attempt to emulate the complete SFCC platform.
 
@@ -34,6 +35,18 @@ const runtime = createSfccTestRuntime({
 runtime.mock("dw/system/Logger", loggerMock)
 runtime.reset()
 ```
+
+Hook implementations can also be registered directly. The first registration for an extension point wins, matching cartridge-path priority:
+
+```ts
+runtime.registerHook("app.payment.authorize", {
+  authorize: (paymentId) => ({ paymentId, authorized: true }),
+})
+
+runtime.callHook("app.payment.authorize", "authorize", "payment-1")
+```
+
+`runtime.hookCalls` records extension point, function name, and arguments for assertions. A missing extension point or function returns `undefined`; hook exceptions propagate to the caller.
 
 An unknown module fails with an actionable error unless the caller supplies a real cartridge fallback. This prevents incomplete platform behavior from making tests pass accidentally.
 

@@ -27,7 +27,8 @@ const subject = await import("../cartridge/scripts/subject.js")
 
 The initial release resolves `dw/*`, `*/`, `~/`, cartridge aliases, and
 `module.superModule`. Runtime modules include `Status`, `Transaction`, `Logger`,
-and `Site`.
+`Site`, and `HookMgr`. Hook registrations are discovered automatically from each
+cartridge's declared `hooks.json`, using cartridge-path priority.
 
 ## License
 

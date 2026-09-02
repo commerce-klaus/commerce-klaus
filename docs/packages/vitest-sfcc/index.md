@@ -56,6 +56,20 @@ Mocks can target `dw/*`, `*/`, `~/`, and cartridge-alias module identifiers. Wit
 
 `module.superModule` loads the next matching implementation in cartridge-path order. Transitive supermodule chains pass through the same CommonJS transformation.
 
+## Hook execution
+
+`dw/system/HookMgr` automatically discovers `hooks.json` through each cartridge's `package.json`. If multiple cartridges register the same extension point, the first resolvable registration in cartridge-path order is used.
+
+```js
+const HookMgr = require("dw/system/HookMgr")
+
+if (HookMgr.hasHook("app.payment.authorize")) {
+  return HookMgr.callHook("app.payment.authorize", "authorize", paymentId)
+}
+```
+
+Hook scripts run through the same cartridge transformer and can use `dw/*`, `*/`, `~/`, aliases, and `module.superModule`. `getSfccRuntime().hookCalls` exposes calls for test assertions.
+
 ## Current CommonJS scope
 
 The initial transformer supports static top-level bindings such as:

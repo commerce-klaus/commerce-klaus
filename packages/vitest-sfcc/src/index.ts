@@ -1,5 +1,6 @@
 import {
   createSfccModuleResolver,
+  findResolvedHookRegistrations,
   resolveCartridgeRoots,
   resolveSuperModuleFilePath,
 } from "@commerce-klaus/sfcc-module-resolver"
@@ -96,6 +97,10 @@ function transformCartridgeCommonJs(code: string, id: string, cartridgeRoots: st
   )
 
   transformed = transformed.replace(/\bmodule\.exports\s*=/g, "export default")
+  transformed = transformed.replace(
+    /^\s*exports\.([A-Za-z_$][\w$]*)\s*=\s*([A-Za-z_$][\w$]*)\s*;?\s*$/gm,
+    (_match, exportName: string, binding: string) => `export { ${binding} as ${exportName} }`,
+  )
 
   if (/\brequire\s*\(/.test(transformed)) {
     throw new Error(
@@ -114,6 +119,7 @@ function transformCartridgeCommonJs(code: string, id: string, cartridgeRoots: st
 export default function sfccVitest(options: SfccVitestOptions): SfccVitestPlugin {
   const cartridgeRoots = resolveCartridgeRoots(options)
   const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
+  const hookRegistrations = findResolvedHookRegistrations(cartridgeRoots)
   setSfccTestRuntime(createSfccTestRuntime(options.runtime))
 
   const sfccPlugin: SfccVitestPlugin = {
@@ -198,6 +204,28 @@ export default function sfccVitest(options: SfccVitestOptions): SfccVitestPlugin
       }
 
       const { moduleId, resolvedPath } = decodeVirtualModule(id)
+      if (moduleId === "dw/system/HookMgr") {
+        const imports = hookRegistrations
+          .map(
+            (registration, index) =>
+              `import * as hook${index} from ${JSON.stringify(registration.scriptPath)}`,
+          )
+          .join("\n")
+        const registrations = hookRegistrations
+          .map(
+            (registration, index) =>
+              `runtime.registerHook(${JSON.stringify(registration.name)}, "default" in hook${index} ? hook${index}.default : hook${index})`,
+          )
+          .join("\n")
+
+        return `${imports}
+import { getSfccTestRuntime } from "@commerce-klaus/sfcc-test-runtime"
+const runtime = getSfccTestRuntime()
+${registrations}
+export default runtime.resolve("dw/system/HookMgr")
+`
+      }
+
       const fallbackImport = resolvedPath
         ? `import fallback from ${JSON.stringify(resolvedPath)}\n`
         : ""

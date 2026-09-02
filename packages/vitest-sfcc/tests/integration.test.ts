@@ -34,4 +34,17 @@ describe("vitest-sfcc", () => {
 
     expect(inherited.default.value()).toBe("custom:base")
   })
+
+  it("discovers and calls the first registered hook in cartridge order", async () => {
+    const subject = await import("./cartridges/app_custom/cartridge/scripts/hook-subject.js")
+
+    expect(subject.default.execute("payment-1")).toBe("custom:payment-1")
+    expect(getSfccRuntime().hookCalls).toEqual([
+      {
+        extensionPoint: "app.payment.authorize",
+        functionName: "authorize",
+        args: ["payment-1"],
+      },
+    ])
+  })
 })

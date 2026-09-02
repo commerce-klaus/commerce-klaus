@@ -113,6 +113,8 @@ Notes:
   - Reads the cartridge's `package.json` and resolves its declared `hooks` path, if any
 - `getHookRegistrationsFromDocument(document): HookRegistration[] | undefined`
   - Validates a parsed `hooks.json` document and returns its `{ name, script }` entries
+- `findResolvedHookRegistrations(cartridgeRoots): ResolvedHookRegistration[]`
+  - Discovers resolvable hook scripts in cartridge-path order and keeps the first registration for each extension point
 - `resolveHookScriptPath(hooksDirectory, script): string | undefined`
   - Resolves a registration's `script` field to an existing file, trying `.js`, `.cjs`, `.mjs`, and `.ds`
 - `getHookRegistrationsForScriptFile(filePath): HookRegistration[]`
