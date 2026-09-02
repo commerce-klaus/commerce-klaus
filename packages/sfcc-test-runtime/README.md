@@ -27,10 +27,11 @@ stop the remaining middleware chain.
 Middleware can stop by omitting `next()`. Calling `next(error)` rejects the route
 run, while repeated `next()` calls fail with an explicit diagnostic.
 
-The built-in `dw/system/Status` supports the common single-item constructor,
-property/getter pairs for status, code, message, parameters, details and error
-state, plus `addDetail()`. Message parameters are exposed as an `SfccList`, and
-details use the same SFCC-like map API as job contexts.
+The built-in `dw/system/Status` supports empty, single-item, and aggregated
+statuses. `addItem()` selects the first error for property/getter access and
+computes the overall error state across all items. The built-in
+`dw/system/StatusItem` supports the SFCC setters, message parameters, and
+details using the same list and map APIs as job contexts.
 
 Script-module job steps can be executed with
 `runtime.jobStep(jobModule).run(functionName, parameters)`. The harness supplies

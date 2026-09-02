@@ -24,7 +24,9 @@ These implementations model behavior needed by tests and expose call history whe
 
 ### Status
 
-`dw/system/Status` supports `new Status(status, code, message, ...parameters)` for the common single-item case. It exposes `status`/`getStatus()`, `code`/`getCode()`, `message`/`getMessage()`, `parameters`/`getParameters()`, `details`/`getDetails()`, `error`/`isError()`, and `items`/`getItems()`. `addDetail()` and `getDetail()` use an SFCC-like map, while parameters and items are independent `SfccList` values. Multi-item aggregation through `addItem()` is not yet modeled.
+`dw/system/Status` supports empty, single-item, and aggregated statuses. It exposes `status`/`getStatus()`, `code`/`getCode()`, `message`/`getMessage()`, `parameters`/`getParameters()`, `details`/`getDetails()`, `error`/`isError()`, and `items`/`getItems()`. When multiple items are present, these values come from the first error item or otherwise the first item. `addItem()` updates the overall error state, while `addDetail()` targets the currently selected item.
+
+`dw/system/StatusItem` is also built in. Its constructors, property/getter pairs, details, and `setStatus()`, `setCode()`, `setMessage()`, and `setParameters()` methods allow tests to build and mutate multi-item statuses.
 
 ```ts
 import { createSfccTestRuntime } from "@commerce-klaus/sfcc-test-runtime"

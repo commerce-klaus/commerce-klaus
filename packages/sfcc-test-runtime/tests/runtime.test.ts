@@ -87,6 +87,70 @@ describe("SFCC test runtime", () => {
     expect(status.getDetails()).toBe(status.details)
   })
 
+  it("aggregates mutable status items and selects the first error", () => {
+    const Status = runtime.resolve("dw/system/Status") as unknown as {
+      ERROR: number
+      OK: number
+      new (): {
+        addDetail(key: string, value: unknown): void
+        addItem(item: unknown): void
+        code: string | null
+        error: boolean
+        getDetail(key: string): unknown
+        getItems(): { length: number }
+        message: string | null
+        parameters: { toArray(): string[] }
+        status: number
+      }
+      new (
+        status: number,
+        code: string,
+      ): {
+        addDetail(key: string, value: unknown): void
+        addItem(item: unknown): void
+        code: string | null
+        error: boolean
+        getDetail(key: string): unknown
+        getItems(): { length: number }
+        message: string | null
+        parameters: { toArray(): string[] }
+        status: number
+      }
+    }
+    const StatusItem = runtime.resolve("dw/system/StatusItem") as unknown as {
+      new (): {
+        addDetail(key: string, value: unknown): void
+        setCode(code: string): void
+        setMessage(message: string): void
+        setParameters(...parameters: string[]): void
+        setStatus(status: number): void
+      }
+    }
+    const emptyStatus = new Status()
+    const status = new Status(Status.OK, "STARTED")
+    const error = new StatusItem()
+
+    expect(emptyStatus.getItems().length).toBe(0)
+    error.setCode("FAILED")
+    error.setMessage("Import {0}")
+    error.setParameters("orders.xml")
+    error.addDetail("fileName", "orders.xml")
+    error.setStatus(Status.ERROR)
+    status.addItem(error)
+
+    expect(status).toMatchObject({
+      code: "FAILED",
+      error: true,
+      message: "Import {0}",
+      status: Status.ERROR,
+    })
+    expect(status.parameters.toArray()).toEqual(["orders.xml"])
+    expect(status.getDetail("fileName")).toBe("orders.xml")
+    expect(status.getItems().length).toBe(2)
+    status.addDetail("attempt", 2)
+    expect(status.getDetail("attempt")).toBe(2)
+  })
+
   it("stops controller middleware that does not call next", async () => {
     const calls: string[] = []
     const controller: SfccController = {

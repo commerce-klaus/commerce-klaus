@@ -48,8 +48,9 @@ Imported script-module job steps run through the same cartridge transformer:
 `runChunk({ chunkSize, functions, parameters })` orchestrates chunk modules with
 the function names declared in `steptypes.json` and supplies an SFCC-like list
 to the configured write function.
-The runtime's `dw/system/Status` implementation supports common property/getter
-pairs, message parameters, details, and single-item status inspection.
+The runtime's `dw/system/Status` and `dw/system/StatusItem` implementations
+support property/getter pairs, message parameters, details, mutable items, and
+multi-item status aggregation.
 
 For cartridge metadata-driven tests, `loadSfccJobStep(typeId, options)` discovers
 the effective `steptypes.json` entry, lazily imports its module, and selects task
