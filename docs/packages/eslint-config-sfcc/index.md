@@ -413,7 +413,13 @@ That rule is enabled in the recommended config by default, because it is still u
 
 ---
 
-## Migrating from @jenssimon/eslint-config-sfcc <= v4
+## Package history and migration
+
+This package was originally maintained and published as `@jenssimon/eslint-config-sfcc`. Version 5.0.0 of that package introduced ESLint Flat Config and the breaking changes described below. Development continued under the `@jenssimon` scope before the package moved to Commerce Klaus as `@commerce-klaus/eslint-config-sfcc`, whose release history starts at version 1.0.0.
+
+If you use `@jenssimon/eslint-config-sfcc` version 4 or earlier, migrate both the ESLint configuration format and the package name. If you already use version 5 or later under the `@jenssimon` scope, your configuration is already based on Flat Config; update the dependency and imports to the `@commerce-klaus` package name and review the current configuration API.
+
+### Migrating from @jenssimon/eslint-config-sfcc <= v4
 
 This is a major release with breaking changes.
 
