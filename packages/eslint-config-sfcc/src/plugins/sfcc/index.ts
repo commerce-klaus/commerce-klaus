@@ -7,6 +7,7 @@ import noE4xSyntax from "./no-e4x-syntax.js"
 import noEmptyGlobal from "./no-empty-global.js"
 import noForms from "./no-forms.js"
 import noIsmlRendering from "./no-isml-rendering.js"
+import noPageDesigner from "./no-page-designer.js"
 import noPipelineApi from "./no-pipeline-api.js"
 import noPlatformGlobals from "./no-platform-globals.js"
 import noProprietaryModuleSyntax from "./no-proprietary-module-syntax.js"
@@ -38,6 +39,7 @@ const sfcc = {
     "no-e4x-syntax": noE4xSyntax,
     "no-forms": noForms,
     "no-isml-rendering": noIsmlRendering,
+    "no-page-designer": noPageDesigner,
     "no-pipeline-api": noPipelineApi,
     "no-platform-globals": noPlatformGlobals,
     "no-proprietary-module-syntax": noProprietaryModuleSyntax,
