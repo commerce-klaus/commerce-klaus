@@ -81,6 +81,19 @@ res.print("<sitemap />")
 
 The returned harness response exposes these calls through `contentType`, `statusCode`, and the ordered `printed` array.
 
+Redirect and response metadata are captured as well:
+
+```js
+res.cacheExpiration(2)
+res.log("redirect", { permanent: true })
+res.setHttpHeader("X-Redirect-Source", "controller")
+res.setRedirectStatus(301)
+res.redirect("/target")
+next()
+```
+
+The result exposes `redirectUrl`, `redirectStatus`, `headers`, `cachePeriod`, and `messageLog`. Matching SFRA routing behavior, a pending redirect stops the remaining middleware when `next()` is called.
+
 Extended cartridges can inherit and modify routes using the standard SFRA pattern:
 
 ```js

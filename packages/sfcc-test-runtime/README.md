@@ -22,6 +22,8 @@ exported controller with `runtime.controller(controller).run(routeName,
 request)` and inspect its render, JSON, redirect, and view-data response state.
 Controller inheritance supports `extend()`, `prepend()`, `append()`, and
 `replace()`. Raw responses expose status code, content type, and printed output.
+Redirect responses expose status, headers, cache period, and message logs, and
+stop the remaining middleware chain.
 
 ## License
 

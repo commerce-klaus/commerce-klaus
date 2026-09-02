@@ -38,6 +38,8 @@ Extended controllers can use `module.superModule` with `server.extend()`,
 `prepend()`, `append()`, and `replace()`.
 Raw response assertions use `response.statusCode`, `response.contentType`, and
 `response.printed`.
+Redirect assertions use `redirectUrl`, `redirectStatus`, `headers`,
+`cachePeriod`, and `messageLog`; pending redirects stop subsequent middleware.
 
 Static relative dependencies such as `require("./helper")` use the same registry.
 Use `mockResolved(absolutePath, implementation)` when only one exact file should

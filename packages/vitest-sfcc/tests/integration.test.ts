@@ -76,6 +76,14 @@ describe("vitest-sfcc", () => {
     expect(rawResponse.contentType).toBe("text/xml")
     expect(rawResponse.statusCode).toBe(202)
     expect(rawResponse.printed).toEqual(["<sitemap />"])
+
+    const redirectResponse = await getSfccRuntime().controller(controller.default).run("Redirect")
+    expect(redirectResponse.redirectUrl).toBe("/target")
+    expect(redirectResponse.redirectStatus).toBe(301)
+    expect(redirectResponse.headers).toEqual({ "X-Redirect-Source": "controller" })
+    expect(redirectResponse.cachePeriod).toBe(2)
+    expect(redirectResponse.messageLog).toEqual(['redirect {"permanent":true}'])
+    expect(redirectResponse.viewData).toEqual({})
   })
 
   it("marks relative dependencies resolved from transformed cartridge modules", () => {

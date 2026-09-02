@@ -23,4 +23,20 @@ server.get("Raw", function (_req, res, next) {
   next()
 })
 
+server.get(
+  "Redirect",
+  function (_req, res, next) {
+    res.cacheExpiration(2)
+    res.log("redirect", { permanent: true })
+    res.setHttpHeader("X-Redirect-Source", "controller")
+    res.setRedirectStatus(301)
+    res.redirect("/target")
+    next()
+  },
+  function (_req, res, next) {
+    res.setViewData({ shouldNotRun: true })
+    next()
+  },
+)
+
 module.exports = server.exports()

@@ -18,19 +18,27 @@ export type SfccGlobals = Record<string, unknown>
 export type SfccControllerRequest = Record<string, unknown>
 
 export interface SfccControllerResponse {
+  cachePeriod: number | null
   contentType: string | null
+  headers: Record<string, string>
   isJson: boolean
+  messageLog: string[]
   printed: string[]
+  redirectStatus: number | null
   redirectUrl: string | null
   statusCode: number | null
   view: string | null
   viewData: Record<string, unknown>
   getViewData(): Record<string, unknown>
   json(data: Record<string, unknown>): void
+  log(...items: unknown[]): void
   print(message: string): void
   redirect(url: string): void
   render(name: string, data?: Record<string, unknown>): void
+  cacheExpiration(period: number): void
   setContentType(type: string): void
+  setHttpHeader(name: string, value: string): void
+  setRedirectStatus(status: number): void
   setStatusCode(code: number): void
   setViewData(data: Record<string, unknown>): void
 }
@@ -190,6 +198,9 @@ export class SfccTestRuntime {
 
         const response = this.createControllerResponse()
         const dispatch = async (index: number): Promise<void> => {
+          if (response.redirectUrl) {
+            return
+          }
           const middleware = route.middleware[index]
           if (!middleware) {
             return
@@ -253,9 +264,13 @@ export class SfccTestRuntime {
 
   private createControllerResponse(): SfccControllerResponse {
     return {
+      cachePeriod: null,
       contentType: null,
+      headers: {},
       isJson: false,
+      messageLog: [],
       printed: [],
+      redirectStatus: null,
       redirectUrl: null,
       statusCode: null,
       view: null,
@@ -267,6 +282,36 @@ export class SfccTestRuntime {
         this.isJson = true
         Object.assign(this.viewData, data)
       },
+      log(...items) {
+        this.messageLog.push(
+          items
+            .map((item) => {
+              if (typeof item === "object") {
+                return JSON.stringify(item)
+              }
+              if (typeof item === "function") {
+                return item.name ? `[Function: ${item.name}]` : "[Function]"
+              }
+              if (typeof item === "symbol") {
+                return item.description ? `Symbol(${item.description})` : "Symbol()"
+              }
+              if (typeof item === "undefined") {
+                return "undefined"
+              }
+              if (typeof item === "boolean") {
+                return item ? "true" : "false"
+              }
+              if (typeof item === "string") {
+                return item
+              }
+              if (typeof item === "bigint") {
+                return BigInt.prototype.toString.call(item)
+              }
+              return Number.prototype.toString.call(item)
+            })
+            .join(" "),
+        )
+      },
       print(message) {
         this.printed.push(message)
       },
@@ -277,8 +322,17 @@ export class SfccTestRuntime {
         this.view = name
         Object.assign(this.viewData, data)
       },
+      cacheExpiration(period) {
+        this.cachePeriod = period
+      },
       setContentType(type) {
         this.contentType = type
+      },
+      setHttpHeader(name, value) {
+        this.headers[name] = value
+      },
+      setRedirectStatus(status) {
+        this.redirectStatus = status
       },
       setStatusCode(code) {
         this.statusCode = code
