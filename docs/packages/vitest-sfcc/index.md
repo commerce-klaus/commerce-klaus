@@ -104,7 +104,7 @@ expect(response.view).toBe("checkout/checkout")
 expect(response.viewData).toMatchObject({ currentStage: "shipping" })
 ```
 
-The harness supports `server.get()`, `server.post()`, ordered middleware with `next()`, and response state from `render()`, `json()`, `redirect()`, `setViewData()`, and `getViewData()`.
+The harness supports `server.get()`, `server.post()`, ordered middleware with `next()`, and response state from `render()`, `json()`, `redirect()`, `setViewData()`, and `getViewData()`. Calls to `setStatusCode()`, `setContentType()`, and `print()` are exposed through `statusCode`, `contentType`, and the ordered `printed` array.
 
 Controller inheritance works through the same `module.superModule` resolution used by scripts:
 

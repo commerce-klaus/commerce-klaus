@@ -71,6 +71,11 @@ describe("vitest-sfcc", () => {
       .run("Replace", { trace: replaceTrace })
     expect(replacedResponse.viewData).toEqual({ replaced: true })
     expect(replaceTrace).toEqual(["replacement"])
+
+    const rawResponse = await getSfccRuntime().controller(controller.default).run("Raw")
+    expect(rawResponse.contentType).toBe("text/xml")
+    expect(rawResponse.statusCode).toBe(202)
+    expect(rawResponse.printed).toEqual(["<sitemap />"])
   })
 
   it("marks relative dependencies resolved from transformed cartridge modules", () => {

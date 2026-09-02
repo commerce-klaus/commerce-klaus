@@ -36,6 +36,8 @@ controller, execute a registered route with
 `getSfccRuntime().controller(controller.default).run("Route", request)`.
 Extended controllers can use `module.superModule` with `server.extend()`,
 `prepend()`, `append()`, and `replace()`.
+Raw response assertions use `response.statusCode`, `response.contentType`, and
+`response.printed`.
 
 Static relative dependencies such as `require("./helper")` use the same registry.
 Use `mockResolved(absolutePath, implementation)` when only one exact file should

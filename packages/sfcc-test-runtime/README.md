@@ -21,7 +21,7 @@ The built-in `server` module registers SFRA `get` and `post` routes. Execute an
 exported controller with `runtime.controller(controller).run(routeName,
 request)` and inspect its render, JSON, redirect, and view-data response state.
 Controller inheritance supports `extend()`, `prepend()`, `append()`, and
-`replace()`.
+`replace()`. Raw responses expose status code, content type, and printed output.
 
 ## License
 

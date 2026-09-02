@@ -16,4 +16,11 @@ server.get("Replace", function (req, _res, next) {
   next()
 })
 
+server.get("Raw", function (_req, res, next) {
+  res.setContentType("text/xml")
+  res.setStatusCode(202)
+  res.print("<sitemap />")
+  next()
+})
+
 module.exports = server.exports()

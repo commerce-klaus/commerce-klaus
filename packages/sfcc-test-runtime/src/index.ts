@@ -18,14 +18,20 @@ export type SfccGlobals = Record<string, unknown>
 export type SfccControllerRequest = Record<string, unknown>
 
 export interface SfccControllerResponse {
+  contentType: string | null
   isJson: boolean
+  printed: string[]
   redirectUrl: string | null
+  statusCode: number | null
   view: string | null
   viewData: Record<string, unknown>
   getViewData(): Record<string, unknown>
   json(data: Record<string, unknown>): void
+  print(message: string): void
   redirect(url: string): void
   render(name: string, data?: Record<string, unknown>): void
+  setContentType(type: string): void
+  setStatusCode(code: number): void
   setViewData(data: Record<string, unknown>): void
 }
 
@@ -247,8 +253,11 @@ export class SfccTestRuntime {
 
   private createControllerResponse(): SfccControllerResponse {
     return {
+      contentType: null,
       isJson: false,
+      printed: [],
       redirectUrl: null,
+      statusCode: null,
       view: null,
       viewData: {},
       getViewData() {
@@ -258,12 +267,21 @@ export class SfccTestRuntime {
         this.isJson = true
         Object.assign(this.viewData, data)
       },
+      print(message) {
+        this.printed.push(message)
+      },
       redirect(url) {
         this.redirectUrl = url
       },
       render(name, data) {
         this.view = name
         Object.assign(this.viewData, data)
+      },
+      setContentType(type) {
+        this.contentType = type
+      },
+      setStatusCode(code) {
+        this.statusCode = code
       },
       setViewData(data) {
         Object.assign(this.viewData, data)

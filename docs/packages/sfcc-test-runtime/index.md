@@ -71,6 +71,16 @@ expect(response.viewData).toMatchObject({ currentStage: "shipping" })
 
 Middleware runs in registration order when it calls `next()`. The response implementation supports `render()`, `json()`, `redirect()`, `setViewData()`, and `getViewData()`.
 
+Raw response methods are observable without a separate base-response mock:
+
+```js
+res.setContentType("text/xml")
+res.setStatusCode(202)
+res.print("<sitemap />")
+```
+
+The returned harness response exposes these calls through `contentType`, `statusCode`, and the ordered `printed` array.
+
 Extended cartridges can inherit and modify routes using the standard SFRA pattern:
 
 ```js
