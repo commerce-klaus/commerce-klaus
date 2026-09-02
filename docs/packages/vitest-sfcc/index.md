@@ -145,7 +145,29 @@ expect(result).toBe("OK")
 expect(jobStep.jobExecution.context.feedNumber).toBe(2)
 ```
 
-This models task-oriented `script-module-step` functions with the SFCC `(parameters, stepExecution)` signature. `stepExecution.getJobExecution()` returns a stable execution object whose `context` is shared across calls. The current harness does not orchestrate chunk step lifecycle functions.
+This models task-oriented `script-module-step` functions with the SFCC `(parameters, stepExecution)` signature. `stepExecution.getJobExecution()` returns a stable execution object whose `context` is shared across calls.
+
+Chunk modules are orchestrated with the function names from `steptypes.json`:
+
+```ts
+const result = await getSfccRuntime()
+  .jobStep(chunkModule)
+  .runChunk({
+    chunkSize: 1000,
+    functions: {
+      afterChunk: "afterChunk",
+      afterStep: "afterStep",
+      beforeStep: "beforeStep",
+      getTotalCount: "getTotalCount",
+      process: "process",
+      read: "read",
+      write: "write",
+    },
+    parameters: { TargetFolder: "IMPEX/src/feeds" },
+  })
+```
+
+The lifecycle supports asynchronous callbacks, skipped process results, persistent job context, and configurable function names. The write callback receives an iterable SFCC-like list with `size()`, `get()`, `toArray()`, and `isEmpty()`. `afterStep` receives the success state even when another lifecycle function throws.
 
 ## Hook execution
 

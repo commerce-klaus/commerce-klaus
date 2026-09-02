@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vite-plus/test"
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import {
   createSfccTestRuntime,
@@ -120,6 +120,110 @@ describe("SFCC test runtime", () => {
     await expect(jobStep.run("execute")).rejects.toThrow(
       "SFCC job step does not export function execute.",
     )
+  })
+
+  it("runs a chunk job step lifecycle and filters null process results", async () => {
+    const trace: string[] = []
+    const source = [1, 2, 3]
+    const written: number[][] = []
+    const jobStep = runtime.jobStep({
+      beforeStep: (parameters: Record<string, unknown>) =>
+        trace.push(`beforeStep:${String(parameters.prefix)}`),
+      getTotalCount: () => {
+        trace.push("getTotalCount")
+        return source.length
+      },
+      beforeChunk: () => trace.push("beforeChunk"),
+      read: () => {
+        const item = source.shift()
+        trace.push(`read:${String(item)}`)
+        return item
+      },
+      process: (item: number) => {
+        trace.push(`process:${item}`)
+        return item === 3 ? null : item * 2
+      },
+      write: (items: {
+        get: (index: number) => number
+        isEmpty: () => boolean
+        size: () => number
+        toArray: () => number[]
+      }) => {
+        expect(items.isEmpty()).toBe(false)
+        expect(items.get(1)).toBe(4)
+        expect(items.size()).toBe(2)
+        written.push(items.toArray())
+        trace.push("write")
+      },
+      afterChunk: () => trace.push("afterChunk"),
+      afterStep: (successful: boolean) => {
+        trace.push(`afterStep:${successful}`)
+        return "finished"
+      },
+    })
+
+    await expect(
+      jobStep.runChunk({ chunkSize: 2, parameters: { prefix: "feed" } }),
+    ).resolves.toEqual({
+      afterStepResult: "finished",
+      chunkCount: 2,
+      processedCount: 2,
+      readCount: 3,
+      totalCount: 3,
+      writtenCount: 2,
+    })
+    expect(written).toEqual([[2, 4]])
+    expect(trace).toEqual([
+      "beforeStep:feed",
+      "getTotalCount",
+      "beforeChunk",
+      "read:1",
+      "process:1",
+      "read:2",
+      "process:2",
+      "write",
+      "afterChunk",
+      "beforeChunk",
+      "read:3",
+      "process:3",
+      "read:undefined",
+      "afterChunk",
+      "afterStep:true",
+    ])
+  })
+
+  it("runs afterStep with a failed chunk lifecycle", async () => {
+    const afterStep = vi.fn()
+    const jobStep = runtime.jobStep({
+      read: () => "item",
+      process: () => {
+        throw new Error("processing failed")
+      },
+      write: () => undefined,
+      afterStep,
+    })
+
+    await expect(jobStep.runChunk({ chunkSize: 1 })).rejects.toThrow("processing failed")
+    expect(afterStep).toHaveBeenCalledWith(false, {}, jobStep.stepExecution)
+  })
+
+  it("validates chunk size and required lifecycle functions", async () => {
+    await expect(runtime.jobStep({}).runChunk({ chunkSize: 0 })).rejects.toThrow(
+      "SFCC chunk job step requires a positive integer chunk size.",
+    )
+    await expect(
+      runtime.jobStep({ write: () => undefined }).runChunk({ chunkSize: 1 }),
+    ).rejects.toThrow("SFCC job step does not export function read.")
+    await expect(
+      runtime
+        .jobStep({ read: () => undefined, write: () => undefined })
+        .runChunk({ chunkSize: 1, functions: { beforeStep: "prepare" } }),
+    ).rejects.toThrow("SFCC job step does not export function prepare.")
+    await expect(
+      runtime
+        .jobStep({ read: () => undefined, write: () => undefined, getTotalCount: () => "3" })
+        .runChunk({ chunkSize: 1 }),
+    ).rejects.toThrow("SFCC chunk job step getTotalCount() must return a non-negative number.")
   })
 
   it("installs globals and restores their original descriptors on reset", () => {

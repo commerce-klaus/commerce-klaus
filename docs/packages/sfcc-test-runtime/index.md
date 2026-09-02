@@ -151,7 +151,29 @@ expect(jobStep.jobExecution.context).toMatchObject({
 })
 ```
 
-The configured function receives `(parameters, stepExecution)`. `stepExecution.getJobExecution()` returns the same job execution for every call, so scripts can share mutable `context` state across steps or repeated runs. Missing and non-function exports fail with an explicit diagnostic. Chunk step lifecycle orchestration is outside the current harness.
+The configured function receives `(parameters, stepExecution)`. `stepExecution.getJobExecution()` returns the same job execution for every call, so scripts can share mutable `context` state across steps or repeated runs. Missing and non-function exports fail with an explicit diagnostic.
+
+Chunk-oriented modules use `runChunk()` with the function names declared in `steptypes.json`:
+
+```ts
+const result = await runtime.jobStep(chunkModule).runChunk({
+  chunkSize: 1000,
+  functions: {
+    afterChunk: "afterChunk",
+    afterStep: "afterStep",
+    beforeStep: "beforeStep",
+    getTotalCount: "getTotalCount",
+    process: "process",
+    read: "read",
+    write: "write",
+  },
+  parameters: { TargetFolder: "IMPEX/src/feeds" },
+})
+
+expect(result.writtenCount).toBeGreaterThan(0)
+```
+
+The harness calls `beforeStep`, obtains the optional total count, and runs `read` and optional `process` functions in chunks. Nullish process results are skipped. `write` receives an iterable SFCC-like list with `size()`, `get()`, `toArray()`, and `isEmpty()`. `afterChunk` runs after each non-empty input chunk, while `afterStep(success, parameters, stepExecution)` runs after success or failure. The result exposes read, processed, written, and chunk counts plus the total and `afterStep` result.
 
 An unknown module fails with an actionable error unless the caller supplies a real cartridge fallback. This prevents incomplete platform behavior from making tests pass accidentally.
 

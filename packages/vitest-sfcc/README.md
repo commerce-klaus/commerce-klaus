@@ -44,8 +44,10 @@ Middleware may stop without `next()`, and `next(error)` rejects the route run.
 
 Imported script-module job steps run through the same cartridge transformer:
 `getSfccRuntime().jobStep(jobModule).run("Run", parameters)`. The generated
-`stepExecution` exposes a persistent `getJobExecution().context` object. Chunk
-step lifecycle orchestration is not included yet.
+`stepExecution` exposes a persistent `getJobExecution().context` object.
+`runChunk({ chunkSize, functions, parameters })` orchestrates chunk modules with
+the function names declared in `steptypes.json` and supplies an SFCC-like list
+to the configured write function.
 
 Static relative dependencies such as `require("./helper")` use the same registry.
 Use `mockResolved(absolutePath, implementation)` when only one exact file should

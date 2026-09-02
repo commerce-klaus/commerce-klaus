@@ -161,6 +161,40 @@ describe("vitest-sfcc", () => {
     expect(jobStep.jobExecution.context).toEqual({ executions: 3 })
   })
 
+  it("runs a transformed chunk job step lifecycle", async () => {
+    const chunkModule = await import("./cartridges/app_custom/cartridge/scripts/chunk-job-step.js")
+    const jobStep = getSfccRuntime().jobStep(chunkModule, { context: { batches: [] } })
+
+    await expect(
+      jobStep.runChunk({
+        chunkSize: 2,
+        functions: {
+          afterChunk: "completeChunk",
+          afterStep: "finish",
+          beforeChunk: "startChunk",
+          beforeStep: "prepare",
+          getTotalCount: "count",
+          process: "transform",
+          read: "readNext",
+          write: "writeBatch",
+        },
+        parameters: { items: [1, 2, 3], multiplier: 3 },
+      }),
+    ).resolves.toEqual({
+      afterStepResult: "OK",
+      chunkCount: 2,
+      processedCount: 3,
+      readCount: 3,
+      totalCount: 3,
+      writtenCount: 3,
+    })
+    expect(jobStep.jobExecution.context).toEqual({
+      batches: [[3, 6], [9]],
+      chunks: 2,
+      startedChunks: 2,
+    })
+  })
+
   it("rejects mutable require aliases", () => {
     const plugin = sfccVitest({
       basePath: path.resolve(import.meta.dirname, "cartridges"),
