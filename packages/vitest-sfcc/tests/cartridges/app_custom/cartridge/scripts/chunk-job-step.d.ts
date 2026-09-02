@@ -10,6 +10,10 @@ export function completeChunk(
 ): void
 export function count(): number
 export function finish(successful: boolean): "OK" | "ERROR"
+export function finishStatus(
+  successful: boolean,
+  parameters: SfccJobStepParameters,
+): { code: unknown }
 export function prepare(parameters: SfccJobStepParameters): void
 export function readNext(): unknown
 export function startChunk(

@@ -36,3 +36,7 @@ exports.completeChunk = function (parameters, stepExecution) {
 exports.finish = function (successful) {
   return successful ? "OK" : "ERROR"
 }
+
+exports.finishStatus = function (successful, parameters) {
+  return { code: parameters.StatusCode || (successful ? "OK" : "ERROR") }
+}

@@ -221,6 +221,7 @@ describe("vitest-sfcc", () => {
     })
 
     await expect(jobStep.run({ items: [1, 2, 3] })).resolves.toMatchObject({
+      afterStepResult: { code: "OK" },
       chunkCount: 2,
       totalCount: 3,
       writtenCount: 3,
@@ -230,6 +231,9 @@ describe("vitest-sfcc", () => {
       kind: "chunk-script-module-step",
     })
     expect(jobStep.jobExecution.context.batches).toEqual([[2, 4], [6]])
+    await expect(jobStep.run({ items: [], StatusCode: "UNKNOWN" })).rejects.toThrow(
+      "SFCC job step custom.TestChunk returned undeclared status code UNKNOWN. Expected one of: OK.",
+    )
   })
 
   it("rejects an unknown job step type ID", async () => {

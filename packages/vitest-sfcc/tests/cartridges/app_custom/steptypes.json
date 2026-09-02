@@ -67,7 +67,7 @@
         "process-function": "transform",
         "write-function": "writeBatch",
         "after-chunk-function": "completeChunk",
-        "after-step-function": "finish",
+        "after-step-function": "finishStatus",
         "chunk-size": 2,
         "parameters": {
           "parameters": [

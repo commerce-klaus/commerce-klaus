@@ -173,7 +173,14 @@ function getJobStepStatusCode(result: unknown): string | undefined {
 }
 
 function validateJobStepStatus(definition: ResolvedStepTypeDefinition, result: unknown): unknown {
-  const statusCode = getJobStepStatusCode(result)
+  const statusResult =
+    definition.kind === "chunk-script-module-step" &&
+    typeof result === "object" &&
+    result !== null &&
+    "afterStepResult" in result
+      ? result.afterStepResult
+      : result
+  const statusCode = getJobStepStatusCode(statusResult)
   if (
     statusCode &&
     definition.statusCodes.length > 0 &&

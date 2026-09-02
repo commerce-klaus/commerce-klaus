@@ -72,10 +72,10 @@ from their common `steptypes.json` string forms. Missing required parameters and
 invalid primitive values reject the run with the type ID and parameter name.
 Undeclared test parameters remain available to the job module.
 
-When `steptypes.json` declares status codes, Status-like results exposing `code`
-or `getCode()` are checked against that list. Undeclared codes reject with the
-type ID and allowed values. Steps without a status declaration and ordinary
-non-Status results remain unrestricted.
+When `steptypes.json` declares status codes, Status-like task results and chunk
+`afterStep` results exposing `code` or `getCode()` are checked against that
+list. Undeclared codes reject with the type ID and allowed values. Steps without
+a status declaration and ordinary non-Status results remain unrestricted.
 
 Static relative dependencies such as `require("./helper")` use the same registry.
 Use `mockResolved(absolutePath, implementation)` when only one exact file should
