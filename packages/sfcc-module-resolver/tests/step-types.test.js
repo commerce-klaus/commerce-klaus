@@ -32,6 +32,22 @@ test("getStepTypeDefinitionsFromDocument parses script and chunk steps", () => {
             "@type-id": "custom.GenerateFeed",
             function: "Run",
             module: "app_jobs/cartridge/scripts/generate-feed",
+            parameters: {
+              parameter: [
+                {
+                  "@name": "DryRun",
+                  "@required": "false",
+                  "@type": "boolean",
+                  "default-value": "true",
+                },
+              ],
+            },
+          },
+          {
+            "@type-id": "custom.EmptyParameters",
+            function: "Run",
+            module: "app_jobs/cartridge/scripts/empty-parameters",
+            parameters: {},
           },
         ],
         "chunk-script-module-step": [
@@ -44,6 +60,17 @@ test("getStepTypeDefinitionsFromDocument parses script and chunk steps", () => {
             "process-function": "transform",
             "read-function": "readNext",
             "write-function": "writeBatch",
+            parameters: {
+              parameters: [
+                {
+                  "@name": "Limit",
+                  "@required": true,
+                  "@trim": false,
+                  "@type": "long",
+                  "default-value": 1000,
+                },
+              ],
+            },
           },
         ],
       },
@@ -53,7 +80,23 @@ test("getStepTypeDefinitionsFromDocument parses script and chunk steps", () => {
       functionName: "Run",
       kind: "script-module-step",
       module: "app_jobs/cartridge/scripts/generate-feed",
+      parameters: [
+        {
+          defaultValue: "true",
+          name: "DryRun",
+          required: false,
+          trim: false,
+          type: "boolean",
+        },
+      ],
       typeId: "custom.GenerateFeed",
+    },
+    {
+      functionName: "Run",
+      kind: "script-module-step",
+      module: "app_jobs/cartridge/scripts/empty-parameters",
+      parameters: [],
+      typeId: "custom.EmptyParameters",
     },
     {
       chunkSize: 250,
@@ -66,6 +109,15 @@ test("getStepTypeDefinitionsFromDocument parses script and chunk steps", () => {
       },
       kind: "chunk-script-module-step",
       module: "app_jobs/cartridge/scripts/export-products.js",
+      parameters: [
+        {
+          defaultValue: 1000,
+          name: "Limit",
+          required: true,
+          trim: false,
+          type: "long",
+        },
+      ],
       typeId: "custom.ExportProducts",
     },
   ])
@@ -78,6 +130,22 @@ test("getStepTypeDefinitionsFromDocument rejects malformed definitions", () => {
     getStepTypeDefinitionsFromDocument({
       "step-types": {
         "script-module-step": [{ "@type-id": "custom.MissingFunction", module: "job" }],
+      },
+    }),
+  ).toBeUndefined()
+  expect(
+    getStepTypeDefinitionsFromDocument({
+      "step-types": {
+        "script-module-step": [
+          {
+            "@type-id": "custom.InvalidParameter",
+            function: "Run",
+            module: "job",
+            parameters: {
+              parameter: [{ "@name": "Flag", "@type": "boolean", "@required": "yes" }],
+            },
+          },
+        ],
       },
     }),
   ).toBeUndefined()
@@ -130,6 +198,7 @@ test("findResolvedStepTypeDefinitions resolves modules and honors cartridge prio
         kind: "script-module-step",
         module: "app_custom/cartridge/scripts/jobs/feed",
         modulePath: path.join(customRoot, "cartridge", "scripts", "jobs", "feed.js"),
+        parameters: [],
         typeId: "custom.GenerateFeed",
       },
     ])

@@ -7,7 +7,16 @@ export interface ScriptModuleStepTypeDefinition {
   functionName: string
   kind: "script-module-step"
   module: string
+  parameters: StepTypeParameterDefinition[]
   typeId: string
+}
+
+export interface StepTypeParameterDefinition {
+  defaultValue?: unknown
+  name: string
+  required: boolean
+  trim: boolean
+  type: string
 }
 
 export interface ChunkStepFunctions {
@@ -26,6 +35,7 @@ export interface ChunkScriptModuleStepTypeDefinition {
   functions: ChunkStepFunctions
   kind: "chunk-script-module-step"
   module: string
+  parameters: StepTypeParameterDefinition[]
   typeId: string
 }
 
@@ -48,6 +58,64 @@ function readString(record: UnknownRecord, name: string): string | undefined {
   return typeof value === "string" && value.length > 0 ? value : undefined
 }
 
+function readBoolean(record: UnknownRecord, name: string): boolean | undefined {
+  const value = record[name]
+  if (value === undefined) {
+    return false
+  }
+  if (typeof value === "boolean") {
+    return value
+  }
+  if (value === "true" || value === "false") {
+    return value === "true"
+  }
+  return undefined
+}
+
+function parseParameter(value: unknown): StepTypeParameterDefinition | undefined {
+  if (!isRecord(value)) {
+    return undefined
+  }
+
+  const name = readString(value, "@name")
+  const type = readString(value, "@type")
+  const required = readBoolean(value, "@required")
+  const trim = readBoolean(value, "@trim")
+  if (!name || !type || required === undefined || trim === undefined) {
+    return undefined
+  }
+
+  return {
+    ...(Object.hasOwn(value, "default-value") ? { defaultValue: value["default-value"] } : {}),
+    name,
+    required,
+    trim,
+    type,
+  }
+}
+
+function parseParameters(record: UnknownRecord): StepTypeParameterDefinition[] | undefined {
+  const container = record.parameters
+  if (container === undefined) {
+    return []
+  }
+  if (!isRecord(container)) {
+    return undefined
+  }
+
+  const values = container.parameter ?? container.parameters
+  if (values === undefined && Object.keys(container).length === 0) {
+    return []
+  }
+  if (!Array.isArray(values)) {
+    return undefined
+  }
+  const parameters = values.map(parseParameter)
+  return parameters.every((parameter) => parameter !== undefined)
+    ? (parameters as StepTypeParameterDefinition[])
+    : undefined
+}
+
 function parseScriptModuleStep(value: unknown): ScriptModuleStepTypeDefinition | undefined {
   if (!isRecord(value)) {
     return undefined
@@ -56,8 +124,9 @@ function parseScriptModuleStep(value: unknown): ScriptModuleStepTypeDefinition |
   const typeId = readString(value, "@type-id")
   const module = readString(value, "module")
   const functionName = readString(value, "function")
-  return typeId && module && functionName
-    ? { functionName, kind: "script-module-step", module, typeId }
+  const parameters = parseParameters(value)
+  return typeId && module && functionName && parameters
+    ? { functionName, kind: "script-module-step", module, parameters, typeId }
     : undefined
 }
 
@@ -88,13 +157,15 @@ function parseChunkScriptModuleStep(
       : rawChunkSize
   const read = readString(value, CHUNK_FUNCTION_FIELDS.read)
   const write = readString(value, CHUNK_FUNCTION_FIELDS.write)
+  const parameters = parseParameters(value)
   if (
     !typeId ||
     !module ||
     !Number.isInteger(chunkSize) ||
     (chunkSize as number) <= 0 ||
     !read ||
-    !write
+    !write ||
+    !parameters
   ) {
     return undefined
   }
@@ -115,6 +186,7 @@ function parseChunkScriptModuleStep(
     functions,
     kind: "chunk-script-module-step",
     module,
+    parameters,
     typeId,
   }
 }

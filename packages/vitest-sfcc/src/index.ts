@@ -6,6 +6,7 @@ import {
   resolveCartridgeRoots,
   resolveSuperModuleFilePath,
   type ResolvedStepTypeDefinition,
+  type StepTypeParameterDefinition,
 } from "@commerce-klaus/sfcc-module-resolver"
 import {
   createSfccTestRuntime,
@@ -89,6 +90,72 @@ function setActiveStepTypes(definitions: ResolvedStepTypeDefinition[]): void {
   ;(globalThis as StepTypeGlobal)[ACTIVE_STEP_TYPES] = new Map(
     definitions.map((definition) => [definition.typeId, definition]),
   )
+}
+
+function normalizeParameterValue(
+  typeId: string,
+  parameter: StepTypeParameterDefinition,
+  value: unknown,
+): unknown {
+  if (parameter.type === "boolean") {
+    if (typeof value === "boolean") {
+      return value
+    }
+    if (value === "true" || value === "false") {
+      return value === "true"
+    }
+    throw new Error(`SFCC job step ${typeId} parameter ${parameter.name} must be a boolean.`)
+  }
+
+  if (parameter.type === "long" || parameter.type === "double") {
+    const numberValue = typeof value === "string" && value.length > 0 ? Number(value) : value
+    if (
+      typeof numberValue !== "number" ||
+      !Number.isFinite(numberValue) ||
+      (parameter.type === "long" && !Number.isInteger(numberValue))
+    ) {
+      throw new Error(
+        `SFCC job step ${typeId} parameter ${parameter.name} must be a ${parameter.type}.`,
+      )
+    }
+    return numberValue
+  }
+
+  if (parameter.type === "string" || parameter.type === "time-string") {
+    if (typeof value !== "string") {
+      throw new Error(`SFCC job step ${typeId} parameter ${parameter.name} must be a string.`)
+    }
+    return parameter.trim ? value.trim() : value
+  }
+
+  return value
+}
+
+function resolveJobStepParameters(
+  definition: ResolvedStepTypeDefinition,
+  provided: SfccJobStepParameters = {},
+): SfccJobStepParameters {
+  const resolved = { ...provided }
+
+  for (const parameter of definition.parameters) {
+    let value = provided[parameter.name]
+    if (value === undefined && Object.hasOwn(parameter, "defaultValue")) {
+      value = parameter.defaultValue
+    }
+    if (typeof value === "string" && parameter.trim) {
+      value = value.trim()
+    }
+    if (value == null || value === "") {
+      if (parameter.required) {
+        throw new Error(`SFCC job step ${definition.typeId} requires parameter ${parameter.name}.`)
+      }
+      Reflect.deleteProperty(resolved, parameter.name)
+      continue
+    }
+    resolved[parameter.name] = normalizeParameterValue(definition.typeId, parameter, value)
+  }
+
+  return resolved
 }
 
 function isCartridgeModule(filePath: string, cartridgeRoots: string[]): boolean {
@@ -348,19 +415,22 @@ export async function loadSfccJobStep(
     definition,
     jobExecution: harness.jobExecution,
     stepExecution: harness.stepExecution,
-    run: (parameters) =>
-      definition.kind === "script-module-step"
-        ? harness.run(definition.functionName, parameters)
+    run: async (parameters) => {
+      const resolvedParameters = resolveJobStepParameters(definition, parameters)
+      return definition.kind === "script-module-step"
+        ? harness.run(definition.functionName, resolvedParameters)
         : harness.runChunk({
             chunkSize: definition.chunkSize,
             functions: definition.functions,
-            parameters,
-          }),
+            parameters: resolvedParameters,
+          })
+    },
   }
 }
 
 export type {
   ResolvedStepTypeDefinition,
+  StepTypeParameterDefinition,
   SfccController,
   SfccControllerHarness,
   SfccControllerMiddleware,

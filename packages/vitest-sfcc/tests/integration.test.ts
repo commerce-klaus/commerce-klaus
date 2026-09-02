@@ -200,12 +200,19 @@ describe("vitest-sfcc", () => {
       context: { executions: 1 },
     })
 
-    await expect(jobStep.run({ prefix: "feed" })).resolves.toBe("feed:2")
+    await expect(jobStep.run({ Prefix: "  feed  " })).resolves.toEqual({
+      DryRun: true,
+      Prefix: "feed",
+      RetryCount: 3,
+    })
     expect(jobStep.definition).toMatchObject({
-      functionName: "Run",
+      functionName: "Parameters",
       kind: "script-module-step",
     })
-    expect(jobStep.jobExecution.context).toEqual({ executions: 2 })
+    expect(jobStep.jobExecution.context).toEqual({
+      executions: 1,
+      parameters: { DryRun: true, Prefix: "feed", RetryCount: 3 },
+    })
   })
 
   it("loads and runs a chunk job step by type ID", async () => {
@@ -213,7 +220,7 @@ describe("vitest-sfcc", () => {
       context: { batches: [] },
     })
 
-    await expect(jobStep.run({ items: [1, 2, 3], multiplier: 2 })).resolves.toMatchObject({
+    await expect(jobStep.run({ items: [1, 2, 3] })).resolves.toMatchObject({
       chunkCount: 2,
       totalCount: 3,
       writtenCount: 3,
@@ -228,6 +235,20 @@ describe("vitest-sfcc", () => {
   it("rejects an unknown job step type ID", async () => {
     await expect(loadSfccJobStep("custom.Missing")).rejects.toThrow(
       "vitest-sfcc could not find an SFCC job step with type ID custom.Missing.",
+    )
+  })
+
+  it("validates configured job step parameters", async () => {
+    const jobStep = await loadSfccJobStep("custom.TestTask")
+
+    await expect(jobStep.run()).rejects.toThrow(
+      "SFCC job step custom.TestTask requires parameter Prefix.",
+    )
+    await expect(jobStep.run({ DryRun: "yes", Prefix: "feed" })).rejects.toThrow(
+      "SFCC job step custom.TestTask parameter DryRun must be a boolean.",
+    )
+    await expect(jobStep.run({ Prefix: "feed", RetryCount: 1.5 })).rejects.toThrow(
+      "SFCC job step custom.TestTask parameter RetryCount must be a long.",
     )
   })
 

@@ -190,6 +190,8 @@ expect(jobStep.jobExecution.context.exportedFiles).toHaveLength(1)
 
 The plugin discovers definitions at configuration time using cartridge-path priority. Loading remains lazy, so unrelated job modules and their platform dependencies are not evaluated. Task definitions invoke their configured `function`; chunk definitions automatically apply their configured lifecycle names and `chunk-size`. Unknown IDs and registrations whose module cannot be resolved produce the same explicit missing-step diagnostic.
 
+Before invoking the module, `run()` applies declared defaults and `@trim`, then normalizes `boolean`, `long`, `double`, `string`, and `time-string` values. This covers SFCC metadata that stores Boolean and numeric defaults as strings. Missing required parameters, invalid booleans, non-finite numbers, and non-integer `long` values reject with a diagnostic containing the type ID and parameter name. Parameters not declared in `steptypes.json` pass through unchanged for test-specific inputs.
+
 ## Hook execution
 
 `dw/system/HookMgr` automatically discovers `hooks.json` through each cartridge's `package.json`. If multiple cartridges register the same extension point, the first resolvable registration in cartridge-path order is used.

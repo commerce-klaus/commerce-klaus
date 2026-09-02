@@ -4,7 +4,29 @@
       {
         "@type-id": "custom.TestTask",
         "module": "app_custom/cartridge/scripts/job-step.js",
-        "function": "Run"
+        "function": "Parameters",
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "Prefix",
+              "@type": "string",
+              "@required": "true",
+              "@trim": "true"
+            },
+            {
+              "@name": "DryRun",
+              "@type": "boolean",
+              "@required": "false",
+              "default-value": "true"
+            },
+            {
+              "@name": "RetryCount",
+              "@type": "long",
+              "@required": "false",
+              "default-value": "3"
+            }
+          ]
+        }
       }
     ],
     "chunk-script-module-step": [
@@ -19,7 +41,17 @@
         "write-function": "writeBatch",
         "after-chunk-function": "completeChunk",
         "after-step-function": "finish",
-        "chunk-size": 2
+        "chunk-size": 2,
+        "parameters": {
+          "parameters": [
+            {
+              "@name": "multiplier",
+              "@type": "double",
+              "@required": false,
+              "default-value": "2"
+            }
+          ]
+        }
       }
     ]
   }

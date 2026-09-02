@@ -130,6 +130,7 @@ Notes:
 - `getStepTypeDefinitionsFromDocument(document): StepTypeDefinition[] | undefined`
   - Validates task-oriented `script-module-step` and `chunk-script-module-step` entries from a parsed `steptypes.json`
   - Normalizes task function names, chunk sizes, and chunk lifecycle function names into discriminated definitions
+  - Preserves parameter names, types, required and trim flags, and default values from both SFCC parameter container forms
 - `findResolvedStepTypeDefinitions(cartridgeRoots): ResolvedStepTypeDefinition[]`
   - Reads `steptypes.json` from each cartridge root
   - Resolves module paths with the standard SFCC runtime extensions and index-module fallback
@@ -203,6 +204,8 @@ if (exportStep?.kind === "chunk-script-module-step") {
 ```
 
 Malformed documents and definitions whose modules cannot be resolved are skipped during filesystem discovery. Duplicate type IDs use the same first-cartridge-wins priority as module and hook resolution.
+
+Each definition exposes a normalized `parameters` array. Empty parameter containers become an empty array. Boolean metadata flags accept both JSON booleans and SFCC's string forms (`"true"` and `"false"`); default values remain lossless so consumers can apply runtime-specific conversion.
 
 ## Design decisions
 

@@ -66,6 +66,12 @@ const result = await jobStep.run({ TargetFolder: "IMPEX/src/feeds" })
 IDs use cartridge-path priority, and unknown or unresolvable IDs fail with an
 explicit diagnostic.
 
+Before each run, declared defaults are applied and strings marked with `@trim`
+are trimmed. Values declared as `boolean`, `long`, or `double` are converted
+from their common `steptypes.json` string forms. Missing required parameters and
+invalid primitive values reject the run with the type ID and parameter name.
+Undeclared test parameters remain available to the job module.
+
 Static relative dependencies such as `require("./helper")` use the same registry.
 Use `mockResolved(absolutePath, implementation)` when only one exact file should
 be replaced.
