@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.1
+
+### Patch Changes
+
+- 8e9ee94: Keep CLI launcher files available before the package build so workspace installs can create `sfcc-ts-sync-types` and `sfcc-ts-typecheck` bin shims from a clean checkout.
+- Updated dependencies [c9ad493]
+  - @commerce-klaus/sfcc-module-resolver@1.4.0
+
 ## 1.4.0
 
 ### Minor Changes

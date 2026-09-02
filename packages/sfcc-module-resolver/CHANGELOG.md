@@ -1,5 +1,11 @@
 # @commerce-klaus/sfcc-module-resolver
 
+## 1.4.0
+
+### Minor Changes
+
+- c9ad493: Add `getHookRegistrationsForScriptFile()` to resolve every Salesforce and project-specific hook registration associated with a script file.
+
 ## 1.3.0
 
 ### Minor Changes
