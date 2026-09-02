@@ -6,6 +6,7 @@ import { expect, test } from "vite-plus/test"
 import {
   findCartridgeRootForFile,
   getCartridgeHooksJsonPath,
+  getHookRegistrationsForScriptFile,
   getHookRegistrationsFromDocument,
   getRequiredHookExportName,
   getRequiredHookExportsForScriptFile,
@@ -118,6 +119,31 @@ test("getRequiredHookExportsForScriptFile returns required exports for a registe
 
     expect(getRequiredHookExportsForScriptFile(scriptPath)).toEqual([
       { hookName: "dw.ocapi.shop.basket.afterPOST", exportName: "afterPOST" },
+    ])
+  })
+})
+
+test("getHookRegistrationsForScriptFile includes platform and project hooks", () => {
+  withTempDir((tempDir) => {
+    const cartridgeRoot = path.join(tempDir, "cartridges", "app_custom")
+    const scriptPath = path.join(cartridgeRoot, "cartridge", "scripts", "hooks", "basket.js")
+
+    fs.mkdirSync(path.dirname(scriptPath), { recursive: true })
+    fs.writeFileSync(scriptPath, "module.exports = {}\n")
+    writeJson(path.join(cartridgeRoot, "package.json"), {
+      hooks: "./cartridge/scripts/hooks.json",
+    })
+    writeJson(path.join(cartridgeRoot, "cartridge", "scripts", "hooks.json"), {
+      hooks: [
+        { name: "dw.ocapi.shop.basket.afterPOST", script: "./hooks/basket" },
+        { name: "app.example.hook.Provider", script: "./hooks/basket" },
+        { name: "app.example.hook.Other", script: "./hooks/other" },
+      ],
+    })
+
+    expect(getHookRegistrationsForScriptFile(scriptPath)).toEqual([
+      { name: "dw.ocapi.shop.basket.afterPOST", script: "./hooks/basket" },
+      { name: "app.example.hook.Provider", script: "./hooks/basket" },
     ])
   })
 })

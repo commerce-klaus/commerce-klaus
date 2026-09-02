@@ -115,6 +115,8 @@ Notes:
   - Validates a parsed `hooks.json` document and returns its `{ name, script }` entries
 - `resolveHookScriptPath(hooksDirectory, script): string | undefined`
   - Resolves a registration's `script` field to an existing file, trying `.js`, `.cjs`, `.mjs`, and `.ds`
+- `getHookRegistrationsForScriptFile(filePath): HookRegistration[]`
+  - Returns all Salesforce and project-specific hook registrations that resolve to a script file
 - `getRequiredHookExportName(hookName): string | undefined`
   - Infers the required export name for Salesforce `dw.*` hooks only (the last segment of the extension point)
 - `getRequiredHookExportsForScriptFile(filePath): RequiredHookExport[]`
@@ -155,13 +157,19 @@ const order = getSiteTemplateCartridgePath(
 )
 ```
 
-### 4) Find required hook exports for a script file
+### 4) Find hook registrations and required exports for a script file
 
-```ts{1,3} [hooks.ts]
-import { getRequiredHookExportsForScriptFile } from "@commerce-klaus/sfcc-module-resolver"
+```ts{2-3,5-7} [hooks.ts]
+import {
+  getHookRegistrationsForScriptFile,
+  getRequiredHookExportsForScriptFile,
+} from "@commerce-klaus/sfcc-module-resolver"
+
+const registrations = getHookRegistrationsForScriptFile(scriptPath)
+// [{ name: "dw.ocapi.shop.basket.afterPOST", script: "./hooks/basket" }]
 
 const requiredExports = getRequiredHookExportsForScriptFile(
-  "/workspace/cartridges/app_custom/cartridge/scripts/hooks/basket.js",
+  scriptPath,
 )
 // [{ hookName: "dw.ocapi.shop.basket.afterPOST", exportName: "afterPOST" }]
 ```

@@ -15,6 +15,7 @@ export type { InferCartridgeOrderOptions, ResolveCartridgeRootsOptions } from ".
 export {
   getCartridgeHooksJsonPath,
   findCartridgeRootForFile,
+  getHookRegistrationsForScriptFile,
   getHookRegistrationsFromDocument,
   getRequiredHookExportName,
   getRequiredHookExportsForScriptFile,

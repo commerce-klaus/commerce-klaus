@@ -93,7 +93,7 @@ export interface RequiredHookExport {
   exportName: string
 }
 
-export function getRequiredHookExportsForScriptFile(filePath: string): RequiredHookExport[] {
+export function getHookRegistrationsForScriptFile(filePath: string): HookRegistration[] {
   const cartridgeRoot = findCartridgeRootForFile(filePath)
   if (!cartridgeRoot) {
     return []
@@ -120,13 +120,15 @@ export function getRequiredHookExportsForScriptFile(filePath: string): RequiredH
   const hooksDirectory = path.dirname(hooksJsonPath)
   const normalizedFilePath = path.resolve(filePath)
 
-  const requiredExports: RequiredHookExport[] = []
-  for (const registration of registrations) {
+  return registrations.filter((registration) => {
     const resolvedScriptPath = resolveHookScriptPath(hooksDirectory, registration.script)
-    if (resolvedScriptPath !== normalizedFilePath) {
-      continue
-    }
+    return resolvedScriptPath === normalizedFilePath
+  })
+}
 
+export function getRequiredHookExportsForScriptFile(filePath: string): RequiredHookExport[] {
+  const requiredExports: RequiredHookExport[] = []
+  for (const registration of getHookRegistrationsForScriptFile(filePath)) {
     const exportName = getRequiredHookExportName(registration.name)
     if (exportName) {
       requiredExports.push({ hookName: registration.name, exportName })

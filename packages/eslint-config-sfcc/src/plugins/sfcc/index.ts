@@ -7,6 +7,7 @@ import noDwApi from "./no-dw-api.js"
 import noE4xSyntax from "./no-e4x-syntax.js"
 import noEmptyGlobal from "./no-empty-global.js"
 import noForms from "./no-forms.js"
+import noHooks from "./no-hooks.js"
 import noIsmlRendering from "./no-isml-rendering.js"
 import noPageDesigner from "./no-page-designer.js"
 import noPipelineApi from "./no-pipeline-api.js"
@@ -40,6 +41,7 @@ const sfcc = {
     "no-empty-global": noEmptyGlobal,
     "no-e4x-syntax": noE4xSyntax,
     "no-forms": noForms,
+    "no-hooks": noHooks,
     "no-isml-rendering": noIsmlRendering,
     "no-page-designer": noPageDesigner,
     "no-pipeline-api": noPipelineApi,
