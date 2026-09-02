@@ -75,13 +75,13 @@ export default defineConfig(
 )
 ```
 
-| Preset                    | Enabled architecture rules                                                 |
-| ------------------------- | -------------------------------------------------------------------------- |
-| `storefront-next`         | `no-controllers`, `no-isml-rendering`, `no-pipeline-api`, `no-sfra-server` |
-| `pwa`                     | `no-controllers`, `no-isml-rendering`, `no-pipeline-api`, `no-sfra-server` |
-| `sfra`                    | `no-pipeline-api`                                                          |
-| `sitegenesis-controllers` | `no-sfra-server`, `sitegenesis/no-global-require`                          |
-| `sitegenesis-pipelines`   | `no-controllers`, `no-sfra-server`                                         |
+| Preset                    | Enabled architecture rules                                                             |
+| ------------------------- | -------------------------------------------------------------------------------------- |
+| `storefront-next`         | `no-controllers`, `no-forms`, `no-isml-rendering`, `no-pipeline-api`, `no-sfra-server` |
+| `pwa`                     | `no-controllers`, `no-forms`, `no-isml-rendering`, `no-pipeline-api`, `no-sfra-server` |
+| `sfra`                    | `no-pipeline-api`                                                                      |
+| `sitegenesis-controllers` | `no-sfra-server`, `sitegenesis/no-global-require`                                      |
+| `sitegenesis-pipelines`   | `no-controllers`, `no-sfra-server`                                                     |
 
 `pwa` and `storefront-next` currently enforce the same headless boundaries. They have separate semantic names so their policies can evolve independently as their platform contracts diverge.
 
@@ -347,6 +347,7 @@ Every rule in this plugin addresses an intentional compatibility or project-poli
 | [sfcc/no-dw-api](rules/sfcc/no-dw-api.md)                                                     | Disallows SFCC `dw/*` APIs in portable domain, utility, or shared cartridges, with support for exact and namespace allow lists.                                                                              | Off     |
 | [sfcc/no-e4x-syntax](rules/sfcc/no-e4x-syntax.md)                                             | Disallows JSX/E4X-like tag syntax (e.g. `<a/>`) in SFCC JavaScript to avoid parser ambiguity and unsupported runtime patterns.                                                                               | `error` |
 | [sfcc/no-empty-global](rules/sfcc/no-empty-global.md)                                         | Disallows the SFCC-specific `empty(...)` global. Use explicit checks such as `.length === 0`, `Object.keys(...).length === 0`, or `.isEmpty()` instead.                                                      | `error` |
+| [sfcc/no-forms](rules/sfcc/no-forms.md)                                                       | Disallows SFCC `dw/web/Form*` modules and the SFRA `server.forms` API in headless cartridges.                                                                                                                | Off     |
 | [sfcc/no-isml-rendering](rules/sfcc/no-isml-rendering.md)                                     | Disallows ISML/template modules and SFRA response rendering in headless cartridges.                                                                                                                          | Off     |
 | [sfcc/no-pipeline-api](rules/sfcc/no-pipeline-api.md)                                         | Disallows JavaScript access to the legacy `dw/system/Pipeline` API.                                                                                                                                          | Off     |
 | [sfcc/no-platform-globals](rules/sfcc/no-platform-globals.md)                                 | Disallows stateful SFCC globals (`customer`, `request`, `response`, and `session`) in favor of explicit dependencies.                                                                                        | Off     |

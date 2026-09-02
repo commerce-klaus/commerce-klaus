@@ -21,6 +21,7 @@ export interface StorefrontConfigOptions {
 
 const storefrontRules: Linter.RulesRecord = {
   "sfcc/no-controllers": "off",
+  "sfcc/no-forms": "off",
   "sfcc/no-isml-rendering": "off",
   "sfcc/no-pipeline-api": "off",
   "sfcc/no-sfra-server": "off",
@@ -31,6 +32,7 @@ const presetRules: Record<StorefrontPreset, Linter.RulesRecord> = {
   "storefront-next": {
     ...storefrontRules,
     "sfcc/no-controllers": "error",
+    "sfcc/no-forms": "error",
     "sfcc/no-isml-rendering": "error",
     "sfcc/no-pipeline-api": "error",
     "sfcc/no-sfra-server": "error",
@@ -38,6 +40,7 @@ const presetRules: Record<StorefrontPreset, Linter.RulesRecord> = {
   pwa: {
     ...storefrontRules,
     "sfcc/no-controllers": "error",
+    "sfcc/no-forms": "error",
     "sfcc/no-isml-rendering": "error",
     "sfcc/no-pipeline-api": "error",
     "sfcc/no-sfra-server": "error",

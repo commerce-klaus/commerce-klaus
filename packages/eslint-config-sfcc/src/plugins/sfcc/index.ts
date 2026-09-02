@@ -5,6 +5,7 @@ import noDsFiles from "./no-ds-files.js"
 import noDwApi from "./no-dw-api.js"
 import noE4xSyntax from "./no-e4x-syntax.js"
 import noEmptyGlobal from "./no-empty-global.js"
+import noForms from "./no-forms.js"
 import noIsmlRendering from "./no-isml-rendering.js"
 import noPipelineApi from "./no-pipeline-api.js"
 import noPlatformGlobals from "./no-platform-globals.js"
@@ -35,6 +36,7 @@ const sfcc = {
     "no-dw-api": noDwApi,
     "no-empty-global": noEmptyGlobal,
     "no-e4x-syntax": noE4xSyntax,
+    "no-forms": noForms,
     "no-isml-rendering": noIsmlRendering,
     "no-pipeline-api": noPipelineApi,
     "no-platform-globals": noPlatformGlobals,

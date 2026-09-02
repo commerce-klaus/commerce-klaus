@@ -13,17 +13,18 @@ import {
 } from "../src/index.js"
 
 test.each([
-  ["storefront-next", storefrontNext, "error", "error", "error", "error", "off"],
-  ["pwa", pwa, "error", "error", "error", "error", "off"],
-  ["sfra", sfra, "off", "off", "error", "off", "off"],
-  ["sitegenesis-controllers", sitegenesisControllers, "off", "off", "off", "error", "error"],
-  ["sitegenesis-pipelines", sitegenesisPipelines, "error", "off", "off", "error", "off"],
+  ["storefront-next", storefrontNext, "error", "error", "error", "error", "error", "off"],
+  ["pwa", pwa, "error", "error", "error", "error", "error", "off"],
+  ["sfra", sfra, "off", "off", "off", "error", "off", "off"],
+  ["sitegenesis-controllers", sitegenesisControllers, "off", "off", "off", "off", "error", "error"],
+  ["sitegenesis-pipelines", sitegenesisPipelines, "error", "off", "off", "off", "error", "off"],
 ] as const)(
   "exports the %s storefront preset",
   (
     preset,
     config,
     noControllers,
+    noForms,
     noIsmlRendering,
     noPipelineApi,
     noSfraServer,
@@ -33,6 +34,7 @@ test.each([
     expect(config).toHaveLength(1)
     expect(config[0]?.rules).toMatchObject({
       "sfcc/no-controllers": noControllers,
+      "sfcc/no-forms": noForms,
       "sfcc/no-isml-rendering": noIsmlRendering,
       "sfcc/no-pipeline-api": noPipelineApi,
       "sfcc/no-sfra-server": noSfraServer,
