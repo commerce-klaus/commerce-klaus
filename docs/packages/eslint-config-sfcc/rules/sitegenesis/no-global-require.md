@@ -19,7 +19,7 @@ SiteGenesis controllers are easier to reason about when route-specific dependenc
 
 ## Example
 
-```js [Invalid controller]
+```js [Invalid: controller]
 var server = require("server")
 var someHelper = require("*/cartridge/scripts/helper") // [!code error]
 
@@ -29,7 +29,7 @@ server.get("Show", function (req, res, next) {
 })
 ```
 
-```js{4} [Valid controller]
+```js{4} [Valid: controller]
 var server = require("server")
 
 server.get("Show", function (req, res, next) {

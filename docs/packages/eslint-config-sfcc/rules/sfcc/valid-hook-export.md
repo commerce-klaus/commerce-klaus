@@ -30,10 +30,10 @@ Requires a static CommonJS export for each Salesforce hook method registered for
 }
 ```
 
-```js [Invalid basket.js]
+```js [Invalid: basket.js]
 exports.afterPATCH = function (basket) {} // [!code error]
 ```
 
-```js{1} [Valid basket.js]
+```js{1} [Valid: basket.js]
 exports.afterPOST = function (basket) {}
 ```

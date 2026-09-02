@@ -26,6 +26,24 @@ export default defineConfig({
   ],
   markdown: {
     config(markdown) {
+      const renderFence = markdown.renderer.rules.fence
+      if (renderFence) {
+        markdown.renderer.rules.fence = (tokens, index, options, environment, renderer) => {
+          const title = tokens[index].info.match(/\[(.*)\]/)?.[1]
+          let codeGroupDepth = 0
+
+          for (let tokenIndex = 0; tokenIndex < index; tokenIndex += 1) {
+            if (tokens[tokenIndex].type === "container_code-group_open") codeGroupDepth += 1
+            if (tokens[tokenIndex].type === "container_code-group_close") codeGroupDepth -= 1
+          }
+
+          const code = renderFence(tokens, index, options, environment, renderer)
+          if (!title || codeGroupDepth > 0) return code
+
+          return `<div class="vp-code-block-with-title"><div class="vp-code-block-title">${markdown.utils.escapeHtml(title)}</div>${code}</div>`
+        }
+      }
+
       markdown.core.ruler.after("inline", "non-breaking-brand-names", (state) => {
         for (const token of state.tokens) {
           for (const child of token.children ?? []) {

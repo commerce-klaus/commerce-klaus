@@ -19,14 +19,14 @@ Custom APIs must return JSON. Legacy controller response APIs can produce redire
 
 ## Example
 
-```js [Invalid script.js]
+```js [Invalid: script.js]
 exports.getLoyaltyInfo = function () {
   response.setStatus(404) // [!code error]
   response.getWriter().print("Not found") // [!code error]
 }
 ```
 
-```js{1,4} [Valid script.js]
+```js{1,4} [Valid: script.js]
 const RESTResponseMgr = require("dw/system/RESTResponseMgr")
 
 exports.getLoyaltyInfo = function () {

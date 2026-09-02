@@ -21,7 +21,7 @@ Salesforce B2C Commerce does not register a Custom API endpoint whose request bo
 
 ## Example
 
-```yaml [Invalid schema.yaml]
+```yaml [Invalid: schema.yaml]
 requestBody:
   content:
     application/json:
@@ -33,7 +33,7 @@ requestBody:
             type: number
 ```
 
-```yaml{6-8} [Valid schema.yaml]
+```yaml{6-8} [Valid: schema.yaml]
 requestBody:
   content:
     application/json:

@@ -32,12 +32,12 @@ Custom API endpoints are only registered when the implementation script exports 
 }
 ```
 
-```js [Invalid script.js]
+```js [Invalid: script.js]
 // [!code error:1]
 exports.getLoyaltyInfo = function () {}
 ```
 
-```js{2-3} [Valid script.js]
+```js{2-3} [Valid: script.js]
 function accountLookup() {}
 accountLookup.public = true
 exports.getLoyaltyInfo = accountLookup

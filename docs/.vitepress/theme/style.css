@@ -66,6 +66,38 @@
   font-size: 0.88em;
 }
 
+.vp-doc .vp-code-block-with-title {
+  margin: 16px -24px;
+}
+
+.vp-doc .vp-code-block-title {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--vp-c-divider);
+  background: var(--vp-code-block-bg);
+  color: var(--vp-c-text-2);
+  font-family: var(--vp-font-family-mono);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.vp-doc .vp-code-block-with-title > div[class*="language-"] {
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .vp-doc .vp-code-block-with-title {
+    margin: 16px 0;
+  }
+
+  .vp-doc .vp-code-block-title {
+    border-radius: 8px 8px 0 0;
+  }
+
+  .vp-doc .vp-code-block-with-title > div[class*="language-"] {
+    border-radius: 0 0 8px 8px;
+  }
+}
+
 @media (max-width: 640px) {
   .VPHomeHero .image-src {
     max-width: 180px;

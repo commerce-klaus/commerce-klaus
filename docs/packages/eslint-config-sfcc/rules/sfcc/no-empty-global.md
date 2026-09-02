@@ -29,7 +29,7 @@ if (empty(product)) {
 }
 ```
 
-```js{1} [Valid for nullable references]
+```js{1} [Valid: nullable references]
 if (!product) {
   return
 }
@@ -48,19 +48,19 @@ if (empty(productIds)) {
 }
 ```
 
-```js{1} [Valid for arrays and strings]
+```js{1} [Valid: arrays and strings]
 if (productIds.length === 0) {
   return
 }
 ```
 
-```js{1} [Valid for plain objects]
+```js{1} [Valid: plain objects]
 if (Object.keys(product).length === 0) {
   return
 }
 ```
 
-```js{1} [Valid for SFCC collections]
+```js{1} [Valid: SFCC collections]
 if (collection.isEmpty()) {
   return
 }
