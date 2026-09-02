@@ -13,6 +13,7 @@ import { Calendar } from "./platform/calendar.js"
 import { ArrayList, HashMap } from "./platform/collections.js"
 import { Status, StatusItem } from "./platform/status.js"
 import { createStringUtilsModule } from "./platform/string-utils.js"
+import { GlobalsRuntime, type SfccGlobals } from "./runtime/globals.js"
 
 export type { SfccCalendar } from "./platform/calendar.js"
 export type {
@@ -47,6 +48,7 @@ export type {
 } from "./platform/collections.js"
 export type { SfccStatus, SfccStatusItem } from "./platform/status.js"
 export type { SfccStringUtils } from "./platform/string-utils.js"
+export type { SfccGlobals } from "./runtime/globals.js"
 
 export type SfccModule = object | ((...args: never[]) => unknown)
 export type SfccModuleFallback = () => SfccModule
@@ -64,7 +66,6 @@ export interface HookCall {
 }
 
 export type SfccHookImplementation = Record<string, unknown>
-export type SfccGlobals = Record<string, unknown>
 
 export interface SfccTestRuntimeOptions {
   site?: {
@@ -90,19 +91,6 @@ function createLoggerModule(entries: LoggerEntry[]): SfccModule {
   }
 }
 
-function empty(value: unknown): boolean {
-  if (value == null) {
-    return true
-  }
-  if (typeof value === "string" || Array.isArray(value)) {
-    return value.length === 0
-  }
-  if (typeof value === "object" && "isEmpty" in value && typeof value.isEmpty === "function") {
-    return Boolean(value.isEmpty())
-  }
-  return false
-}
-
 export class SfccTestRuntime {
   readonly hookCalls: HookCall[] = []
   readonly loggerEntries: LoggerEntry[] = []
@@ -111,15 +99,15 @@ export class SfccTestRuntime {
   private readonly options: SfccTestRuntimeOptions
   private readonly controllerRuntime = new ControllerRuntime()
   private readonly defaults = new Map<string, SfccModule>()
+  private readonly globalsRuntime = new GlobalsRuntime()
   private readonly hooks = new Map<string, SfccHookImplementation>()
   private readonly mocks = new Map<string, SfccModule>()
   private readonly resolvedMocks = new Map<string, SfccModule>()
-  private readonly restoredGlobals = new Map<string, PropertyDescriptor | undefined>()
 
   constructor(options: SfccTestRuntimeOptions = {}) {
     this.options = options
     this.installDefaults()
-    this.installGlobalDefaults()
+    this.globalsRuntime.installDefaults()
   }
 
   mock(moduleId: string, implementation: SfccModule): void {
@@ -131,25 +119,7 @@ export class SfccTestRuntime {
   }
 
   setGlobals(globals: SfccGlobals): void {
-    const entries = Object.entries(globals)
-    for (const [name] of entries) {
-      const descriptor = Object.getOwnPropertyDescriptor(globalThis, name)
-      if (!this.restoredGlobals.has(name) && descriptor && !descriptor.configurable) {
-        throw new Error(`SFCC test runtime cannot override non-configurable global ${name}.`)
-      }
-    }
-
-    for (const [name, value] of entries) {
-      if (!this.restoredGlobals.has(name)) {
-        this.restoredGlobals.set(name, Object.getOwnPropertyDescriptor(globalThis, name))
-      }
-      Object.defineProperty(globalThis, name, {
-        configurable: true,
-        enumerable: true,
-        value,
-        writable: true,
-      })
-    }
+    this.globalsRuntime.set(globals)
   }
 
   registerHook(extensionPoint: string, implementation: SfccHookImplementation): void {
@@ -196,26 +166,14 @@ export class SfccTestRuntime {
   }
 
   reset(): void {
-    for (const [name, descriptor] of this.restoredGlobals) {
-      if (descriptor) {
-        Object.defineProperty(globalThis, name, descriptor)
-      } else {
-        Reflect.deleteProperty(globalThis, name)
-      }
-    }
-    this.restoredGlobals.clear()
     this.controllerRuntime.reset()
+    this.globalsRuntime.reset()
     this.hooks.clear()
     this.hookCalls.length = 0
     this.mocks.clear()
     this.resolvedMocks.clear()
     this.loggerEntries.length = 0
     this.transactionCalls.length = 0
-    this.installGlobalDefaults()
-  }
-
-  private installGlobalDefaults(): void {
-    this.setGlobals({ empty })
   }
 
   private installDefaults(): void {
