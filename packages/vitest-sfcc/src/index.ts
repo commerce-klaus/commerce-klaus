@@ -40,6 +40,7 @@ import {
   type SfccMapEntry,
   type SfccStatus,
   type SfccStatusItem,
+  type SfccStringUtils,
   type SfccTestRuntime,
   type SfccTestRuntimeOptions,
 } from "@commerce-klaus/sfcc-test-runtime"
@@ -533,6 +534,7 @@ export type {
   SfccMapEntry,
   SfccStatus,
   SfccStatusItem,
+  SfccStringUtils,
   SfccTestRuntime,
   SfccTestRuntimeOptions,
 }

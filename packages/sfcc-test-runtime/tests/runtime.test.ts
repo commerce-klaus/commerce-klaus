@@ -225,6 +225,20 @@ describe("SFCC test runtime", () => {
     expect(clone.remove(key)).toBe(1)
   })
 
+  it("provides SFCC string formatting and UTF-8 Base64 helpers", () => {
+    const StringUtils = runtime.resolve("dw/util/StringUtils") as {
+      decodeBase64(value: string): string
+      encodeBase64(value: string): string
+      format(pattern: string, ...values: unknown[]): string
+    }
+
+    expect(StringUtils.format("{0}: {1} / {0} / {2}", "Order", 42)).toBe("Order: 42 / Order / {2}")
+
+    const encoded = StringUtils.encodeBase64("Grüße aus Köln")
+    expect(encoded).toBe(Buffer.from("Grüße aus Köln", "utf8").toString("base64"))
+    expect(StringUtils.decodeBase64(encoded)).toBe("Grüße aus Köln")
+  })
+
   it("stops controller middleware that does not call next", async () => {
     const calls: string[] = []
     const controller: SfccController = {

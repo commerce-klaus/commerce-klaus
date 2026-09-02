@@ -125,6 +125,12 @@ export interface SfccHashMap<Key, Value> {
   values(): SfccCollection<Value>
 }
 
+export interface SfccStringUtils {
+  decodeBase64(value: string): string
+  encodeBase64(value: string): string
+  format(pattern: string, ...values: unknown[]): string
+}
+
 export interface SfccJobContext extends Record<string, unknown> {
   readonly empty: boolean
   readonly length: number
@@ -421,6 +427,18 @@ function createLoggerModule(entries: LoggerEntry[]): SfccModule {
     error: write("error"),
     fatal: write("fatal"),
     getLogger: () => createLoggerModule(entries),
+  }
+}
+
+function createStringUtilsModule(): SfccStringUtils {
+  return {
+    decodeBase64: (value) => Buffer.from(value, "base64").toString("utf8"),
+    encodeBase64: (value) => Buffer.from(value, "utf8").toString("base64"),
+    format: (pattern, ...values) =>
+      pattern.replace(/\{(\d+)\}/g, (placeholder, index: string) => {
+        const valueIndex = Number(index)
+        return valueIndex < values.length ? String(values[valueIndex]) : placeholder
+      }),
   }
 }
 
@@ -1177,6 +1195,7 @@ export class SfccTestRuntime {
     this.defaults.set("dw/system/StatusItem", StatusItem)
     this.defaults.set("dw/util/ArrayList", ArrayList)
     this.defaults.set("dw/util/HashMap", HashMap)
+    this.defaults.set("dw/util/StringUtils", createStringUtilsModule())
     this.defaults.set("dw/system/Logger", createLoggerModule(this.loggerEntries))
     this.defaults.set("dw/system/Transaction", {
       begin: () => this.transactionCalls.push("begin"),

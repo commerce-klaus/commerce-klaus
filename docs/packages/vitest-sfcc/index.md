@@ -137,6 +137,8 @@ The built-in `dw/util/ArrayList` supports common construction, mutation, sorting
 
 The built-in `dw/util/HashMap` supports arbitrary key types, common map operations, bulk copying, cloning, and live collection views.
 
+The built-in `dw/util/StringUtils` supports numbered message formatting and UTF-8 Base64 encoding and decoding. Locale-sensitive formatting remains mockable application behavior.
+
 ```ts
 const jobModule = await import("../cartridge/scripts/jobs/GenerateFeed.js")
 const jobStep = getSfccRuntime().jobStep(jobModule, {

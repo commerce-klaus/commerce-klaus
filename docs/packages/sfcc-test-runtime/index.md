@@ -36,6 +36,10 @@ These implementations model behavior needed by tests and expose call history whe
 
 `dw/util/HashMap` supports arbitrary key types and provides `put()`, `putAll()`, `get()`, `remove()`, `clear()`, containment checks, size inspection, and `clone()`. Missing keys return `null`. `keySet()`, `values()`, and `entrySet()` are live `SfccCollection` views, while clones use an independent backing map.
 
+### StringUtils
+
+`dw/util/StringUtils.format()` replaces numbered placeholders such as `{0}` and `{1}`, including repeated indices. Placeholders without a supplied value remain unchanged. `encodeBase64()` and `decodeBase64()` use UTF-8, including non-ASCII input. Locale, calendar, number, money, and resource formatting are not modeled and can be supplied with `runtime.mock()`.
+
 ```ts
 import { createSfccTestRuntime } from "@commerce-klaus/sfcc-test-runtime"
 

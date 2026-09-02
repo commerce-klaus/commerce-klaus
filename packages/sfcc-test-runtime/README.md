@@ -41,6 +41,10 @@ The built-in `dw/util/HashMap` supports arbitrary key types, `put()`, `putAll()`
 lookup, removal, clearing, independent clones, and live key, value, and entry
 views.
 
+The built-in `dw/util/StringUtils` supports numbered `format()` placeholders and
+UTF-8 `encodeBase64()`/`decodeBase64()` helpers. Locale, date, number, money, and
+resource formatting remain application-provided mocks.
+
 Script-module job steps can be executed with
 `runtime.jobStep(jobModule).run(functionName, parameters)`. The harness supplies
 SFCC-like job and step execution objects and keeps their mutable `context`
