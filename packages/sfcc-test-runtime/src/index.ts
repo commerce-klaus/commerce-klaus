@@ -44,5 +44,5 @@ export {
   getSfccTestRuntime,
   requireSfccModule,
   setSfccTestRuntime,
-  SfccTestRuntime,
-} from "./runtime/test-runtime.js"
+} from "./runtime/active-runtime.js"
+export { SfccTestRuntime } from "./runtime/test-runtime.js"
