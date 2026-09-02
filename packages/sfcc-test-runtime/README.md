@@ -36,7 +36,8 @@ context preserves property access while also providing common `dw.util.Map`
 operations such as `get()`, `put()`, `remove()`, `containsKey()`, and `size()`.
 Its `keySet()`, `values()`, and `entrySet()` methods return live, iterable
 SFCC-like collection views. They support both JavaScript iteration and SFCC's
-`iterator().hasNext()/next()` pattern.
+`iterator().hasNext()/next()` pattern. `iterator.asList()` consumes the
+remaining elements into an independent SFCC-like list.
 Chunk modules run through `runChunk({ chunkSize, functions, parameters })`,
 which orchestrates step and chunk callbacks, filters null process results, and
 passes an SFCC-like list to `write`.

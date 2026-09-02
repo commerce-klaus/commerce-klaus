@@ -143,9 +143,12 @@ describe("SFCC test runtime", () => {
     const keyIterator = keys.iterator()
     expect(keyIterator.hasNext()).toBe(true)
     expect(keyIterator.next()).toBe("runs")
-    expect(keyIterator.hasNext()).toBe(true)
-    expect(keyIterator.next()).toBe("fileName")
+    const remainingKeys = keyIterator.asList()
     expect(keyIterator.hasNext()).toBe(false)
+    expect(remainingKeys.get(0)).toBe("fileName")
+    const remainingKeyArray = remainingKeys.toArray()
+    remainingKeyArray.push("independent")
+    expect(remainingKeys.toArray()).toEqual(["fileName"])
     expect(values.toArray()).toEqual([4, "feed.xml"])
     expect(entries.toArray()).toEqual([
       expect.objectContaining({ key: "runs", value: 4 }),

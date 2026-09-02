@@ -81,8 +81,13 @@ export interface SfccCollection<Item> extends Iterable<Item> {
 }
 
 export interface SfccIterator<Item> {
+  asList(): SfccList<Item>
   hasNext(): boolean
   next(): Item
+}
+
+export interface SfccList<Item> extends SfccCollection<Item> {
+  get(index: number): Item
 }
 
 export interface SfccMapEntry<Key, Value> {
@@ -263,6 +268,11 @@ function createCollection<Item>(getItems: () => Item[]): SfccCollection<Item> {
       const items = getItems()
       let index = 0
       return {
+        asList: () => {
+          const remainingItems = items.slice(index)
+          index = items.length
+          return createList(remainingItems)
+        },
         hasNext: () => index < items.length,
         next: () => items[index++] as Item,
       }
@@ -271,12 +281,21 @@ function createCollection<Item>(getItems: () => Item[]): SfccCollection<Item> {
     toArray: (start?: number, size?: number) => {
       const items = getItems()
       if (start === undefined || size === undefined) {
-        return items
+        return [...items]
       }
       return items.slice(Math.max(0, start), Math.max(0, start) + Math.max(0, size))
     },
     [Symbol.iterator]: () => getItems()[Symbol.iterator](),
   }
+}
+
+function createList<Item>(items: Item[]): SfccList<Item> {
+  return Object.assign(
+    createCollection(() => items),
+    {
+      get: (index: number) => items[index] as Item,
+    },
+  )
 }
 
 function createMapEntry<Key, Value>(key: Key, value: Value): SfccMapEntry<Key, Value> {

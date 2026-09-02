@@ -67,6 +67,8 @@ organization, parallel-execution, and transactional capabilities, while
 `dw.util.Map` operations without losing normal property access. Live
 `keySet()`, `values()`, and `entrySet()` collection views are available for
 collection-oriented assertions and support `iterator().hasNext()/next()`.
+The iterator's parameterless `asList()` consumes its remaining elements into
+an independent `SfccList`.
 Duplicate type
 IDs use cartridge-path priority, and unknown or unresolvable IDs fail with an
 explicit diagnostic. The loaded definition's type ID is also available through
