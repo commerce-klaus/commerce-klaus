@@ -61,6 +61,19 @@ function createLoggerModule(entries: LoggerEntry[]): SfccModule {
   }
 }
 
+function empty(value: unknown): boolean {
+  if (value == null) {
+    return true
+  }
+  if (typeof value === "string" || Array.isArray(value)) {
+    return value.length === 0
+  }
+  if (typeof value === "object" && "isEmpty" in value && typeof value.isEmpty === "function") {
+    return Boolean(value.isEmpty())
+  }
+  return false
+}
+
 export class SfccTestRuntime {
   readonly hookCalls: HookCall[] = []
   readonly loggerEntries: LoggerEntry[] = []
@@ -76,6 +89,7 @@ export class SfccTestRuntime {
   constructor(options: SfccTestRuntimeOptions = {}) {
     this.options = options
     this.installDefaults()
+    this.installGlobalDefaults()
   }
 
   mock(moduleId: string, implementation: SfccModule): void {
@@ -155,6 +169,11 @@ export class SfccTestRuntime {
     this.resolvedMocks.clear()
     this.loggerEntries.length = 0
     this.transactionCalls.length = 0
+    this.installGlobalDefaults()
+  }
+
+  private installGlobalDefaults(): void {
+    this.setGlobals({ empty })
   }
 
   private installDefaults(): void {

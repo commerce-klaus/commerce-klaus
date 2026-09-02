@@ -25,9 +25,11 @@ getSfccRuntime().mock("*/cartridge/scripts/provider", providerMock)
 const subject = await import("../cartridge/scripts/subject.js")
 ```
 
-Use `getSfccRuntime().setGlobals({ request, session, customer, empty })` for
-SFCC globals referenced directly by cartridge code. `reset()` restores the
-worker's previous global state.
+The SFCC `empty()` global is available by default, including SFCC collections
+through `isEmpty()`. Use
+`getSfccRuntime().setGlobals({ request, session, customer })` for additional
+globals referenced directly by cartridge code. `reset()` restores the worker's
+previous global state and reinstalls `empty()`.
 
 Static relative dependencies such as `require("./helper")` use the same registry.
 Use `mockResolved(absolutePath, implementation)` when only one exact file should

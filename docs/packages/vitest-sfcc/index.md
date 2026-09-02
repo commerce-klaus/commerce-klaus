@@ -79,13 +79,14 @@ Cartridge code can access controlled SFCC globals without imports:
 ```ts
 getSfccRuntime().setGlobals({
   customer: { authenticated: true },
-  empty: (value) => value == null || value === "",
   request: { locale: "de_DE", querystring: {} },
   session: { custom: {} },
 })
 ```
 
-`runtime.reset()` removes added globals and restores values that existed before the test. Use it in `afterEach` as well as test setup to prevent the final test in a worker from leaking context.
+The SFCC `empty()` global is installed automatically and covers nullish values, empty strings and arrays, and SFCC collections through `isEmpty()`. It can still be replaced through `setGlobals()` for a specific test.
+
+`runtime.reset()` removes added globals, restores values that existed before the test, and reinstalls the default `empty()`. Use it in `afterEach` as well as test setup to prevent the final test in a worker from leaking context.
 
 `module.superModule` loads the next matching implementation in cartridge-path order. Transitive supermodule chains pass through the same CommonJS transformation.
 

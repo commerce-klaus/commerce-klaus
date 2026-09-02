@@ -27,7 +27,6 @@ describe("vitest-sfcc", () => {
   it("provides isolated SFCC globals to cartridge modules", async () => {
     getSfccRuntime().setGlobals({
       customer: { authenticated: true },
-      empty: (value: unknown) => value == null || value === "",
       request: { locale: "de_DE", querystring: { value: "" } },
       session: { custom: { id: "session-1" } },
     })

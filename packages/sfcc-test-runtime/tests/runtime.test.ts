@@ -67,6 +67,41 @@ describe("SFCC test runtime", () => {
     expect("__sfccRequest" in testGlobal).toBe(false)
   })
 
+  it.each([
+    [undefined, true],
+    [null, true],
+    ["", true],
+    [[], true],
+    [{ isEmpty: () => true }, true],
+    [false, false],
+    [0, false],
+    [" ", false],
+    [[0], false],
+    [{}, false],
+    [{ empty: true }, false],
+    [{ length: 0 }, false],
+    [{ size: 0 }, false],
+    [{ isEmpty: () => false }, false],
+  ])("implements SFCC empty() for %j", (value, expected) => {
+    const sfccGlobal = globalThis as typeof globalThis & {
+      empty: (candidate: unknown) => boolean
+    }
+
+    expect(sfccGlobal.empty(value)).toBe(expected)
+  })
+
+  it("restores the default empty() implementation on reset", () => {
+    const sfccGlobal = globalThis as typeof globalThis & {
+      empty: (candidate: unknown) => boolean
+    }
+    runtime.setGlobals({ empty: () => false })
+
+    expect(sfccGlobal.empty("")).toBe(false)
+    runtime.reset()
+
+    expect(sfccGlobal.empty("")).toBe(true)
+  })
+
   it("prefers an exact resolved mock and removes it on reset", () => {
     runtime.mock("./provider", { value: "specifier" })
     runtime.mockResolved("/cartridges/app_custom/provider.js", { value: "resolved" })
