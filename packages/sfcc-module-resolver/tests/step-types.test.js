@@ -32,6 +32,7 @@ test("getStepTypeDefinitionsFromDocument parses script and chunk steps", () => {
             "@type-id": "custom.GenerateFeed",
             function: "Run",
             module: "app_jobs/cartridge/scripts/generate-feed",
+            "timeout-in-seconds": "900",
             parameters: {
               parameter: [
                 {
@@ -93,6 +94,7 @@ test("getStepTypeDefinitionsFromDocument parses script and chunk steps", () => {
         },
       ],
       statusCodes: ["OK", "ERROR"],
+      timeoutSeconds: 900,
       typeId: "custom.GenerateFeed",
     },
     {
@@ -136,6 +138,20 @@ test("getStepTypeDefinitionsFromDocument rejects malformed definitions", () => {
     getStepTypeDefinitionsFromDocument({
       "step-types": {
         "script-module-step": [{ "@type-id": "custom.MissingFunction", module: "job" }],
+      },
+    }),
+  ).toBeUndefined()
+  expect(
+    getStepTypeDefinitionsFromDocument({
+      "step-types": {
+        "script-module-step": [
+          {
+            "@type-id": "custom.InvalidTimeout",
+            function: "Run",
+            module: "job",
+            "timeout-in-seconds": "0",
+          },
+        ],
       },
     }),
   ).toBeUndefined()

@@ -77,6 +77,10 @@ When `steptypes.json` declares status codes, Status-like task results and chunk
 list. Undeclared codes reject with the type ID and allowed values. Steps without
 a status declaration and ordinary non-Status results remain unrestricted.
 
+Task definitions with `timeout-in-seconds` reject runs that exceed the declared
+duration. The harness clears its own timer after every outcome, but JavaScript
+already running inside the task cannot be forcibly canceled.
+
 Static relative dependencies such as `require("./helper")` use the same registry.
 Use `mockResolved(absolutePath, implementation)` when only one exact file should
 be replaced.

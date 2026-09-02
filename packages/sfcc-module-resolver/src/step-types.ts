@@ -9,6 +9,7 @@ export interface ScriptModuleStepTypeDefinition {
   module: string
   parameters: StepTypeParameterDefinition[]
   statusCodes: string[]
+  timeoutSeconds?: number
   typeId: string
 }
 
@@ -72,6 +73,14 @@ function readBoolean(record: UnknownRecord, name: string): boolean | undefined {
     return value === "true"
   }
   return undefined
+}
+
+function readPositiveInteger(record: UnknownRecord, name: string): number | undefined {
+  const value = record[name]
+  const numberValue = typeof value === "string" && value.length > 0 ? Number(value) : value
+  return typeof numberValue === "number" && Number.isInteger(numberValue) && numberValue > 0
+    ? numberValue
+    : undefined
 }
 
 function parseParameter(value: unknown): StepTypeParameterDefinition | undefined {
@@ -145,8 +154,20 @@ function parseScriptModuleStep(value: unknown): ScriptModuleStepTypeDefinition |
   const functionName = readString(value, "function")
   const parameters = parseParameters(value)
   const statusCodes = parseStatusCodes(value)
+  const timeoutSeconds = readPositiveInteger(value, "timeout-in-seconds")
+  if (Object.hasOwn(value, "timeout-in-seconds") && timeoutSeconds === undefined) {
+    return undefined
+  }
   return typeId && module && functionName && parameters && statusCodes
-    ? { functionName, kind: "script-module-step", module, parameters, statusCodes, typeId }
+    ? {
+        functionName,
+        kind: "script-module-step",
+        module,
+        parameters,
+        statusCodes,
+        ...(timeoutSeconds === undefined ? {} : { timeoutSeconds }),
+        typeId,
+      }
     : undefined
 }
 

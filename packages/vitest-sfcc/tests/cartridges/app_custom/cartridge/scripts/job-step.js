@@ -12,3 +12,7 @@ exports.Parameters = function (parameters, stepExecution) {
 exports.Status = function (parameters) {
   return parameters.UseGetter ? { getCode: () => parameters.Code } : { code: parameters.Code }
 }
+
+exports.Delayed = function (parameters) {
+  return new Promise((resolve) => setTimeout(resolve, parameters.DelayMs))
+}

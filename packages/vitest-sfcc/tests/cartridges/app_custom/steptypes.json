@@ -54,6 +54,12 @@
         "@type-id": "custom.TestStatusWithoutCodes",
         "module": "app_custom/cartridge/scripts/job-step.js",
         "function": "Status"
+      },
+      {
+        "@type-id": "custom.TestTimeout",
+        "module": "app_custom/cartridge/scripts/job-step.js",
+        "function": "Delayed",
+        "timeout-in-seconds": "1"
       }
     ],
     "chunk-script-module-step": [

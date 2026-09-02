@@ -132,6 +132,7 @@ Notes:
   - Normalizes task function names, chunk sizes, and chunk lifecycle function names into discriminated definitions
   - Preserves parameter names, types, required and trim flags, and default values from both SFCC parameter container forms
   - Exposes declared status codes as a normalized string array
+  - Normalizes task `timeout-in-seconds` metadata into an optional positive `timeoutSeconds` number
 - `findResolvedStepTypeDefinitions(cartridgeRoots): ResolvedStepTypeDefinition[]`
   - Reads `steptypes.json` from each cartridge root
   - Resolves module paths with the standard SFCC runtime extensions and index-module fallback

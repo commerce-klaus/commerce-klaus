@@ -193,6 +193,26 @@ function validateJobStepStatus(definition: ResolvedStepTypeDefinition, result: u
   return result
 }
 
+async function runWithJobStepTimeout(
+  typeId: string,
+  timeoutSeconds: number,
+  operation: () => Promise<unknown>,
+): Promise<unknown> {
+  let timeout: ReturnType<typeof setTimeout> | undefined
+  const timeoutResult = new Promise<never>((_resolve, reject) => {
+    timeout = setTimeout(() => {
+      const unit = timeoutSeconds === 1 ? "second" : "seconds"
+      reject(new Error(`SFCC job step ${typeId} timed out after ${timeoutSeconds} ${unit}.`))
+    }, timeoutSeconds * 1_000)
+  })
+
+  try {
+    return await Promise.race([operation(), timeoutResult])
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
 function isCartridgeModule(filePath: string, cartridgeRoots: string[]): boolean {
   const normalizedPath = path.resolve(filePath)
   return cartridgeRoots.some((root) => {
@@ -452,14 +472,18 @@ export async function loadSfccJobStep(
     stepExecution: harness.stepExecution,
     run: async (parameters) => {
       const resolvedParameters = resolveJobStepParameters(definition, parameters)
-      const result =
+      const run = () =>
         definition.kind === "script-module-step"
-          ? await harness.run(definition.functionName, resolvedParameters)
-          : await harness.runChunk({
+          ? harness.run(definition.functionName, resolvedParameters)
+          : harness.runChunk({
               chunkSize: definition.chunkSize,
               functions: definition.functions,
               parameters: resolvedParameters,
             })
+      const result =
+        definition.kind === "script-module-step" && definition.timeoutSeconds
+          ? await runWithJobStepTimeout(definition.typeId, definition.timeoutSeconds, run)
+          : await run()
       return validateJobStepStatus(definition, result)
     },
   }

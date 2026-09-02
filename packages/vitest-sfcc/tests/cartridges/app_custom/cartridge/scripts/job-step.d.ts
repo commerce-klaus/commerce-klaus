@@ -8,3 +8,4 @@ export function Parameters(
 export function Status(
   parameters: SfccJobStepParameters,
 ): { code: unknown } | { getCode(): unknown }
+export function Delayed(parameters: SfccJobStepParameters): Promise<void>

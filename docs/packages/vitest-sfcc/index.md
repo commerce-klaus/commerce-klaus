@@ -194,6 +194,8 @@ Before invoking the module, `run()` applies declared defaults and `@trim`, then 
 
 If the definition declares `status-codes`, a task's direct result or a chunk step's `afterStep` result is validated when it exposes a string `code` property or `getCode()` value, matching `dw.system.Status`. An undeclared code rejects with the type ID and allowed codes. Definitions without declared status codes remain permissive, as do ordinary data results and `undefined`.
 
+Task definitions with `timeout-in-seconds` reject `run()` when their configured duration elapses. The diagnostic includes the type ID and normalized duration. The harness clears its timeout after either outcome; as with any Promise race, JavaScript already executing in the task cannot be forcibly canceled and may continue its own asynchronous work.
+
 ## Hook execution
 
 `dw/system/HookMgr` automatically discovers `hooks.json` through each cartridge's `package.json`. If multiple cartridges register the same extension point, the first resolvable registration in cartridge-path order is used.

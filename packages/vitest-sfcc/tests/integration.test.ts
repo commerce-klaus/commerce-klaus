@@ -274,6 +274,22 @@ describe("vitest-sfcc", () => {
     await expect(jobStep.run({ Code: "CUSTOM" })).resolves.toEqual({ code: "CUSTOM" })
   })
 
+  it("times out a script-module job step from its type definition", async () => {
+    const jobStep = await loadSfccJobStep("custom.TestTimeout")
+    vi.useFakeTimers()
+
+    try {
+      const result = expect(jobStep.run({ DelayMs: 2_000 })).rejects.toThrow(
+        "SFCC job step custom.TestTimeout timed out after 1 second.",
+      )
+      await vi.advanceTimersByTimeAsync(1_000)
+      await result
+    } finally {
+      vi.clearAllTimers()
+      vi.useRealTimers()
+    }
+  })
+
   it("rejects mutable require aliases", () => {
     const plugin = sfccVitest({
       basePath: path.resolve(import.meta.dirname, "cartridges"),
