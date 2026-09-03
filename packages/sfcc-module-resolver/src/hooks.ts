@@ -6,6 +6,10 @@ export interface HookRegistration {
   script: string
 }
 
+export interface ResolvedHookRegistration extends HookRegistration {
+  scriptPath: string
+}
+
 function isHookRegistration(value: unknown): value is HookRegistration {
   return (
     typeof value === "object" &&
@@ -86,6 +90,49 @@ export function getCartridgeHooksJsonPath(cartridgeRoot: string): string | undef
   }
 
   return path.resolve(cartridgeRoot, packageJson.hooks)
+}
+
+export function findResolvedHookRegistrations(
+  cartridgeRoots: string[],
+): ResolvedHookRegistration[] {
+  const registrations: ResolvedHookRegistration[] = []
+  const registeredExtensionPoints = new Set<string>()
+
+  for (const cartridgeRoot of cartridgeRoots) {
+    const hooksJsonPath = getCartridgeHooksJsonPath(cartridgeRoot)
+    if (!hooksJsonPath) {
+      continue
+    }
+
+    let cartridgeRegistrations: HookRegistration[] | undefined
+    try {
+      cartridgeRegistrations = getHookRegistrationsFromDocument(
+        JSON.parse(fs.readFileSync(hooksJsonPath, "utf8")),
+      )
+    } catch {
+      continue
+    }
+
+    if (!cartridgeRegistrations) {
+      continue
+    }
+
+    for (const registration of cartridgeRegistrations) {
+      if (registeredExtensionPoints.has(registration.name)) {
+        continue
+      }
+
+      const scriptPath = resolveHookScriptPath(path.dirname(hooksJsonPath), registration.script)
+      if (!scriptPath) {
+        continue
+      }
+
+      registeredExtensionPoints.add(registration.name)
+      registrations.push({ ...registration, scriptPath })
+    }
+  }
+
+  return registrations
 }
 
 export interface RequiredHookExport {

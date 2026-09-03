@@ -12,6 +12,7 @@ This package centralizes SFCC-specific resolution for:
 - `module.superModule`
 - cartridge order detection from configuration, environment, `jsconfig`, and optional `site.xml`
 - cartridge `hooks.json` registration lookups
+- cartridge `steptypes.json` job step discovery
 
 ## Why this package?
 
@@ -113,6 +114,8 @@ Notes:
   - Reads the cartridge's `package.json` and resolves its declared `hooks` path, if any
 - `getHookRegistrationsFromDocument(document): HookRegistration[] | undefined`
   - Validates a parsed `hooks.json` document and returns its `{ name, script }` entries
+- `findResolvedHookRegistrations(cartridgeRoots): ResolvedHookRegistration[]`
+  - Discovers resolvable hook scripts in cartridge-path order and keeps the first registration for each extension point
 - `resolveHookScriptPath(hooksDirectory, script): string | undefined`
   - Resolves a registration's `script` field to an existing file, trying `.js`, `.cjs`, `.mjs`, and `.ds`
 - `getHookRegistrationsForScriptFile(filePath): HookRegistration[]`
@@ -121,6 +124,22 @@ Notes:
   - Infers the required export name for Salesforce `dw.*` hooks only (the last segment of the extension point)
 - `getRequiredHookExportsForScriptFile(filePath): RequiredHookExport[]`
   - Given a script file, returns every `{ hookName, exportName }` it must statically export according to its cartridge's `hooks.json`
+
+### Job step definitions
+
+- `getStepTypeDefinitionsFromDocument(document): StepTypeDefinition[] | undefined`
+  - Validates task-oriented `script-module-step` and `chunk-script-module-step` entries from a parsed `steptypes.json`
+  - Normalizes task function names, chunk sizes, and chunk lifecycle function names into discriminated definitions
+  - Preserves parameter names, types, required and trim flags, and default values from both SFCC parameter container forms
+  - Exposes declared status codes as a normalized string array
+  - Normalizes task `timeout-in-seconds` metadata into an optional positive `timeoutSeconds` number
+  - Preserves descriptions and normalizes site, organization, parallel-execution, and transactional flags from JSON booleans or SFCC string forms
+- `findResolvedStepTypeDefinitions(cartridgeRoots): ResolvedStepTypeDefinition[]`
+  - Reads `steptypes.json` from each cartridge root
+  - Resolves module paths with the standard SFCC runtime extensions and index-module fallback
+  - Keeps the first resolvable definition for each type ID in cartridge-path order
+
+Capability fields remain optional so consumers can distinguish an omitted declaration from an explicit `false`. The resolver exposes this metadata without inferring or enforcing a job context.
 
 ### Utilities
 
@@ -173,6 +192,25 @@ const requiredExports = getRequiredHookExportsForScriptFile(
 )
 // [{ hookName: "dw.ocapi.shop.basket.afterPOST", exportName: "afterPOST" }]
 ```
+
+### 5) Discover job step definitions
+
+```ts
+import { findResolvedStepTypeDefinitions } from "@commerce-klaus/sfcc-module-resolver"
+
+const definitions = findResolvedStepTypeDefinitions(cartridgeRoots)
+const exportStep = definitions.find((definition) => definition.typeId === "custom.ExportProducts")
+
+if (exportStep?.kind === "chunk-script-module-step") {
+  console.log(exportStep.modulePath)
+  console.log(exportStep.chunkSize)
+  console.log(exportStep.functions.read)
+}
+```
+
+Malformed documents and definitions whose modules cannot be resolved are skipped during filesystem discovery. Duplicate type IDs use the same first-cartridge-wins priority as module and hook resolution.
+
+Each definition exposes normalized `parameters` and `statusCodes` arrays. Empty parameter containers and missing status declarations become empty arrays. Boolean metadata flags accept both JSON booleans and SFCC's string forms (`"true"` and `"false"`); default values remain lossless so consumers can apply runtime-specific conversion.
 
 ## Design decisions
 

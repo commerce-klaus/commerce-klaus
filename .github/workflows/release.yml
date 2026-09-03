@@ -31,6 +31,9 @@ jobs:
       - name: Bootstrap shared resolver package
         run: cd packages/sfcc-module-resolver && vp pack
 
+      - name: Bootstrap SFCC test runtime package
+        run: cd packages/sfcc-test-runtime && vp pack
+
       - name: Create release PR or publish
         id: changesets
         uses: changesets/action@v2.1.1

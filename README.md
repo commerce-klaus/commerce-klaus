@@ -11,6 +11,8 @@ Pragmatic developer tooling for Salesforce Commerce Cloud (SFCC). Commerce Klaus
 | [`@commerce-klaus/vite-plugin-sfcc-modules`](https://www.npmjs.com/package/@commerce-klaus/vite-plugin-sfcc-modules)   | SFCC module resolution for Vite and Vitest                     |
 | [`@commerce-klaus/babel-plugin-sfcc-modules`](https://www.npmjs.com/package/@commerce-klaus/babel-plugin-sfcc-modules) | SFCC module resolution for Babel-based tooling                 |
 | [`@commerce-klaus/sfcc-module-resolver`](https://www.npmjs.com/package/@commerce-klaus/sfcc-module-resolver)           | Shared cartridge and module resolution utilities               |
+| [`@commerce-klaus/vitest-sfcc`](https://www.npmjs.com/package/@commerce-klaus/vitest-sfcc)                             | Cartridge-aware runtime and dependency mocking for Vitest      |
+| [`@commerce-klaus/sfcc-test-runtime`](https://www.npmjs.com/package/@commerce-klaus/sfcc-test-runtime)                 | Framework-independent SFCC test runtime modules                |
 
 ## Examples
 

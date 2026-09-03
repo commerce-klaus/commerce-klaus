@@ -1,0 +1,98 @@
+{
+  "step-types": {
+    "script-module-step": [
+      {
+        "@type-id": "custom.TestTask",
+        "module": "app_custom/cartridge/scripts/job-step.js",
+        "function": "Parameters",
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "Prefix",
+              "@type": "string",
+              "@required": "true",
+              "@trim": "true"
+            },
+            {
+              "@name": "DryRun",
+              "@type": "boolean",
+              "@required": "false",
+              "default-value": "true"
+            },
+            {
+              "@name": "RetryCount",
+              "@type": "long",
+              "@required": "false",
+              "default-value": "3"
+            }
+          ]
+        },
+        "status-codes": {
+          "status": [
+            {
+              "@code": "OK"
+            }
+          ]
+        }
+      },
+      {
+        "@type-id": "custom.TestStatus",
+        "module": "app_custom/cartridge/scripts/job-step.js",
+        "function": "Status",
+        "status-codes": {
+          "status": [
+            {
+              "@code": "OK"
+            },
+            {
+              "@code": "WARN"
+            }
+          ]
+        }
+      },
+      {
+        "@type-id": "custom.TestStatusWithoutCodes",
+        "module": "app_custom/cartridge/scripts/job-step.js",
+        "function": "Status"
+      },
+      {
+        "@type-id": "custom.TestTimeout",
+        "module": "app_custom/cartridge/scripts/job-step.js",
+        "function": "Delayed",
+        "timeout-in-seconds": "1"
+      }
+    ],
+    "chunk-script-module-step": [
+      {
+        "@type-id": "custom.TestChunk",
+        "module": "app_custom/cartridge/scripts/chunk-job-step.js",
+        "before-step-function": "prepare",
+        "total-count-function": "count",
+        "before-chunk-function": "startChunk",
+        "read-function": "readNext",
+        "process-function": "transform",
+        "write-function": "writeBatch",
+        "after-chunk-function": "completeChunk",
+        "after-step-function": "finishStatus",
+        "chunk-size": 2,
+        "parameters": {
+          "parameters": [
+            {
+              "@name": "multiplier",
+              "@type": "double",
+              "@required": false,
+              "default-value": "2"
+            }
+          ]
+        },
+        "status-codes": {
+          "status": [
+            {
+              "@code": "OK"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

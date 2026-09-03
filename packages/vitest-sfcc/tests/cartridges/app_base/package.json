@@ -1,0 +1,4 @@
+{
+  "type": "module",
+  "hooks": "./cartridge/scripts/hooks.json"
+}

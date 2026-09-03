@@ -5,6 +5,7 @@ import { expect, test } from "vite-plus/test"
 
 import {
   findCartridgeRootForFile,
+  findResolvedHookRegistrations,
   getCartridgeHooksJsonPath,
   getHookRegistrationsForScriptFile,
   getHookRegistrationsFromDocument,
@@ -97,6 +98,39 @@ test("getCartridgeHooksJsonPath returns undefined without a hooks declaration", 
     writeJson(path.join(cartridgeRoot, "package.json"), {})
 
     expect(getCartridgeHooksJsonPath(cartridgeRoot)).toBeUndefined()
+  })
+})
+
+test("findResolvedHookRegistrations uses the first resolvable hook in cartridge order", () => {
+  withTempDir((tempDir) => {
+    const customRoot = path.join(tempDir, "cartridges", "app_custom")
+    const baseRoot = path.join(tempDir, "cartridges", "app_base")
+
+    for (const [cartridgeRoot, value] of [
+      [customRoot, "custom"],
+      [baseRoot, "base"],
+    ]) {
+      writeJson(path.join(cartridgeRoot, "package.json"), {
+        hooks: "./cartridge/scripts/hooks.json",
+      })
+      writeJson(path.join(cartridgeRoot, "cartridge", "scripts", "hooks.json"), {
+        hooks: [
+          { name: "app.payment.authorize", script: "./hooks/payment" },
+          { name: `app.${value}.missing`, script: "./hooks/missing" },
+        ],
+      })
+      const scriptPath = path.join(cartridgeRoot, "cartridge", "scripts", "hooks", "payment.js")
+      fs.mkdirSync(path.dirname(scriptPath), { recursive: true })
+      fs.writeFileSync(scriptPath, 'exports.authorize = () => "authorized"\n')
+    }
+
+    expect(findResolvedHookRegistrations([customRoot, baseRoot])).toEqual([
+      {
+        name: "app.payment.authorize",
+        script: "./hooks/payment",
+        scriptPath: path.join(customRoot, "cartridge", "scripts", "hooks", "payment.js"),
+      },
+    ])
   })
 })
 
