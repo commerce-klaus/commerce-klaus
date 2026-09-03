@@ -81,6 +81,10 @@ Notes:
 
 ### Cartridge order and paths
 
+- `SfccModuleResolutionOptions`
+  - Shared cartridge-resolution configuration used by the Vite and Vitest adapters.
+- `ResolveCartridgeRootsOptions`
+  - Extends `SfccModuleResolutionOptions` with the resolver-only `containingFile` option.
 - `resolveCartridgesDir(cartridgesDir, cwd): string`
 - `resolveCartridgesBasePath(basePath, cwd, containingFile?): string`
 - `resolveCartridgeRoots(options): string[]`

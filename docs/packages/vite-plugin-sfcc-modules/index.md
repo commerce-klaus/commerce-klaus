@@ -43,6 +43,12 @@ SFCC projects often use module patterns that are not standard Node.js resolution
 
 This plugin resolves those patterns according to cartridge path order and rewrites source code so Vite can process the full module graph.
 
+## Choosing the right package
+
+Use this plugin when a Vite-based tool needs cartridge-aware module resolution without an SFCC test runtime.
+
+Use [`@commerce-klaus/vitest-sfcc`](../vitest-sfcc/) when cartridge code must run in Vitest. It adds the CommonJS transformation, `dw/*` and `server` implementations, globals, dependency mocking, hooks, and controller and job-step harnesses needed for tests. It already performs cartridge resolution, so the two plugins should not be configured together in the same Vitest run.
+
 ## Features
 
 - Resolves `require("*/...")` against the configured cartridge path in order.

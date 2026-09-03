@@ -37,6 +37,12 @@ const payment = await import("../cartridge/scripts/payment.js")
 
 SFCC cartridge code uses CommonJS, cartridge-specific module identifiers, platform modules, globals, hooks, controllers, and job metadata that Vitest cannot execute by itself. This package connects the shared cartridge resolver and framework-independent test runtime to Vite's module graph so tests can load real cartridge modules and replace only their external dependencies.
 
+## Choosing the right package
+
+Use this package when cartridge code must run in Vitest. It provides the complete test integration: cartridge resolution, CommonJS transformation, SFCC platform-module fallbacks, globals, dependency mocking, hooks, and execution harnesses.
+
+Use [`@commerce-klaus/vite-plugin-sfcc-modules`](../vite-plugin-sfcc-modules/) only when another Vite-based tool needs cartridge-aware module resolution without the test runtime. `vitest-sfcc` already includes the required resolution behavior, so the two plugins should not be configured together.
+
 ## Features
 
 - Resolves `dw/*`, `*/`, `~/`, cartridge aliases, relative modules, and `module.superModule`.

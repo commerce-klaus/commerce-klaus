@@ -5,27 +5,13 @@ import {
   findContainingCartridgeRoot,
   resolveCartridgeRoots,
   resolveSuperModuleFilePath,
+  type SfccModuleResolutionOptions,
 } from "@commerce-klaus/sfcc-module-resolver"
 
 /**
  * Configuration for SFCC module resolution.
  */
-interface SfccModulesOptions {
-  /** Ordered cartridge lookup path. First match wins. */
-  cartridgePath?: string[]
-  /** Base directory that contains all cartridges from cartridgePath. */
-  basePath: string
-  /** Current working directory used to resolve relative paths. Defaults to process.cwd(). */
-  cwd?: string
-  /** Optional path to the site template root that contains sites/<site>/site.xml. */
-  siteTemplatePath?: string
-  /** Optional site id used to read custom-cartridges from sites/<site>/site.xml. */
-  site?: string
-  /** Optional path to cartridges/jsconfig.json used for reference-based cartridge ordering. */
-  solutionConfigPath?: string
-  /** Optional cartridge path string (colon-separated), same format as SFCC_CARTRIDGE_PATH. */
-  envCartridgePath?: string
-}
+export type SfccModulesOptions = SfccModuleResolutionOptions
 
 /**
  * Vite plugin to resolve SFCC-specific module patterns.

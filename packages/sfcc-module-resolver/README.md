@@ -13,6 +13,10 @@ Shared Node.js utilities for SFCC cartridge order, module resolution, super modu
 - Discovers effective hook scripts in cartridge-path order
 - Reads job step definitions, parameters, status codes, execution capabilities, and task timeouts from `steptypes.json`
 
+`SfccModuleResolutionOptions` is the shared configuration type used by the Vite
+and Vitest adapters. `ResolveCartridgeRootsOptions` extends it with the
+resolver-only `containingFile` option.
+
 ## Install
 
 ```bash

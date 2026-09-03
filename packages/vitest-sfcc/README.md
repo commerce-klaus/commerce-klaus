@@ -15,6 +15,18 @@ Cartridge-aware SFCC runtime and dependency mocking for Vitest.
 - Replaces module dependencies without `proxyquire`
 - Exposes runtime APIs and types through `@commerce-klaus/vitest-sfcc/runtime`
 
+## When to use this package
+
+Use this package when cartridge code must run in Vitest. It includes SFCC module
+resolution, CommonJS transformation, platform-module fallbacks, dependency
+mocking, and test harnesses.
+
+Use
+[`@commerce-klaus/vite-plugin-sfcc-modules`](https://commerce-klaus.github.io/commerce-klaus/packages/vite-plugin-sfcc-modules/)
+only when another Vite-based tool needs cartridge-aware module resolution without
+the test runtime. You do not need to install or configure that plugin alongside
+`vitest-sfcc`.
+
 ## Install
 
 ```bash

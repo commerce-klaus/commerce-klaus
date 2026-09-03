@@ -4,6 +4,7 @@ import {
   findResolvedStepTypeDefinitions,
   resolveCandidateFile,
   resolveCartridgeRoots,
+  type SfccModuleResolutionOptions,
 } from "@commerce-klaus/sfcc-module-resolver"
 import {
   createSfccTestRuntime,
@@ -22,14 +23,7 @@ import {
 import { setActiveStepTypes } from "./job-step.js"
 import { encodeVirtualModule, loadVirtualModule, VIRTUAL_PREFIX } from "./virtual-modules.js"
 
-export interface SfccVitestOptions {
-  cartridgePath?: string[]
-  basePath: string
-  cwd?: string
-  siteTemplatePath?: string
-  site?: string
-  solutionConfigPath?: string
-  envCartridgePath?: string
+export interface SfccVitestOptions extends SfccModuleResolutionOptions {
   runtime?: SfccTestRuntimeOptions
 }
 

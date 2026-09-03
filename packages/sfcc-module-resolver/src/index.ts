@@ -10,7 +10,11 @@ export {
   resolveCartridgesDir,
   resolveSiteTemplatePath,
 } from "./cartridge-order.ts"
-export type { InferCartridgeOrderOptions, ResolveCartridgeRootsOptions } from "./cartridge-order.ts"
+export type {
+  InferCartridgeOrderOptions,
+  ResolveCartridgeRootsOptions,
+  SfccModuleResolutionOptions,
+} from "./cartridge-order.ts"
 
 export {
   findResolvedHookRegistrations,

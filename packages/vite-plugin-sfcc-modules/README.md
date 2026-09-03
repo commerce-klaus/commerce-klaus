@@ -11,6 +11,18 @@ Vite plugin for resolving Salesforce Commerce Cloud server-side module patterns 
 - Resolves cartridge aliases and `module.superModule`
 - Supports explicit and inferred cartridge paths
 
+## When to use this package
+
+Use this plugin when a Vite-based tool needs to resolve SFCC cartridge module
+patterns as part of its module graph. It does not provide SFCC platform modules,
+globals, dependency mocking, or controller and job-step harnesses.
+
+For executing cartridge code in Vitest, use
+[`@commerce-klaus/vitest-sfcc`](https://commerce-klaus.github.io/commerce-klaus/packages/vitest-sfcc/)
+instead. It combines cartridge resolution with CommonJS transformation, an SFCC
+test runtime, and dependency mocking. Do not configure both plugins for the same
+Vitest run.
+
 ## Install
 
 ```bash
