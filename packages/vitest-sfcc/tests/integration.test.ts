@@ -169,6 +169,16 @@ describe("vitest-sfcc", () => {
     expect(subject.default.execute()).toBe("mocked")
   })
 
+  it("does not evaluate a function-local require before the function is called", async () => {
+    const subject = await vi.importActual<{
+      default: { load: () => string; ready: () => boolean }
+    }>("./cartridges/app_custom/cartridge/scripts/function-local-require.js")
+
+    expect(subject.default.ready()).toBe(true)
+    getSfccRuntime().mock("./unloadable-helper", { value: () => "late-mocked" })
+    expect(subject.default.load()).toBe("late-mocked")
+  })
+
   it("loads direct named CommonJS exports", async () => {
     getSfccRuntime().mock("./relative-helper", {
       value: () => "export-mocked",
@@ -180,6 +190,18 @@ describe("vitest-sfcc", () => {
     expect(subject.label).toBe("direct")
     expect(subject.readInline()).toBe("export-mocked")
     expect(subject.readConstant()).toBe("export-mocked")
+  })
+
+  it("loads named CommonJS exports through a lazy cartridge fallback", async () => {
+    getSfccRuntime().mock("./relative-helper", {
+      value: () => "fallback-mocked",
+    })
+
+    const subject = await vi.importActual<{
+      default: { execute: (prefix: string) => string }
+    }>("./cartridges/app_custom/cartridge/scripts/direct-exports.js")
+
+    expect(subject.default.execute("named")).toBe("named:fallback-mocked")
   })
 
   it("runs a transformed script-module job step", async () => {

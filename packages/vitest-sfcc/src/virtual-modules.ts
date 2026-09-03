@@ -53,7 +53,8 @@ let implementation
 try {
   implementation = runtime.resolve(${JSON.stringify(moduleId)}, undefined, ${JSON.stringify(resolvedPath)})
 } catch {
-  const fallback = (await import(${JSON.stringify(`${resolvedPath}${CARTRIDGE_MODULE_SUFFIX}`)})).default
+  const fallbackModule = await import(${JSON.stringify(`${resolvedPath}${CARTRIDGE_MODULE_SUFFIX}`)})
+  const fallback = "default" in fallbackModule ? fallbackModule.default : fallbackModule
   implementation = runtime.resolve(${JSON.stringify(moduleId)}, () => fallback, ${JSON.stringify(resolvedPath)})
 }
 export default implementation

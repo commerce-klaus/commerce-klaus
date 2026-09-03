@@ -1,4 +1,6 @@
 import { resolveSuperModuleFilePath } from "@commerce-klaus/sfcc-module-resolver"
+import { parse, type Node } from "acorn"
+import { ancestor } from "acorn-walk"
 import path from "node:path"
 
 export const CARTRIDGE_MODULE_SUFFIX = "?vitest-sfcc-cjs"
@@ -41,6 +43,7 @@ export function transformCartridgeCommonJs(
   const requireImports: string[] = []
   const requiredBindings = new Map<string, string>()
   const constantModuleIds = new Map<string, string>()
+  const lazyRequireRanges: Array<{ end: number; moduleId: string; start: number }> = []
 
   for (const match of transformed.matchAll(
     /\bconst\s+([A-Za-z_$][\w$]*)\s*=\s*(["'])([^"']+)\2\s*;?/g,
@@ -58,6 +61,45 @@ export function transformCartridgeCommonJs(
     requireImports.push(`import ${importedBinding} from ${JSON.stringify(moduleId)}`)
     requiredBindings.set(moduleId, importedBinding)
     return importedBinding
+  }
+
+  ancestor(parse(transformed, { ecmaVersion: "latest", sourceType: "script" }), {
+    CallExpression(node, ancestors: Node[]) {
+      if (
+        node.callee.type !== "Identifier" ||
+        node.callee.name !== "require" ||
+        node.arguments.length !== 1
+      ) {
+        return
+      }
+
+      const argument = node.arguments[0]
+      const moduleId =
+        argument.type === "Literal" && typeof argument.value === "string"
+          ? argument.value
+          : argument.type === "Identifier"
+            ? constantModuleIds.get(argument.name)
+            : undefined
+      if (!moduleId) {
+        return
+      }
+
+      const insideFunction = ancestors.some(
+        (ancestorNode: Node) =>
+          ancestorNode.type === "FunctionDeclaration" ||
+          ancestorNode.type === "FunctionExpression" ||
+          ancestorNode.type === "ArrowFunctionExpression",
+      )
+      if (insideFunction) {
+        lazyRequireRanges.push({ end: node.end, moduleId, start: node.start })
+      }
+    },
+  })
+
+  for (const { end, moduleId, start } of lazyRequireRanges.toSorted(
+    (left, right) => right.start - left.start,
+  )) {
+    transformed = `${transformed.slice(0, start)}__sfcc_require(${JSON.stringify(moduleId)})${transformed.slice(end)}`
   }
 
   if (transformed.includes("module.superModule")) {
@@ -82,7 +124,10 @@ export function transformCartridgeCommonJs(
       return moduleId ? importRequiredModule(moduleId) : match
     },
   )
-  transformed = `${requireImports.join("\n")}\n${transformed}`
+  const runtimeImport = lazyRequireRanges.length
+    ? 'import { requireSfccModule as __sfcc_require } from "@commerce-klaus/sfcc-test-runtime"\n'
+    : ""
+  transformed = `${runtimeImport}${requireImports.join("\n")}\n${transformed}`
 
   transformed = transformed.replace(
     /^\s*(?:module\.)?exports\.([A-Za-z_$][\w$]*)\s*=\s*([A-Za-z_$][\w$]*)\s*;?\s*$/gm,

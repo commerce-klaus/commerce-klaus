@@ -49,7 +49,9 @@
   },
   "dependencies": {
     "@commerce-klaus/sfcc-module-resolver": "workspace:*",
-    "@commerce-klaus/sfcc-test-runtime": "workspace:*"
+    "@commerce-klaus/sfcc-test-runtime": "workspace:*",
+    "acorn": "^8.15.0",
+    "acorn-walk": "^8.3.4"
   },
   "devDependencies": {
     "@types/node": "catalog:",
