@@ -2,6 +2,7 @@ import type { Linter } from "eslint"
 
 import sfcc from "../plugins/sfcc/index.js"
 import sitegenesis from "../plugins/sitegenesis/index.js"
+import { normalizeCartridgesDir } from "./normalize-cartridges-dir.js"
 
 export type StorefrontPreset =
   | "storefront-next"
@@ -63,7 +64,7 @@ export function createStorefrontConfig(
   options: StorefrontConfigOptions = {},
 ): Linter.Config[] {
   const { cartridgesDir = "cartridges", cartridges, files } = options
-  const normalizedCartridgesDir = cartridgesDir.replace(/\/+$/u, "") || "/"
+  const normalizedCartridgesDir = normalizeCartridgesDir(cartridgesDir)
   const cartridgeNames = cartridges?.filter((cartridge) => cartridge.trim().length > 0)
   const targetFiles =
     files ??

@@ -9,6 +9,7 @@ import sfcc from "../plugins/sfcc/index.js"
 import sitegenesis from "../plugins/sitegenesis/index.js"
 import rules from "../rules/index.js"
 import sfccGlobals from "../sfcc-globals.js"
+import { normalizeCartridgesDir } from "./normalize-cartridges-dir.js"
 
 const restrictToES2015Config = pluginESx.configs["restrict-to-es2015"]
 
@@ -26,7 +27,7 @@ export interface RecommendedConfigOptions {
 /** Creates the recommended flat config for SFCC projects. */
 export function createRecommendedConfig(options: RecommendedConfigOptions = {}): Linter.Config[] {
   const { cartridgesDir = "cartridges", files, ignores, sfcc: sfccOptions } = options
-  const normalizedCartridgesDir = cartridgesDir.replace(/\/+$/u, "") || "/"
+  const normalizedCartridgesDir = normalizeCartridgesDir(cartridgesDir)
   const targetFiles = files ?? [withBaseDir("**/*.{js,ds}")]
   const ignoredPaths = ignores ?? [
     withBaseDir("*/cartridge/client/**"),

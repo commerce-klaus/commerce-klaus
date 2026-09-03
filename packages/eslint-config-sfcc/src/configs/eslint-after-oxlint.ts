@@ -5,6 +5,7 @@ import globals from "globals"
 
 import sfcc from "../plugins/sfcc/index.js"
 import sfccGlobals from "../sfcc-globals.js"
+import { normalizeCartridgesDir } from "./normalize-cartridges-dir.js"
 
 export interface EslintAfterOxlintConfigOptions {
   /** Base directory that contains all cartridges (with or without trailing /). */
@@ -20,7 +21,7 @@ export function createEslintAfterOxlintConfig(
   options: EslintAfterOxlintConfigOptions = {},
 ): Linter.Config[] {
   const { cartridgesDir = "cartridges", files, ignores } = options
-  const normalizedCartridgesDir = cartridgesDir.replace(/\/+$/u, "") || "/"
+  const normalizedCartridgesDir = normalizeCartridgesDir(cartridgesDir)
   const targetFiles = files ?? [withBaseDir("**/*.{js,ds}")]
   const ignoredPaths = ignores ?? [
     withBaseDir("*/cartridge/client/**"),
