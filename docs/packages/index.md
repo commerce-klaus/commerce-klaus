@@ -18,6 +18,10 @@ Commerce Klaus covers the development loop around SFCC server-side JavaScript: s
 
 [`@commerce-klaus/sfcc-test-runtime`](./sfcc-test-runtime/) is the framework-independent runtime core used by the Vitest integration. It provides isolated module replacements and focused implementations of common `dw/*` modules.
 
+## Package maturity
+
+[`@commerce-klaus/vitest-sfcc`](./vitest-sfcc/) and [`@commerce-klaus/sfcc-test-runtime`](./sfcc-test-runtime/) are currently published as pre-1.0 (`0.x`) packages. Their APIs are usable but not yet considered stable, and minor releases may contain breaking changes until `1.0.0`. Review their changelogs when upgrading.
+
 ## What is shared?
 
 The packages agree on cartridge order and the meaning of these platform-specific patterns:

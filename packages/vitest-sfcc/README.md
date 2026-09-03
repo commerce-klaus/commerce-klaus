@@ -1,6 +1,27 @@
 # @commerce-klaus/vitest-sfcc
 
+[![NPM version][npm-image]][npm-url] [![Downloads][npm-downloads-image]][npm-url]
+
 Cartridge-aware SFCC runtime and dependency mocking for Vitest.
+
+> [!IMPORTANT]
+> This package is currently a pre-1.0 (`0.x`) release. Its API is usable but not yet considered stable, and minor releases may contain breaking changes until `1.0.0`.
+
+## Highlights
+
+- Resolves `dw/*`, `*/`, `~/`, cartridge aliases, relative modules, and `module.superModule`
+- Infers cartridge order from configuration, environment, `jsconfig`, or `site.xml`
+- Provides focused SFCC runtime modules, globals, controllers, hooks, and job steps
+- Replaces module dependencies without `proxyquire`
+- Exposes runtime APIs and types through `@commerce-klaus/vitest-sfcc/runtime`
+
+## Install
+
+```bash
+pnpm add -D @commerce-klaus/vitest-sfcc vitest
+```
+
+## Usage
 
 ```ts
 import { defineConfig } from "vite-plus"
@@ -117,6 +138,14 @@ The initial release resolves `dw/*`, `*/`, `~/`, cartridge aliases, and
 `HookMgr`. Hook registrations are discovered automatically from each cartridge's
 declared `hooks.json`, using cartridge-path priority.
 
+## Documentation
+
+See the [complete configuration and testing reference](https://commerce-klaus.github.io/commerce-klaus/packages/vitest-sfcc/).
+
 ## License
 
 MIT
+
+[npm-url]: https://www.npmjs.com/package/@commerce-klaus/vitest-sfcc
+[npm-image]: https://badgen.net/npm/v/@commerce-klaus/vitest-sfcc
+[npm-downloads-image]: https://badgen.net/npm/dw/@commerce-klaus/vitest-sfcc

@@ -1,12 +1,70 @@
 # @commerce-klaus/vitest-sfcc
 
+[![NPM version][npm-image]][npm-url] [![Downloads][npm-downloads-image]][npm-url]
+
 Cartridge-aware SFCC runtime and dependency mocking for Vitest. It provides a modern alternative to `proxyquire` for statically analyzable cartridge modules.
+
+::: warning Pre-1.0 package
+This package is currently published as a `0.x` release. Its API is usable but not yet considered stable; minor releases may contain breaking changes until `1.0.0`. Review the changelog when upgrading.
+:::
+
+## TL;DR
+
+```ts{2,5-9} [vitest.config.ts]
+import { defineConfig } from "vitest/config"
+import sfccVitest from "@commerce-klaus/vitest-sfcc"
+
+export default defineConfig({
+  plugins: [
+    sfccVitest({
+      basePath: "./cartridges",
+      cartridgePath: ["app_custom", "app_storefront_base"],
+    }),
+  ],
+})
+```
+
+```ts [payment.test.ts]
+import { resetSfccRuntime } from "@commerce-klaus/vitest-sfcc"
+
+const runtime = resetSfccRuntime()
+runtime.mock("*/cartridge/scripts/payment/provider", providerMock)
+
+const payment = await import("../cartridge/scripts/payment.js")
+```
+
+## Why this package exists
+
+SFCC cartridge code uses CommonJS, cartridge-specific module identifiers, platform modules, globals, hooks, controllers, and job metadata that Vitest cannot execute by itself. This package connects the shared cartridge resolver and framework-independent test runtime to Vite's module graph so tests can load real cartridge modules and replace only their external dependencies.
+
+## Features
+
+- Resolves `dw/*`, `*/`, `~/`, cartridge aliases, relative modules, and `module.superModule`.
+- Infers cartridge order from explicit configuration, environment, `jsconfig`, or `site.xml`.
+- Provides focused SFCC runtime modules, globals, SFRA controller execution, hooks, and job steps.
+- Supports specifier mocks and exact resolved-file mocks without `proxyquire`.
+- Loads CommonJS cartridge modules through the normal Vite and Vitest pipeline.
+- Exposes runtime-only APIs and types through `@commerce-klaus/vitest-sfcc/runtime`.
 
 ## Installation
 
-```bash
+::: code-group
+
+```bash [pnpm]
 pnpm add -D @commerce-klaus/vitest-sfcc vitest
 ```
+
+```bash [yarn]
+yarn add -D @commerce-klaus/vitest-sfcc vitest
+```
+
+```bash [npm]
+npm install -D @commerce-klaus/vitest-sfcc vitest
+```
+
+:::
+
+Do not install `@commerce-klaus/sfcc-test-runtime` separately when using the Vitest integration. It is an internal dependency and its public APIs are re-exported through `@commerce-klaus/vitest-sfcc/runtime`.
 
 ## Configuration
 
@@ -27,7 +85,53 @@ export default defineConfig({
 })
 ```
 
-The cartridge order can also be inferred from the same environment, solution config, and site-template options supported by the shared module resolver.
+The cartridge order can also be read from a site template:
+
+```ts{5-7} [vitest.config.ts]
+sfccVitest({
+  basePath: "./cartridges",
+  siteTemplatePath: "./sites/site_template",
+  site: "RefArch",
+})
+```
+
+This reads `sites/<site>/site.xml` below `siteTemplatePath` and uses its `custom-cartridges` value.
+
+### Options
+
+| Option               | Type                     | Required | Description                                                                    |
+| -------------------- | ------------------------ | -------- | ------------------------------------------------------------------------------ |
+| `basePath`           | `string`                 | yes      | Directory containing the project cartridges.                                   |
+| `cartridgePath`      | `string[]`               | no       | Explicit cartridge order. First match wins.                                    |
+| `cwd`                | `string`                 | no       | Working directory used to resolve relative paths. Defaults to `process.cwd()`. |
+| `siteTemplatePath`   | `string`                 | no       | Site-template root containing `sites/<site>/site.xml`.                         |
+| `site`               | `string`                 | no       | Site identifier used to read `custom-cartridges` from `site.xml`.              |
+| `solutionConfigPath` | `string`                 | no       | Path to `cartridges/jsconfig.json` for reference-based cartridge order.        |
+| `envCartridgePath`   | `string`                 | no       | Colon-separated cartridge order, matching `SFCC_CARTRIDGE_PATH`.               |
+| `runtime`            | `SfccTestRuntimeOptions` | no       | Initial runtime options, including the current site id and custom preferences. |
+
+If `cartridgePath` is omitted, order is inferred with this precedence:
+
+1. `envCartridgePath` or `SFCC_CARTRIDGE_PATH`
+2. references from `solutionConfigPath` or `cartridges/jsconfig.json`
+3. `custom-cartridges` from `siteTemplatePath` and `site`
+4. alphabetical filesystem fallback
+
+The same inference rules are shared by the other Commerce Klaus packages through [`@commerce-klaus/sfcc-module-resolver`](../sfcc-module-resolver/).
+
+## Runtime API
+
+Application tests can import the common helpers from the package root. Tooling integrations and tests that only need runtime APIs or types can use the lightweight subpath:
+
+```ts
+import {
+  getSfccRuntime,
+  resetSfccRuntime,
+  type SfccModule,
+} from "@commerce-klaus/vitest-sfcc/runtime"
+```
+
+Both entry points address the same active runtime. `resetSfccRuntime()` creates and activates a fresh instance; `getSfccRuntime()` returns the active instance.
 
 ## Dependency mocking
 
@@ -264,6 +368,27 @@ function getHookManager() {
 
 Mutable or computed module IDs and mutations of an existing export property fail with an explicit diagnostic. Supporting additional CommonJS patterns is planned as the transformer matures.
 
+## Relationship to @commerce-klaus/sfcc-test-runtime
+
+`@commerce-klaus/vitest-sfcc` owns cartridge discovery, Vite transformation, virtual modules, hook and job metadata discovery, and the active test lifecycle. [`@commerce-klaus/sfcc-test-runtime`](../sfcc-test-runtime/) is the framework-independent core that provides module mocks, globals, platform modules, and execution harnesses.
+
+Most Vitest projects should install only `@commerce-klaus/vitest-sfcc`. Install the runtime package directly only when building another test-runner integration or using the runtime without Vite and Vitest.
+
+## Development
+
+This repository uses Vite+ (`vp`):
+
+```bash
+vp install
+vp check
+vp test
+vp run build
+```
+
 ## License
 
 MIT
+
+[npm-url]: https://www.npmjs.com/package/@commerce-klaus/vitest-sfcc
+[npm-image]: https://badgen.net/npm/v/@commerce-klaus/vitest-sfcc
+[npm-downloads-image]: https://badgen.net/npm/dw/@commerce-klaus/vitest-sfcc

@@ -1,14 +1,86 @@
 # @commerce-klaus/sfcc-test-runtime
 
+[![NPM version][npm-image]][npm-url] [![Downloads][npm-downloads-image]][npm-url]
+
 Framework-independent SFCC runtime modules and dependency mocking for local tests.
+
+::: warning Pre-1.0 package
+This package is currently published as a `0.x` release. Its API is usable but not yet considered stable; minor releases may contain breaking changes until `1.0.0`. Review the changelog when upgrading.
+:::
+
+## TL;DR
+
+Most Vitest projects should install [`@commerce-klaus/vitest-sfcc`](../vitest-sfcc/) and access runtime APIs through `@commerce-klaus/vitest-sfcc/runtime`. Install this package directly only when using the runtime without Vitest or building another test-runner integration.
+
+```ts
+import { createSfccTestRuntime } from "@commerce-klaus/sfcc-test-runtime"
+
+const runtime = createSfccTestRuntime({
+  site: {
+    id: "RefArch",
+    preferences: { reviewsEnabled: true },
+  },
+})
+
+runtime.mock("dw/system/Logger", loggerMock)
+runtime.setGlobals({ request, session, customer })
+```
+
+## Why this package exists
+
+Tests often need a small, deterministic subset of SFCC behavior without coupling that behavior to Vite, Vitest, cartridge discovery, or filesystem resolution. This package provides that framework-independent core: an explicit module registry, controlled globals, focused platform modules, and execution harnesses for controllers, hooks, and job steps.
+
+It intentionally does not emulate the complete SFCC platform. Unknown modules fail unless a caller registers a mock or supplies a real-module fallback.
+
+## Features
+
+- Replaces module identifiers globally or one exact resolved file.
+- Installs and restores controlled SFCC process globals.
+- Implements focused `dw/system` and `dw/util` modules used by local tests.
+- Executes SFRA controller routes, hooks, script-module job steps, and chunk jobs.
+- Records logger, transaction, and hook calls for assertions.
+- Remains independent of Vite, Vitest, cartridge paths, and site-template files.
 
 ## Installation
 
-```bash
+::: code-group
+
+```bash [pnpm]
 pnpm add -D @commerce-klaus/sfcc-test-runtime
 ```
 
-Most projects install [`@commerce-klaus/vitest-sfcc`](../vitest-sfcc/) instead, which includes this runtime and connects it to the Vite module graph.
+```bash [yarn]
+yarn add -D @commerce-klaus/sfcc-test-runtime
+```
+
+```bash [npm]
+npm install -D @commerce-klaus/sfcc-test-runtime
+```
+
+:::
+
+Do not add this direct dependency when `@commerce-klaus/vitest-sfcc` already owns the test integration. Use its `@commerce-klaus/vitest-sfcc/runtime` subpath instead.
+
+## Runtime API
+
+Create an isolated runtime instance for each test context:
+
+```ts
+import { createSfccTestRuntime } from "@commerce-klaus/sfcc-test-runtime"
+
+const runtime = createSfccTestRuntime({
+  site: {
+    id: "RefArch",
+    preferences: { reviewsEnabled: true },
+  },
+})
+
+runtime.mock("dw/system/Logger", loggerMock)
+runtime.mockResolved("/workspace/cartridges/app_custom/cartridge/scripts/provider.js", providerMock)
+runtime.reset()
+```
+
+`mock()` targets the original module identifier. This is useful for platform modules and shared identifiers such as `*/cartridge/scripts/provider` or `./helper`. `mockResolved()` targets exactly one absolute cartridge file and takes precedence when identical relative identifiers occur in different directories.
 
 ## Runtime modules
 
@@ -43,23 +115,6 @@ These implementations model behavior needed by tests and expose call history whe
 ### Calendar
 
 `dw/util/Calendar` provides deterministic UTC behavior for construction from the current time or a `Date`, defensive `time`/`getTime()`/`setTime()` copies, and common year, month, date, day-of-year, day-of-week, hour, minute, second, and millisecond fields. `get()`, `set()`, and `add()` support the corresponding field constants. `before()`, `after()`, `compareTo()`, `equals()`, `isSameDay()`, and `isLeapYear()` cover common comparison logic. Parsing, rolling, clearing, locale patterns, and time-zone conversion are not modeled.
-
-```ts
-import { createSfccTestRuntime } from "@commerce-klaus/sfcc-test-runtime"
-
-const runtime = createSfccTestRuntime({
-  site: {
-    id: "RefArch",
-    preferences: { reviewsEnabled: true },
-  },
-})
-
-runtime.mock("dw/system/Logger", loggerMock)
-runtime.mockResolved("/workspace/cartridges/app_custom/cartridge/scripts/provider.js", providerMock)
-runtime.reset()
-```
-
-`mock()` targets the original module identifier. This is useful for platform modules and shared identifiers such as `*/cartridge/scripts/provider` or `./helper`. `mockResolved()` targets exactly one absolute cartridge file and takes precedence when identical relative identifiers occur in different directories.
 
 ## SFCC globals
 
@@ -208,6 +263,27 @@ The harness calls `beforeStep`, obtains the optional total count, and runs `read
 
 An unknown module fails with an actionable error unless the caller supplies a real cartridge fallback. This prevents incomplete platform behavior from making tests pass accidentally.
 
+## Relationship to @commerce-klaus/vitest-sfcc
+
+This package does not read cartridge paths, `jsconfig.json`, `site.xml`, `hooks.json`, or `steptypes.json`, and it does not transform CommonJS. Those project-facing responsibilities belong to [`@commerce-klaus/vitest-sfcc`](../vitest-sfcc/) and the shared module resolver.
+
+`@commerce-klaus/vitest-sfcc` depends on this package internally and exposes its consumer-facing APIs and types through `@commerce-klaus/vitest-sfcc/runtime`. Direct consumers of this package are typically test-runner adapters or custom harnesses.
+
+## Development
+
+This repository uses Vite+ (`vp`):
+
+```bash
+vp install
+vp check
+vp test
+vp run build
+```
+
 ## License
 
 MIT
+
+[npm-url]: https://www.npmjs.com/package/@commerce-klaus/sfcc-test-runtime
+[npm-image]: https://badgen.net/npm/v/@commerce-klaus/sfcc-test-runtime
+[npm-downloads-image]: https://badgen.net/npm/dw/@commerce-klaus/sfcc-test-runtime
