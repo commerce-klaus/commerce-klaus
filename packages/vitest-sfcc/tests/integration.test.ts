@@ -1,7 +1,9 @@
 import path from "node:path"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
+import { transformCartridgeCommonJs } from "../src/cartridge-transform.js"
 import sfccVitest, { getSfccRuntime, loadSfccJobStep } from "../src/index.js"
+import { encodeVirtualModule, loadVirtualModule } from "../src/virtual-modules.js"
 
 describe("vitest-sfcc", () => {
   beforeEach(() => {
@@ -120,6 +122,21 @@ describe("vitest-sfcc", () => {
     const applicationPath = path.resolve(import.meta.dirname, "application-module.js")
 
     expect(plugin.resolveId(applicationPath)).toBeUndefined()
+  })
+
+  it("generates imports through the public vitest-sfcc runtime entry", () => {
+    const cartridgeRoot = path.resolve(import.meta.dirname, "cartridges/app_custom")
+    const transformed = transformCartridgeCommonJs(
+      'exports.load = function () { return require("dw/system/Site") }',
+      path.join(cartridgeRoot, "cartridge/scripts/subject.js"),
+      [cartridgeRoot],
+    )
+    const virtualModule = loadVirtualModule(encodeVirtualModule({ moduleId: "dw/system/Site" }), [])
+
+    expect(transformed).toContain('from "@commerce-klaus/vitest-sfcc/runtime"')
+    expect(virtualModule).toContain('from "@commerce-klaus/vitest-sfcc/runtime"')
+    expect(transformed).not.toContain("@commerce-klaus/sfcc-test-runtime")
+    expect(virtualModule).not.toContain("@commerce-klaus/sfcc-test-runtime")
   })
 
   it("resolves and replaces cartridge aliases", async () => {

@@ -125,7 +125,7 @@ export function transformCartridgeCommonJs(
     },
   )
   const runtimeImport = lazyRequireRanges.length
-    ? 'import { requireSfccModule as __sfcc_require } from "@commerce-klaus/sfcc-test-runtime"\n'
+    ? 'import { requireSfccModule as __sfcc_require } from "@commerce-klaus/vitest-sfcc/runtime"\n'
     : ""
   transformed = `${runtimeImport}${requireImports.join("\n")}\n${transformed}`
 

@@ -1,18 +1,28 @@
-import type {
-  ResolvedStepTypeDefinition,
-  StepTypeExecutionMetadata,
-  StepTypeParameterDefinition,
-} from "@commerce-klaus/sfcc-module-resolver"
+import {
+  createSfccTestRuntime,
+  getSfccTestRuntime,
+  requireSfccModule,
+  setSfccTestRuntime,
+  type SfccTestRuntime,
+  type SfccTestRuntimeOptions,
+} from "@commerce-klaus/sfcc-test-runtime"
 
-export { loadSfccJobStep, type SfccLoadedJobStep } from "./job-step.js"
-export { default } from "./plugin.js"
-export type { SfccVitestOptions, SfccVitestPlugin } from "./plugin.js"
-export { getSfccRuntime, requireSfccModule, resetSfccRuntime } from "./runtime.js"
+export function getSfccRuntime(): SfccTestRuntime {
+  return getSfccTestRuntime()
+}
 
+export function resetSfccRuntime(options?: SfccTestRuntimeOptions): SfccTestRuntime {
+  const runtime = createSfccTestRuntime(options)
+  setSfccTestRuntime(runtime)
+  return runtime
+}
+
+export { requireSfccModule }
 export type {
   LoggerEntry,
   SfccArrayList,
   SfccCalendar,
+  SfccCollection,
   SfccController,
   SfccControllerHarness,
   SfccControllerMiddleware,
@@ -20,16 +30,16 @@ export type {
   SfccControllerRequest,
   SfccControllerResponse,
   SfccControllerRoute,
-  SfccCollection,
   SfccChunkItems,
   SfccChunkStepFunctions,
   SfccChunkStepResult,
   SfccChunkStepRunOptions,
   SfccGlobals,
   SfccHashMap,
+  SfccHookImplementation,
+  SfccIterator,
   SfccJobContext,
   SfccJobExecution,
-  SfccIterator,
   SfccJobStepExecution,
   SfccJobStepHarness,
   SfccJobStepHarnessOptions,
@@ -44,6 +54,4 @@ export type {
   SfccStringUtils,
   SfccTestRuntime,
   SfccTestRuntimeOptions,
-} from "./runtime.js"
-
-export type { ResolvedStepTypeDefinition, StepTypeExecutionMetadata, StepTypeParameterDefinition }
+} from "@commerce-klaus/sfcc-test-runtime"

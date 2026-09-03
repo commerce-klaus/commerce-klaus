@@ -25,6 +25,15 @@ getSfccRuntime().mock("*/cartridge/scripts/provider", providerMock)
 const subject = await import("../cartridge/scripts/subject.js")
 ```
 
+Runtime-only APIs and types are also available from the lightweight subpath:
+
+```ts
+import { resetSfccRuntime, type SfccModule } from "@commerce-klaus/vitest-sfcc/runtime"
+```
+
+Consumer projects only need to install `@commerce-klaus/vitest-sfcc`; its
+framework-independent runtime remains an internal dependency.
+
 The SFCC `empty()` global is available by default, including SFCC collections
 through `isEmpty()`. Use
 `getSfccRuntime().setGlobals({ request, session, customer })` for additional

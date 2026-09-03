@@ -39,16 +39,16 @@ export function loadVirtualModule(
       .join("\n")
 
     return `${imports}
-import { getSfccTestRuntime } from "@commerce-klaus/sfcc-test-runtime"
-const runtime = getSfccTestRuntime()
+  import { getSfccRuntime } from "@commerce-klaus/vitest-sfcc/runtime"
+  const runtime = getSfccRuntime()
 ${registrations}
 export default runtime.resolve("dw/system/HookMgr")
 `
   }
 
   if (resolvedPath) {
-    return `import { getSfccTestRuntime } from "@commerce-klaus/sfcc-test-runtime"
-const runtime = getSfccTestRuntime()
+    return `import { getSfccRuntime } from "@commerce-klaus/vitest-sfcc/runtime"
+  const runtime = getSfccRuntime()
 let implementation
 try {
   implementation = runtime.resolve(${JSON.stringify(moduleId)}, undefined, ${JSON.stringify(resolvedPath)})
@@ -61,7 +61,7 @@ export default implementation
 `
   }
 
-  return `import { requireSfccModule } from "@commerce-klaus/sfcc-test-runtime"
+  return `import { requireSfccModule } from "@commerce-klaus/vitest-sfcc/runtime"
 const implementation = requireSfccModule(${JSON.stringify(moduleId)})
 export default implementation
 `
