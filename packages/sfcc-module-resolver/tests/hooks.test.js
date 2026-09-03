@@ -121,7 +121,7 @@ test("findResolvedHookRegistrations uses the first resolvable hook in cartridge 
       })
       const scriptPath = path.join(cartridgeRoot, "cartridge", "scripts", "hooks", "payment.js")
       fs.mkdirSync(path.dirname(scriptPath), { recursive: true })
-      fs.writeFileSync(scriptPath, `exports.authorize = () => ${JSON.stringify(value)}\n`)
+      fs.writeFileSync(scriptPath, 'exports.authorize = () => "authorized"\n')
     }
 
     expect(findResolvedHookRegistrations([customRoot, baseRoot])).toEqual([

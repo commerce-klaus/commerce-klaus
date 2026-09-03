@@ -139,6 +139,26 @@ describe("vitest-sfcc", () => {
     expect(virtualModule).not.toContain("@commerce-klaus/sfcc-test-runtime")
   })
 
+  it("escapes unsafe characters in generated virtual modules", () => {
+    const moduleId = 'dw/system/Test</script>"\n\u2028\u2029'
+    const virtualModule = loadVirtualModule(encodeVirtualModule({ moduleId }), [])
+
+    expect(virtualModule).toContain("\\u003c/script\\u003e")
+    expect(virtualModule).toContain("\\u2028\\u2029")
+    expect(virtualModule).not.toContain("</script>")
+  })
+
+  it("transforms named exports with long trailing whitespace", () => {
+    const cartridgeRoot = path.resolve(import.meta.dirname, "cartridges/app_custom")
+    const transformed = transformCartridgeCommonJs(
+      `const handler = () => true\nexports.handler = handler;${" ".repeat(10_000)}`,
+      path.join(cartridgeRoot, "cartridge/scripts/subject.js"),
+      [cartridgeRoot],
+    )
+
+    expect(transformed).toContain("export { handler as handler }")
+  })
+
   it("resolves and replaces cartridge aliases", async () => {
     getSfccRuntime().mock("app_base/cartridge/scripts/provider", {
       value: () => "alias-mocked",

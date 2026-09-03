@@ -19,6 +19,21 @@ function decodeVirtualModule(id: string): VirtualModule {
   ) as VirtualModule
 }
 
+function encodeJavaScriptLiteral(value: string): string {
+  return JSON.stringify(value).replace(/[<>\u2028\u2029]/g, (character) => {
+    switch (character) {
+      case "<":
+        return "\\u003c"
+      case ">":
+        return "\\u003e"
+      case "\u2028":
+        return "\\u2028"
+      default:
+        return "\\u2029"
+    }
+  })
+}
+
 export function loadVirtualModule(
   id: string,
   hookRegistrations: ResolvedHookRegistration[],
@@ -28,13 +43,13 @@ export function loadVirtualModule(
     const imports = hookRegistrations
       .map(
         (registration, index) =>
-          `import * as hook${index} from ${JSON.stringify(`${registration.scriptPath}${CARTRIDGE_MODULE_SUFFIX}`)}`,
+          `import * as hook${index} from ${encodeJavaScriptLiteral(`${registration.scriptPath}${CARTRIDGE_MODULE_SUFFIX}`)}`,
       )
       .join("\n")
     const registrations = hookRegistrations
       .map(
         (registration, index) =>
-          `runtime.registerHook(${JSON.stringify(registration.name)}, "default" in hook${index} ? hook${index}.default : hook${index})`,
+          `runtime.registerHook(${encodeJavaScriptLiteral(registration.name)}, "default" in hook${index} ? hook${index}.default : hook${index})`,
       )
       .join("\n")
 
@@ -51,18 +66,18 @@ export default runtime.resolve("dw/system/HookMgr")
   const runtime = getSfccRuntime()
 let implementation
 try {
-  implementation = runtime.resolve(${JSON.stringify(moduleId)}, undefined, ${JSON.stringify(resolvedPath)})
+  implementation = runtime.resolve(${encodeJavaScriptLiteral(moduleId)}, undefined, ${encodeJavaScriptLiteral(resolvedPath)})
 } catch {
-  const fallbackModule = await import(${JSON.stringify(`${resolvedPath}${CARTRIDGE_MODULE_SUFFIX}`)})
+  const fallbackModule = await import(${encodeJavaScriptLiteral(`${resolvedPath}${CARTRIDGE_MODULE_SUFFIX}`)})
   const fallback = "default" in fallbackModule ? fallbackModule.default : fallbackModule
-  implementation = runtime.resolve(${JSON.stringify(moduleId)}, () => fallback, ${JSON.stringify(resolvedPath)})
+  implementation = runtime.resolve(${encodeJavaScriptLiteral(moduleId)}, () => fallback, ${encodeJavaScriptLiteral(resolvedPath)})
 }
 export default implementation
 `
   }
 
   return `import { requireSfccModule } from "@commerce-klaus/vitest-sfcc/runtime"
-const implementation = requireSfccModule(${JSON.stringify(moduleId)})
+const implementation = requireSfccModule(${encodeJavaScriptLiteral(moduleId)})
 export default implementation
 `
 }

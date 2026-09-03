@@ -130,11 +130,11 @@ export function transformCartridgeCommonJs(
   transformed = `${runtimeImport}${requireImports.join("\n")}\n${transformed}`
 
   transformed = transformed.replace(
-    /^\s*(?:module\.)?exports\.([A-Za-z_$][\w$]*)\s*=\s*([A-Za-z_$][\w$]*)\s*;?\s*$/gm,
+    /^[ \t]*(?:module\.)?exports\.([A-Za-z_$][\w$]*)[ \t]*=[ \t]*([A-Za-z_$][\w$]*);?[ \t]*$/gm,
     (_match, exportName: string, binding: string) => `export { ${binding} as ${exportName} }`,
   )
   transformed = transformed.replace(
-    /^\s*(?:module\.)?exports\.([A-Za-z_$][\w$]*)\s*=/gm,
+    /^[ \t]*(?:module\.)?exports\.([A-Za-z_$][\w$]*)[ \t]*=[ \t]*/gm,
     (_match, exportName: string) => `export const ${exportName} =`,
   )
   transformed = transformed.replace(/\bmodule\.exports\s*=/g, "export default")
