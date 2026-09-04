@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.7.1
+
+### Patch Changes
+
+- 927064b: Prevent polynomial regular expression denial of service when normalizing cartridge directory paths.
+- Updated dependencies [2f1e1f5]
+- Updated dependencies [8dce661]
+  - @commerce-klaus/sfcc-module-resolver@1.5.0
+
 ## 1.7.0
 
 ### Minor Changes

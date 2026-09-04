@@ -1,5 +1,17 @@
 # @commerce-klaus/sfcc-module-resolver
 
+## 1.5.0
+
+### Minor Changes
+
+- 2f1e1f5: Add cartridge-aware discovery for hook registrations and `steptypes.json` job definitions.
+
+  The resolver now selects effective hooks and step types by cartridge priority, resolves their script modules, and exposes normalized job parameters, status codes, timeouts, descriptions, and execution capabilities for test-runner integrations.
+
+- 8dce661: Add a shared `SfccModuleResolutionOptions` type for SFCC-aware tooling integrations.
+
+  The Vite and Vitest adapters now derive their cartridge-resolution configuration from the shared resolver type. Their documentation also clarifies when to use module-graph resolution alone and when to use the complete Vitest runtime, transformation, and mocking integration.
+
 ## 1.4.0
 
 ### Minor Changes
