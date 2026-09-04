@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.1.2
+
+### Patch Changes
+
+- 8dce661: Add a shared `SfccModuleResolutionOptions` type for SFCC-aware tooling integrations.
+
+  The Vite and Vitest adapters now derive their cartridge-resolution configuration from the shared resolver type. Their documentation also clarifies when to use module-graph resolution alone and when to use the complete Vitest runtime, transformation, and mocking integration.
+
+- Updated dependencies [2f1e1f5]
+- Updated dependencies [8dce661]
+  - @commerce-klaus/sfcc-module-resolver@1.5.0
+
 ## 1.1.1
 
 ### Patch Changes

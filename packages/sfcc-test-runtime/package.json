@@ -1,6 +1,6 @@
 {
   "name": "@commerce-klaus/sfcc-test-runtime",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Framework-independent SFCC runtime modules and dependency mocking for local tests",
   "keywords": [
     "commercecloud",
