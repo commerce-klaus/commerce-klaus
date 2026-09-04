@@ -56,6 +56,7 @@ test("generateJobStepTypes creates declarations from effective steptypes.json de
               "@type-id": "custom.ExportProducts",
               "chunk-size": 100,
               module: "app_jobs/cartridge/scripts/chunk",
+              "after-step-function": "finish",
               "read-function": "readNext",
               "write-function": "writeBatch",
             },
@@ -89,6 +90,9 @@ test("generateJobStepTypes creates declarations from effective steptypes.json de
     )
     expect(generatedContent).toContain(
       '"writeBatch": (items: List<unknown>, parameters: Record<string, never>, stepExecution: JobStepExecution) => void',
+    )
+    expect(generatedContent).toContain(
+      '"finish": (success: boolean, parameters: Record<string, never>, stepExecution: JobStepExecution) => Status | void',
     )
   } finally {
     fs.rmSync(workspaceRoot, { recursive: true, force: true })

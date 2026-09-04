@@ -117,6 +117,7 @@ test("generateCustomApiTypes generates schema and operation types from api.json 
     expect(generatedContent).toContain('"tier": string')
     expect(generatedContent).toContain('"points"?: (number | null)')
     expect(generatedContent).toContain('"getLoyaltyInfo": {')
+    expect(generatedContent).toContain("Handler: (() => void) & { public?: boolean }")
     expect(generatedContent).toContain('"siteId": string')
     expect(generatedContent).toContain('"c_customer_id": string')
     expect(generatedContent).toContain('Response: Schemas["LoyaltyInfo"]')

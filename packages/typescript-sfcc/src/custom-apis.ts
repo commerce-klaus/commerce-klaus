@@ -246,6 +246,8 @@ function renderOperationMember(name: string, operation: RenderedOperation | unde
 
   const lines = [`    ${JSON.stringify(name)}: {`]
 
+  lines.push("      Handler: (() => void) & { public?: boolean }")
+
   if (operation.parametersByLocation.size > 0) {
     lines.push("      Parameters: {")
     for (const [location, parameters] of [...operation.parametersByLocation.entries()].sort(

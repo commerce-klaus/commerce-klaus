@@ -159,7 +159,7 @@ function renderFunctions(definition: ResolvedStepTypeDefinition, parametersType:
 
   const signatures: Partial<Record<keyof typeof definition.functions, string>> = {
     afterChunk: `(${standardArguments}) => void`,
-    afterStep: `(success: boolean, ${standardArguments}) => void`,
+    afterStep: `(success: boolean, ${standardArguments}) => Status | void`,
     beforeChunk: `(${standardArguments}) => void`,
     beforeStep: `(${standardArguments}) => void`,
     getTotalCount: `(${standardArguments}) => number`,

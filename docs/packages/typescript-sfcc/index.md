@@ -222,7 +222,7 @@ If your CI install uses `--ignore-scripts`, run `pnpm types:sfcc:sync` explicitl
 `sfcc-ts-sync-types` generates `.b2c-script-types/types/sfcc-custom-apis.generated.d.ts` from [Custom API](https://developer.salesforce.com/docs/commerce/commerce-api/guide/custom-apis.html) contracts. It scans every `api.json` found under `cartridge/rest-apis/**` and parses the referenced OAS 3.0 `schema.yaml` files to derive:
 
 - `SfccCustomApis.Schemas`: one entry per named schema in `components.schemas`.
-- `SfccCustomApis.Operations`: one entry per `operationId`, with `Parameters` (grouped by `path`/`query`/`header`), an optional `RequestBody`, and the `Response` type resolved from the first successful (`2xx`) `application/json` response.
+- `SfccCustomApis.Operations`: one entry per `operationId`, with a `Handler`, `Parameters` (grouped by `path`/`query`/`header`), an optional `RequestBody`, and the `Response` type resolved from the first successful (`2xx`) `application/json` response.
 
 Type the endpoint implementation script with the generated operation type:
 
@@ -231,8 +231,8 @@ Type the endpoint implementation script with the generated operation type:
 
 const RESTResponseMgr = require("dw/system/RESTResponseMgr")
 
-/** @type {SfccCustomApis.Operations["getLoyaltyInfo"]} */
-function getLoyaltyInfo() {
+/** @type {SfccCustomApis.Operations["getLoyaltyInfo"]["Handler"]} */
+const getLoyaltyInfo = function () {
   const customerId = request.getHttpParameterMap().get("c_customer_id").getStringValue()
 
   /** @type {SfccCustomApis.Operations["getLoyaltyInfo"]["Response"]} */
@@ -241,8 +241,9 @@ function getLoyaltyInfo() {
   return RESTResponseMgr.createSuccess(info).render()
 }
 
+getLoyaltyInfo.public = true
+
 exports.getLoyaltyInfo = getLoyaltyInfo
-exports.getLoyaltyInfo.public = true
 ```
 
 Notes:
