@@ -22,6 +22,7 @@ import path from "node:path"
 export const GENERATED_CUSTOM_ATTRIBUTES_FILE_NAME = "sfcc-custom-attributes.generated.d.ts"
 export const GENERATED_HOOK_TYPES_FILE_NAME = "sfcc-hooks.generated.d.ts"
 export const GENERATED_CUSTOM_APIS_FILE_NAME = "sfcc-custom-apis.generated.d.ts"
+export const GENERATED_JOB_STEP_TYPES_FILE_NAME = "sfcc-job-steps.generated.d.ts"
 export const PROJECT_HOOK_TYPES_FILE_NAME = "sfcc-hooks.d.ts"
 
 export {
@@ -122,6 +123,10 @@ export function resolveGeneratedCustomApiTypesPath(workspaceRoot: string): strin
   return path.join(workspaceRoot, ".b2c-script-types", "types", GENERATED_CUSTOM_APIS_FILE_NAME)
 }
 
+export function resolveGeneratedJobStepTypesPath(workspaceRoot: string): string {
+  return path.join(workspaceRoot, ".b2c-script-types", "types", GENERATED_JOB_STEP_TYPES_FILE_NAME)
+}
+
 export function resolveProjectHookTypesPath(cartridgesDir: string): string {
   return path.join(cartridgesDir, PROJECT_HOOK_TYPES_FILE_NAME)
 }
@@ -167,6 +172,14 @@ export function getGeneratedCustomApiTypesPathIfPresent(
   return existsSync(filePath) ? filePath : undefined
 }
 
+export function getGeneratedJobStepTypesPathIfPresent(
+  workspaceRoot: string,
+  existsSync: (filePath: string) => boolean = nodeExistsSync,
+): string | undefined {
+  const filePath = resolveGeneratedJobStepTypesPath(workspaceRoot)
+  return existsSync(filePath) ? filePath : undefined
+}
+
 export function getProjectHookTypesPathIfPresent(
   cartridgesDir: string,
   existsSync: (filePath: string) => boolean = nodeExistsSync,
@@ -198,6 +211,7 @@ export function getAdditionalTypeFiles(
     getGeneratedCustomAttributesTypesPathIfPresent(workspaceRoot, existsSync),
     getGeneratedHookTypesPathIfPresent(workspaceRoot, existsSync),
     getGeneratedCustomApiTypesPathIfPresent(workspaceRoot, existsSync),
+    getGeneratedJobStepTypesPathIfPresent(workspaceRoot, existsSync),
     getProjectHookTypesPathIfPresent(cartridgesDir, existsSync),
     ...getCartridgeHookTypesPaths(cartridgeRoots, existsSync),
   ].filter((filePath): filePath is string => filePath !== undefined)

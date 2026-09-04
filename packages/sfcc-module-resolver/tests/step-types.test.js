@@ -46,6 +46,17 @@ test("getStepTypeDefinitionsFromDocument parses script and chunk steps", () => {
                   "@type": "boolean",
                   "default-value": "true",
                 },
+                {
+                  "@name": "StartDate",
+                  "@target-type": "date",
+                  "@type": "date-string",
+                },
+                {
+                  "@name": "Mode",
+                  "@required": false,
+                  "@type": "string",
+                  "enum-values": { value: ["full", "delta"] },
+                },
               ],
             },
             "status-codes": {
@@ -96,8 +107,22 @@ test("getStepTypeDefinitionsFromDocument parses script and chunk steps", () => {
           defaultValue: "true",
           name: "DryRun",
           required: false,
-          trim: false,
+          trim: true,
           type: "boolean",
+        },
+        {
+          name: "StartDate",
+          required: true,
+          targetType: "date",
+          trim: true,
+          type: "date-string",
+        },
+        {
+          enumValues: ["full", "delta"],
+          name: "Mode",
+          required: false,
+          trim: true,
+          type: "string",
         },
       ],
       statusCodes: ["OK", "ERROR"],
@@ -149,7 +174,23 @@ test("getStepTypeDefinitionsFromDocument rejects malformed definitions", () => {
   expect(
     getStepTypeDefinitionsFromDocument({
       "step-types": {
-        "script-module-step": [{ "@type-id": "custom.MissingFunction", module: "job" }],
+        "script-module-step": [{ "@type-id": "custom.MissingModule", function: "Run" }],
+      },
+    }),
+  ).toBeUndefined()
+  expect(
+    getStepTypeDefinitionsFromDocument({
+      "step-types": {
+        "script-module-step": [
+          {
+            "@type-id": "custom.InvalidTargetType",
+            function: "Run",
+            module: "job",
+            parameters: {
+              parameter: [{ "@name": "Date", "@target-type": "string", "@type": "date-string" }],
+            },
+          },
+        ],
       },
     }),
   ).toBeUndefined()

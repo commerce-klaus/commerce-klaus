@@ -19,11 +19,36 @@ type StepTypeGlobal = typeof globalThis & {
   [ACTIVE_STEP_TYPES]?: Map<string, ResolvedStepTypeDefinition>
 }
 
-export interface SfccLoadedJobStep {
+declare global {
+  namespace SfccJobSteps {
+    interface Definitions {}
+  }
+}
+
+type RegisteredJobStepTypeId = Extract<keyof SfccJobSteps.Definitions, string>
+
+export type SfccJobStepTypeId = [RegisteredJobStepTypeId] extends [never]
+  ? string
+  : RegisteredJobStepTypeId
+
+export type SfccJobStepInput<TypeId extends string> = TypeId extends RegisteredJobStepTypeId
+  ? SfccJobSteps.Definitions[TypeId] extends { Input: infer Parameters }
+    ? Parameters extends SfccJobStepParameters
+      ? Parameters
+      : SfccJobStepParameters
+    : SfccJobStepParameters
+  : SfccJobStepParameters
+
+type SfccJobStepRunArguments<Parameters extends SfccJobStepParameters> =
+  Record<string, never> extends Parameters ? [parameters?: Parameters] : [parameters: Parameters]
+
+export interface SfccLoadedJobStep<
+  Parameters extends SfccJobStepParameters = SfccJobStepParameters,
+> {
   readonly definition: ResolvedStepTypeDefinition
   readonly jobExecution: SfccJobExecution
   readonly stepExecution: SfccJobStepExecution
-  run(parameters?: SfccJobStepParameters): Promise<unknown>
+  run(...args: SfccJobStepRunArguments<Parameters>): Promise<unknown>
 }
 
 export function setActiveStepTypes(definitions: ResolvedStepTypeDefinition[]): void {
@@ -37,6 +62,33 @@ function normalizeParameterValue(
   parameter: StepTypeParameterDefinition,
   value: unknown,
 ): unknown {
+  if (parameter.enumValues && !parameter.enumValues.includes(String(value))) {
+    throw new Error(
+      `SFCC job step ${typeId} parameter ${parameter.name} must be one of: ${parameter.enumValues.join(", ")}.`,
+    )
+  }
+
+  if (parameter.targetType === "long") {
+    const numberValue = typeof value === "string" && value.length > 0 ? Number(value) : value
+    if (typeof numberValue !== "number" || !Number.isFinite(numberValue)) {
+      throw new Error(`SFCC job step ${typeId} parameter ${parameter.name} must be a number.`)
+    }
+    return numberValue
+  }
+
+  if (
+    parameter.targetType === "date" ||
+    parameter.type === "date-string" ||
+    parameter.type === "datetime-string" ||
+    parameter.type === "time-string"
+  ) {
+    const dateValue = value instanceof Date ? value : new Date(String(value))
+    if (Number.isNaN(dateValue.getTime())) {
+      throw new Error(`SFCC job step ${typeId} parameter ${parameter.name} must be a valid date.`)
+    }
+    return dateValue
+  }
+
   if (parameter.type === "boolean") {
     if (typeof value === "boolean") {
       return value
@@ -61,7 +113,7 @@ function normalizeParameterValue(
     return numberValue
   }
 
-  if (parameter.type === "string" || parameter.type === "time-string") {
+  if (parameter.type === "string") {
     if (typeof value !== "string") {
       throw new Error(`SFCC job step ${typeId} parameter ${parameter.name} must be a string.`)
     }
@@ -153,10 +205,10 @@ async function runWithJobStepTimeout(
   }
 }
 
-export async function loadSfccJobStep(
-  typeId: string,
+export async function loadSfccJobStep<TypeId extends SfccJobStepTypeId>(
+  typeId: TypeId,
   options?: SfccJobStepHarnessOptions,
-): Promise<SfccLoadedJobStep> {
+): Promise<SfccLoadedJobStep<SfccJobStepInput<TypeId>>> {
   const definition = (globalThis as StepTypeGlobal)[ACTIVE_STEP_TYPES]?.get(typeId)
   if (!definition) {
     throw new Error(`vitest-sfcc could not find an SFCC job step with type ID ${typeId}.`)
@@ -179,7 +231,7 @@ export async function loadSfccJobStep(
     definition,
     jobExecution: harness.jobExecution,
     stepExecution: harness.stepExecution,
-    run: async (parameters) => {
+    run: async (...[parameters]) => {
       const resolvedParameters = resolveJobStepParameters(definition, parameters)
       const run = () =>
         definition.kind === "script-module-step"

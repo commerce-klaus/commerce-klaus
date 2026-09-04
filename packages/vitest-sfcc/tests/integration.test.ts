@@ -344,6 +344,18 @@ describe("vitest-sfcc", () => {
     await expect(jobStep.run({ Prefix: "feed", RetryCount: 1.5 })).rejects.toThrow(
       "SFCC job step custom.TestTask parameter RetryCount must be a long.",
     )
+    await expect(jobStep.run({ Mode: "invalid", Prefix: "feed" })).rejects.toThrow(
+      "SFCC job step custom.TestTask parameter Mode must be one of: full, delta.",
+    )
+    await expect(jobStep.run({ Prefix: "feed", StartDate: "invalid" })).rejects.toThrow(
+      "SFCC job step custom.TestTask parameter StartDate must be a valid date.",
+    )
+    await expect(
+      jobStep.run({ Mode: "delta", Prefix: "feed", StartDate: "2026-09-04" }),
+    ).resolves.toMatchObject({
+      Mode: "delta",
+      StartDate: new Date("2026-09-04"),
+    })
   })
 
   it("validates status-like job step results against declared codes", async () => {

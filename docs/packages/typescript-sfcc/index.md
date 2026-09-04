@@ -251,6 +251,34 @@ Notes:
 - `allOf`/`oneOf`/`anyOf` compositions are not resolved yet and fall back to `unknown`.
 - Schema and operation names are expected to be unique across all scanned cartridges; on a name collision, the first occurrence found wins.
 
+## Custom job steps
+
+`sfcc-ts-sync-types` generates `.b2c-script-types/types/sfcc-job-steps.generated.d.ts` from the effective `steptypes.json` files in cartridge-path order. The generated `SfccJobSteps.Definitions` registry contains each resolved custom type ID with:
+
+- `Input`: parameters accepted by a metadata-driven test invocation. Optional parameters and parameters with defaults can be omitted.
+- `Parameters`: the values received by the job module after defaults and type conversion.
+- `StatusCode`: the built-in `OK` and `ERROR` codes plus declared custom task status codes.
+- `Functions`: the configured task function or chunk lifecycle functions with their SFCC arguments and return types.
+
+Use a generated function signature to type a job module implementation:
+
+```js
+// @ts-check
+
+/** @type {SfccJobSteps.Definitions["custom.GenerateFeed"]["Functions"]["run"]} */
+function run(parameters, stepExecution) {
+  const mode = parameters.Mode
+  const jobID = stepExecution.getJobExecution().getJobID()
+  // ...
+}
+
+exports.run = run
+```
+
+Parameter metadata maps `boolean` to `boolean`, `long` and `double` to `number`, and `string` to `string`. `enum-values` become string literal unions. Date and time parameter types follow `target-type`: `long` becomes `number`, while `date` and the default conversion become `Date`.
+
+When the generated declaration is loaded together with `@commerce-klaus/vitest-sfcc`, `loadSfccJobStep()` accepts only registered type IDs and its `run()` method requires the corresponding `Input`. Without generated declarations, the API retains its general `string` and `Record<string, unknown>` fallback.
+
 ## tsserver Plugin
 
 Add the plugin to your cartridge `jsconfig.json` or `tsconfig.json`:

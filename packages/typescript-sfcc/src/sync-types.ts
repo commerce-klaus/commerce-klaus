@@ -14,6 +14,7 @@ import { fileURLToPath } from "node:url"
 import { generateCustomApiTypes } from "./custom-apis.ts"
 import { generateCustomAttributesTypes } from "./custom-attributes.ts"
 import { generateHookTypes } from "./hook-types.ts"
+import { generateJobStepTypes } from "./job-step-types.ts"
 import { resolveSiteTemplatePath } from "./shared.ts"
 
 interface SpawnResultLike {
@@ -111,6 +112,17 @@ export function runSyncTypesCli(args: string[], options: SyncTypesCliOptions = {
           `Generated ${generatedCustomApiTypes.schemasCount} custom API schema(s) and ${generatedCustomApiTypes.operationsCount} operation(s) at ${generatedCustomApiTypes.outputFilePath}.\n`,
         )
       }
+      const generatedJobStepTypes = generateJobStepTypes({
+        workspaceRoot: currentDirectory,
+        existsSync,
+        mkdirSync,
+        writeFileSync,
+      })
+      if (generatedJobStepTypes.written) {
+        writeStdout(
+          `Generated ${generatedJobStepTypes.declarationsCount} job step declaration(s) at ${generatedJobStepTypes.outputFilePath}.\n`,
+        )
+      }
       return 0
     }
   }
@@ -147,6 +159,12 @@ export function runSyncTypesCli(args: string[], options: SyncTypesCliOptions = {
     readFileSync,
     writeFileSync,
   })
+  const generatedJobStepTypes = generateJobStepTypes({
+    workspaceRoot: currentDirectory,
+    existsSync,
+    mkdirSync,
+    writeFileSync,
+  })
 
   if (!generatedTypes.written) {
     const configuredMetaDirectory = path.join(
@@ -168,6 +186,11 @@ export function runSyncTypesCli(args: string[], options: SyncTypesCliOptions = {
   writeStdout(
     `Generated ${generatedHookTypes.declarationsCount} Salesforce hook declaration aliases at ${generatedHookTypes.outputFilePath}.\n`,
   )
+  if (generatedJobStepTypes.written) {
+    writeStdout(
+      `Generated ${generatedJobStepTypes.declarationsCount} job step declaration(s) at ${generatedJobStepTypes.outputFilePath}.\n`,
+    )
+  }
 
   const generatedCustomApiTypes = generateCustomApiTypes({
     workspaceRoot: currentDirectory,

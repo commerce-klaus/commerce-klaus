@@ -4,7 +4,12 @@ import type {
   StepTypeParameterDefinition,
 } from "@commerce-klaus/sfcc-module-resolver"
 
-export { loadSfccJobStep, type SfccLoadedJobStep } from "./job-step.js"
+export {
+  loadSfccJobStep,
+  type SfccJobStepInput,
+  type SfccJobStepTypeId,
+  type SfccLoadedJobStep,
+} from "./job-step.js"
 export { default } from "./plugin.js"
 export type { SfccVitestOptions, SfccVitestPlugin } from "./plugin.js"
 export { getSfccRuntime, requireSfccModule, resetSfccRuntime } from "./runtime.js"

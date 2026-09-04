@@ -24,6 +24,19 @@
               "@type": "long",
               "@required": "false",
               "default-value": "3"
+            },
+            {
+              "@name": "Mode",
+              "@type": "string",
+              "@required": "false",
+              "enum-values": {
+                "value": ["full", "delta"]
+              }
+            },
+            {
+              "@name": "StartDate",
+              "@type": "date-string",
+              "@required": "false"
             }
           ]
         },

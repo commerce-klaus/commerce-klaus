@@ -8,7 +8,7 @@ TypeScript tooling for Salesforce Commerce Cloud cartridge projects. It provides
 
 - Resolves `dw/*`, `*/`, `~/`, cartridge aliases, and `module.superModule`
 - Typechecks cartridges with the same behavior as the editor plugin
-- Generates types for custom attributes, hooks, and Custom APIs
+- Generates types for custom attributes, hooks, Custom APIs, and custom job steps
 - Validates hook registrations and statically detectable exports
 
 ## Install

@@ -23,8 +23,10 @@ export interface ScriptModuleStepTypeDefinition extends StepTypeExecutionMetadat
 
 export interface StepTypeParameterDefinition {
   defaultValue?: unknown
+  enumValues?: string[]
   name: string
   required: boolean
+  targetType?: "date" | "long"
   trim: boolean
   type: string
 }
@@ -69,10 +71,14 @@ function readString(record: UnknownRecord, name: string): string | undefined {
   return typeof value === "string" && value.length > 0 ? value : undefined
 }
 
-function readBoolean(record: UnknownRecord, name: string): boolean | undefined {
+function readBoolean(
+  record: UnknownRecord,
+  name: string,
+  defaultValue: boolean,
+): boolean | undefined {
   const value = record[name]
   if (value === undefined) {
-    return false
+    return defaultValue
   }
   if (typeof value === "boolean") {
     return value
@@ -140,16 +146,30 @@ function parseParameter(value: unknown): StepTypeParameterDefinition | undefined
 
   const name = readString(value, "@name")
   const type = readString(value, "@type")
-  const required = readBoolean(value, "@required")
-  const trim = readBoolean(value, "@trim")
+  const required = readBoolean(value, "@required", true)
+  const trim = readBoolean(value, "@trim", true)
+  const targetType = readString(value, "@target-type")
+  const enumValuesContainer = value["enum-values"]
+  const enumValues = isRecord(enumValuesContainer) ? enumValuesContainer.value : undefined
   if (!name || !type || required === undefined || trim === undefined) {
+    return undefined
+  }
+  if (targetType !== undefined && targetType !== "date" && targetType !== "long") {
+    return undefined
+  }
+  if (
+    enumValues !== undefined &&
+    (!Array.isArray(enumValues) || !enumValues.every((entry) => typeof entry === "string"))
+  ) {
     return undefined
   }
 
   return {
     ...(Object.hasOwn(value, "default-value") ? { defaultValue: value["default-value"] } : {}),
+    ...(enumValues === undefined ? {} : { enumValues }),
     name,
     required,
+    ...(targetType === undefined ? {} : { targetType }),
     trim,
     type,
   }
@@ -201,7 +221,7 @@ function parseScriptModuleStep(value: unknown): ScriptModuleStepTypeDefinition |
 
   const typeId = readString(value, "@type-id")
   const module = readString(value, "module")
-  const functionName = readString(value, "function")
+  const functionName = readString(value, "function") ?? "execute"
   const executionMetadata = parseExecutionMetadata(value)
   const parameters = parseParameters(value)
   const statusCodes = parseStatusCodes(value)
@@ -248,8 +268,9 @@ function parseChunkScriptModuleStep(
     typeof rawChunkSize === "string" && rawChunkSize.length > 0
       ? Number(rawChunkSize)
       : rawChunkSize
-  const read = readString(value, CHUNK_FUNCTION_FIELDS.read)
-  const write = readString(value, CHUNK_FUNCTION_FIELDS.write)
+  const read = readString(value, CHUNK_FUNCTION_FIELDS.read) ?? "read"
+  const write = readString(value, CHUNK_FUNCTION_FIELDS.write) ?? "write"
+  const process = readString(value, CHUNK_FUNCTION_FIELDS.process) ?? "process"
   const executionMetadata = parseExecutionMetadata(value)
   const parameters = parseParameters(value)
   const statusCodes = parseStatusCodes(value)
@@ -267,9 +288,9 @@ function parseChunkScriptModuleStep(
     return undefined
   }
 
-  const functions: ChunkStepFunctions = { read, write }
+  const functions: ChunkStepFunctions = { process, read, write }
   for (const [name, field] of Object.entries(CHUNK_FUNCTION_FIELDS)) {
-    if (name === "read" || name === "write") {
+    if (name === "process" || name === "read" || name === "write") {
       continue
     }
     const functionName = readString(value, field)
