@@ -76,6 +76,7 @@ export default defineConfig(
   js.configs.recommended,
   unicorn.configs.recommended,
   sfcc.configs.recommended,
+  sfcc.configs.sfra,
 )
 ```
 
@@ -86,8 +87,6 @@ Ordering matters. The SFCC config comes after the general presets so it can disa
 The same principle applies to other supported presets: Commerce Klaus disables `@typescript-eslint/no-require-imports` because cartridge code uses CommonJS and `sonarjs/no-implicit-global` because its assumptions conflict with the SFCC module environment. It does not enable those third-party presets itself. Their remaining rules still do useful work alongside ESLint Recommended and Unicorn, while Commerce Klaus contributes platform-specific validation and defines where otherwise sensible advice crosses the SFCC runtime boundary.
 
 This combination makes modernization more ambitious, not less. Developers can apply strong contemporary defaults without guessing which suggestions are safe in a cartridge.
-
-Teams that prioritize lint speed can run the supported Commerce Klaus rules through Oxlint's JavaScript plugin API. A minimal ESLint follow-up covers the three syntax-oriented rules that Oxlint cannot execute, preserving the SFCC compatibility boundary without duplicating the full lint pass. The [ESLint package guide](/packages/eslint-config-sfcc/#use-with-oxlint) documents both configurations.
 
 For example, a small generator can turn SFCC's `SeekableIterator` into a standard JavaScript iterable while still closing the platform resource reliably:
 
@@ -112,6 +111,18 @@ for (const product of allSiteProducts()) {
 ```
 
 Here, `const`, a generator, `for...of`, and `try...finally` make the lifecycle easier to see without hiding the SFCC API. The important part is not merely that the syntax looks modern. The executable compatibility policy establishes that these features are supported, so developers do not need to rely on memory or folklore.
+
+### Match the storefront architecture
+
+Runtime compatibility is only one boundary. A cartridge written for SFRA, a headless storefront, or SiteGenesis should also avoid APIs that do not belong to its architecture. Commerce Klaus provides policy presets for `storefront-next`, `pwa`, `sfra`, `sitegenesis-controllers`, and `sitegenesis-pipelines`.
+
+These presets are overlays applied after `sfcc.configs.recommended`, as the `sfra` preset is in the example above. Headless presets reject controllers, forms, ISML rendering, Pipeline APIs, and the SFRA server module. The SFRA preset rejects legacy Pipeline API usage, while the two SiteGenesis presets distinguish controller-based projects from pipeline-based projects.
+
+Repositories containing more than one storefront architecture can apply different policies to selected cartridges with `createStorefrontConfig()`. This keeps architecture decisions executable even during gradual migrations, where legacy SiteGenesis cartridges and newer SFRA or headless cartridges may coexist. The [storefront architecture preset reference](/packages/eslint-config-sfcc/#storefront-architecture-presets) documents the rules and scoped configuration.
+
+### Keep linting fast with Oxlint
+
+Teams that prioritize lint speed can run the supported Commerce Klaus rules through Oxlint's JavaScript plugin API. A minimal ESLint follow-up covers the three syntax-oriented rules that Oxlint cannot execute, preserving the SFCC compatibility boundary without duplicating the full lint pass. The [ESLint package guide](/packages/eslint-config-sfcc/#use-with-oxlint) documents both configurations.
 
 ## Type checking without transforming cartridge code
 
