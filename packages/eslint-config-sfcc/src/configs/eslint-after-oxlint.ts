@@ -1,10 +1,9 @@
 import type { Linter } from "eslint"
 
 import tsParser from "@typescript-eslint/parser"
-import globals from "globals"
 
 import sfcc from "../plugins/sfcc/index.js"
-import sfccGlobals from "../sfcc-globals.js"
+import sfccLanguageGlobals from "../sfcc-language-globals.js"
 import { normalizeCartridgesDir } from "./normalize-cartridges-dir.js"
 
 export interface EslintAfterOxlintConfigOptions {
@@ -42,10 +41,7 @@ export function createEslintAfterOxlintConfig(
           ecmaFeatures: { jsx: true },
           sourceType: "commonjs",
         },
-        globals: {
-          ...globals.commonjs,
-          ...sfccGlobals,
-        },
+        globals: sfccLanguageGlobals,
       },
       plugins: { sfcc },
       rules: {

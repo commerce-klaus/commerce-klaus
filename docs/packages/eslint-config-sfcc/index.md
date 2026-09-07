@@ -72,6 +72,7 @@ export default defineConfig(
 ```
 
 By default, JavaScript files under `cartridges/` are linted. Client-side and static asset folders are excluded.
+The config disables Node.js and browser globals inherited from earlier flat config entries, then enables only the CommonJS and SFCC runtime globals available to server-side cartridge code.
 
 ### Storefront architecture presets
 

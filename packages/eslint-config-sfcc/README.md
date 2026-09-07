@@ -27,6 +27,7 @@ export default defineConfig(sfcc.configs.recommended)
 ```
 
 The recommended config checks server-side JavaScript below `cartridges/` and excludes client-side and static asset folders.
+It also disables Node.js and browser globals inherited from earlier flat config entries while keeping CommonJS and SFCC runtime globals available.
 
 It also disables selected incompatible rules from ESLint core/recommended, `eslint-plugin-unicorn`, `typescript-eslint`, and `eslint-plugin-sonarjs`. This keeps those presets usable alongside SFCC code without suggesting unsupported Rhino syntax, APIs, or module patterns. See the configuration guide for the documented compatibility overrides.
 

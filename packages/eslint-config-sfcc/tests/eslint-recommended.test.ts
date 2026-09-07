@@ -1,6 +1,6 @@
 import js from "@eslint/js"
 import { ESLint } from "eslint"
-import * as globals from "globals"
+import globals from "globals"
 import { expect, test, describe } from "vite-plus/test"
 
 import { createRecommendedConfig } from "../src/index.js"
@@ -10,6 +10,7 @@ const eslintRecommended = [
     languageOptions: {
       globals: {
         ...globals.node,
+        ...globals.browser,
       },
     },
     rules: {
@@ -32,6 +33,14 @@ async function lint(code: string, filename = "fixture.js") {
 }
 
 describe("eslint:recommended config", () => {
+  test("does not expose Node.js or browser globals", async () => {
+    const messages = await lint("process.cwd(); window.location.href")
+
+    expect(
+      messages.filter((message) => message.ruleId === "no-undef").map(({ message }) => message),
+    ).toEqual(["'process' is not defined.", "'window' is not defined."])
+  })
+
   test("flags undefined symbol in business logic", async () => {
     const code = `
       const Logger = require("dw/system/Logger")

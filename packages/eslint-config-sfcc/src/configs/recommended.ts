@@ -1,14 +1,13 @@
 import type { Linter } from "eslint"
 
 import pluginESx from "eslint-plugin-es-x"
-import globals from "globals"
 
 import type { SfccSettings } from "../types/sfcc-settings.js"
 
 import sfcc from "../plugins/sfcc/index.js"
 import sitegenesis from "../plugins/sitegenesis/index.js"
 import rules from "../rules/index.js"
-import sfccGlobals from "../sfcc-globals.js"
+import sfccLanguageGlobals from "../sfcc-language-globals.js"
 import { normalizeCartridgesDir } from "./normalize-cartridges-dir.js"
 
 const restrictToES2015Config = pluginESx.configs["restrict-to-es2015"]
@@ -68,10 +67,7 @@ export function createRecommendedConfig(options: RecommendedConfigOptions = {}):
       ignores: ignoredPaths,
       languageOptions: {
         sourceType: "commonjs",
-        globals: {
-          ...globals.commonjs,
-          ...sfccGlobals,
-        },
+        globals: sfccLanguageGlobals,
       },
       plugins: {
         sfcc,
