@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.5.0
+
+### Minor Changes
+
+- 9ec3a15: Generate a `Handler` contract for each Custom API operation so endpoint functions and their `public` flag can be typed with one JSDoc annotation.
+- e8c5d29: Generate project-specific custom job step declarations from effective `steptypes.json` metadata, including parameter, status code, and lifecycle function types, and apply them to metadata-driven Vitest job step loading.
+
+### Patch Changes
+
+- Updated dependencies [e8c5d29]
+  - @commerce-klaus/sfcc-module-resolver@1.6.0
+
 ## 1.4.1
 
 ### Patch Changes

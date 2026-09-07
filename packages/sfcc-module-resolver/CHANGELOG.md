@@ -1,5 +1,11 @@
 # @commerce-klaus/sfcc-module-resolver
 
+## 1.6.0
+
+### Minor Changes
+
+- e8c5d29: Generate project-specific custom job step declarations from effective `steptypes.json` metadata, including parameter, status code, and lifecycle function types, and apply them to metadata-driven Vitest job step loading.
+
 ## 1.5.0
 
 ### Minor Changes
