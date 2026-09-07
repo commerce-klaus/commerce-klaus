@@ -9,6 +9,32 @@ The package currently ships two main entry points:
 - a tsserver plugin that resolves SFCC-specific module patterns such as `~/...`, `*/...`, cartridge aliases, and `module.superModule`
 - a CLI that typechecks cartridge projects with the same resolution behavior
 
+## Keep the JavaScript, add the guarantees
+
+SFCC projects often contain years of production-tested CommonJS JavaScript. Rewriting that code in TypeScript would introduce a compilation step between the source developers inspect and the code running in the sandbox. That can make deployment artifacts, production stack traces, and urgent debugging harder to follow.
+
+This package takes an incremental route: cartridge code remains runnable JavaScript, while TypeScript checks it through JSDoc and generated declarations. Existing modules can gain useful guarantees one function at a time, without a source transformation or a framework migration.
+
+The generated types are especially valuable because they come from contracts the project already maintains:
+
+- site metadata defines custom and system object attributes
+- `hooks.json` and Salesforce Script API declarations define hook boundaries
+- Custom API schemas define request and response shapes
+- `steptypes.json` defines job parameters, lifecycle functions, and status codes
+
+This keeps annotations small and reduces duplicated declarations that can drift away from the platform configuration. Prefer a generated function contract over repeating every parameter and return type:
+
+```js
+/** @type {SfccJobSteps.Definitions["custom.ExportCatalog"]["Functions"]["execute"]} */
+const execute = function (parameters, stepExecution) {
+  // parameters and stepExecution are inferred from steptypes.json
+}
+```
+
+Type checking complements the ESLint compatibility rules. Types catch mismatched project contracts and Script API usage; lint rules reject syntax, globals, module patterns, and standard-library features that are not safe for the configured SFCC runtime. Together they move failures closer to the edit that introduced them, while leaving the deployed JavaScript recognizable.
+
+For the broader modernization strategy, see [Modernize SFCC JavaScript with confidence](/blog/modernize-sfcc-javascript-with-confidence).
+
 ## Install
 
 ::: code-group
@@ -161,7 +187,7 @@ Existing Salesforce system hook signatures can be used from JavaScript JSDoc wit
 // @ts-check
 
 /** @type {SfccHooks.OrderCalculate} */
-function calculate(lineItemCtnr) {
+const calculate = function (lineItemCtnr) {
   // lineItemCtnr is typed from dw/order/hooks/CalculateHooks
 }
 
@@ -188,7 +214,7 @@ Use the project-local alias from the hook implementation:
 // @ts-check
 
 /** @type {SfccHooks.ShopperProductModifyGetResponse} */
-function modifyGETResponse(document) {
+const modifyGETResponse = function (document) {
   document.c_brand = "Example"
 }
 
@@ -267,7 +293,7 @@ Use a generated function signature to type a job module implementation:
 // @ts-check
 
 /** @type {SfccJobSteps.Definitions["custom.GenerateFeed"]["Functions"]["run"]} */
-function run(parameters, stepExecution) {
+const run = function (parameters, stepExecution) {
   const mode = parameters.Mode
   const jobID = stepExecution.getJobExecution().getJobID()
   // ...

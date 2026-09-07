@@ -8,6 +8,14 @@ Engineering notes from Commerce Klaus: the reasoning behind the packages, lesson
 
 ## Latest
 
+### [Modernize SFCC JavaScript with confidence](./modernize-sfcc-javascript-with-confidence)
+
+September 6, 2026
+
+How ESLint Recommended, Unicorn, SFCC compatibility rules, JSDoc type checking, and generated contracts make established cartridge code confidently modern.
+
+---
+
 ### [Why Commerce Klaus?](./why-commerce-klaus)
 
 August 29, 2026

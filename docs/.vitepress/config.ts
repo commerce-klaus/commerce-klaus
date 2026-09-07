@@ -197,6 +197,10 @@ export default defineConfig({
           items: [
             { text: "All posts", link: "/blog/" },
             {
+              text: "Modernize SFCC JavaScript with confidence",
+              link: "/blog/modernize-sfcc-javascript-with-confidence",
+            },
+            {
               text: noWrap("Why Commerce Klaus?"),
               link: "/blog/why-commerce-klaus",
             },
