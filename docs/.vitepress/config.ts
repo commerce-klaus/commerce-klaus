@@ -1,7 +1,18 @@
+import { fileURLToPath } from "node:url"
 import { defineConfig } from "vitepress"
+import { defineBlogConfig } from "vitepress-plugin-blog/config"
 
 const repository = "https://github.com/commerce-klaus/commerce-klaus"
 const base = "/commerce-klaus/"
+const blog = defineBlogConfig({
+  docsDir: fileURLToPath(new URL("..", import.meta.url)),
+  postsDir: "blog",
+  sidebar: {
+    recentPostsCount: 5,
+    allPostsLabel: "All posts",
+    recentPostsLabel: "Recent posts",
+  },
+})
 const noWrap = (text: string) =>
   text
     .replaceAll("Salesforce Commerce Cloud", "Salesforce\u00a0Commerce\u00a0Cloud")
@@ -14,6 +25,9 @@ export default defineConfig({
   description: noWrap("Pragmatic developer tooling for Salesforce Commerce Cloud."),
   base,
   cleanUrls: true,
+  vite: {
+    plugins: [blog.plugin],
+  },
   lastUpdated: true,
   sitemap: {
     hostname: "https://commerce-klaus.github.io/commerce-klaus/",
@@ -191,22 +205,7 @@ export default defineConfig({
           items: [{ text: "Philosophy", link: "/about/philosophy" }],
         },
       ],
-      "/blog/": [
-        {
-          text: "Blog",
-          items: [
-            { text: "All posts", link: "/blog/" },
-            {
-              text: "Modernize SFCC JavaScript with confidence",
-              link: "/blog/modernize-sfcc-javascript-with-confidence",
-            },
-            {
-              text: noWrap("Why Commerce Klaus?"),
-              link: "/blog/why-commerce-klaus",
-            },
-          ],
-        },
-      ],
+      "/blog/": blog.sidebar,
     },
     socialLinks: [{ icon: "github", link: repository }],
     search: { provider: "local" },

@@ -1,12 +1,15 @@
 ---
+blogPost: true
+title: Modernize SFCC JavaScript with confidence
 description: How established SFCC JavaScript can adopt modern syntax, stronger linting, and generated type contracts with confidence.
-date: 2026-09-06
-author: Jens Simon
+date: 2026-09-07
+author: jenssimon
+tags:
+  - modernization
+  - eslint
+  - typescript
+  - vitest
 ---
-
-# Modernize SFCC JavaScript with confidence
-
-September 6, 2026 · Jens Simon
 
 Some Salesforce Commerce Cloud codebases have been running for more than a decade. They have seen SiteGenesis pipelines, controllers, multiple integration generations, changing storefront architectures, and years of urgent production work.
 

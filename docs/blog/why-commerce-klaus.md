@@ -1,12 +1,13 @@
 ---
+blogPost: true
+title: Why Commerce Klaus?
 description: The idea behind pragmatic tooling that connects SFCC with modern JavaScript development.
 date: 2026-08-30
-author: Jens Simon
+author: jenssimon
+tags:
+  - philosophy
+  - tooling
 ---
-
-# Why Commerce Klaus?
-
-August 30, 2026 · Jens Simon
 
 Salesforce Commerce Cloud development has a peculiar split personality. The surrounding JavaScript ecosystem moves quickly, while server-side cartridge code runs with its own module conventions, APIs, and Rhino compatibility constraints.
 
