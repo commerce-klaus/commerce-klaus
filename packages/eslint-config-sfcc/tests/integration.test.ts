@@ -3,6 +3,7 @@ import pluginESx from "eslint-plugin-es-x"
 import globals from "globals"
 import { execFileSync, spawnSync } from "node:child_process"
 import fs from "node:fs"
+import os from "node:os"
 import path from "node:path"
 import { beforeAll, expect, test, describe } from "vite-plus/test"
 
@@ -78,15 +79,18 @@ function lintWithOxlint(
   relativeFilePath = "sample.js",
   setup?: (temporaryDir: string) => void,
 ): string {
-  const temporaryDir = fs.mkdtempSync(path.join(packageRoot, "oxlint-test-"))
+  const temporaryDir = fs.mkdtempSync(path.join(os.tmpdir(), "commerce-klaus-oxlint-"))
 
   try {
     const configFile = path.join(temporaryDir, "oxlint.config.mjs")
     const sampleFile = path.join(temporaryDir, relativeFilePath)
+    const packageLink = path.join(temporaryDir, "node_modules/@commerce-klaus/eslint-config-sfcc")
 
+    fs.mkdirSync(path.dirname(packageLink), { recursive: true })
+    fs.symlinkSync(packageRoot, packageLink, "junction")
     fs.writeFileSync(
       configFile,
-      'import oxlint from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"\nexport default oxlint\n',
+      'import config from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"\nexport default config.lint\n',
     )
     fs.mkdirSync(path.dirname(sampleFile), { recursive: true })
     fs.writeFileSync(sampleFile, code)
