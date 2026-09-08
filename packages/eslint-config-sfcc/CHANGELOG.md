@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.2
+
+### Patch Changes
+
+- 2a4efdf: Disable Node.js and browser globals inherited from earlier flat config entries while preserving CommonJS and SFCC runtime globals.
+
 ## 1.7.1
 
 ### Patch Changes
