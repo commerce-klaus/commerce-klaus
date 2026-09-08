@@ -72,7 +72,7 @@ async function lintAfterOxlint(
 const packageRoot = path.resolve(import.meta.dirname, "..")
 const workspaceRoot = path.resolve(packageRoot, "../..")
 const vitePlus = path.join(workspaceRoot, "node_modules/.bin/vp")
-const oxlint = path.join(workspaceRoot, "node_modules/.pnpm/node_modules/.bin/oxlint")
+const oxlint = path.join(packageRoot, "node_modules/.bin/oxlint")
 
 function lintWithOxlint(
   code: string,
@@ -90,7 +90,7 @@ function lintWithOxlint(
     fs.symlinkSync(packageRoot, packageLink, "junction")
     fs.writeFileSync(
       configFile,
-      'import config from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"\nexport default config.lint\n',
+      'import config from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"\nexport default config\n',
     )
     fs.mkdirSync(path.dirname(sampleFile), { recursive: true })
     fs.writeFileSync(sampleFile, code)

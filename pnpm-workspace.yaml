@@ -9,6 +9,7 @@ cleanupUnusedCatalogs: true
 
 catalog:
   "@types/node": ^24
+  oxlint: ^1.79.0
   vite: npm:@voidzero-dev/vite-plus-core@latest
   vitest: ^4.1.9
   vite-plus: latest
