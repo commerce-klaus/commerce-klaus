@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.8.0
+
+### Minor Changes
+
+- 0260f66: Add an opt-in generated-types ESLint preset that requires effective job step, Salesforce system hook, and Custom API handler exports to use their generated function signatures. Custom API success values passed to `RESTResponseMgr.createSuccess()` also use the generated operation response type. The rules suggest exact missing or replacement annotations, and `valid-custom-api-export` suggests the required `.public = true` assignment. Expose the shared resolver query used to map effective job step metadata back to a script file.
+
+### Patch Changes
+
+- Updated dependencies [0260f66]
+  - @commerce-klaus/sfcc-module-resolver@1.7.0
+
 ## 1.7.2
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @commerce-klaus/vitest-sfcc
 
+## 0.4.0
+
+### Minor Changes
+
+- 2ae2708: Allow automatic `hooks.json` discovery to be disabled or limited to selected cartridges with the new `hookDiscovery` plugin option. This keeps focused test projects from loading unrelated hook scripts and their platform dependencies while preserving direct runtime hook registration.
+
+### Patch Changes
+
+- Updated dependencies [0260f66]
+  - @commerce-klaus/sfcc-module-resolver@1.7.0
+
 ## 0.3.0
 
 ### Minor Changes
