@@ -46,6 +46,7 @@ export {
 
 export {
   findResolvedStepTypeDefinitions,
+  getResolvedStepTypeDefinitionsForScriptFile,
   getStepTypeDefinitionsFromDocument,
 } from "./step-types.ts"
 export type {

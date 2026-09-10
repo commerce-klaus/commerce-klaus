@@ -1,5 +1,6 @@
 import type { Linter } from "eslint"
 
+import generatedTypes, { createGeneratedTypesConfig } from "./configs/generated-types.js"
 import oxlint, { oxlintRules } from "./configs/oxlint.js"
 import recommended, { createRecommendedConfig } from "./configs/recommended.js"
 import {
@@ -14,6 +15,7 @@ import sfccPlugin from "./plugins/sfcc/index.js"
 import sitegenesis from "./plugins/sitegenesis/index.js"
 
 type Configs = {
+  "generated-types": Linter.Config[]
   recommended: Linter.Config[]
   "storefront-next": Linter.Config[]
   pwa: Linter.Config[]
@@ -23,6 +25,7 @@ type Configs = {
 }
 
 const configs: Configs = {
+  "generated-types": generatedTypes,
   recommended,
   "storefront-next": storefrontNext,
   pwa,
@@ -43,6 +46,7 @@ const eslintConfigSfcc: { configs: typeof configs; plugins: typeof plugins } = {
 
 export {
   configs,
+  generatedTypes,
   oxlint,
   oxlintRules,
   plugins,
@@ -55,6 +59,7 @@ export {
   sitegenesisControllers,
   sitegenesisPipelines,
 }
-export { createRecommendedConfig, createStorefrontConfig }
+export { createGeneratedTypesConfig, createRecommendedConfig, createStorefrontConfig }
+export type { GeneratedTypesConfigOptions } from "./configs/generated-types.js"
 export type { StorefrontConfigOptions, StorefrontPreset } from "./configs/storefront.js"
 export default eslintConfigSfcc

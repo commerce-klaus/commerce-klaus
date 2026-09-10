@@ -20,6 +20,9 @@ import noSfraServer from "./no-sfra-server.js"
 import noStringEquals from "./no-string-equals.js"
 import noTypeAnnotations from "./no-type-annotations.js"
 import preferConst from "./prefer-const.js"
+import preferGeneratedCustomApiTypes from "./prefer-generated-custom-api-types.js"
+import preferGeneratedHookTypes from "./prefer-generated-hook-types.js"
+import preferGeneratedJobStepTypes from "./prefer-generated-job-step-types.js"
 import preferNativeCollections from "./prefer-native-collections.js"
 import rhinoConstCompat from "./rhino-const-compat.js"
 import rhinoConstConflict from "./rhino-const-conflict.js"
@@ -54,6 +57,9 @@ const sfcc = {
     "no-service-framework": noServiceFramework,
     "no-sfra-server": noSfraServer,
     "no-string-equals": noStringEquals,
+    "prefer-generated-custom-api-types": preferGeneratedCustomApiTypes,
+    "prefer-generated-hook-types": preferGeneratedHookTypes,
+    "prefer-generated-job-step-types": preferGeneratedJobStepTypes,
     "prefer-native-collections": preferNativeCollections,
     "prefer-const": preferConst,
     "rhino-const-compat": rhinoConstCompat,

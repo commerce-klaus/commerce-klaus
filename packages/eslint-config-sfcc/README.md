@@ -11,6 +11,7 @@ Shareable ESLint flat config for Salesforce Commerce Cloud projects. It catches 
 - Handles Rhino-specific `const` and scoping behavior
 - Includes SFCC and SiteGenesis rules
 - Provides Storefront Next, PWA, SFRA, and SiteGenesis policy presets
+- Provides an opt-in preset for enforcing generated project types at metadata boundaries
 - Supports ESLint and an Oxlint-compatible preset
 
 ## Install
@@ -25,6 +26,15 @@ import sfcc from "@commerce-klaus/eslint-config-sfcc"
 
 export default defineConfig(sfcc.configs.recommended)
 ```
+
+Projects that generate declarations with `@commerce-klaus/typescript-sfcc` can add the
+`generated-types` preset after `recommended`:
+
+```js
+export default defineConfig(sfcc.configs.recommended, sfcc.configs["generated-types"])
+```
+
+The preset checks registered job step functions, SFCC system hook implementations, Custom API handlers, and local Custom API success response values against their generated types.
 
 The recommended config checks server-side JavaScript below `cartridges/` and excludes client-side and static asset folders.
 It also disables Node.js and browser globals inherited from earlier flat config entries while keeping CommonJS and SFCC runtime globals available.

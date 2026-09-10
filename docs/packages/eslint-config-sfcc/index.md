@@ -74,6 +74,47 @@ export default defineConfig(
 By default, JavaScript files under `cartridges/` are linted. Client-side and static asset folders are excluded.
 The config disables Node.js and browser globals inherited from earlier flat config entries, then enables only the CommonJS and SFCC runtime globals available to server-side cartridge code.
 
+### Generated types preset
+
+Projects that run `sfcc-ts-sync-types` can enforce generated types at metadata boundaries with the opt-in `generated-types` preset:
+
+```js{6} [eslint.config.js]
+import { defineConfig } from "eslint/config"
+import sfcc from "@commerce-klaus/eslint-config-sfcc"
+
+export default defineConfig(
+  sfcc.configs.recommended,
+  sfcc.configs["generated-types"],
+)
+```
+
+The preset verifies metadata-driven function boundaries and enables:
+
+| Rule                                | Generated contract                                         |
+| ----------------------------------- | ---------------------------------------------------------- |
+| `prefer-generated-job-step-types`   | `SfccJobSteps.Definitions` from `steptypes.json`           |
+| `prefer-generated-hook-types`       | `SfccHooks` aliases for registered Salesforce system hooks |
+| `prefer-generated-custom-api-types` | Custom API `Handler` and local `Response` values from OAS  |
+
+Missing or broader `@type` annotations receive an editor suggestion that inserts or replaces the generated type. All three rules follow the exported local binding, so both `const handler = function () {}` and `function handler() {}` declarations are supported. The Custom API rule also follows a local identifier passed to `RESTResponseMgr.createSuccess()` within that handler and applies the generated operation `Response` type.
+
+Generated custom attribute declarations are not enforced by this preset. Access through typed platform APIs such as `Product.custom` and `CustomObjectMgr.getCustomObject()` is already inferred automatically. A standalone helper parameter named `custom` does not contain enough information to determine its system or custom object type without guessing.
+
+Use `createGeneratedTypesConfig()` when the metadata resolver needs an explicit cartridge path or a non-default cartridges directory:
+
+```js [eslint.config.js]
+import { defineConfig } from "eslint/config"
+import sfcc, { createGeneratedTypesConfig } from "@commerce-klaus/eslint-config-sfcc"
+
+export default defineConfig(
+  sfcc.configs.recommended,
+  createGeneratedTypesConfig({
+    cartridgesDir: "commerce/cartridges",
+    sfcc: { cartridgePath: ["app_custom", "app_base"] },
+  }),
+)
+```
+
 ### Storefront architecture presets
 
 Storefront presets are policy overlays that describe which controller architecture a project uses. Compose one after `recommended`:

@@ -5,6 +5,7 @@ import { expect, test } from "vite-plus/test"
 
 import {
   findResolvedStepTypeDefinitions,
+  getResolvedStepTypeDefinitionsForScriptFile,
   getStepTypeDefinitionsFromDocument,
 } from "../src/index.ts"
 
@@ -306,6 +307,52 @@ test("findResolvedStepTypeDefinitions resolves modules and honors cartridge prio
         typeId: "custom.GenerateFeed",
       },
     ])
+  })
+})
+
+test("getResolvedStepTypeDefinitionsForScriptFile returns only effective registrations", () => {
+  withTempDir((tempDir) => {
+    const cartridgesDir = path.join(tempDir, "cartridges")
+    const customRoot = path.join(cartridgesDir, "app_custom")
+    const baseRoot = path.join(cartridgesDir, "app_base")
+
+    for (const [cartridgeRoot, cartridgeName, typeId] of [
+      [customRoot, "app_custom", "custom.GenerateFeed"],
+      [baseRoot, "app_base", "custom.GenerateFeed"],
+    ]) {
+      writeJson(path.join(cartridgeRoot, "steptypes.json"), {
+        "step-types": {
+          "script-module-step": [
+            {
+              "@type-id": typeId,
+              function: "run",
+              module: `${cartridgeName}/cartridge/scripts/jobs/feed`,
+            },
+          ],
+        },
+      })
+      const scriptPath = path.join(cartridgeRoot, "cartridge", "scripts", "jobs", "feed.js")
+      fs.mkdirSync(path.dirname(scriptPath), { recursive: true })
+      fs.writeFileSync(scriptPath, "exports.run = function () {}\n")
+    }
+
+    expect(
+      getResolvedStepTypeDefinitionsForScriptFile(
+        path.join(customRoot, "cartridge", "scripts", "jobs", "feed.js"),
+        { cartridgesDir, cartridgePath: ["app_custom", "app_base"] },
+      ),
+    ).toEqual([
+      expect.objectContaining({
+        modulePath: path.join(customRoot, "cartridge", "scripts", "jobs", "feed.js"),
+        typeId: "custom.GenerateFeed",
+      }),
+    ])
+    expect(
+      getResolvedStepTypeDefinitionsForScriptFile(
+        path.join(baseRoot, "cartridge", "scripts", "jobs", "feed.js"),
+        { cartridgesDir, cartridgePath: ["app_custom", "app_base"] },
+      ),
+    ).toEqual([])
   })
 })
 

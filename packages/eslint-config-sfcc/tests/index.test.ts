@@ -2,7 +2,9 @@ import { expect, test } from "vite-plus/test"
 
 import eslintConfigSfcc, {
   configs,
+  createGeneratedTypesConfig,
   createRecommendedConfig,
+  generatedTypes,
   plugins,
   recommended,
   sfcc,
@@ -16,6 +18,30 @@ test("exports a recommended flat config", () => {
 
 test("exposes configs.recommended on default export", () => {
   expect(eslintConfigSfcc.configs.recommended).toBe(recommended)
+})
+
+test("exports the generated types preset", () => {
+  expect(configs["generated-types"]).toBe(generatedTypes)
+  expect(generatedTypes[0]?.rules).toEqual({
+    "sfcc/prefer-generated-custom-api-types": "error",
+    "sfcc/prefer-generated-hook-types": "error",
+    "sfcc/prefer-generated-job-step-types": "error",
+  })
+})
+
+test("creates a generated types preset with shared resolver settings", () => {
+  const config = createGeneratedTypesConfig({
+    cartridgesDir: "commerce/cartridges/",
+    sfcc: { cartridgePath: ["app_custom", "app_base"] },
+  })
+
+  expect(config[0]?.files).toEqual(["commerce/cartridges/**/*.{js,ds}"])
+  expect(config[0]?.settings).toEqual({
+    sfcc: {
+      cartridgePath: ["app_custom", "app_base"],
+      cartridgesDir: "commerce/cartridges",
+    },
+  })
 })
 
 test("named configs export equals default configs", () => {

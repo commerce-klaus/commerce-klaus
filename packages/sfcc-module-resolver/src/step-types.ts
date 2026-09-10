@@ -1,6 +1,7 @@
 import fs from "node:fs"
 import path from "node:path"
 
+import { type InferCartridgeOrderOptions, inferCartridgeOrder } from "./cartridge-order.ts"
 import { resolveCandidateFile } from "./module-resolution.ts"
 
 export interface StepTypeExecutionMetadata {
@@ -379,4 +380,14 @@ export function findResolvedStepTypeDefinitions(
   }
 
   return definitions
+}
+
+export function getResolvedStepTypeDefinitionsForScriptFile(
+  filePath: string,
+  options: InferCartridgeOrderOptions = { cartridgesDir: "cartridges" },
+): ResolvedStepTypeDefinition[] {
+  const normalizedFilePath = path.resolve(options.cwd ?? process.cwd(), filePath)
+  return findResolvedStepTypeDefinitions(inferCartridgeOrder(options)).filter(
+    (definition) => definition.modulePath === normalizedFilePath,
+  )
 }

@@ -167,6 +167,18 @@ export default defineConfig({
                   link: "/packages/eslint-config-sfcc/rules/sfcc/prefer-const",
                 },
                 {
+                  text: "prefer-generated-custom-api-types",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc/prefer-generated-custom-api-types",
+                },
+                {
+                  text: "prefer-generated-hook-types",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc/prefer-generated-hook-types",
+                },
+                {
+                  text: "prefer-generated-job-step-types",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc/prefer-generated-job-step-types",
+                },
+                {
                   text: "rhino-const-compat",
                   link: "/packages/eslint-config-sfcc/rules/sfcc/rhino-const-compat",
                 },
