@@ -8,7 +8,7 @@ Pragmatic developer tooling for Salesforce Commerce Cloud (SFCC). Commerce Klaus
 | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
 | [`@commerce-klaus/eslint-config-sfcc`](https://www.npmjs.com/package/@commerce-klaus/eslint-config-sfcc)               | ESLint rules for SFCC and Rhino compatibility                  |
 | [`@commerce-klaus/typescript-sfcc`](https://www.npmjs.com/package/@commerce-klaus/typescript-sfcc)                     | Cartridge-aware TypeScript tooling and generated project types |
-| [`@commerce-klaus/vite-plugin-sfcc-modules`](https://www.npmjs.com/package/@commerce-klaus/vite-plugin-sfcc-modules)   | SFCC module resolution for Vite and Vitest                     |
+| [`@commerce-klaus/vite-plugin-sfcc-modules`](https://www.npmjs.com/package/@commerce-klaus/vite-plugin-sfcc-modules)   | SFCC module resolution for other Vite-based tooling            |
 | [`@commerce-klaus/babel-plugin-sfcc-modules`](https://www.npmjs.com/package/@commerce-klaus/babel-plugin-sfcc-modules) | SFCC module resolution for Babel-based tooling                 |
 | [`@commerce-klaus/sfcc-module-resolver`](https://www.npmjs.com/package/@commerce-klaus/sfcc-module-resolver)           | Shared cartridge and module resolution utilities               |
 | [`@commerce-klaus/vitest-sfcc`](https://www.npmjs.com/package/@commerce-klaus/vitest-sfcc)                             | Cartridge-aware runtime and dependency mocking for Vitest      |
@@ -16,7 +16,7 @@ Pragmatic developer tooling for Salesforce Commerce Cloud (SFCC). Commerce Klaus
 
 ## Examples
 
-- [`eslint-typescript-sfcc`](examples/eslint-typescript-sfcc) combines the recommended ESLint config with cartridge-aware JavaScript type checking.
+- [`eslint-typescript-sfcc`](examples/eslint-typescript-sfcc) combines the recommended ESLint config, cartridge-aware JavaScript type checking, and the SFCC-aware Vitest runtime.
 
 ## Documentation
 

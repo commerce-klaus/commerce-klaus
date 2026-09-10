@@ -1,7 +1,7 @@
 "use strict"
 
 // Ignore only because of the Vite+ environment.
-// @ts-ignore -- `module.superModule` is provided by SFCC and transformed by the Vite plugin.
+// @ts-ignore -- `module.superModule` is provided by SFCC and transformed by vitest-sfcc.
 const basePriceLabel = module.superModule
 
 /**

@@ -13,7 +13,7 @@
   "devDependencies": {
     "@commerce-klaus/eslint-config-sfcc": "workspace:*",
     "@commerce-klaus/typescript-sfcc": "workspace:*",
-    "@commerce-klaus/vite-plugin-sfcc-modules": "workspace:*",
+    "@commerce-klaus/vitest-sfcc": "workspace:*",
     "@eslint/js": "^10.0.1",
     "@salesforce/b2c-cli": "^1.23.2",
     "@types/node": "^24",

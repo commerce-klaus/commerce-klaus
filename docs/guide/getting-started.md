@@ -124,7 +124,7 @@ These integrations use the same resolver core, so `*/`, `~/`, cartridge aliases,
 
 ## Complete example
 
-See the [ESLint, TypeScript, and Vite SFCC example](https://github.com/commerce-klaus/commerce-klaus/tree/main/examples/eslint-typescript-sfcc) for a runnable two-cartridge setup. It demonstrates a shared cartridge path loaded from the site template, generated SFCC types, custom attributes, hooks, a Custom API, cartridge overrides, and a Vitest integration test.
+See the [ESLint, TypeScript, and Vitest SFCC example](https://github.com/commerce-klaus/commerce-klaus/tree/main/examples/eslint-typescript-sfcc) for a runnable two-cartridge setup. It demonstrates a shared cartridge path loaded from the site template, generated SFCC types, custom attributes, hooks, a Custom API, cartridge overrides, and the SFCC-aware Vitest runtime.
 
 For a smaller Vite+ setup, see the [Oxlint and ESLint SFCC example](https://github.com/commerce-klaus/commerce-klaus/tree/main/examples/oxlint-eslint-sfcc). It runs the Oxlint-compatible SFCC rules through Vite+ and follows them with the minimal ESLint fallback while using the same TypeScript and Vite module resolution.
 

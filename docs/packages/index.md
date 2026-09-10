@@ -9,7 +9,7 @@ Commerce Klaus covers the development loop around SFCC server-side JavaScript: s
 | [`@commerce-klaus/eslint-config-sfcc`](./eslint-config-sfcc/)               | Rhino compatibility and SFCC-specific correctness rules                |
 | [`@commerce-klaus/typescript-sfcc`](./typescript-sfcc/)                     | Editor resolution, cartridge typechecking, and generated project types |
 | [`@commerce-klaus/vitest-sfcc`](./vitest-sfcc/)                             | SFCC runtime modules and cartridge-aware dependency mocking in Vitest  |
-| [`@commerce-klaus/vite-plugin-sfcc-modules`](./vite-plugin-sfcc-modules/)   | SFCC module resolution in Vite and Vitest                              |
+| [`@commerce-klaus/vite-plugin-sfcc-modules`](./vite-plugin-sfcc-modules/)   | SFCC module resolution in other Vite-based tooling                     |
 | [`@commerce-klaus/babel-plugin-sfcc-modules`](./babel-plugin-sfcc-modules/) | SFCC module rewriting in Babel-based pipelines                         |
 
 ## Shared foundation

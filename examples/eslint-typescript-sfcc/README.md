@@ -1,8 +1,8 @@
-# ESLint and TypeScript SFCC example
+# ESLint, TypeScript, and Vitest SFCC example
 
 This private workspace package shows the smallest recommended setup for using
-`@commerce-klaus/eslint-config-sfcc` and `@commerce-klaus/typescript-sfcc`
-together in an SFCC cartridge project.
+`@commerce-klaus/eslint-config-sfcc`, `@commerce-klaus/typescript-sfcc`, and
+`@commerce-klaus/vitest-sfcc` together in an SFCC cartridge project.
 
 The ESLint flat config combines the recommended presets from ESLint,
 TypeScript ESLint, SonarJS, and Unicorn. The SFCC config is applied last so its
@@ -60,13 +60,16 @@ demonstrates the supported SFCC module patterns:
 - `*/cartridge/...` resolves from the highest-priority matching cartridge.
 - `app_example/cartridge/...` resolves an explicitly named cartridge.
 
-The Vite config applies `@commerce-klaus/vite-plugin-sfcc-modules` and loads the
-cartridge order from the `Example` site's `custom-cartridges` setting in the
-site template. The ESLint config passes the same site template and site to the
-SFCC recommended config, so `sfcc/valid-require-path` uses that cartridge order
-as well. The Vitest integration test imports the custom `price-label.js`
+The Vite config applies `@commerce-klaus/vitest-sfcc`, which combines SFCC
+module loading with the deterministic test runtime, and loads the cartridge
+order from the `Example` site's `custom-cartridges` setting in the site
+template. The ESLint config passes the same site template and site to the SFCC
+recommended config, so `sfcc/valid-require-path` uses that cartridge order as
+well. The Vitest integration test imports the custom `price-label.js`
 implementation and verifies that `module.superModule` resolves and executes the
-base implementation from `app_example`.
+base implementation from `app_example`. It also resets the SFCC test runtime
+with a site ID and custom preference before dynamically importing cartridge
+code that reads the current `dw/system/Site`.
 
 Force a refresh after changing metadata, sandbox details, or the API version
 with:
