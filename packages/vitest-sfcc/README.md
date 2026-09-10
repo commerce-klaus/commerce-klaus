@@ -150,6 +150,28 @@ The initial release resolves `dw/*`, `*/`, `~/`, cartridge aliases, and
 `HookMgr`. Hook registrations are discovered automatically from each cartridge's
 declared `hooks.json`, using cartridge-path priority.
 
+Disable that discovery when a focused test should provide its own `HookMgr`, or
+limit it to the cartridges relevant to the test project:
+
+```ts
+sfccVitest({
+  basePath: "./cartridges",
+  cartridgePath: ["int_payment", "app_storefront_base"],
+  hookDiscovery: false,
+})
+
+sfccVitest({
+  basePath: "./cartridges",
+  cartridgePath: ["int_payment", "app_storefront_base"],
+  hookDiscovery: { cartridges: ["int_payment"] },
+})
+```
+
+The option affects automatic `hooks.json` loading only. `HookMgr` remains
+available, including hooks registered directly on the test runtime. Use a
+dedicated Vitest project configuration when only a subset of test files needs a
+different discovery scope.
+
 ## Documentation
 
 See the [complete configuration and testing reference](https://commerce-klaus.github.io/commerce-klaus/packages/vitest-sfcc/).

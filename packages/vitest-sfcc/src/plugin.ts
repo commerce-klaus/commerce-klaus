@@ -23,7 +23,12 @@ import {
 import { setActiveStepTypes } from "./job-step.js"
 import { encodeVirtualModule, loadVirtualModule, VIRTUAL_PREFIX } from "./virtual-modules.js"
 
+export interface SfccHookDiscoveryOptions {
+  cartridges: string[]
+}
+
 export interface SfccVitestOptions extends SfccModuleResolutionOptions {
+  hookDiscovery?: false | SfccHookDiscoveryOptions
   runtime?: SfccTestRuntimeOptions
 }
 
@@ -36,10 +41,28 @@ export interface SfccVitestPlugin {
   load(id: string): string | undefined
 }
 
+function getHookCartridgeRoots(
+  cartridgeRoots: string[],
+  hookDiscovery: SfccVitestOptions["hookDiscovery"],
+): string[] {
+  if (hookDiscovery === false) {
+    return []
+  }
+
+  if (!hookDiscovery) {
+    return cartridgeRoots
+  }
+
+  const selectedCartridges = new Set(hookDiscovery.cartridges)
+  return cartridgeRoots.filter((root) => selectedCartridges.has(path.basename(root)))
+}
+
 export default function sfccVitest(options: SfccVitestOptions): SfccVitestPlugin {
   const cartridgeRoots = resolveCartridgeRoots(options)
   const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
-  const hookRegistrations = findResolvedHookRegistrations(cartridgeRoots)
+  const hookRegistrations = findResolvedHookRegistrations(
+    getHookCartridgeRoots(cartridgeRoots, options.hookDiscovery),
+  )
   const stepTypeDefinitions = findResolvedStepTypeDefinitions(cartridgeRoots)
   setActiveStepTypes(stepTypeDefinitions)
   setSfccTestRuntime(createSfccTestRuntime(options.runtime))

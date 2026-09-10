@@ -105,16 +105,17 @@ This reads `sites/<site>/site.xml` below `siteTemplatePath` and uses its `custom
 
 ### Options
 
-| Option               | Type                     | Required | Description                                                                    |
-| -------------------- | ------------------------ | -------- | ------------------------------------------------------------------------------ |
-| `basePath`           | `string`                 | yes      | Directory containing the project cartridges.                                   |
-| `cartridgePath`      | `string[]`               | no       | Explicit cartridge order. First match wins.                                    |
-| `cwd`                | `string`                 | no       | Working directory used to resolve relative paths. Defaults to `process.cwd()`. |
-| `siteTemplatePath`   | `string`                 | no       | Site-template root containing `sites/<site>/site.xml`.                         |
-| `site`               | `string`                 | no       | Site identifier used to read `custom-cartridges` from `site.xml`.              |
-| `solutionConfigPath` | `string`                 | no       | Path to `cartridges/jsconfig.json` for reference-based cartridge order.        |
-| `envCartridgePath`   | `string`                 | no       | Colon-separated cartridge order, matching `SFCC_CARTRIDGE_PATH`.               |
-| `runtime`            | `SfccTestRuntimeOptions` | no       | Initial runtime options, including the current site id and custom preferences. |
+| Option               | Type                                | Required | Description                                                                    |
+| -------------------- | ----------------------------------- | -------- | ------------------------------------------------------------------------------ |
+| `basePath`           | `string`                            | yes      | Directory containing the project cartridges.                                   |
+| `cartridgePath`      | `string[]`                          | no       | Explicit cartridge order. First match wins.                                    |
+| `cwd`                | `string`                            | no       | Working directory used to resolve relative paths. Defaults to `process.cwd()`. |
+| `siteTemplatePath`   | `string`                            | no       | Site-template root containing `sites/<site>/site.xml`.                         |
+| `site`               | `string`                            | no       | Site identifier used to read `custom-cartridges` from `site.xml`.              |
+| `solutionConfigPath` | `string`                            | no       | Path to `cartridges/jsconfig.json` for reference-based cartridge order.        |
+| `envCartridgePath`   | `string`                            | no       | Colon-separated cartridge order, matching `SFCC_CARTRIDGE_PATH`.               |
+| `hookDiscovery`      | `false \| { cartridges: string[] }` | no       | Disable automatic hook discovery or limit it to named cartridges.              |
+| `runtime`            | `SfccTestRuntimeOptions`            | no       | Initial runtime options, including the current site id and custom preferences. |
 
 If `cartridgePath` is omitted, order is inferred with this precedence:
 
@@ -332,6 +333,34 @@ if (HookMgr.hasHook("app.payment.authorize")) {
 ```
 
 Hook scripts run through the same cartridge transformer and can use `dw/*`, `*/`, `~/`, aliases, and `module.superModule`. `getSfccRuntime().hookCalls` exposes calls for test assertions.
+
+Automatic discovery can be disabled when a focused test does not need the
+project's registered hooks:
+
+```ts{5} [vitest.config.ts]
+sfccVitest({
+  basePath: "./cartridges",
+  cartridgePath: ["int_payment", "app_storefront_base"],
+  hookDiscovery: false,
+})
+```
+
+Or restrict discovery to selected cartridges while preserving their order in
+the configured cartridge path:
+
+```ts{5} [vitest.config.ts]
+sfccVitest({
+  basePath: "./cartridges",
+  cartridgePath: ["int_payment", "app_storefront_base"],
+  hookDiscovery: { cartridges: ["int_payment"] },
+})
+```
+
+This setting only controls automatic `hooks.json` loading. The runtime's
+`HookMgr` and hooks registered directly with `getSfccRuntime().registerHook()`
+remain available. Plugin options are evaluated per Vitest project; use a
+dedicated project configuration when only a subset of test files needs a
+different discovery scope.
 
 ## CommonJS scope
 

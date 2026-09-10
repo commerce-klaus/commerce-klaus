@@ -124,6 +124,32 @@ describe("vitest-sfcc", () => {
     expect(plugin.resolveId(applicationPath)).toBeUndefined()
   })
 
+  it("can disable automatic hook discovery", () => {
+    const plugin = sfccVitest({
+      basePath: path.resolve(import.meta.dirname, "cartridges"),
+      cartridgePath: ["app_custom", "app_base"],
+      hookDiscovery: false,
+    })
+    const hookManagerId = plugin.resolveId("dw/system/HookMgr")
+    const virtualModule = plugin.load(hookManagerId!)
+
+    expect(virtualModule).not.toContain("/hooks/payment.js")
+    expect(virtualModule).toContain('runtime.resolve("dw/system/HookMgr")')
+  })
+
+  it("limits automatic hook discovery to selected cartridges", () => {
+    const plugin = sfccVitest({
+      basePath: path.resolve(import.meta.dirname, "cartridges"),
+      cartridgePath: ["app_custom", "app_base"],
+      hookDiscovery: { cartridges: ["app_base"] },
+    })
+    const hookManagerId = plugin.resolveId("dw/system/HookMgr")
+    const virtualModule = plugin.load(hookManagerId!)
+
+    expect(virtualModule).not.toContain("app_custom/cartridge/scripts/hooks/payment.js")
+    expect(virtualModule).toContain("app_base/cartridge/scripts/hooks/payment.js")
+  })
+
   it("generates imports through the public vitest-sfcc runtime entry", () => {
     const cartridgeRoot = path.resolve(import.meta.dirname, "cartridges/app_custom")
     const transformed = transformCartridgeCommonJs(

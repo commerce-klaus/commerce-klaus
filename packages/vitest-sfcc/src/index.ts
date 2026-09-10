@@ -11,7 +11,7 @@ export {
   type SfccLoadedJobStep,
 } from "./job-step.js"
 export { default } from "./plugin.js"
-export type { SfccVitestOptions, SfccVitestPlugin } from "./plugin.js"
+export type { SfccHookDiscoveryOptions, SfccVitestOptions, SfccVitestPlugin } from "./plugin.js"
 export { getSfccRuntime, requireSfccModule, resetSfccRuntime } from "./runtime.js"
 
 export type {
