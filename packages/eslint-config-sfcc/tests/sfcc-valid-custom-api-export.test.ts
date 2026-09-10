@@ -31,6 +31,14 @@ function lint(code: string, filename: string) {
   return linter.verify(code, recommended, { filename })
 }
 
+function applySuggestion(
+  code: string,
+  suggestion: { fix?: { range: [number, number]; text: string } },
+): string {
+  const fix = suggestion.fix
+  return fix ? `${code.slice(0, fix.range[0])}${fix.text}${code.slice(fix.range[1])}` : code
+}
+
 const restApiDir = "cartridges/app_custom/cartridge/rest-apis/loyalty-info"
 
 function writeApiJson(tempDir: string): void {
@@ -69,6 +77,34 @@ test("reports a missing public flag when the export exists but is not public", (
 
     expect(hits).toHaveLength(1)
     expect(hits[0]?.messageId).toBe("missingPublicFlag")
+    expect(applySuggestion(code, hits[0]?.suggestions?.[0] ?? {})).toBe(
+      "exports.getLoyaltyInfo = function () {}\nexports.getLoyaltyInfo.public = true\n",
+    )
+  })
+})
+
+test("suggests the public flag on the local exported handler", () => {
+  withTempCartridgesCwd((tempDir) => {
+    writeApiJson(tempDir)
+    const relativeScriptPath = `${restApiDir}/script.js`
+    const code = [
+      "/** GET handler */",
+      "const getLoyaltyInfo = function () {};",
+      "",
+      "exports.getLoyaltyInfo = getLoyaltyInfo;",
+      "",
+    ].join("\n")
+    fs.mkdirSync(path.dirname(path.join(tempDir, relativeScriptPath)), { recursive: true })
+    fs.writeFileSync(path.join(tempDir, relativeScriptPath), code)
+
+    const hit = lint(code, relativeScriptPath).find(
+      (message) => message.ruleId === "sfcc/valid-custom-api-export",
+    )
+
+    expect(hit?.messageId).toBe("missingPublicFlag")
+    expect(applySuggestion(code, hit?.suggestions?.[0] ?? {})).toContain(
+      "getLoyaltyInfo.public = true;\nexports.getLoyaltyInfo = getLoyaltyInfo;",
+    )
   })
 })
 

@@ -21,6 +21,7 @@ Custom API endpoints are only registered when the implementation script exports 
 
 - Severity: `error`
 - Auto-fix: none
+- Suggestion: adds `.public = true` to the exported function or local handler binding
 
 ## Example
 
@@ -41,4 +42,12 @@ exports.getLoyaltyInfo = function () {}
 function accountLookup() {}
 accountLookup.public = true
 exports.getLoyaltyInfo = accountLookup
+```
+
+When the export exists but its public flag is missing, the editor suggestion preserves the existing export style:
+
+```js
+const getLoyaltyInfo = function () {}
+getLoyaltyInfo.public = true
+exports.getLoyaltyInfo = getLoyaltyInfo
 ```
