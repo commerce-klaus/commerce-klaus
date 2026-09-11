@@ -1,24 +1,13 @@
-import tseslint from "@typescript-eslint/eslint-plugin"
 import tsParser from "@typescript-eslint/parser"
-import { ESLint, type Linter } from "eslint"
+import { ESLint } from "eslint"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { describe, expect, test } from "vite-plus/test"
 
-import { createRecommendedConfig } from "../src/index.js"
 import sfcc from "../src/plugins/sfcc/index.js"
+import { applySuggestion, createTypeScriptRecommendedConfig } from "./test-utils.js"
 
-const tsRecommended = tseslint.configs["flat/recommended"] as unknown as
-  | Linter.Config
-  | Linter.Config[]
-
-const config: Linter.Config[] = [
-  ...(Array.isArray(tsRecommended) ? tsRecommended : [tsRecommended]),
-  ...createRecommendedConfig({
-    files: ["**/*.js"],
-    ignores: [],
-  }),
-]
+const config = createTypeScriptRecommendedConfig(["**/*.js"])
 
 async function lint(code: string, filename = "cartridges/app_sfra/cartridge/scripts/fixture.js") {
   const eslint = new ESLint({
@@ -56,20 +45,6 @@ async function lintTypeAware(filename: string) {
 
   const results = await eslint.lintFiles([path.join(fixtureDir, filename)])
   return results[0]
-}
-
-function applySuggestion(code: string, suggestion: { fix?: any }): string {
-  const fixes = Array.isArray(suggestion.fix)
-    ? [...suggestion.fix]
-    : suggestion.fix
-      ? [suggestion.fix]
-      : []
-
-  return fixes
-    .sort((left, right) => right.range[0] - left.range[0])
-    .reduce((output, fix) => {
-      return `${output.slice(0, fix.range[0])}${fix.text}${output.slice(fix.range[1])}`
-    }, code)
 }
 
 describe("sfcc/no-string-equals", () => {

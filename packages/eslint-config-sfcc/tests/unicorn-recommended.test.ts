@@ -1,8 +1,8 @@
-import { ESLint } from "eslint"
 import unicorn from "eslint-plugin-unicorn"
 import { expect, test, describe } from "vite-plus/test"
 
 import { createRecommendedConfig } from "../src/index.js"
+import { lintText } from "./test-utils.js"
 
 const unicornRecommended = unicorn.configs.recommended
 const sfccRecommended = createRecommendedConfig({
@@ -11,15 +11,11 @@ const sfccRecommended = createRecommendedConfig({
 })
 
 async function lint(code: string, filename = "fixture.js") {
-  const eslint = new ESLint({
-    overrideConfigFile: true,
-    overrideConfig: [
-      ...(Array.isArray(unicornRecommended) ? unicornRecommended : [unicornRecommended]),
-      ...sfccRecommended,
-    ],
-  })
-  const results = await eslint.lintText(code, { filePath: filename })
-  return results[0]?.messages || []
+  const config = [
+    ...(Array.isArray(unicornRecommended) ? unicornRecommended : [unicornRecommended]),
+    ...sfccRecommended,
+  ]
+  return lintText(config, code, filename)
 }
 
 describe("unicorn:recommended config", () => {

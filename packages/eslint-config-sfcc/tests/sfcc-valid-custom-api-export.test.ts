@@ -1,42 +1,20 @@
 import { Linter } from "eslint"
 import fs from "node:fs"
-import os from "node:os"
 import path from "node:path"
 import { expect, test } from "vite-plus/test"
 
 import { recommended } from "../src/index.js"
+import { applySuggestion, withTemporaryCwd, writeJson } from "./test-utils.js"
 
 // The recommended config matches files via the relative glob "cartridges/**/*.{js,ds}",
 // so tests run inside a temporary cwd with real, relative-path fixture files.
 function withTempCartridgesCwd<T>(run: (tempDir: string) => T): T {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-valid-custom-api-export-test-"))
-  const previousCwd = process.cwd()
-  process.chdir(tempDir)
-
-  try {
-    return run(tempDir)
-  } finally {
-    process.chdir(previousCwd)
-    fs.rmSync(tempDir, { recursive: true, force: true })
-  }
-}
-
-function writeJson(filePath: string, content: unknown): void {
-  fs.mkdirSync(path.dirname(filePath), { recursive: true })
-  fs.writeFileSync(filePath, `${JSON.stringify(content, null, 2)}\n`)
+  return withTemporaryCwd("sfcc-valid-custom-api-export-test-", run)
 }
 
 function lint(code: string, filename: string) {
   const linter = new Linter()
   return linter.verify(code, recommended, { filename })
-}
-
-function applySuggestion(
-  code: string,
-  suggestion: { fix?: { range: [number, number]; text: string } },
-): string {
-  const fix = suggestion.fix
-  return fix ? `${code.slice(0, fix.range[0])}${fix.text}${code.slice(fix.range[1])}` : code
 }
 
 const restApiDir = "cartridges/app_custom/cartridge/rest-apis/loyalty-info"

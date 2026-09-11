@@ -1,20 +1,9 @@
-import tseslint from "@typescript-eslint/eslint-plugin"
-import { ESLint, type Linter } from "eslint"
+import { ESLint } from "eslint"
 import { describe, expect, test } from "vite-plus/test"
 
-import { createRecommendedConfig } from "../src/index.js"
+import { applySuggestion, createTypeScriptRecommendedConfig } from "./test-utils.js"
 
-const tsRecommended = tseslint.configs["flat/recommended"] as unknown as
-  | Linter.Config
-  | Linter.Config[]
-
-const config: Linter.Config[] = [
-  ...(Array.isArray(tsRecommended) ? tsRecommended : [tsRecommended]),
-  ...createRecommendedConfig({
-    files: ["**/*.js"],
-    ignores: [],
-  }),
-]
+const config = createTypeScriptRecommendedConfig(["**/*.js"])
 
 async function lint(
   code: string,
@@ -29,20 +18,6 @@ async function lint(
 
   const results = await eslint.lintText(code, { filePath: filename })
   return results[0]
-}
-
-function applySuggestion(code: string, suggestion: { fix?: any }): string {
-  const fixes = Array.isArray(suggestion.fix)
-    ? [...suggestion.fix]
-    : suggestion.fix
-      ? [suggestion.fix]
-      : []
-
-  return fixes
-    .sort((left, right) => right.range[0] - left.range[0])
-    .reduce((output, fix) => {
-      return `${output.slice(0, fix.range[0])}${fix.text}${output.slice(fix.range[1])}`
-    }, code)
 }
 
 describe("sfcc/no-type-annotations", () => {

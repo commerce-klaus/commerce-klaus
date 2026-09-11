@@ -1,9 +1,9 @@
 import js from "@eslint/js"
-import { ESLint } from "eslint"
 import globals from "globals"
 import { expect, test, describe } from "vite-plus/test"
 
 import { createRecommendedConfig } from "../src/index.js"
+import { lintText } from "./test-utils.js"
 
 const eslintRecommended = [
   {
@@ -24,12 +24,7 @@ const eslintRecommended = [
 ]
 
 async function lint(code: string, filename = "fixture.js") {
-  const eslint = new ESLint({
-    overrideConfigFile: true,
-    overrideConfig: eslintRecommended,
-  })
-  const results = await eslint.lintText(code, { filePath: filename })
-  return results[0]?.messages || []
+  return lintText(eslintRecommended, code, filename)
 }
 
 describe("eslint:recommended config", () => {

@@ -1,29 +1,11 @@
-import tseslint from "@typescript-eslint/eslint-plugin"
-import { ESLint, type Linter } from "eslint"
 import { describe, expect, test } from "vite-plus/test"
 
-import { createRecommendedConfig } from "../src/index.js"
+import { createTypeScriptRecommendedConfig, lintText } from "./test-utils.js"
 
-const tsRecommended = tseslint.configs["flat/recommended"] as unknown as
-  | Linter.Config
-  | Linter.Config[]
-
-const config: Linter.Config[] = [
-  ...(Array.isArray(tsRecommended) ? tsRecommended : [tsRecommended]),
-  ...createRecommendedConfig({
-    files: ["**/*.js"],
-    ignores: [],
-  }),
-]
+const config = createTypeScriptRecommendedConfig(["**/*.js"])
 
 async function lint(code: string, filename = "cartridges/app_sfra/cartridge/controllers/Home.js") {
-  const eslint = new ESLint({
-    overrideConfigFile: true,
-    overrideConfig: config,
-  })
-
-  const results = await eslint.lintText(code, { filePath: filename })
-  return results[0]?.messages || []
+  return lintText(config, code, filename)
 }
 
 describe("sfcc/no-e4x-syntax", () => {

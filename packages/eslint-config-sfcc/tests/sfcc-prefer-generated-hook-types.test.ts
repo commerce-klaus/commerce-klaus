@@ -5,6 +5,7 @@ import path from "node:path"
 import { expect, test } from "vite-plus/test"
 
 import { sfcc } from "../src/index.js"
+import { applySuggestion } from "./test-utils.js"
 
 function withHook<T>(run: (filename: string) => T): T {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-generated-hook-types-test-"))
@@ -62,14 +63,6 @@ function lint(code: string, filename: string) {
     [{ plugins: { sfcc }, rules: { "sfcc/prefer-generated-hook-types": "error" } }],
     { filename },
   )
-}
-
-function applySuggestion(
-  code: string,
-  suggestion: { fix?: { range: [number, number]; text: string } },
-) {
-  const fix = suggestion.fix
-  return fix ? `${code.slice(0, fix.range[0])}${fix.text}${code.slice(fix.range[1])}` : code
 }
 
 test("suggests the generated type for a registered hook function", () => {

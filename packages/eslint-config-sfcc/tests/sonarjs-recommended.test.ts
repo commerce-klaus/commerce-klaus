@@ -1,8 +1,8 @@
-import { ESLint } from "eslint"
 import sonarjs from "eslint-plugin-sonarjs"
 import { expect, test, describe } from "vite-plus/test"
 
 import { createRecommendedConfig } from "../src/index.js"
+import { lintText } from "./test-utils.js"
 
 const sonarjsRecommended = [
   {
@@ -16,12 +16,7 @@ const sonarjsRecommended = [
 ]
 
 async function lint(code: string, filename = "fixture.js") {
-  const eslint = new ESLint({
-    overrideConfigFile: true,
-    overrideConfig: sonarjsRecommended,
-  })
-  const results = await eslint.lintText(code, { filePath: filename })
-  return results[0]?.messages || []
+  return lintText(sonarjsRecommended, code, filename)
 }
 
 describe("sonarjs:recommended config", () => {

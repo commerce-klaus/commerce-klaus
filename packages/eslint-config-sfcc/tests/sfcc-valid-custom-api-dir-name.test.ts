@@ -1,27 +1,13 @@
 import { Linter } from "eslint"
 import fs from "node:fs"
-import os from "node:os"
 import path from "node:path"
 import { expect, test } from "vite-plus/test"
 
 import { recommended } from "../src/index.js"
+import { withTemporaryCwd, writeJson } from "./test-utils.js"
 
 function withTempCartridgesCwd<T>(run: (tempDir: string) => T): T {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-valid-custom-api-dir-name-test-"))
-  const previousCwd = process.cwd()
-  process.chdir(tempDir)
-
-  try {
-    return run(tempDir)
-  } finally {
-    process.chdir(previousCwd)
-    fs.rmSync(tempDir, { recursive: true, force: true })
-  }
-}
-
-function writeJson(filePath: string, content: unknown): void {
-  fs.mkdirSync(path.dirname(filePath), { recursive: true })
-  fs.writeFileSync(filePath, `${JSON.stringify(content, null, 2)}\n`)
+  return withTemporaryCwd("sfcc-valid-custom-api-dir-name-test-", run)
 }
 
 function writeFile(filePath: string, content: string): void {
