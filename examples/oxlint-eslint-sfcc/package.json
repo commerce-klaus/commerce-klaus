@@ -11,7 +11,7 @@
     "@commerce-klaus/eslint-config-sfcc": "workspace:*",
     "@commerce-klaus/typescript-sfcc": "workspace:*",
     "@commerce-klaus/vite-plugin-sfcc-modules": "workspace:*",
-    "@types/node": "^24",
+    "@types/node": "catalog:",
     "@typescript-eslint/parser": "^8.68.0",
     "eslint": "^10.0.1",
     "globals": "^17.4.0",
