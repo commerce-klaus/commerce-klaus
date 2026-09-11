@@ -1,9 +1,9 @@
 import type { Rule } from "eslint"
 
-function isControllerFile(filename: string): boolean {
-  const normalizedFilename = filename.replaceAll("\\", "/")
-  return /(?:^|\/)cartridge\/controllers\//u.test(normalizedFilename)
-}
+import { createFilePathRuleListener } from "../_utils/file-path.js"
+
+const isControllerFile = (filename: string): boolean =>
+  /(?:^|\/)cartridge\/controllers\//u.test(filename)
 
 const noControllers: Rule.RuleModule = {
   meta: {
@@ -19,13 +19,7 @@ const noControllers: Rule.RuleModule = {
     },
   },
   create(context) {
-    return {
-      Program(node) {
-        if (isControllerFile(context.filename)) {
-          context.report({ node, messageId: "noControllers" })
-        }
-      },
-    }
+    return createFilePathRuleListener(context, isControllerFile, "noControllers")
   },
 }
 

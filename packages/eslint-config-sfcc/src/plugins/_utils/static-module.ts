@@ -23,3 +23,16 @@ export function getRequiredModulePath(node: Rule.Node): string | undefined {
 
   return getStaticModulePath(node.arguments[0] as Rule.Node | undefined)
 }
+
+export function createStaticModuleListeners(
+  visit: (node: Rule.Node, modulePath: string | undefined) => void,
+): Rule.RuleListener {
+  return {
+    CallExpression(node) {
+      visit(node, getRequiredModulePath(node))
+    },
+    ImportExpression(node) {
+      visit(node, getStaticModulePath(node.source as Rule.Node))
+    },
+  }
+}

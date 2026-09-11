@@ -1,6 +1,6 @@
 import type { Rule } from "eslint"
 
-import { getRequiredModulePath, getStaticModulePath } from "../_utils/static-module.js"
+import { createStaticModuleListeners } from "../_utils/static-module.js"
 
 const PAGE_DESIGNER_NAMESPACE = "dw/experience/"
 
@@ -19,20 +19,11 @@ const noPageDesigner: Rule.RuleModule = {
     },
   },
   create(context) {
-    function reportPageDesignerApi(node: Rule.Node, modulePath: string | undefined): void {
+    return createStaticModuleListeners((node, modulePath) => {
       if (modulePath?.startsWith(PAGE_DESIGNER_NAMESPACE)) {
         context.report({ node, messageId: "pageDesignerApi", data: { modulePath } })
       }
-    }
-
-    return {
-      CallExpression(node) {
-        reportPageDesignerApi(node, getRequiredModulePath(node))
-      },
-      ImportExpression(node) {
-        reportPageDesignerApi(node, getStaticModulePath(node.source as Rule.Node))
-      },
-    }
+    })
   },
 }
 

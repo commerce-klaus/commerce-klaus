@@ -1,18 +1,8 @@
 import type { Rule } from "eslint"
 
+import { getStaticModulePath } from "../_utils/static-module.js"
+
 type ProprietaryModuleSyntax = "star" | "superModule" | "tilde"
-
-function getStaticRequirePath(node: Rule.Node | undefined): string | undefined {
-  if (node?.type === "Literal" && typeof node.value === "string") {
-    return node.value
-  }
-
-  if (node?.type === "TemplateLiteral" && node.expressions.length === 0) {
-    return node.quasis[0]?.value.cooked ?? undefined
-  }
-
-  return undefined
-}
 
 function getProprietaryRequireSyntax(requirePath: string): ProprietaryModuleSyntax | undefined {
   if (requirePath.startsWith("*/")) {
@@ -100,7 +90,7 @@ const noProprietaryModuleSyntax: Rule.RuleModule = {
           return
         }
 
-        const requirePath = getStaticRequirePath(callNode.arguments?.[0])
+        const requirePath = getStaticModulePath(callNode.arguments?.[0])
         if (requirePath === undefined) {
           return
         }

@@ -1,6 +1,6 @@
 import type { Rule } from "eslint"
 
-import { getRequiredModulePath, getStaticModulePath } from "../_utils/static-module.js"
+import { createStaticModuleListeners } from "../_utils/static-module.js"
 
 const SFRA_SERVER_MODULE = "server"
 
@@ -18,20 +18,11 @@ const noSfraServer: Rule.RuleModule = {
     },
   },
   create(context) {
-    function reportIfSfraServer(node: Rule.Node, modulePath: string | undefined): void {
+    return createStaticModuleListeners((node, modulePath) => {
       if (modulePath === SFRA_SERVER_MODULE) {
         context.report({ node, messageId: "sfraServer" })
       }
-    }
-
-    return {
-      CallExpression(node) {
-        reportIfSfraServer(node, getRequiredModulePath(node))
-      },
-      ImportExpression(node) {
-        reportIfSfraServer(node, getStaticModulePath(node.source as Rule.Node))
-      },
-    }
+    })
   },
 }
 

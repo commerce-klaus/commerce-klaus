@@ -1,29 +1,10 @@
 import type { Rule, Scope } from "eslint"
 
+import { getStaticMemberName } from "../_utils/ast.js"
 import { getRequiredModulePath, getStaticModulePath } from "../_utils/static-module.js"
 
 const TEMPLATE_MODULES = new Set(["dw/template/ISML", "dw/util/Template"])
 const ROUTE_METHODS = new Set(["append", "get", "post", "prepend", "replace", "use"])
-
-function getMemberName(node: Rule.Node): string | undefined {
-  if (node.type !== "MemberExpression") {
-    return undefined
-  }
-
-  if (!node.computed && node.property.type === "Identifier") {
-    return node.property.name
-  }
-
-  if (
-    node.computed &&
-    node.property.type === "Literal" &&
-    typeof node.property.value === "string"
-  ) {
-    return node.property.value
-  }
-
-  return undefined
-}
 
 function getRequiredBinding(node: Rule.Node): { modulePath: string } | undefined {
   if (node.type !== "VariableDeclarator" || node.id.type !== "Identifier" || !node.init) {
@@ -53,7 +34,7 @@ function isRegisteredRouteHandler(
   }
   if (
     callee.object.type !== "Identifier" ||
-    !ROUTE_METHODS.has(getMemberName(callee) ?? "") ||
+    !ROUTE_METHODS.has(getStaticMemberName(callee) ?? "") ||
     !parent.arguments.includes(functionNode as never)
   ) {
     return false
@@ -84,7 +65,7 @@ function isRouteResponseRender(
   const callee = node.callee as unknown as Rule.Node & {
     object: Rule.Node & { name?: string }
   }
-  if (getMemberName(callee) !== "render" || callee.object.type !== "Identifier") {
+  if (getStaticMemberName(callee) !== "render" || callee.object.type !== "Identifier") {
     return false
   }
 

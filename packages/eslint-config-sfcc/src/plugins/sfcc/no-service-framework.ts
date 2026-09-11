@@ -1,6 +1,6 @@
 import type { Rule } from "eslint"
 
-import { getRequiredModulePath, getStaticModulePath } from "../_utils/static-module.js"
+import { createStaticModuleListeners } from "../_utils/static-module.js"
 
 const SERVICE_FRAMEWORK_NAMESPACE = "dw/svc/"
 
@@ -19,20 +19,11 @@ const noServiceFramework: Rule.RuleModule = {
     },
   },
   create(context) {
-    function reportServiceFramework(node: Rule.Node, modulePath: string | undefined): void {
+    return createStaticModuleListeners((node, modulePath) => {
       if (modulePath?.startsWith(SERVICE_FRAMEWORK_NAMESPACE)) {
         context.report({ node, messageId: "serviceFramework", data: { modulePath } })
       }
-    }
-
-    return {
-      CallExpression(node) {
-        reportServiceFramework(node, getRequiredModulePath(node))
-      },
-      ImportExpression(node) {
-        reportServiceFramework(node, getStaticModulePath(node.source as Rule.Node))
-      },
-    }
+    })
   },
 }
 

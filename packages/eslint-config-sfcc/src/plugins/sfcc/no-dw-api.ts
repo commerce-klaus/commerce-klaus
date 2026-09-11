@@ -1,6 +1,6 @@
 import type { Rule } from "eslint"
 
-import { getRequiredModulePath, getStaticModulePath } from "../_utils/static-module.js"
+import { createStaticModuleListeners } from "../_utils/static-module.js"
 
 function isAllowedModule(modulePath: string, allowedModules: Set<string>): boolean {
   if (allowedModules.has(modulePath)) {
@@ -45,20 +45,11 @@ const noDwApi: Rule.RuleModule = {
     const options = context.options[0] as { allow?: string[] } | undefined
     const allowedModules = new Set(options?.allow ?? [])
 
-    function reportDwApi(node: Rule.Node, modulePath: string | undefined): void {
+    return createStaticModuleListeners((node, modulePath) => {
       if (modulePath?.startsWith("dw/") && !isAllowedModule(modulePath, allowedModules)) {
         context.report({ node, messageId: "dwApi", data: { modulePath } })
       }
-    }
-
-    return {
-      CallExpression(node) {
-        reportDwApi(node, getRequiredModulePath(node))
-      },
-      ImportExpression(node) {
-        reportDwApi(node, getStaticModulePath(node.source as Rule.Node))
-      },
-    }
+    })
   },
 }
 

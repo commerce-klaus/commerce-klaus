@@ -1,5 +1,7 @@
 import type { Rule } from "eslint"
 
+import { getStaticModulePath } from "../_utils/static-module.js"
+
 const COLLECTION_ALTERNATIVES = {
   "dw/util/ArrayList": "Array",
   "dw/util/HashMap": "Map",
@@ -8,18 +10,6 @@ const COLLECTION_ALTERNATIVES = {
 } as const
 
 type CollectionPath = keyof typeof COLLECTION_ALTERNATIVES
-
-function getStaticRequirePath(node: Rule.Node | undefined): string | undefined {
-  if (node?.type === "Literal" && typeof node.value === "string") {
-    return node.value
-  }
-
-  if (node?.type === "TemplateLiteral" && node.expressions.length === 0) {
-    return node.quasis[0]?.value.cooked ?? undefined
-  }
-
-  return undefined
-}
 
 function isCollectionPath(requirePath: string): requirePath is CollectionPath {
   return Object.hasOwn(COLLECTION_ALTERNATIVES, requirePath)
@@ -67,7 +57,7 @@ const preferNativeCollections: Rule.RuleModule = {
           return
         }
 
-        const requirePath = getStaticRequirePath(callNode.arguments?.[0])
+        const requirePath = getStaticModulePath(callNode.arguments?.[0])
         if (!requirePath || !isCollectionPath(requirePath) || allowedPaths.has(requirePath)) {
           return
         }

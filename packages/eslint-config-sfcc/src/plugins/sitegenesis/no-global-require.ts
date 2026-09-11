@@ -1,5 +1,7 @@
 import type { Rule, Scope } from "eslint"
 
+import { normalizeFilePath } from "../_utils/file-path.js"
+
 type RequireEntry = {
   variable: Scope.Variable
   useCount: number
@@ -60,7 +62,7 @@ const noGlobalRequire: Rule.RuleModule = {
     schema: [],
   },
   create: (context) => {
-    const normalizedFilename = context.filename.replaceAll("\\", "/")
+    const normalizedFilename = normalizeFilePath(context.filename)
     if (!normalizedFilename.includes("/cartridge/controllers/")) {
       return {}
     }

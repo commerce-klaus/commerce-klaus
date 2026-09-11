@@ -1,9 +1,9 @@
 import type { Rule } from "eslint"
 
-function isCustomApiFile(filename: string): boolean {
-  const normalizedFilename = filename.replaceAll("\\", "/")
-  return /(?:^|\/)cartridge\/rest-apis\//u.test(normalizedFilename)
-}
+import { createFilePathRuleListener } from "../_utils/file-path.js"
+
+const isCustomApiFile = (filename: string): boolean =>
+  /(?:^|\/)cartridge\/rest-apis\//u.test(filename)
 
 const noCustomApi: Rule.RuleModule = {
   meta: {
@@ -19,13 +19,7 @@ const noCustomApi: Rule.RuleModule = {
     },
   },
   create(context) {
-    return {
-      Program(node) {
-        if (isCustomApiFile(context.filename)) {
-          context.report({ node, messageId: "customApi" })
-        }
-      },
-    }
+    return createFilePathRuleListener(context, isCustomApiFile, "customApi")
   },
 }
 

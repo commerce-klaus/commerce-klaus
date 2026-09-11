@@ -1,6 +1,6 @@
 import type { Rule } from "eslint"
 
-import { getRequiredModulePath, getStaticModulePath } from "../_utils/static-module.js"
+import { createStaticModuleListeners } from "../_utils/static-module.js"
 
 const PIPELINE_MODULE = "dw/system/Pipeline"
 
@@ -18,20 +18,11 @@ const noPipelineApi: Rule.RuleModule = {
     },
   },
   create(context) {
-    function reportIfPipelineModule(node: Rule.Node, modulePath: string | undefined): void {
+    return createStaticModuleListeners((node, modulePath) => {
       if (modulePath === PIPELINE_MODULE) {
         context.report({ node, messageId: "pipelineApi", data: { modulePath } })
       }
-    }
-
-    return {
-      CallExpression(node) {
-        reportIfPipelineModule(node, getRequiredModulePath(node))
-      },
-      ImportExpression(node) {
-        reportIfPipelineModule(node, getStaticModulePath(node.source as Rule.Node))
-      },
-    }
+    })
   },
 }
 
