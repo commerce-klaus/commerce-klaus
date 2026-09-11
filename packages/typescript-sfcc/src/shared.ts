@@ -24,6 +24,7 @@ export const GENERATED_HOOK_TYPES_FILE_NAME = "sfcc-hooks.generated.d.ts"
 export const GENERATED_CUSTOM_APIS_FILE_NAME = "sfcc-custom-apis.generated.d.ts"
 export const GENERATED_JOB_STEP_TYPES_FILE_NAME = "sfcc-job-steps.generated.d.ts"
 export const PROJECT_HOOK_TYPES_FILE_NAME = "sfcc-hooks.d.ts"
+export const PROJECT_JOB_STEP_TYPES_FILE_NAME = "sfcc-job-steps.d.ts"
 
 export {
   DEFAULT_SITE_TEMPLATE_PATH,
@@ -135,6 +136,14 @@ export function resolveCartridgeHookTypesPath(cartridgeRoot: string): string {
   return path.join(cartridgeRoot, PROJECT_HOOK_TYPES_FILE_NAME)
 }
 
+export function resolveProjectJobStepTypesPath(cartridgesDir: string): string {
+  return path.join(cartridgesDir, PROJECT_JOB_STEP_TYPES_FILE_NAME)
+}
+
+export function resolveCartridgeJobStepTypesPath(cartridgeRoot: string): string {
+  return path.join(cartridgeRoot, PROJECT_JOB_STEP_TYPES_FILE_NAME)
+}
+
 export function resolveSiteTemplatePath(
   workspaceRoot: string,
   siteTemplatePath: string = DEFAULT_SITE_TEMPLATE_PATH,
@@ -197,6 +206,23 @@ export function getCartridgeHookTypesPaths(
     .filter((filePath) => existsSync(filePath))
 }
 
+export function getProjectJobStepTypesPathIfPresent(
+  cartridgesDir: string,
+  existsSync: (filePath: string) => boolean = nodeExistsSync,
+): string | undefined {
+  const filePath = resolveProjectJobStepTypesPath(cartridgesDir)
+  return existsSync(filePath) ? filePath : undefined
+}
+
+export function getCartridgeJobStepTypesPaths(
+  cartridgeRoots: string[],
+  existsSync: (filePath: string) => boolean = nodeExistsSync,
+): string[] {
+  return cartridgeRoots
+    .map((cartridgeRoot) => resolveCartridgeJobStepTypesPath(cartridgeRoot))
+    .filter((filePath) => existsSync(filePath))
+}
+
 export interface AdditionalTypeFilesOptions {
   workspaceRoot: string
   cartridgesDir: string
@@ -214,5 +240,7 @@ export function getAdditionalTypeFiles(
     getGeneratedJobStepTypesPathIfPresent(workspaceRoot, existsSync),
     getProjectHookTypesPathIfPresent(cartridgesDir, existsSync),
     ...getCartridgeHookTypesPaths(cartridgeRoots, existsSync),
+    getProjectJobStepTypesPathIfPresent(cartridgesDir, existsSync),
+    ...getCartridgeJobStepTypesPaths(cartridgeRoots, existsSync),
   ].filter((filePath): filePath is string => filePath !== undefined)
 }

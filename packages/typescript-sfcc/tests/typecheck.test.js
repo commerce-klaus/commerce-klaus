@@ -42,7 +42,7 @@ function writeJson(filePath, content) {
   fs.writeFileSync(filePath, `${JSON.stringify(content, null, 2)}\n`)
 }
 
-test("getAdditionalTypeFiles includes generated, cartridges-level, and per-cartridge hook declarations", () => {
+test("getAdditionalTypeFiles includes generated, cartridges-level, and per-cartridge declarations", () => {
   const workspaceRoot = "/workspace"
   const cartridgesDir = "/workspace/cartridges"
   const cartridgeRoots = ["/workspace/cartridges/app_custom"]
@@ -51,6 +51,8 @@ test("getAdditionalTypeFiles includes generated, cartridges-level, and per-cartr
     "/workspace/.b2c-script-types/types/sfcc-hooks.generated.d.ts",
     "/workspace/cartridges/sfcc-hooks.d.ts",
     "/workspace/cartridges/app_custom/sfcc-hooks.d.ts",
+    "/workspace/cartridges/sfcc-job-steps.d.ts",
+    "/workspace/cartridges/app_custom/sfcc-job-steps.d.ts",
   ])
 
   const additionalTypeFiles = getAdditionalTypeFiles(

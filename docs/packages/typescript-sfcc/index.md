@@ -275,6 +275,7 @@ exports.getLoyaltyInfo = getLoyaltyInfo
 Notes:
 
 - `$ref` values are resolved for `components.schemas`, `components.parameters`, `components.requestBodies`, and `components.responses`.
+- Typed `additionalProperties` schemas are emitted as `Record<string, ValueType>`.
 - `allOf`/`oneOf`/`anyOf` compositions are not resolved yet and fall back to `unknown`.
 - Schema and operation names are expected to be unique across all scanned cartridges; on a name collision, the first occurrence found wins.
 
@@ -303,6 +304,29 @@ exports.run = run
 ```
 
 Parameter metadata maps `boolean` to `boolean`, `long` and `double` to `number`, and `string` to `string`. `enum-values` become string literal unions. Date and time parameter types follow `target-type`: `long` becomes `number`, while `date` and the default conversion become `Date`.
+
+`steptypes.json` does not describe the items passed through a chunk step. Without additional project information, generated `read`, `process`, and `write` signatures therefore use `unknown`. Augment `SfccJobSteps.ChunkStepTypes` in a project declaration file to connect those functions with application-specific types:
+
+```ts [cartridges/sfcc-job-steps.d.ts]
+export {}
+
+declare global {
+  namespace SfccJobSteps {
+    interface ChunkStepTypes {
+      "custom.SynchroniseWizvilleReviews": {
+        ReadItem: dw.catalog.Product
+        ProcessedItem: {
+          product: dw.catalog.Product
+          ratingAverage: number
+          ratingCount: number
+        }
+      }
+    }
+  }
+}
+```
+
+The generated function types then make `read` return `ReadItem`, pass it to `process`, and pass `ProcessedItem` values to `write`. Both `read` and `process` may also return `null` or `undefined` according to the chunk lifecycle. If `ProcessedItem` is omitted, it defaults to `ReadItem`, which covers chunk steps without a process function.
 
 When the generated declaration is loaded together with `@commerce-klaus/vitest-sfcc`, `loadSfccJobStep()` accepts only registered type IDs and its `run()` method requires the corresponding `Input`. Without generated declarations, the API retains its general `string` and `Record<string, unknown>` fallback.
 

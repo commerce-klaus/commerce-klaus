@@ -17,9 +17,15 @@ function withTempDir(run) {
 
 test("generateCustomAttributesTypes writes a fallback file when metadata directory is missing", () => {
   withTempDir((workspaceRoot) => {
-    fs.mkdirSync(path.join(workspaceRoot, ".b2c-script-types", "types", "dw"), {
+    const dwTypesDirectory = path.join(workspaceRoot, ".b2c-script-types", "types", "dw")
+    const csvStreamWriterPath = path.join(dwTypesDirectory, "io", "CSVStreamWriter.d.ts")
+    fs.mkdirSync(path.dirname(csvStreamWriterPath), {
       recursive: true,
     })
+    fs.writeFileSync(
+      csvStreamWriterPath,
+      "declare class CSVStreamWriter {\n  writeNext(...line: string[]): void;\n}\n",
+    )
 
     const result = generateCustomAttributesTypes({ workspaceRoot })
 
@@ -29,6 +35,9 @@ test("generateCustomAttributesTypes writes a fallback file when metadata directo
     const generatedContent = fs.readFileSync(result.outputFilePath, "utf8")
     expect(generatedContent).toContain("type SfccEnumValue<TValue>")
     expect(generatedContent).not.toContain("declare module ")
+    expect(fs.readFileSync(csvStreamWriterPath, "utf8")).toContain(
+      "writeNext(line: string[]): void;",
+    )
   })
 })
 

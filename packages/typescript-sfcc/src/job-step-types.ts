@@ -70,6 +70,16 @@ function renderJobStepTypes(definitions: ResolvedStepTypeDefinition[]): string {
     "",
     "declare global {",
     "  namespace SfccJobSteps {",
+    "    interface ChunkStepTypes {}",
+    "",
+    "    type ReadItem<TypeId extends keyof Definitions> = TypeId extends keyof ChunkStepTypes",
+    "      ? ChunkStepTypes[TypeId] extends { ReadItem: infer Item } ? Item : unknown",
+    "      : unknown",
+    "",
+    "    type ProcessedItem<TypeId extends keyof Definitions> = TypeId extends keyof ChunkStepTypes",
+    "      ? ChunkStepTypes[TypeId] extends { ProcessedItem: infer Item } ? Item : ReadItem<TypeId>",
+    "      : ReadItem<TypeId>",
+    "",
     "    interface Definitions {",
     ...definitions.flatMap(renderDefinition),
     "    }",
@@ -157,15 +167,18 @@ function renderFunctions(definition: ResolvedStepTypeDefinition, parametersType:
     ]
   }
 
+  const typeId = JSON.stringify(definition.typeId)
+  const readItem = `ReadItem<${typeId}>`
+  const processedItem = `ProcessedItem<${typeId}>`
   const signatures: Partial<Record<keyof typeof definition.functions, string>> = {
     afterChunk: `(${standardArguments}) => void`,
     afterStep: `(success: boolean, ${standardArguments}) => Status | void`,
     beforeChunk: `(${standardArguments}) => void`,
     beforeStep: `(${standardArguments}) => void`,
     getTotalCount: `(${standardArguments}) => number`,
-    process: `(item: unknown, ${standardArguments}) => unknown | undefined`,
-    read: `(${standardArguments}) => unknown | undefined`,
-    write: `(items: List<unknown>, ${standardArguments}) => void`,
+    process: `(item: ${readItem}, ${standardArguments}) => ${processedItem} | null | undefined`,
+    read: `(${standardArguments}) => ${readItem} | null | undefined`,
+    write: `(items: List<${processedItem}>, ${standardArguments}) => void`,
   }
 
   return Object.entries(definition.functions).map(

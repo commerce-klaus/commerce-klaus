@@ -4,6 +4,7 @@ import path from "node:path"
 import { expect, test } from "vite-plus/test"
 
 import { generateJobStepTypes } from "../src/job-step-types.ts"
+import { runProjectTypecheck } from "../src/typecheck.ts"
 
 test("generateJobStepTypes creates declarations from effective steptypes.json definitions", () => {
   const workspaceRoot = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-ts-job-step-types-test-"))
@@ -82,18 +83,123 @@ test("generateJobStepTypes creates declarations from effective steptypes.json de
       '"run": (parameters: { "Mode": "full" | "delta"; "Limit": number; "StartDate": Date }, stepExecution: JobStepExecution) => Status | void',
     )
     expect(generatedContent).toContain('"custom.ExportProducts": {')
+    expect(generatedContent).toContain("interface ChunkStepTypes {}")
     expect(generatedContent).toContain(
-      '"readNext": (parameters: Record<string, never>, stepExecution: JobStepExecution) => unknown | undefined',
+      "type ReadItem<TypeId extends keyof Definitions> = TypeId extends keyof ChunkStepTypes",
     )
     expect(generatedContent).toContain(
-      '"process": (item: unknown, parameters: Record<string, never>, stepExecution: JobStepExecution) => unknown | undefined',
+      "type ProcessedItem<TypeId extends keyof Definitions> = TypeId extends keyof ChunkStepTypes",
     )
     expect(generatedContent).toContain(
-      '"writeBatch": (items: List<unknown>, parameters: Record<string, never>, stepExecution: JobStepExecution) => void',
+      '"readNext": (parameters: Record<string, never>, stepExecution: JobStepExecution) => ReadItem<"custom.ExportProducts"> | null | undefined',
+    )
+    expect(generatedContent).toContain(
+      '"process": (item: ReadItem<"custom.ExportProducts">, parameters: Record<string, never>, stepExecution: JobStepExecution) => ProcessedItem<"custom.ExportProducts"> | null | undefined',
+    )
+    expect(generatedContent).toContain(
+      '"writeBatch": (items: List<ProcessedItem<"custom.ExportProducts">>, parameters: Record<string, never>, stepExecution: JobStepExecution) => void',
     )
     expect(generatedContent).toContain(
       '"finish": (success: boolean, parameters: Record<string, never>, stepExecution: JobStepExecution) => Status | void',
     )
+  } finally {
+    fs.rmSync(workspaceRoot, { recursive: true, force: true })
+  }
+})
+
+test("generated chunk functions use project-defined item types", () => {
+  const workspaceRoot = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-ts-job-step-items-test-"))
+  const cartridgesDir = path.join(workspaceRoot, "cartridges")
+  const cartridgeRoot = path.join(cartridgesDir, "app_jobs")
+  const sourceDir = path.join(cartridgeRoot, "cartridge", "scripts")
+  const typesDir = path.join(workspaceRoot, ".b2c-script-types", "types")
+
+  try {
+    fs.mkdirSync(sourceDir, { recursive: true })
+    fs.mkdirSync(path.join(typesDir, "dw", "job"), { recursive: true })
+    fs.mkdirSync(path.join(typesDir, "dw", "system"), { recursive: true })
+    fs.mkdirSync(path.join(typesDir, "dw", "util"), { recursive: true })
+
+    fs.writeFileSync(
+      path.join(cartridgeRoot, "steptypes.json"),
+      JSON.stringify({
+        "step-types": {
+          "chunk-script-module-step": [
+            {
+              "@type-id": "custom.TypedChunk",
+              "chunk-size": 10,
+              module: "app_jobs/cartridge/scripts/chunk",
+              "read-function": "readNext",
+              "process-function": "process",
+              "write-function": "writeBatch",
+            },
+          ],
+        },
+      }),
+    )
+    fs.writeFileSync(
+      path.join(cartridgesDir, "sfcc-job-steps.d.ts"),
+      [
+        "export {}",
+        "declare global {",
+        "  namespace SfccJobSteps {",
+        "    interface ChunkStepTypes {",
+        '      "custom.TypedChunk": {',
+        "        ReadItem: number",
+        "        ProcessedItem: { id: number }",
+        "      }",
+        "    }",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    )
+    fs.writeFileSync(
+      path.join(sourceDir, "chunk.js"),
+      [
+        "// @ts-check",
+        '/** @type {SfccJobSteps.Definitions["custom.TypedChunk"]["Functions"]["readNext"]} */',
+        "exports.readNext = function () { return Math.random() > 0.5 ? 1 : null }",
+        '/** @type {SfccJobSteps.Definitions["custom.TypedChunk"]["Functions"]["process"]} */',
+        "exports.process = function (item) { return item > 0 ? { id: item } : null }",
+        '/** @type {SfccJobSteps.Definitions["custom.TypedChunk"]["Functions"]["writeBatch"]} */',
+        "exports.writeBatch = function (items) { items.toArray()[0].id.toFixed() }",
+        "",
+      ].join("\n"),
+    )
+    fs.writeFileSync(
+      path.join(cartridgeRoot, "jsconfig.json"),
+      JSON.stringify({
+        compilerOptions: {
+          allowJs: true,
+          checkJs: true,
+          noEmit: true,
+          strict: true,
+        },
+        include: ["cartridge/**/*.js"],
+      }),
+    )
+    fs.writeFileSync(
+      path.join(typesDir, "dw", "job", "JobStepExecution.d.ts"),
+      "declare class JobStepExecution {}\nexport = JobStepExecution\n",
+    )
+    fs.writeFileSync(
+      path.join(typesDir, "dw", "system", "Status.d.ts"),
+      "declare class Status {}\nexport = Status\n",
+    )
+    fs.writeFileSync(
+      path.join(typesDir, "dw", "util", "List.d.ts"),
+      "declare class List<Item> { toArray(): Item[] }\nexport = List\n",
+    )
+
+    generateJobStepTypes({ workspaceRoot })
+    const diagnostics = runProjectTypecheck(
+      path.join(cartridgeRoot, "jsconfig.json"),
+      [cartridgeRoot],
+      workspaceRoot,
+    )
+
+    expect(diagnostics).toHaveLength(0)
   } finally {
     fs.rmSync(workspaceRoot, { recursive: true, force: true })
   }

@@ -59,6 +59,17 @@ function writeLoyaltyApi(workspaceRoot) {
       "        points:",
       "          type: integer",
       "          nullable: true",
+      "        enabledFeatures:",
+      "          type: object",
+      "          additionalProperties:",
+      "            type: boolean",
+      "        pointsByStore:",
+      "          type: object",
+      "          additionalProperties:",
+      "            type: number",
+      "        emptyMetadata:",
+      "          type: object",
+      "          additionalProperties: false",
       "paths:",
       "  /customers:",
       "    get:",
@@ -116,6 +127,9 @@ test("generateCustomApiTypes generates schema and operation types from api.json 
     expect(generatedContent).toContain('"LoyaltyInfo": {')
     expect(generatedContent).toContain('"tier": string')
     expect(generatedContent).toContain('"points"?: (number | null)')
+    expect(generatedContent).toContain('"enabledFeatures"?: Record<string, boolean>')
+    expect(generatedContent).toContain('"pointsByStore"?: Record<string, number>')
+    expect(generatedContent).toContain('"emptyMetadata"?: Record<string, never>')
     expect(generatedContent).toContain('"getLoyaltyInfo": {')
     expect(generatedContent).toContain("Handler: (() => void) & { public?: boolean }")
     expect(generatedContent).toContain('"siteId": string')

@@ -209,6 +209,8 @@ export function generateCustomAttributesTypes(
     }
   }
 
+  patchCsvStreamWriterDeclarations(dwTypesDirectory, existsSync, readFileSync, writeFileSync)
+
   if (!existsSync(metaDirectory)) {
     writeFileSync(
       outputFilePath,
@@ -684,6 +686,30 @@ function toGlobalDwTypeExpression(moduleSpecifier: string): string | undefined {
   }
 
   return `typeof dw.${segments.slice(1).join(".")}`
+}
+
+function patchCsvStreamWriterDeclarations(
+  dwTypesDirectory: string,
+  existsSync: (filePath: string) => boolean,
+  readFileSync: (filePath: string, encoding: BufferEncoding) => string,
+  writeFileSync: (filePath: string, content: string, encoding: BufferEncoding) => void,
+): boolean {
+  const filePath = path.join(dwTypesDirectory, "io", "CSVStreamWriter.d.ts")
+  if (!existsSync(filePath)) {
+    return false
+  }
+
+  const originalContent = readFileSync(filePath, "utf8")
+  const patchedContent = originalContent.replace(
+    "writeNext(...line: string[]): void;",
+    "writeNext(line: string[]): void;",
+  )
+  if (patchedContent === originalContent) {
+    return false
+  }
+
+  writeFileSync(filePath, patchedContent, "utf8")
+  return true
 }
 
 function patchCustomObjectMgrDeclarations(

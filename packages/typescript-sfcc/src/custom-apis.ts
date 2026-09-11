@@ -192,6 +192,12 @@ function renderSchemaBaseType(schema: OasSchema, document: OasDocument): string 
 function renderObjectType(schema: OasSchema, document: OasDocument): string {
   const properties = Object.entries(schema.properties ?? {})
   if (properties.length === 0) {
+    if (typeof schema.additionalProperties === "object") {
+      return `Record<string, ${renderSchemaType(schema.additionalProperties, document)}>`
+    }
+    if (schema.additionalProperties === false) {
+      return "Record<string, never>"
+    }
     return "Record<string, unknown>"
   }
 
