@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.8.2
+
+### Patch Changes
+
+- 0b869c1: Allow Custom API success response annotations to combine the generated response
+  type with explicit union and intersection constituents, and safely parse nested
+  object types in JSDoc suggestions.
+
 ## 1.8.1
 
 ### Patch Changes
