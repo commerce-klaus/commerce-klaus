@@ -80,6 +80,32 @@ function getLocalVariableDeclaration(
   return declaration
 }
 
+function includesGeneratedTypeConstituent(actualType: string, generatedType: string): boolean {
+  let searchFrom = 0
+  while (searchFrom < actualType.length) {
+    const index = actualType.indexOf(generatedType, searchFrom)
+    if (index === -1) {
+      return false
+    }
+
+    const previous = actualType.slice(0, index).trimEnd().at(-1)
+    const next = actualType
+      .slice(index + generatedType.length)
+      .trimStart()
+      .at(0)
+    const validPrevious =
+      previous === undefined || previous === "(" || previous === "&" || previous === "|"
+    const validNext = next === undefined || next === ")" || next === "&" || next === "|"
+    if (validPrevious && validNext) {
+      return true
+    }
+
+    searchFrom = index + generatedType.length
+  }
+
+  return false
+}
+
 const preferGeneratedCustomApiTypes: Rule.RuleModule = {
   meta: {
     type: "suggestion",
@@ -154,7 +180,10 @@ const preferGeneratedCustomApiTypes: Rule.RuleModule = {
 
             const responseType = `SfccCustomApis.Operations[${JSON.stringify(operationId)}]["Response"]`
             const responseTypeComment = getTypeComment(context, declaration)
-            if (responseTypeComment?.type === responseType) {
+            if (
+              responseTypeComment &&
+              includesGeneratedTypeConstituent(responseTypeComment.type, responseType)
+            ) {
               continue
             }
 

@@ -129,11 +129,34 @@ function getJsdocComments(context: Rule.RuleContext, node: Rule.Node): SourceCom
 export function getTypeComment(
   context: Rule.RuleContext,
   node: Rule.Node,
-): { comment: SourceComment; type: string } | undefined {
+): { comment: SourceComment; type: string; typeRange: [number, number] } | undefined {
   for (const comment of getJsdocComments(context, node).toReversed()) {
-    const match = /@type\s*\{([^}]+)\}/u.exec(comment.value)
-    if (match?.[1]) {
-      return { comment, type: match[1].trim() }
+    const typeTag = /@type\s*\{/u.exec(comment.value)
+    if (!typeTag || !comment.range) {
+      continue
+    }
+
+    const openingBrace = typeTag.index + typeTag[0].lastIndexOf("{")
+    let depth = 1
+    for (let index = openingBrace + 1; index < comment.value.length; index += 1) {
+      const character = comment.value[index]
+      if (character === "{") {
+        depth += 1
+      } else if (character === "}") {
+        depth -= 1
+      }
+
+      if (depth === 0) {
+        const rawType = comment.value.slice(openingBrace + 1, index)
+        const leadingWhitespace = rawType.length - rawType.trimStart().length
+        const trailingWhitespace = rawType.length - rawType.trimEnd().length
+        const typeStart = comment.range[0] + 2 + openingBrace + 1 + leadingWhitespace
+        return {
+          comment,
+          type: rawType.trim(),
+          typeRange: [typeStart, comment.range[0] + 2 + index - trailingWhitespace],
+        }
+      }
     }
   }
   return undefined
@@ -150,15 +173,7 @@ export function createGeneratedTypeSuggestion(
     data: { expectedType },
     fix(fixer) {
       if (typeComment) {
-        const { range } = typeComment.comment
-        if (!range) {
-          return null
-        }
-        const commentText = context.sourceCode.text.slice(...range)
-        return fixer.replaceTextRange(
-          range,
-          commentText.replace(/(@type\s*\{)[^}]+(\})/u, `$1${expectedType}$2`),
-        )
+        return fixer.replaceTextRange(typeComment.typeRange, expectedType)
       }
 
       const jsdoc = getJsdocComments(context, node).at(-1)

@@ -146,6 +146,75 @@ test("allows a success value with the generated response type", () => {
   })
 })
 
+test("allows a success value that extends the generated response type", () => {
+  withCustomApi((filename) => {
+    const code = [
+      'const RESTResponseMgr = require("dw/system/RESTResponseMgr")',
+      '/** @type {SfccCustomApis.Operations["getLoyaltyInfo"]["Handler"]} */',
+      "function getLoyaltyInfo() {",
+      '  /** @type {(SfccCustomApis.Operations["getLoyaltyInfo"]["Response"] & {unavailable?: false}) | {unavailable: true} | null} */',
+      "  const result = getResult()",
+      "  if (!result || result.unavailable) return",
+      "  return RESTResponseMgr.createSuccess(result).render()",
+      "}",
+      "exports.getLoyaltyInfo = getLoyaltyInfo",
+      "",
+    ].join("\n")
+
+    expect(lint(code, filename)).toEqual([])
+  })
+})
+
+test("does not treat related or wrapped response type names as generated constituents", () => {
+  withCustomApi((filename) => {
+    const types = [
+      'SfccCustomApis.Operations["getLoyaltyInfo"]["Response"]Extended',
+      'Array<SfccCustomApis.Operations["getLoyaltyInfo"]["Response"]>',
+      "Object",
+    ]
+
+    for (const type of types) {
+      const code = [
+        'const RESTResponseMgr = require("dw/system/RESTResponseMgr")',
+        '/** @type {SfccCustomApis.Operations["getLoyaltyInfo"]["Handler"]} */',
+        "function getLoyaltyInfo() {",
+        `  /** @type {${type}} */`,
+        "  const result = getResult()",
+        "  return RESTResponseMgr.createSuccess(result).render()",
+        "}",
+        "exports.getLoyaltyInfo = getLoyaltyInfo",
+        "",
+      ].join("\n")
+      const [message] = lint(code, filename)
+
+      expect(message?.messageId).toBe("incorrectGeneratedResponseType")
+    }
+  })
+})
+
+test("replaces the complete nested response type in its suggestion", () => {
+  withCustomApi((filename) => {
+    const code = [
+      'const RESTResponseMgr = require("dw/system/RESTResponseMgr")',
+      '/** @type {SfccCustomApis.Operations["getLoyaltyInfo"]["Handler"]} */',
+      "function getLoyaltyInfo() {",
+      "  /** @type {Object & {unavailable?: boolean}} */",
+      "  const result = getResult()",
+      "  return RESTResponseMgr.createSuccess(result).render()",
+      "}",
+      "exports.getLoyaltyInfo = getLoyaltyInfo",
+      "",
+    ].join("\n")
+    const [message] = lint(code, filename)
+    const output = applySuggestion(code, message?.suggestions?.[0] ?? {})
+
+    expect(output).toContain(
+      '/** @type {SfccCustomApis.Operations["getLoyaltyInfo"]["Response"]} */',
+    )
+    expect(output).not.toContain("unavailable?: boolean")
+  })
+})
+
 test("ignores response-like calls without the platform binding or a local identifier", () => {
   withCustomApi((filename) => {
     const code = [

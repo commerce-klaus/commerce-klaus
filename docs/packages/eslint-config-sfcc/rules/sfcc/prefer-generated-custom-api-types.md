@@ -36,4 +36,14 @@ The rule follows the implementation mapping in the adjacent `api.json` and offer
 
 It also recognizes a local identifier passed to `RESTResponseMgr.createSuccess()` inside the exported handler. That declaration must use `SfccCustomApis.Operations[operationId]["Response"]`. Calls through unrelated local objects, direct object literals, nested helper functions, error responses, and calls outside the handler are ignored.
 
+The response variable can combine the generated type with local control-flow states through unions and intersections. The generated response must remain an explicit constituent:
+
+```js
+/**
+ * @type {(SfccCustomApis.Operations["getLoyaltyInfo"]["Response"] &
+ *   { unavailable?: false }) | { unavailable: true } | null}
+ */
+const result = getLoyaltyInfo()
+```
+
 Request bodies, parameters, and named schemas remain available for explicit annotations inside the handler. The rule does not guess which local value represents them.
