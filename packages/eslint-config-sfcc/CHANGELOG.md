@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.8.1
+
+### Patch Changes
+
+- 4550fec: Only suggest generated hook types that exist in the synchronized
+  `typescript-sfcc` hook declarations, avoiding invalid aliases for OCAPI and
+  unsupported system hooks.
+
 ## 1.8.0
 
 ### Minor Changes
