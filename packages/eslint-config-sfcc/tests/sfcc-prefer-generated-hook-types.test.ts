@@ -24,6 +24,28 @@ function withHook<T>(run: (filename: string) => T): T {
       hooks: [{ name: "dw.order.calculate", script: "./hooks/calculate" }],
     }),
   )
+  const generatedTypesPath = path.join(
+    tempDir,
+    ".b2c-script-types",
+    "types",
+    "sfcc-hooks.generated.d.ts",
+  )
+  fs.mkdirSync(path.dirname(generatedTypesPath), { recursive: true })
+  fs.writeFileSync(
+    generatedTypesPath,
+    [
+      'import HookInterface0 = require("dw/order/CalculateHooks")',
+      "",
+      "declare global {",
+      "  namespace SfccHooks {",
+      '    type OrderCalculate = HookInterface0["calculate"]',
+      "  }",
+      "}",
+      "",
+      "export {}",
+      "",
+    ].join("\n"),
+  )
 
   try {
     process.chdir(tempDir)
@@ -96,5 +118,49 @@ test("ignores project-specific hooks without a generated system alias", () => {
     )
 
     expect(lint("exports.provider = function () {}\n", filename)).toEqual([])
+  })
+})
+
+test("ignores system hooks that are absent from generated declarations", () => {
+  withHook((filename) => {
+    const hooksPath = path.resolve(filename, "../../../hooks.json")
+    fs.writeFileSync(
+      hooksPath,
+      JSON.stringify({
+        hooks: [{ name: "dw.order.calculateDiscounts", script: "./hooks/calculate" }],
+      }),
+    )
+
+    expect(lint("exports.calculateDiscounts = function () {}\n", filename)).toEqual([])
+  })
+})
+
+test("ignores OCAPI hooks that are absent from generated declarations", () => {
+  withHook((filename) => {
+    const hooksPath = path.resolve(filename, "../../../hooks.json")
+    fs.writeFileSync(
+      hooksPath,
+      JSON.stringify({
+        hooks: [
+          {
+            name: "dw.ocapi.shop.category.modifyGETResponse",
+            script: "./hooks/calculate",
+          },
+        ],
+      }),
+    )
+
+    expect(lint("exports.modifyGETResponse = function () {}\n", filename)).toEqual([])
+  })
+})
+
+test("ignores hooks when generated declarations have not been synchronized", () => {
+  withHook((filename) => {
+    fs.rmSync(path.join(process.cwd(), ".b2c-script-types"), {
+      recursive: true,
+      force: true,
+    })
+
+    expect(lint("exports.calculate = function () {}\n", filename)).toEqual([])
   })
 })
