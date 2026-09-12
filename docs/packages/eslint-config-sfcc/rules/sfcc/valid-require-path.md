@@ -2,6 +2,8 @@
 
 Validates SFCC-compatible `require()` and dynamic `import()` paths and optionally checks whether cartridge-style references exist on disk.
 
+The [SFCC module resolution guide](/guide/sfcc-module-resolution) explains cartridge-path precedence and the differences between `*/`, `~/`, named cartridge references, platform modules, and `module.superModule`.
+
 ## What it checks
 
 - Accepts `dw/*`, `./*`, `../*`, `*/*`, `~/*`, cartridge-style paths like `cartridgeName/module`, and configured bare modules

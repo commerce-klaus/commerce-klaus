@@ -74,6 +74,18 @@ export default defineConfig(
 By default, JavaScript files under `cartridges/` are linted. Client-side and static asset folders are excluded.
 The config disables Node.js and browser globals inherited from earlier flat config entries, then enables only the CommonJS and SFCC runtime globals available to server-side cartridge code.
 
+## SFCC module resolution
+
+<!--@include: ../../_partials/sfcc-module-resolution.md-->
+
+<!--@include: ../../_partials/sfcc-module-resolution-guide-link.md-->
+
+The recommended config enables [`sfcc/valid-require-path`](rules/sfcc/valid-require-path.md). By default, the rule validates whether static `require()` and `import()` identifiers use a supported SFCC form. Enable `checkCartridgeExists` through `createRecommendedConfig()` to also resolve `*/`, `~/`, and named cartridge references against the project filesystem and report missing modules.
+
+ESLint validates source code; it does not transform or execute cartridge modules. `dw/*` imports are accepted as platform boundaries rather than looked up on disk. `module.superModule` is recognized as SFCC syntax, while the opt-in [`sfcc/no-proprietary-module-syntax`](rules/sfcc/no-proprietary-module-syntax.md) rule can prohibit it together with `*/` and `~/` when a project requires portable CommonJS modules.
+
+The [shared SFCC settings](#customize-with-shared-sfcc-settings) define the cartridges directory, cartridge order, site metadata, and additional bare modules used for filesystem validation.
+
 ### Generated types preset
 
 Projects that run `sfcc-ts-sync-types` can enforce generated types at metadata boundaries with the opt-in `generated-types` preset:

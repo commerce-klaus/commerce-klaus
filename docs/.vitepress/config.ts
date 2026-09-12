@@ -83,6 +83,7 @@ export default defineConfig({
           items: [
             { text: "Getting started", link: "/guide/getting-started" },
             { text: "Choosing a package", link: "/guide/choosing-a-package" },
+            { text: "SFCC module resolution", link: "/guide/sfcc-module-resolution" },
           ],
         },
       ],

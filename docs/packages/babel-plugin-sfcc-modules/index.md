@@ -22,31 +22,13 @@ This package continues the original `babel-plugin-sfcc-modules` under the Commer
 }
 ```
 
-Server-side code for Salesforce Commerce Cloud uses non-standard module resolution patterns:
+## Shared resolution model
 
-- first matching cartridge from cartridge path
+<!--@include: ../../_partials/sfcc-module-resolution.md-->
 
-```javascript
-require("*/cartridge/scripts/foo")
-```
-
-- current cartridge
-
-```javascript
-require("~/cartridge/scripts/bar")
-```
-
-also a non-standard extension
-
-```javascript
-module.superModule
-```
-
-to reference the next match in cartridge path for the current module.
+<!--@include: ../../_partials/sfcc-module-resolution-guide-link.md-->
 
 ## Why this plugin exists
-
-Node.js does not resolve SFCC cartridge semantics by default. This is typically a problem when running server-side SFCC code in local Node.js unit tests or Babel-driven tooling.
 
 This plugin rewrites SFCC module patterns to relative require paths that Node.js can load, without requiring additional runtime shims.
 
@@ -128,12 +110,7 @@ Example with explicit env-style override (`envCartridgePath`):
 | `solutionConfigPath` | `string` | path to `cartridges/jsconfig.json` used for reference-based cartridge order |
 | `envCartridgePath`   | `string` | colon-separated cartridge order override (same as `SFCC_CARTRIDGE_PATH`)    |
 
-If `cartridgePath` is omitted, cartridge order is inferred with this precedence:
-
-1. `envCartridgePath` (or `SFCC_CARTRIDGE_PATH`)
-2. `solutionConfigPath` references
-3. `siteTemplatePath` + `site` (`custom-cartridges` in `site.xml`)
-4. filesystem fallback (alphabetical)
+<!--@include: ../../_partials/cartridge-order-inference.md-->
 
 ## Resolution behavior
 

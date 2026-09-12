@@ -4,15 +4,13 @@
 
 Shared SFCC cartridge path and module resolution utilities.
 
-This package centralizes SFCC-specific resolution for:
+## Shared resolution model
 
-- `*/cartridge/...`
-- `~/cartridge/...`
-- cartridge alias paths such as `app_core/cartridge/...`
-- `module.superModule`
-- cartridge order detection from configuration, environment, `jsconfig`, and optional `site.xml`
-- cartridge `hooks.json` registration lookups
-- cartridge `steptypes.json` job step discovery
+<!--@include: ../../_partials/sfcc-module-resolution.md-->
+
+<!--@include: ../../_partials/sfcc-module-resolution-guide-link.md-->
+
+At the API level, this package also centralizes cartridge-order detection, `hooks.json` registration lookups, and `steptypes.json` job-step discovery.
 
 ## Why this package?
 
@@ -58,18 +56,7 @@ const resolved = resolveSfccModule("*/cartridge/scripts/util", importer)
 
 ## Cartridge order (priority)
 
-`inferCartridgeOrder()` uses the following precedence:
-
-1. `options.cartridgePath`
-2. `options.envCartridgePath` or `process.env.SFCC_CARTRIDGE_PATH`
-3. `jsconfig` references (via `solutionConfigPath`)
-4. `site.xml` (`custom-cartridges`) via `(siteTemplatePath || DEFAULT_SITE_TEMPLATE_PATH)` + `site`
-5. filesystem fallback (alphabetical directory list)
-
-Notes:
-
-- Return values are absolute cartridge root paths.
-- Non-existent cartridge entries are filtered out automatically.
+<!--@include: ../../_partials/cartridge-order-inference.md-->
 
 ## API overview
 

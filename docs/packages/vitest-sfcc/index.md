@@ -33,6 +33,12 @@ runtime.mock("*/cartridge/scripts/payment/provider", providerMock)
 const payment = await import("../cartridge/scripts/payment.js")
 ```
 
+## Shared resolution model
+
+<!--@include: ../../_partials/sfcc-module-resolution.md-->
+
+<!--@include: ../../_partials/sfcc-module-resolution-guide-link.md-->
+
 ## Why this package exists
 
 SFCC cartridge code uses CommonJS, cartridge-specific module identifiers, platform modules, globals, hooks, controllers, and job metadata that Vitest cannot execute by itself. This package connects the shared cartridge resolver and framework-independent test runtime to Vite's module graph so tests can load real cartridge modules and replace only their external dependencies.
@@ -117,12 +123,7 @@ This reads `sites/<site>/site.xml` below `siteTemplatePath` and uses its `custom
 | `hookDiscovery`      | `false \| { cartridges: string[] }` | no       | Disable automatic hook discovery or limit it to named cartridges.              |
 | `runtime`            | `SfccTestRuntimeOptions`            | no       | Initial runtime options, including the current site id and custom preferences. |
 
-If `cartridgePath` is omitted, order is inferred with this precedence:
-
-1. `envCartridgePath` or `SFCC_CARTRIDGE_PATH`
-2. references from `solutionConfigPath` or `cartridges/jsconfig.json`
-3. `custom-cartridges` from `siteTemplatePath` and `site`
-4. alphabetical filesystem fallback
+<!--@include: ../../_partials/cartridge-order-inference.md-->
 
 The same inference rules are shared by the other Commerce Klaus packages through [`@commerce-klaus/sfcc-module-resolver`](../sfcc-module-resolver/).
 

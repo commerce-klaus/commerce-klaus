@@ -35,11 +35,9 @@ const base = module.superModule
 
 ## Why this plugin exists
 
-SFCC projects often use module patterns that are not standard Node.js resolution:
+<!--@include: ../../_partials/sfcc-module-resolution.md-->
 
-- `require("*/cartridge/scripts/foo")`
-- `require("~/cartridge/scripts/bar")`
-- `module.superModule`
+<!--@include: ../../_partials/sfcc-module-resolution-guide-link.md-->
 
 This plugin resolves those patterns according to cartridge path order and rewrites source code so Vite can process the full module graph.
 
@@ -138,12 +136,7 @@ export default defineConfig({
 | `solutionConfigPath` | `string`   | no       | Path to `cartridges/jsconfig.json` for reference-based cartridge order.             |
 | `envCartridgePath`   | `string`   | no       | Cartridge order as a colon-separated string (same format as `SFCC_CARTRIDGE_PATH`). |
 
-If `cartridgePath` is omitted, cartridge order is inferred with this precedence:
-
-1. `envCartridgePath` (or `SFCC_CARTRIDGE_PATH`)
-2. `solutionConfigPath` references
-3. `siteTemplatePath` + `site` (`custom-cartridges` in `site.xml`)
-4. filesystem fallback (alphabetical)
+<!--@include: ../../_partials/cartridge-order-inference.md-->
 
 ## Resolution behavior
 
