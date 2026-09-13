@@ -144,15 +144,19 @@ export default defineConfig(
 )
 ```
 
-| Preset                    | Enabled architecture rules                                                             |
-| ------------------------- | -------------------------------------------------------------------------------------- |
-| `storefront-next`         | `no-controllers`, `no-forms`, `no-isml-rendering`, `no-pipeline-api`, `no-sfra-server` |
-| `pwa`                     | `no-controllers`, `no-forms`, `no-isml-rendering`, `no-pipeline-api`, `no-sfra-server` |
-| `sfra`                    | `no-pipeline-api`                                                                      |
-| `sitegenesis-controllers` | `no-pipeline-api`, `no-sfra-server`                                                    |
-| `sitegenesis-pipelines`   | `no-sfra-server`                                                                       |
+| Preset                    | Enabled architecture rules                                                                                                         |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `storefront-next`         | `no-controllers`, `no-forms`, `no-isml-rendering`, `no-pipeline-api`, `no-proprietary-module-syntax` (`*/` only), `no-sfra-server` |
+| `pwa`                     | `no-controllers`, `no-forms`, `no-isml-rendering`, `no-pipeline-api`, `no-proprietary-module-syntax` (`*/` only), `no-sfra-server` |
+| `sfra`                    | `no-pipeline-api`                                                                                                                  |
+| `sitegenesis-controllers` | `no-pipeline-api`, `no-sfra-server`                                                                                                |
+| `sitegenesis-pipelines`   | `no-sfra-server`                                                                                                                   |
 
 `pwa` and `storefront-next` currently enforce the same headless boundaries. They have separate semantic names so their policies can evolve independently as their platform contracts diverge.
+
+Both headless presets require named cartridge imports instead of `*/` lookup. They continue to
+allow `~/` and `module.superModule`; enable `sfcc/no-proprietary-module-syntax` directly when a
+project also prohibits those forms.
 
 The `sitegenesis-pipelines` preset applies to JavaScript only. It is the only preset that permits access to `dw/system/Pipeline`; all other presets reject pipeline execution. ESLint cannot validate pipeline XML files.
 

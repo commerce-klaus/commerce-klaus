@@ -2,7 +2,11 @@
 
 Disallows SFCC-specific module syntax when a project requires portable, standard JavaScript modules.
 
-This rule is opt-in and is not part of the recommended config. That status is not a measure of importance: the recommended config is a conservative baseline, while this rule enforces an architectural convention that each team must choose deliberately. Making that choice explicit is part of the [Commerce Klaus philosophy](/about/philosophy#treat-recommended-configs-as-a-baseline-not-a-ranking).
+This rule is not part of the recommended config. It is enabled for `*/` paths by the `pwa` and
+`storefront-next` architecture presets, and remains opt-in for other architectures. That status is
+not a measure of importance: the recommended config is a conservative baseline, while this rule
+enforces an architectural convention that each team must choose deliberately. Making that choice
+explicit is part of the [Commerce Klaus philosophy](/about/philosophy#treat-recommended-configs-as-a-baseline-not-a-ranking).
 
 ## What it checks
 
@@ -12,6 +16,7 @@ This rule is opt-in and is not part of the recommended config. That status is no
 - Ignores standard relative paths, `dw/*` modules, named cartridge paths, bare modules, and dynamic `require(...)` arguments
 - Supports static string literals and template literals without expressions
 - Ignores `superModule` access on locally defined variables named `module`
+- Suggests a named cartridge path for `*/` when exactly one cartridge in the effective cartridge path contains the requested module
 
 ## Options
 
@@ -33,9 +38,18 @@ The `*/` and `~/` prefixes and `module.superModule` are SFCC runtime extensions 
 
 ## Default behavior
 
-- Severity: off (opt-in)
+- Severity: off by default; error for `*/` paths in the `pwa` and `storefront-next` presets
 - Allowed proprietary syntax: none
 - Auto-fix: none
+- Editor suggestion: replace an unambiguous `*/` path with its named cartridge path
+
+The suggestion is intentionally not an automatic fix. A named cartridge import opts out of
+future cartridge-path overrides, so the developer must confirm that architectural change. It is
+only offered when the shared SFCC settings resolve the module in exactly one cartridge; the rule
+still reports ambiguous or unresolved `*/` paths without suggesting a replacement.
+
+Configure `settings.sfcc.cartridgePath`, either directly or through `createRecommendedConfig()`,
+when the project should use an explicit cartridge order for this lookup.
 
 ## Examples
 

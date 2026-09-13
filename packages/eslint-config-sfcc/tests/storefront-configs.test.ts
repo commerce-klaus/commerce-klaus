@@ -13,9 +13,29 @@ import {
 } from "../src/index.js"
 
 test.each([
-  ["storefront-next", storefrontNext, "error", "error", "error", "error", "error", "error"],
-  ["pwa", pwa, "error", "error", "error", "error", "error", "error"],
-  ["sfra", sfra, "off", "off", "off", "error", "off", "error"],
+  [
+    "storefront-next",
+    storefrontNext,
+    "error",
+    "error",
+    "error",
+    "error",
+    ["error", { allow: ["tilde", "superModule"] }],
+    "error",
+    "error",
+  ],
+  [
+    "pwa",
+    pwa,
+    "error",
+    "error",
+    "error",
+    "error",
+    ["error", { allow: ["tilde", "superModule"] }],
+    "error",
+    "error",
+  ],
+  ["sfra", sfra, "off", "off", "off", "error", "off", "off", "error"],
   [
     "sitegenesis-controllers",
     sitegenesisControllers,
@@ -23,10 +43,21 @@ test.each([
     "off",
     "off",
     "error",
+    "off",
     "error",
     "error",
   ],
-  ["sitegenesis-pipelines", sitegenesisPipelines, "off", "off", "off", "off", "error", "error"],
+  [
+    "sitegenesis-pipelines",
+    sitegenesisPipelines,
+    "off",
+    "off",
+    "off",
+    "off",
+    "off",
+    "error",
+    "error",
+  ],
 ] as const)(
   "exports the %s storefront preset",
   (
@@ -36,6 +67,7 @@ test.each([
     noForms,
     noIsmlRendering,
     noPipelineApi,
+    noProprietaryModuleSyntax,
     noSfraServer,
     noGlobalRequire,
   ) => {
@@ -46,6 +78,7 @@ test.each([
       "sfcc/no-forms": noForms,
       "sfcc/no-isml-rendering": noIsmlRendering,
       "sfcc/no-pipeline-api": noPipelineApi,
+      "sfcc/no-proprietary-module-syntax": noProprietaryModuleSyntax,
       "sfcc/no-sfra-server": noSfraServer,
       "sitegenesis/no-global-require": noGlobalRequire,
     })
@@ -101,6 +134,33 @@ test("enforces a headless policy only in selected cartridges", async () => {
   expect(pwaResult?.messages.map((message) => message.ruleId)).toContain("sfcc/no-controllers")
   expect(sfraResult?.messages).toHaveLength(0)
 })
+
+test.each([
+  ["storefront-next", storefrontNext],
+  ["pwa", pwa],
+] as const)(
+  "%s requires explicit cartridge imports instead of star paths",
+  async (_preset, config) => {
+    const eslint = new ESLint({
+      overrideConfigFile: true,
+      overrideConfig: [...recommended, ...config],
+    })
+
+    const [result] = await eslint.lintText(
+      `
+      const inherited = require("*/cartridge/scripts/helper")
+      const local = require("~/cartridge/scripts/helper")
+      const superModule = module.superModule
+      module.exports = { inherited, local, superModule }
+    `,
+      { filePath: "cartridges/app_storefront/cartridge/scripts/example.js" },
+    )
+
+    expect(result?.messages.map((message) => message.ruleId)).toEqual([
+      "sfcc/no-proprietary-module-syntax",
+    ])
+  },
+)
 
 test.each([
   ["storefront-next", storefrontNext],

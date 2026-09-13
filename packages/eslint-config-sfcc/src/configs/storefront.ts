@@ -25,6 +25,7 @@ const storefrontRules: Linter.RulesRecord = {
   "sfcc/no-forms": "off",
   "sfcc/no-isml-rendering": "off",
   "sfcc/no-pipeline-api": "error",
+  "sfcc/no-proprietary-module-syntax": "off",
   "sfcc/no-sfra-server": "off",
   "sitegenesis/no-global-require": "error",
 }
@@ -35,6 +36,7 @@ const presetRules: Record<StorefrontPreset, Linter.RulesRecord> = {
     "sfcc/no-controllers": "error",
     "sfcc/no-forms": "error",
     "sfcc/no-isml-rendering": "error",
+    "sfcc/no-proprietary-module-syntax": ["error", { allow: ["tilde", "superModule"] }],
     "sfcc/no-sfra-server": "error",
   },
   pwa: {
@@ -42,6 +44,7 @@ const presetRules: Record<StorefrontPreset, Linter.RulesRecord> = {
     "sfcc/no-controllers": "error",
     "sfcc/no-forms": "error",
     "sfcc/no-isml-rendering": "error",
+    "sfcc/no-proprietary-module-syntax": ["error", { allow: ["tilde", "superModule"] }],
     "sfcc/no-sfra-server": "error",
   },
   sfra: {
