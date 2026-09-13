@@ -44,8 +44,10 @@ export async function lintText(
   config: Linter.Config | Linter.Config[],
   code: string,
   filename: string,
+  cwd?: string,
 ): Promise<Linter.LintMessage[]> {
   const eslint = new ESLint({
+    cwd,
     overrideConfigFile: true,
     overrideConfig: config,
   })
