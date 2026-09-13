@@ -11,6 +11,7 @@ The [SFCC module resolution guide](/guide/sfcc-module-resolution) explains cartr
 - Can verify cartridge existence when `checkCartridgeExists` is enabled
 - Can resolve `*/` references against the configured cartridge order or filesystem cartridges
 - Can resolve `~/` references against the current cartridge
+- Can verify that `module.superModule` resolves to the same module in a later cartridge when `checkCartridgeExists` is enabled
 - When TypeScript parser type information is available, can also validate `require()` and `import()` calls that use identifier arguments with an exact string-literal type
 - Also supports unions where all members are exact string literals (for example `'dw/order/OrderMgr' | 'server'`)
 - Without type information, keeps existing behavior and ignores dynamic/non-literal `require(...)` and `import(...)` arguments

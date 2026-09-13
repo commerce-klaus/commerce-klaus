@@ -4,6 +4,7 @@ import {
   createSfccModuleResolver,
   inferCartridgeOrder,
   resolveCartridgesDir,
+  resolveSuperModuleFilePath,
 } from "@commerce-klaus/sfcc-module-resolver"
 import fs from "node:fs"
 import path from "node:path"
@@ -211,6 +212,8 @@ const validRequirePath: Rule.RuleModule = {
         'Cannot resolve "{{requirePath}}" against configured cartridges in "{{cartridgesDir}}/".',
       unresolvedTildePath:
         'Cannot resolve "{{requirePath}}" in current cartridge (checked in "{{cartridgesDir}}/").',
+      unresolvedSuperModule:
+        'Cannot resolve "module.superModule" to a matching module later in the configured cartridge path.',
     },
   },
   create: withSfccSettings((context, options) => {
@@ -336,6 +339,30 @@ const validRequirePath: Rule.RuleModule = {
       ImportExpression(node) {
         const importNode = node as Rule.Node & { source?: Rule.Node }
         validateModuleArgument(importNode.source)
+      },
+      MemberExpression(node) {
+        if (!checkCartridgeExists) {
+          return
+        }
+
+        const memberNode = node as Rule.Node & {
+          computed?: boolean
+          object?: { type?: string; name?: string }
+          property?: { type?: string; name?: string }
+        }
+        if (
+          memberNode.computed ||
+          memberNode.object?.type !== "Identifier" ||
+          memberNode.object.name !== "module" ||
+          memberNode.property?.type !== "Identifier" ||
+          memberNode.property.name !== "superModule"
+        ) {
+          return
+        }
+
+        if (!resolveSuperModuleFilePath(normalizedFilename, cartridgeRoots)) {
+          context.report({ node, messageId: "unresolvedSuperModule" })
+        }
       },
     }
   }),

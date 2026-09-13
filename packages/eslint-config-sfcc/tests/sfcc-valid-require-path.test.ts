@@ -270,6 +270,51 @@ test("supports checkCartridgeExists option", () => {
   }
 })
 
+test("checks whether module.superModule resolves in cartridge order", () => {
+  const tempRoot = fs.mkdtempSync(path.join(process.cwd(), ".sfcc-test-root-"))
+  const tempCartridgesDir = path.join(tempRoot, "cartridges")
+  const customCartridge = path.join(tempCartridgesDir, "app_custom")
+  const baseCartridge = path.join(tempCartridgesDir, "app_base")
+  const customController = path.join(customCartridge, "cartridge", "controllers", "Page.js")
+  const baseController = path.join(baseCartridge, "cartridge", "controllers", "Page.js")
+  const missingController = path.join(customCartridge, "cartridge", "controllers", "Missing.js")
+
+  fs.mkdirSync(path.dirname(customController), { recursive: true })
+  fs.mkdirSync(path.dirname(baseController), { recursive: true })
+  fs.writeFileSync(customController, "module.exports = module.superModule\n")
+  fs.writeFileSync(baseController, "module.exports = {}\n")
+  fs.writeFileSync(missingController, "module.exports = module.superModule\n")
+
+  try {
+    const linter = new Linter()
+    const config = createRecommendedConfig({
+      files: ["**/*.js"],
+      ignores: [],
+      sfcc: {
+        checkCartridgeExists: true,
+        cartridgesDir: tempCartridgesDir,
+        cartridgePath: ["app_custom", "app_base"],
+      },
+    })
+
+    const validMessages = linter.verify("module.exports = module.superModule", config, {
+      filename: path.relative(process.cwd(), customController),
+    })
+    const invalidMessages = linter.verify("module.exports = module.superModule", config, {
+      filename: path.relative(process.cwd(), missingController),
+    })
+
+    expect(validMessages.some((message) => message.messageId === "unresolvedSuperModule")).toBe(
+      false,
+    )
+    expect(invalidMessages.some((message) => message.messageId === "unresolvedSuperModule")).toBe(
+      true,
+    )
+  } finally {
+    fs.rmSync(tempRoot, { recursive: true, force: true })
+  }
+})
+
 test("supports cartridge order from site template", () => {
   const tempRoot = createTempTestRoot()
   const tempCartridgesDir = path.join(tempRoot, "cartridges")
