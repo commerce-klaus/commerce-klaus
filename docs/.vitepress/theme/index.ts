@@ -1,9 +1,13 @@
 import { withBlogTheme } from "vitepress-plugin-blog"
 import DefaultTheme from "vitepress/theme"
 
+import Layout from "./Layout.vue"
 import "./style.d.ts"
 import "vitepress-plugin-blog/style.css"
 
 import "./style.css"
 
-export default withBlogTheme(DefaultTheme)
+export default withBlogTheme({
+  extends: DefaultTheme,
+  Layout,
+})

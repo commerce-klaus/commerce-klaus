@@ -84,6 +84,12 @@
   margin: 0;
 }
 
+.giscus-comments {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--vp-c-divider);
+}
+
 @media (min-width: 640px) {
   .vp-doc .vp-code-block-with-title {
     margin: 16px 0;
