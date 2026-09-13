@@ -1,4 +1,5 @@
 import sonarjs from "eslint-plugin-sonarjs"
+import path from "node:path"
 import { expect, test, describe } from "vite-plus/test"
 
 import { createRecommendedConfig } from "../src/index.js"
@@ -16,7 +17,7 @@ const sonarjsRecommended = [
 ]
 
 async function lint(code: string, filename = "fixture.js") {
-  return lintText(sonarjsRecommended, code, filename)
+  return lintText(sonarjsRecommended, code, filename, path.resolve(import.meta.dirname, "../../.."))
 }
 
 describe("sonarjs:recommended config", () => {
