@@ -15,6 +15,7 @@ const sfcc: Linter.RulesRecord = {
   "sfcc/valid-custom-api-dir-name": "error",
   "sfcc/valid-custom-api-export": "error",
   "sfcc/valid-hook-export": "error",
+  "sfcc/valid-job-step-export": "error",
   "sfcc/valid-require-path": "error",
 }
 

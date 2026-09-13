@@ -29,6 +29,7 @@ import rhinoConstConflict from "./rhino-const-conflict.js"
 import validCustomApiDirName from "./valid-custom-api-dir-name.js"
 import validCustomApiExport from "./valid-custom-api-export.js"
 import validHookExport from "./valid-hook-export.js"
+import validJobStepExport from "./valid-job-step-export.js"
 import validRequirePath from "./valid-require-path.js"
 
 const sfcc = {
@@ -67,6 +68,7 @@ const sfcc = {
     "valid-custom-api-dir-name": validCustomApiDirName,
     "valid-custom-api-export": validCustomApiExport,
     "valid-hook-export": validHookExport,
+    "valid-job-step-export": validJobStepExport,
     "valid-require-path": validRequirePath,
   },
 }

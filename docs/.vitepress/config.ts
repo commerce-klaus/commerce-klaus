@@ -200,6 +200,10 @@ export default defineConfig({
                   link: "/packages/eslint-config-sfcc/rules/sfcc/valid-hook-export",
                 },
                 {
+                  text: "valid-job-step-export",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc/valid-job-step-export",
+                },
+                {
                   text: "valid-require-path",
                   link: "/packages/eslint-config-sfcc/rules/sfcc/valid-require-path",
                 },
