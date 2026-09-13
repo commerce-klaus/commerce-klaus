@@ -2,7 +2,7 @@
 blogPost: true
 title: From proxyquire to SFCC-aware Vitest tests
 description: Why SFCC module resolution should be test infrastructure, not a mock repeated across cartridge tests.
-date: 2026-09-11
+date: 2026-09-13
 author: jenssimon
 tags:
   - testing
