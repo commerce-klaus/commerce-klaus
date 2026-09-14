@@ -17,6 +17,7 @@ explicit is part of the [Commerce Klaus philosophy](/about/philosophy#treat-reco
 - Supports static string literals and template literals without expressions
 - Ignores `superModule` access on locally defined variables named `module`
 - Suggests a named cartridge path for `*/` when exactly one cartridge in the effective cartridge path contains the requested module
+- Suggests `~/` first when that module belongs to the importing cartridge and tilde paths are allowed
 
 ## Options
 
@@ -41,12 +42,13 @@ The `*/` and `~/` prefixes and `module.superModule` are SFCC runtime extensions 
 - Severity: off by default; error for `*/` paths in the `pwa` and `storefront-next` presets
 - Allowed proprietary syntax: none
 - Auto-fix: none
-- Editor suggestion: replace an unambiguous `*/` path with its named cartridge path
+- Editor suggestions: replace an unambiguous `*/` path with `~/` for a local module or with its named cartridge path
 
 The suggestion is intentionally not an automatic fix. A named cartridge import opts out of
 future cartridge-path overrides, so the developer must confirm that architectural change. It is
 only offered when the shared SFCC settings resolve the module in exactly one cartridge; the rule
 still reports ambiguous or unresolved `*/` paths without suggesting a replacement.
+Suggestions preserve the original string delimiter.
 
 Configure `settings.sfcc.cartridgePath`, either directly or through `createRecommendedConfig()`,
 when the project should use an explicit cartridge order for this lookup.

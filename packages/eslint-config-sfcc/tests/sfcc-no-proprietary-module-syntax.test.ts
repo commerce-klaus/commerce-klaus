@@ -13,8 +13,10 @@ function lint(
   code: string,
   options?: { allow?: ProprietaryModuleSyntax[] },
   settings?: Record<string, unknown>,
+  filename = "cartridges/app_custom/cartridge/scripts/example.js",
+  cwd = process.cwd(),
 ) {
-  const linter = new Linter()
+  const linter = new Linter({ cwd })
   return linter.verify(
     code,
     {
@@ -25,7 +27,7 @@ function lint(
         "sfcc/no-proprietary-module-syntax": ["error", ...(options ? [options] : [])],
       },
     },
-    { filename: "cartridges/app_custom/cartridge/scripts/example.js" },
+    { filename },
   )
 }
 
@@ -96,7 +98,7 @@ test("supports static template literal require paths", () => {
   expect(messages[0]?.messageId).toBe("proprietaryRequirePath")
 })
 
-test("suggests an explicit cartridge path for a unique star-path match", () => {
+test("suggests an explicit cartridge path while preserving single quotes", () => {
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-explicit-import-"))
   const cartridgesDir = path.join(tempRoot, "cartridges")
   const customRoot = path.join(cartridgesDir, "app_custom")
@@ -110,7 +112,7 @@ test("suggests an explicit cartridge path for a unique star-path match", () => {
   )
 
   try {
-    const messages = lint('const helper = require("*/cartridge/scripts/helper")', undefined, {
+    const messages = lint("const helper = require('*/cartridge/scripts/helper')", undefined, {
       sfcc: {
         cartridgesDir,
         cartridgePath: ["app_custom", "app_base"],
@@ -120,7 +122,44 @@ test("suggests an explicit cartridge path for a unique star-path match", () => {
     expect(messages).toHaveLength(1)
     expect(messages[0]?.suggestions).toHaveLength(1)
     expect(messages[0]?.suggestions?.[0]?.desc).toContain("app_base/cartridge/scripts/helper")
-    expect(messages[0]?.suggestions?.[0]?.fix.text).toBe('"app_base/cartridge/scripts/helper"')
+    expect(messages[0]?.suggestions?.[0]?.fix.text).toBe("'app_base/cartridge/scripts/helper'")
+  } finally {
+    fs.rmSync(tempRoot, { recursive: true, force: true })
+  }
+})
+
+test("suggests a local path first when the unique match is in the current cartridge", () => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-local-import-"))
+  const cartridgesDir = path.join(tempRoot, "cartridges")
+  const customRoot = path.join(cartridgesDir, "app_custom")
+  const scriptDir = path.join(customRoot, "cartridge", "scripts")
+  const filename = path.join(scriptDir, "example.js")
+
+  fs.mkdirSync(scriptDir, { recursive: true })
+  fs.writeFileSync(path.join(scriptDir, "helper.js"), "module.exports = true")
+  fs.writeFileSync(filename, "module.exports = true")
+
+  try {
+    const messages = lint(
+      'const helper = require("*/cartridge/scripts/helper")',
+      { allow: ["tilde", "superModule"] },
+      {
+        sfcc: {
+          cartridgesDir,
+          cartridgePath: ["app_custom"],
+        },
+      },
+      "cartridges/app_custom/cartridge/scripts/example.js",
+      tempRoot,
+    )
+
+    expect(messages).toHaveLength(1)
+    expect(messages[0]?.suggestions).toHaveLength(2)
+    expect(messages[0]?.suggestions?.map((suggestion) => suggestion.fix.text)).toEqual([
+      '"~/cartridge/scripts/helper"',
+      '"app_custom/cartridge/scripts/helper"',
+    ])
+    expect(messages[0]?.suggestions?.[0]?.desc).toContain("~/cartridge/scripts/helper")
   } finally {
     fs.rmSync(tempRoot, { recursive: true, force: true })
   }

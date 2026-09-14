@@ -1,6 +1,10 @@
 import type { Rule } from "eslint"
 
-import { inferCartridgeOrder, resolveCandidateFile } from "@commerce-klaus/sfcc-module-resolver"
+import {
+  findContainingCartridgeRoot,
+  inferCartridgeOrder,
+  resolveCandidateFile,
+} from "@commerce-klaus/sfcc-module-resolver"
 import path from "node:path"
 
 import { withSfccSettings } from "../_utils/sfcc-settings.js"
@@ -20,10 +24,10 @@ function getProprietaryRequireSyntax(requirePath: string): ProprietaryModuleSynt
   return undefined
 }
 
-function getExplicitCartridgePath(
+function getExplicitCartridgeMatch(
   requirePath: string,
   cartridgeRoots: string[],
-): string | undefined {
+): { cartridgeRoot: string; explicitPath: string } | undefined {
   if (!requirePath.startsWith("*/")) {
     return undefined
   }
@@ -37,7 +41,11 @@ function getExplicitCartridgePath(
     return undefined
   }
 
-  return `${path.basename(matchingRoots[0] as string)}/${relativePath}`
+  const cartridgeRoot = matchingRoots[0] as string
+  return {
+    cartridgeRoot,
+    explicitPath: `${path.basename(cartridgeRoot)}/${relativePath}`,
+  }
 }
 
 function isLocallyDefinedModule(context: Rule.RuleContext, node: Rule.Node): boolean {
@@ -99,6 +107,7 @@ const noProprietaryModuleSyntax: Rule.RuleModule = {
       proprietarySuperModule:
         'The "module.superModule" syntax is SFCC-specific and is not allowed by this project.',
       replaceWithExplicitCartridge: 'Replace with the explicit cartridge path "{{explicitPath}}".',
+      replaceWithLocalCartridge: 'Replace with the local cartridge path "{{localPath}}".',
     },
   },
   create: withSfccSettings((context, sfccSettings) => {
@@ -115,6 +124,12 @@ const noProprietaryModuleSyntax: Rule.RuleModule = {
       siteTemplatePath: sfccSettings.siteTemplatePath,
       site: sfccSettings.site,
     })
+    const filename =
+      (context as Rule.RuleContext & { filename?: string }).filename ??
+      (context as Rule.RuleContext & { getFilename?: () => string }).getFilename?.() ??
+      "<input>"
+    const normalizedFilename = path.isAbsolute(filename) ? filename : path.resolve(cwd, filename)
+    const containingCartridgeRoot = findContainingCartridgeRoot(normalizedFilename, cartridgeRoots)
 
     return {
       CallExpression(node) {
@@ -138,22 +153,40 @@ const noProprietaryModuleSyntax: Rule.RuleModule = {
         }
 
         const reportNode = callNode.arguments?.[0] ?? node
-        const explicitPath = getExplicitCartridgePath(requirePath, cartridgeRoots)
+        const explicitMatch = getExplicitCartridgeMatch(requirePath, cartridgeRoots)
+        const literalText = context.sourceCode.getText(reportNode)
+        const replaceStarPrefix = (replacement: string): string =>
+          `${literalText.slice(0, 1)}${replacement}${literalText.slice(2)}`
+        const suggestions: Rule.SuggestionReportDescriptor[] = []
+
+        if (
+          explicitMatch?.cartridgeRoot === containingCartridgeRoot &&
+          allowedSyntax.has("tilde")
+        ) {
+          suggestions.push({
+            messageId: "replaceWithLocalCartridge",
+            data: { localPath: `~/${requirePath.slice(2)}` },
+            fix: (fixer) => fixer.replaceText(reportNode, replaceStarPrefix("~")),
+          })
+        }
+
+        if (explicitMatch) {
+          suggestions.push({
+            messageId: "replaceWithExplicitCartridge",
+            data: { explicitPath: explicitMatch.explicitPath },
+            fix: (fixer) =>
+              fixer.replaceText(
+                reportNode,
+                replaceStarPrefix(path.basename(explicitMatch.cartridgeRoot)),
+              ),
+          })
+        }
 
         context.report({
           node: reportNode,
           messageId: "proprietaryRequirePath",
           data: { syntax, requirePath },
-          suggest:
-            explicitPath === undefined
-              ? undefined
-              : [
-                  {
-                    messageId: "replaceWithExplicitCartridge",
-                    data: { explicitPath },
-                    fix: (fixer) => fixer.replaceText(reportNode, JSON.stringify(explicitPath)),
-                  },
-                ],
+          suggest: suggestions.length > 0 ? suggestions : undefined,
         })
       },
       MemberExpression(node) {
