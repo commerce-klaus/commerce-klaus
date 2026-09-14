@@ -164,6 +164,10 @@ export default defineConfig({
                   link: "/packages/eslint-config-sfcc/rules/sfcc/prefer-native-collections",
                 },
                 {
+                  text: "prefer-tilde-require-path",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc/prefer-tilde-require-path",
+                },
+                {
                   text: "prefer-const",
                   link: "/packages/eslint-config-sfcc/rules/sfcc/prefer-const",
                 },

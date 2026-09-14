@@ -24,6 +24,7 @@ import preferGeneratedCustomApiTypes from "./prefer-generated-custom-api-types.j
 import preferGeneratedHookTypes from "./prefer-generated-hook-types.js"
 import preferGeneratedJobStepTypes from "./prefer-generated-job-step-types.js"
 import preferNativeCollections from "./prefer-native-collections.js"
+import preferTildeRequirePath from "./prefer-tilde-require-path.js"
 import rhinoConstCompat from "./rhino-const-compat.js"
 import rhinoConstConflict from "./rhino-const-conflict.js"
 import validCustomApiDirName from "./valid-custom-api-dir-name.js"
@@ -62,6 +63,7 @@ const sfcc = {
     "prefer-generated-hook-types": preferGeneratedHookTypes,
     "prefer-generated-job-step-types": preferGeneratedJobStepTypes,
     "prefer-native-collections": preferNativeCollections,
+    "prefer-tilde-require-path": preferTildeRequirePath,
     "prefer-const": preferConst,
     "rhino-const-compat": rhinoConstCompat,
     "rhino-const-conflict": rhinoConstConflict,

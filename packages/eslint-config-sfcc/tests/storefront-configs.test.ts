@@ -23,6 +23,7 @@ test.each([
     ["error", { allow: ["tilde", "superModule"] }],
     "error",
     "error",
+    "error",
   ],
   [
     "pwa",
@@ -34,8 +35,9 @@ test.each([
     ["error", { allow: ["tilde", "superModule"] }],
     "error",
     "error",
+    "error",
   ],
-  ["sfra", sfra, "off", "off", "off", "error", "off", "off", "error"],
+  ["sfra", sfra, "off", "off", "off", "error", "off", "off", "off", "error"],
   [
     "sitegenesis-controllers",
     sitegenesisControllers,
@@ -45,6 +47,7 @@ test.each([
     "error",
     "off",
     "error",
+    "off",
     "error",
   ],
   [
@@ -56,6 +59,7 @@ test.each([
     "off",
     "off",
     "error",
+    "off",
     "error",
   ],
 ] as const)(
@@ -69,6 +73,7 @@ test.each([
     noPipelineApi,
     noProprietaryModuleSyntax,
     noSfraServer,
+    preferTildeRequirePath,
     noGlobalRequire,
   ) => {
     expect(configs[preset]).toBe(config)
@@ -80,6 +85,7 @@ test.each([
       "sfcc/no-pipeline-api": noPipelineApi,
       "sfcc/no-proprietary-module-syntax": noProprietaryModuleSyntax,
       "sfcc/no-sfra-server": noSfraServer,
+      "sfcc/prefer-tilde-require-path": preferTildeRequirePath,
       "sitegenesis/no-global-require": noGlobalRequire,
     })
   },
@@ -139,7 +145,7 @@ test.each([
   ["storefront-next", storefrontNext],
   ["pwa", pwa],
 ] as const)(
-  "%s requires explicit cartridge imports instead of star paths",
+  "%s enforces explicit cross-cartridge and tilde local imports",
   async (_preset, config) => {
     const eslint = new ESLint({
       overrideConfigFile: true,
@@ -149,16 +155,21 @@ test.each([
     const [result] = await eslint.lintText(
       `
       const inherited = require("*/cartridge/scripts/helper")
+      const namedLocal = require("app_sfra/cartridge/scripts/helper")
       const local = require("~/cartridge/scripts/helper")
       const superModule = module.superModule
-      module.exports = { inherited, local, superModule }
+      module.exports = { inherited, namedLocal, local, superModule }
     `,
-      { filePath: "cartridges/app_storefront/cartridge/scripts/example.js" },
+      { filePath: "cartridges/app_sfra/cartridge/scripts/example.js" },
     )
 
-    expect(result?.messages.map((message) => message.ruleId)).toEqual([
-      "sfcc/no-proprietary-module-syntax",
-    ])
+    expect(result?.messages.map((message) => message.ruleId)).toEqual(
+      expect.arrayContaining([
+        "sfcc/no-proprietary-module-syntax",
+        "sfcc/prefer-tilde-require-path",
+      ]),
+    )
+    expect(result?.messages).toHaveLength(2)
   },
 )
 
