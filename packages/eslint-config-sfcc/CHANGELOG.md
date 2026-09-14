@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.9.0
+
+### Minor Changes
+
+- 8064efb: Add `sfcc/prefer-tilde-require-path` to enforce `~/` imports for modules in the current cartridge, and enable it in the PWA and Storefront Next presets.
+
+### Patch Changes
+
+- f1cf985: Suggest `~/` before a named cartridge path for unambiguous local `*/` imports, and preserve the original string delimiter in replacements.
+
 ## 1.8.3
 
 ### Patch Changes
