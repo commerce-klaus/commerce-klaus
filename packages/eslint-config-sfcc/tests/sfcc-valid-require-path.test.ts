@@ -385,3 +385,118 @@ test("rejects direct rule options and requires shared settings", () => {
     }),
   ).toThrow()
 })
+
+test("requires and fixes extensions for resolvable SFCC module paths", () => {
+  const tempRoot = fs.mkdtempSync(path.join(process.cwd(), ".sfcc-extension-test-root-"))
+  const cartridgesDir = path.join(tempRoot, "cartridges")
+  const customCartridge = path.join(cartridgesDir, "app_custom")
+  const baseCartridge = path.join(cartridgesDir, "app_base")
+  const controller = path.join(customCartridge, "cartridge", "controllers", "Home.js")
+
+  fs.mkdirSync(path.dirname(controller), { recursive: true })
+  fs.mkdirSync(path.join(customCartridge, "cartridge", "scripts"), { recursive: true })
+  fs.mkdirSync(path.join(baseCartridge, "cartridge", "scripts"), { recursive: true })
+  fs.writeFileSync(controller, "module.exports = {}\n")
+  fs.writeFileSync(
+    path.join(customCartridge, "cartridge", "scripts", "local.js"),
+    "module.exports = true\n",
+  )
+  fs.writeFileSync(path.join(baseCartridge, "cartridge", "scripts", "shared.json"), "{}\n")
+  fs.writeFileSync(
+    path.join(customCartridge, "cartridge", "controllers", "relative.ds"),
+    "module.exports = true\n",
+  )
+
+  try {
+    const linter = new Linter()
+    const config: Linter.Config = {
+      plugins: { sfcc },
+      settings: {
+        sfcc: {
+          cartridgesDir,
+          cartridgePath: ["app_custom", "app_base"],
+        },
+      },
+      rules: { "sfcc/require-file-extension": "error" },
+    }
+    const result = linter.verifyAndFix(
+      `
+        const local = require("~/cartridge/scripts/local")
+        const shared = require("*/cartridge/scripts/shared")
+        const named = require("app_base/cartridge/scripts/shared")
+        const relative = require("./relative")
+        module.exports = { local, shared, named, relative }
+      `,
+      config,
+      { filename: controller },
+    )
+
+    expect(result.fixed).toBe(true)
+    expect(result.messages).toHaveLength(0)
+    expect(result.output).toContain('require("~/cartridge/scripts/local.js")')
+    expect(result.output).toContain('require("*/cartridge/scripts/shared.json")')
+    expect(result.output).toContain('require("app_base/cartridge/scripts/shared.json")')
+    expect(result.output).toContain('require("./relative.ds")')
+  } finally {
+    fs.rmSync(tempRoot, { recursive: true, force: true })
+  }
+})
+
+test("reports missing extensions without unsafe fixes", () => {
+  const tempRoot = fs.mkdtempSync(path.join(process.cwd(), ".sfcc-extension-test-root-"))
+  const cartridgesDir = path.join(tempRoot, "cartridges")
+  const cartridge = path.join(cartridgesDir, "app_custom")
+  const controller = path.join(cartridge, "cartridge", "controllers", "Home.js")
+
+  fs.mkdirSync(path.join(cartridge, "cartridge", "scripts", "directory"), {
+    recursive: true,
+  })
+  fs.mkdirSync(path.dirname(controller), { recursive: true })
+  fs.writeFileSync(
+    path.join(cartridge, "cartridge", "scripts", "directory", "index.js"),
+    "module.exports = true\n",
+  )
+
+  try {
+    const linter = new Linter()
+    const config: Linter.Config = {
+      plugins: { sfcc },
+      settings: { sfcc: { cartridgesDir, cartridgePath: ["app_custom"] } },
+      rules: { "sfcc/require-file-extension": "error" },
+    }
+    const code = `
+      const directory = require("~/cartridge/scripts/directory")
+      const missing = require("~/cartridge/scripts/missing")
+      module.exports = { directory, missing }
+    `
+    const result = linter.verifyAndFix(code, config, { filename: controller })
+
+    expect(result.fixed).toBe(false)
+    expect(result.output).toBe(code)
+    expect(
+      result.messages.filter((message) => message.messageId === "missingExtension"),
+    ).toHaveLength(2)
+  } finally {
+    fs.rmSync(tempRoot, { recursive: true, force: true })
+  }
+})
+
+test("ignores platform, bare, dynamic, and already explicit module paths", () => {
+  const linter = new Linter()
+  const messages = linter.verify(
+    `
+      const api = require("dw/order/OrderMgr")
+      const server = require("server")
+      const explicit = require("./helper.js")
+      const dynamic = require(moduleName)
+      module.exports = { api, server, explicit, dynamic }
+    `,
+    {
+      plugins: { sfcc },
+      rules: { "sfcc/require-file-extension": "error" },
+    },
+    { filename: "cartridges/app_custom/cartridge/scripts/example.js" },
+  )
+
+  expect(messages).toHaveLength(0)
+})

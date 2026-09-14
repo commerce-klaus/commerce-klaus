@@ -184,6 +184,10 @@ export default defineConfig({
                   link: "/packages/eslint-config-sfcc/rules/sfcc/prefer-generated-job-step-types",
                 },
                 {
+                  text: "require-file-extension",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc/require-file-extension",
+                },
+                {
                   text: "rhino-const-compat",
                   link: "/packages/eslint-config-sfcc/rules/sfcc/rhino-const-compat",
                 },
