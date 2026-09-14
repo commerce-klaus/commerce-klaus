@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.8.3
+
+### Patch Changes
+
+- 2dbca60: Require named cartridge imports instead of `*/` lookup in the PWA and Storefront Next presets, and suggest an explicit import when `sfcc/no-proprietary-module-syntax` finds exactly one matching cartridge.
+- e2f4b2a: Report unresolved `module.superModule` references when cartridge existence checks are enabled.
+- 7ca08b0: Report missing CommonJS exports required by effective script module and chunk script module job step definitions.
+
 ## 1.8.2
 
 ### Patch Changes
