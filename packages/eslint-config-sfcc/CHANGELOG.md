@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.10.0
+
+### Minor Changes
+
+- 69b176f: Add the opt-in `sfcc/require-file-extension` rule to enforce explicit SFCC runtime file extensions and safely fix module paths resolved through cartridge precedence.
+
 ## 1.9.0
 
 ### Minor Changes
