@@ -8,6 +8,7 @@ import {
   renderResolution,
   renderResolutionTrace,
   renderValidation,
+  renderValidationSarif,
   type Colorize,
 } from "../src/output.ts"
 
@@ -215,6 +216,67 @@ describe("renderValidation", () => {
     expect(output).toContain("<yellow>WARN</yellow> [hook-overridden]")
     expect(output).toContain("<red>ERROR</red> [hook-script-not-found]")
     expect(output).toContain("<red>FAIL</red>: Project validation found 1 error, 1 warning.")
+  })
+
+  test("renders portable SARIF 2.1.0 diagnostics", () => {
+    const output = renderValidationSarif(
+      {
+        ok: false,
+        errors: 1,
+        warnings: 1,
+        cartridgesDirectory: "/project/cartridges",
+        cartridgeOrder: ["/project/cartridges/app_custom"],
+        diagnostics: [
+          {
+            code: "hook-overridden",
+            severity: "warning",
+            file: "/project/cartridges/app custom/hooks.json",
+            message: "Hook is overridden.",
+          },
+          {
+            code: "hook-script-not-found",
+            severity: "error",
+            file: "/project/cartridges/app_custom/hooks.json",
+            message: "Hook script was not found.",
+          },
+        ],
+      },
+      "/project",
+    )
+    const sarif = JSON.parse(output)
+
+    expect(sarif).toMatchObject({
+      $schema: "https://json.schemastore.org/sarif-2.1.0.json",
+      version: "2.1.0",
+      runs: [
+        {
+          tool: {
+            driver: {
+              name: "Commerce Klaus",
+              rules: [{ id: "hook-overridden" }, { id: "hook-script-not-found" }],
+            },
+          },
+          results: [
+            {
+              ruleId: "hook-overridden",
+              level: "warning",
+              message: { text: "Hook is overridden." },
+              locations: [
+                {
+                  physicalLocation: {
+                    artifactLocation: { uri: "cartridges/app%20custom/hooks.json" },
+                  },
+                },
+              ],
+            },
+            {
+              ruleId: "hook-script-not-found",
+              level: "error",
+            },
+          ],
+        },
+      ],
+    })
   })
 
   test("renders a successful summary", () => {

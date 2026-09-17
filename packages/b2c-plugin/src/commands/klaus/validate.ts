@@ -2,7 +2,7 @@ import { Command, Flags, ux } from "@oclif/core"
 import { watch } from "chokidar"
 import path from "node:path"
 
-import { renderValidation } from "../../output.js"
+import { renderValidation, renderValidationSarif } from "../../output.js"
 import { validateProject, type ProjectOptions, type ProjectValidation } from "../../project.js"
 
 export default class Validate extends Command {
@@ -11,6 +11,7 @@ export default class Validate extends Command {
   static examples = [
     "<%= config.bin %> klaus validate",
     "<%= config.bin %> klaus validate --watch",
+    "<%= config.bin %> klaus validate --format sarif > sfcc-validation.sarif",
     "<%= config.bin %> klaus validate --json",
   ]
   static flags = {
@@ -20,6 +21,11 @@ export default class Validate extends Command {
     }),
     "cartridge-path": Flags.string({
       description: "Colon-separated cartridge path in precedence order",
+    }),
+    format: Flags.string({
+      description: "Human-readable text or SARIF 2.1.0 output",
+      options: ["sarif", "text"],
+      default: "text",
     }),
     watch: Flags.boolean({
       char: "w",
@@ -32,6 +38,12 @@ export default class Validate extends Command {
     if (flags.watch && this.jsonEnabled()) {
       this.error("--watch cannot be combined with --json")
     }
+    if (flags.watch && flags.format === "sarif") {
+      this.error("--watch cannot be combined with --format sarif")
+    }
+    if (this.jsonEnabled() && flags.format === "sarif") {
+      this.error("--format sarif cannot be combined with --json")
+    }
 
     const options = {
       cwd: process.cwd(),
@@ -40,7 +52,7 @@ export default class Validate extends Command {
     }
     let result = this.validate(options)
 
-    this.report(result)
+    this.report(result, flags.format)
     if (!flags.watch) {
       return result
     }
@@ -51,7 +63,7 @@ export default class Validate extends Command {
     await this.watchForChanges(result.cartridgesDirectory, () => {
       result = this.validate(options)
       ux.stdout("")
-      this.report(result)
+      this.report(result, flags.format)
     })
 
     return result
@@ -103,9 +115,13 @@ export default class Validate extends Command {
     })
   }
 
-  private report(result: ProjectValidation): void {
+  private report(result: ProjectValidation, format: string): void {
     if (!this.jsonEnabled()) {
-      ux.stdout(renderValidation(result, process.cwd(), ux.colorize))
+      ux.stdout(
+        format === "sarif"
+          ? renderValidationSarif(result, process.cwd())
+          : renderValidation(result, process.cwd(), ux.colorize),
+      )
     }
     process.exitCode = result.ok ? undefined : 1
   }

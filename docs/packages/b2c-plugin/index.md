@@ -383,21 +383,25 @@ Validate hook registrations, job step definitions, and Custom API contracts:
 ```bash [pnpm]
 pnpm exec b2c klaus validate
 pnpm exec b2c klaus validate --watch
+pnpm exec b2c klaus validate --format sarif > sfcc-validation.sarif
 ```
 
 ```bash [yarn]
 yarn exec b2c klaus validate
 yarn exec b2c klaus validate --watch
+yarn exec b2c klaus validate --format sarif > sfcc-validation.sarif
 ```
 
 ```bash [npm]
 npm exec -- b2c klaus validate
 npm exec -- b2c klaus validate --watch
+npm exec -- b2c klaus validate --format sarif > sfcc-validation.sarif
 ```
 
 ```bash [Vite+]
 vp exec b2c klaus validate
 vp exec b2c klaus validate --watch
+vp exec b2c klaus validate --format sarif > sfcc-validation.sarif
 ```
 
 :::
@@ -409,7 +413,15 @@ diagnostic codes, severities, source files, and summary counts for automation.
 Use `--watch` (short form `-w`) during development to rerun validation after
 changes to `.js`, `.ds`, `.json`, `.yaml`, or `.yml` files under the cartridges
 directory. Rapid file events are combined into one validation run. Watch mode
-uses human-readable output and cannot be combined with `--json`.
+uses human-readable output and cannot be combined with `--json` or
+`--format sarif`.
+
+Use `--format sarif` to emit a SARIF 2.1.0 report for GitHub Code Scanning,
+VS Code, and other compatible CI tools. Each result contains the stable
+diagnostic code as its rule ID, its severity and message, and a project-relative
+source URI. Upload `sfcc-validation.sarif` with
+`github/codeql-action/upload-sarif` to display contract findings directly on a
+pull request. SARIF output cannot be combined with the standard `--json` flag.
 
 ## Resolve a module
 

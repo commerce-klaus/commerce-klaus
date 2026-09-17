@@ -238,3 +238,46 @@ export function renderValidation(
   )
   return lines.join("\n")
 }
+
+export function renderValidationSarif(result: ProjectValidation, currentDirectory: string): string {
+  const ruleIds = [...new Set(result.diagnostics.map((diagnostic) => diagnostic.code))].sort()
+  const sarif = {
+    $schema: "https://json.schemastore.org/sarif-2.1.0.json",
+    version: "2.1.0",
+    runs: [
+      {
+        tool: {
+          driver: {
+            name: "Commerce Klaus",
+            informationUri: "https://commerce-klaus.github.io/commerce-klaus/",
+            rules: ruleIds.map((ruleId) => ({ id: ruleId })),
+          },
+        },
+        results: result.diagnostics.map((diagnostic) => ({
+          ruleId: diagnostic.code,
+          level: diagnostic.severity,
+          message: { text: diagnostic.message },
+          locations: [
+            {
+              physicalLocation: {
+                artifactLocation: {
+                  uri: toRelativeUri(diagnostic.file, currentDirectory),
+                },
+              },
+            },
+          ],
+        })),
+      },
+    ],
+  }
+
+  return JSON.stringify(sarif, undefined, 2)
+}
+
+function toRelativeUri(filePath: string, currentDirectory: string): string {
+  return path
+    .relative(currentDirectory, filePath)
+    .split(path.sep)
+    .map((segment) => encodeURIComponent(segment))
+    .join("/")
+}

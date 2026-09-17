@@ -287,6 +287,37 @@ describe("command execution", () => {
     expect(output[0]).not.toContain("Validating SFCC project")
   })
 
+  test("validate emits SARIF diagnostics and preserves the failing exit code", async () => {
+    const projectDirectory = createProjectDirectory()
+    const cartridgeRoot = path.join(projectDirectory, "cartridges", "app_custom")
+    fs.mkdirSync(cartridgeRoot, { recursive: true })
+    fs.writeFileSync(path.join(cartridgeRoot, "steptypes.json"), "not json")
+    const output = captureStdout()
+    process.exitCode = undefined
+
+    const result = await Validate.run(
+      ["--cartridges-dir", path.join(projectDirectory, "cartridges"), "--format", "sarif"],
+      { root: packageDirectory },
+    )
+    const sarif = JSON.parse(output[0] ?? "")
+
+    expect(result).toMatchObject({ ok: false, errors: 1, warnings: 0 })
+    expect(process.exitCode).toBe(1)
+    expect(output).toHaveLength(1)
+    expect(sarif.version).toBe("2.1.0")
+    expect(sarif.runs[0].results[0]).toMatchObject({
+      ruleId: "invalid-step-types-file",
+      level: "error",
+    })
+    expect(output[0]).not.toContain("Validating SFCC project")
+  })
+
+  test("validate rejects SARIF output in watch mode", async () => {
+    await expect(
+      Validate.run(["--format", "sarif", "--watch"], { root: packageDirectory }),
+    ).rejects.toThrow("--watch cannot be combined with --format sarif")
+  })
+
   test("validate watch reruns validation and updates the exit code", async () => {
     const projectDirectory = createProjectDirectory()
     const cartridgesDirectory = path.join(projectDirectory, "cartridges")

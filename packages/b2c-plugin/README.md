@@ -165,6 +165,7 @@ cartridges exist. It also warns about entries that do not contain a
 ```bash
 b2c klaus validate
 b2c klaus validate --watch
+b2c klaus validate --format sarif > sfcc-validation.sarif
 b2c klaus validate --cartridge-path app_custom:app_storefront_base --json
 ```
 
@@ -173,7 +174,10 @@ contracts. Missing scripts, modules, schemas, and operations are errors;
 registrations hidden by cartridge precedence are warnings. Validation errors
 produce a non-zero exit status for CI. `--watch` (or `-w`) reruns validation
 when cartridge scripts, registrations, or API schemas change. Watch mode uses
-human-readable output and cannot be combined with `--json`.
+human-readable output and cannot be combined with `--json` or `--format sarif`.
+Use `--format sarif` to emit SARIF 2.1.0 for GitHub Code Scanning and other
+compatible CI tools. SARIF output contains stable diagnostic rule IDs,
+severities, messages, and project-relative source URIs.
 
 [npm-url]: https://www.npmjs.com/package/@commerce-klaus/b2c-plugin
 [npm-image]: https://badgen.net/npm/v/@commerce-klaus/b2c-plugin
