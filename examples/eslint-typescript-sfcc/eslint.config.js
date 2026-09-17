@@ -26,4 +26,11 @@ export default defineConfig(
       site: "Example",
     },
   }),
+  {
+    files: ["cartridges/*/cartridge/controllers/*.js"],
+    rules: {
+      "unicorn/filename-case": "off",
+      "unicorn/no-top-level-side-effects": "off",
+    },
+  },
 )

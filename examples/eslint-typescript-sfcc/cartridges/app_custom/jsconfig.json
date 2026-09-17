@@ -12,5 +12,9 @@
     "plugins": [{ "name": "@commerce-klaus/typescript-sfcc" }],
     "strict": true
   },
-  "include": ["cartridge/**/*.js", "../../.b2c-script-types/types/*.generated.d.ts"]
+  "include": [
+    "cartridge/**/*.js",
+    "../sfra-server.d.ts",
+    "../../.b2c-script-types/types/*.generated.d.ts"
+  ]
 }

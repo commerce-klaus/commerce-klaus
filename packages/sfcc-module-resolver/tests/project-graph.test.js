@@ -127,6 +127,84 @@ test("createSfccProjectGraph maps contracts and supports a focused module graph"
   })
 })
 
+test("createSfccProjectGraph maps SFRA controller route customization", () => {
+  withTempDir((tempDir) => {
+    const cartridgesDir = path.join(tempDir, "cartridges")
+    const customController = path.join(
+      cartridgesDir,
+      "app_custom",
+      "cartridge",
+      "controllers",
+      "Product.js",
+    )
+    const baseController = path.join(
+      cartridgesDir,
+      "app_base",
+      "cartridge",
+      "controllers",
+      "Product.js",
+    )
+    writeFile(
+      customController,
+      [
+        'const server = require("server")',
+        "server.extend(module.superModule)",
+        'server.prepend("Show", authorizeCustomer)',
+        'server.append("Show", addRecommendations)',
+        'server.replace("Search", searchProducts)',
+        "module.exports = server.exports()",
+      ].join("\n"),
+    )
+    writeFile(
+      baseController,
+      [
+        'const server = require("server")',
+        'const dynamicRoute = "Dynamic"',
+        'server.get("Show", showProduct)',
+        'server.get("Search", searchProducts)',
+        "server.get(dynamicRoute, dynamicHandler)",
+        "module.exports = server.exports()",
+      ].join("\n"),
+    )
+
+    const graph = createSfccProjectGraph({
+      cartridgesDir,
+      cartridgePath: ["app_custom", "app_base"],
+    })
+
+    expect(graph.nodes).toContainEqual({
+      id: "route:Product:Show",
+      kind: "route",
+      label: "GET Product-Show",
+    })
+    expect(graph.nodes.some((node) => node.id === "route:Product:Dynamic")).toBe(false)
+    expect(graph.edges).toEqual(
+      expect.arrayContaining([
+        {
+          from: `module:${baseController}`,
+          kind: "registers",
+          to: "route:Product:Show",
+        },
+        {
+          from: `module:${customController}`,
+          kind: "prepends",
+          to: "route:Product:Show",
+        },
+        {
+          from: `module:${customController}`,
+          kind: "appends",
+          to: "route:Product:Show",
+        },
+        {
+          from: `module:${customController}`,
+          kind: "replaces",
+          to: "route:Product:Search",
+        },
+      ]),
+    )
+  })
+})
+
 test("a focused graph connects wildcard candidates in override order", () => {
   withTempDir((tempDir) => {
     const cartridgesDir = path.join(tempDir, "cartridges")

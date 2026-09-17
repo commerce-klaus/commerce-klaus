@@ -56,6 +56,16 @@ parameter, and response types. ESLint validates the public endpoint export and
 SFCC response API usage, while the typecheck validates the response object
 against the OpenAPI contract.
 
+The `custom.ExportCatalog` job step demonstrates a metadata-defined task module.
+Commerce Klaus also uses the example's cartridge precedence, Super Modules,
+hooks, job step, and Custom API to generate the project graph shown in the B2C
+CLI documentation.
+
+The `Product` SFRA controller makes that graph a process example rather than a
+catalog of isolated contracts. `app_example` registers the `Show` and
+`Recommendations` routes. `app_custom` extends the controller, prepends an
+access check and appends loyalty data to `Show`, and replaces `Recommendations`.
+
 The solution places `app_custom` before `app_example` in the cartridge path.
 The custom cartridge overrides `greeting.js` and accesses the next matching
 implementation through `module.superModule`. Its `require-examples.js` also

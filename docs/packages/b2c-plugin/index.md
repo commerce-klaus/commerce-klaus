@@ -331,8 +331,8 @@ status, making `doctor` suitable for CI.
 
 ## Visualize project relationships
 
-Create a graph of cartridge precedence, `module.superModule` chains, hook and
-job step implementations, and Custom API schemas:
+Create a graph of cartridge precedence, `module.superModule` chains, SFRA
+controller routes, hook and job step implementations, and Custom API schemas:
 
 ::: code-group
 
@@ -340,6 +340,7 @@ job step implementations, and Custom API schemas:
 pnpm exec b2c klaus graph
 pnpm exec b2c klaus graph --module '*/cartridge/models/product'
 pnpm exec b2c klaus graph --format dot --output sfcc-project.dot
+pnpm exec b2c klaus graph --format mermaid --output sfcc-project.mmd
 pnpm exec b2c klaus graph --format json --output sfcc-project.json
 ```
 
@@ -347,6 +348,7 @@ pnpm exec b2c klaus graph --format json --output sfcc-project.json
 yarn exec b2c klaus graph
 yarn exec b2c klaus graph --module '*/cartridge/models/product'
 yarn exec b2c klaus graph --format dot --output sfcc-project.dot
+yarn exec b2c klaus graph --format mermaid --output sfcc-project.mmd
 yarn exec b2c klaus graph --format json --output sfcc-project.json
 ```
 
@@ -354,6 +356,7 @@ yarn exec b2c klaus graph --format json --output sfcc-project.json
 npm exec -- b2c klaus graph
 npm exec -- b2c klaus graph --module '*/cartridge/models/product'
 npm exec -- b2c klaus graph --format dot --output sfcc-project.dot
+npm exec -- b2c klaus graph --format mermaid --output sfcc-project.mmd
 npm exec -- b2c klaus graph --format json --output sfcc-project.json
 ```
 
@@ -361,18 +364,31 @@ npm exec -- b2c klaus graph --format json --output sfcc-project.json
 vp exec b2c klaus graph
 vp exec b2c klaus graph --module '*/cartridge/models/product'
 vp exec b2c klaus graph --format dot --output sfcc-project.dot
+vp exec b2c klaus graph --format mermaid --output sfcc-project.mmd
 vp exec b2c klaus graph --format json --output sfcc-project.json
 ```
 
 :::
 
 The default output is a concise, colored relationship list. `--format dot`
-emits Graphviz DOT without decorative output, while `--json` returns the same
-nodes and typed edges as structured data. `--module` accepts the
-`*/cartridge/...` form and limits module discovery to that path. `--output`
-(short form `-o`) writes text, DOT, or JSON directly to a file and creates
-missing parent directories. Use `--format json --output <path>` for a JSON
-artifact; the standard `--json` flag remains reserved for structured stdout.
+emits Graphviz DOT without decorative output, while `--format mermaid` emits a
+left-to-right Mermaid flowchart suitable for Markdown and documentation.
+`--json` returns the same nodes and typed edges as structured data. `--module`
+accepts the `*/cartridge/...` form and limits module discovery to that path.
+`--output` (short form `-o`) writes text, DOT, Mermaid, or JSON directly to a
+file and creates missing parent directories. Use
+`--format json --output <path>` for a JSON artifact; the standard `--json` flag
+remains reserved for structured stdout.
+
+### Generated example
+
+This graph is generated during every documentation build from the repository's
+anonymous `app_custom:app_example` consumer project. It exercises cartridge
+precedence, an inherited SFRA `Product` controller with prepended, appended, and
+replaced routes, other Super Modules, hooks, a job step, and a Custom API schema
+using the current graph resolver and Mermaid renderer.
+
+<!--@include: ../../_partials/project-graph.generated.md-->
 
 ## Validate project contracts
 

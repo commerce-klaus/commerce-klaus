@@ -115,13 +115,15 @@ steps, and Custom APIs. Use JSON output for CI or editor integrations.
 b2c klaus graph
 b2c klaus graph --module '*/cartridge/models/product'
 b2c klaus graph --format dot --output sfcc-project.dot
+b2c klaus graph --format mermaid --output sfcc-project.mmd
 b2c klaus graph --format json --output sfcc-project.json
 ```
 
 The graph connects cartridge precedence, `module.superModule` chains, hooks,
 job steps, and Custom API schemas. Use `--json` for structured graph data or
-`--format dot` for Graphviz output. `--output` (or `-o`) writes text, DOT, or
-JSON directly to a file and creates missing parent directories.
+`--format dot` for Graphviz output. `--format mermaid` emits a Mermaid flowchart
+that can be embedded in Markdown. `--output` (or `-o`) writes text, DOT,
+Mermaid, or JSON directly to a file and creates missing parent directories.
 
 ## Resolve a module
 

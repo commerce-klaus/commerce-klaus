@@ -5,6 +5,7 @@ import { resolveCartridgeRoots, resolveCartridgesDir } from "./cartridge-order.t
 import { findCustomApiDefinitions } from "./custom-api.ts"
 import { findResolvedHookRegistrations } from "./hooks.ts"
 import { resolveCandidateFile, toPosixPath } from "./module-resolution.ts"
+import { findSfraControllers } from "./sfra-controller.ts"
 import { findResolvedStepTypeDefinitions } from "./step-types.ts"
 import { resolveSuperModuleFilePath } from "./super-module.ts"
 
@@ -14,12 +15,17 @@ export type SfccProjectGraphNodeKind =
   | "hook"
   | "job-step"
   | "module"
+  | "route"
   | "schema"
 
 export type SfccProjectGraphEdgeKind =
   | "implements"
   | "overrides"
   | "precedes"
+  | "registers"
+  | "appends"
+  | "prepends"
+  | "replaces"
   | "super-module"
   | "uses-schema"
 
@@ -137,6 +143,8 @@ function addContractRelationships(
   cartridgesDirectory: string,
   cartridgeRoots: string[],
 ): void {
+  addSfraControllerRelationships(nodes, edges, cartridgeRoots)
+
   for (const hook of findResolvedHookRegistrations(cartridgeRoots)) {
     const hookId = `hook:${hook.name}`
     addNode(nodes, { id: hookId, kind: "hook", label: hook.name })
@@ -171,6 +179,41 @@ function addContractRelationships(
       path: customApi.schemaPath,
     })
     edges.push({ from: customApiId, kind: "uses-schema", to: schemaId })
+  }
+}
+
+function addSfraControllerRelationships(
+  nodes: Map<string, SfccProjectGraphNode>,
+  edges: SfccProjectGraphEdge[],
+  cartridgeRoots: string[],
+): void {
+  const controllers = findSfraControllers(cartridgeRoots)
+  const routeMethods = new Map<string, string>()
+  for (const controller of controllers) {
+    for (const route of controller.routes) {
+      if (route.action === "get" || route.action === "post") {
+        routeMethods.set(`${controller.name}:${route.name}`, route.action.toUpperCase())
+      }
+    }
+  }
+
+  for (const controller of controllers) {
+    addModuleNode(nodes, controller.filePath, cartridgeRoots)
+    for (const route of controller.routes) {
+      const routeKey = `${controller.name}:${route.name}`
+      const routeId = `route:${routeKey}`
+      const method = routeMethods.get(routeKey)
+      addNode(nodes, {
+        id: routeId,
+        kind: "route",
+        label: `${method ? `${method} ` : ""}${controller.name}-${route.name}`,
+      })
+      edges.push({
+        from: fileNodeId("module", controller.filePath),
+        kind: route.action === "get" || route.action === "post" ? "registers" : `${route.action}s`,
+        to: routeId,
+      })
+    }
   }
 }
 

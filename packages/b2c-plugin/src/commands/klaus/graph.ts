@@ -2,7 +2,11 @@ import { Command, Flags, ux } from "@oclif/core"
 import fs from "node:fs"
 import path from "node:path"
 
-import { renderProjectGraph, renderProjectGraphDot } from "../../output.js"
+import {
+  renderProjectGraph,
+  renderProjectGraphDot,
+  renderProjectGraphMermaid,
+} from "../../output.js"
 import { getProjectGraph, type ProjectGraph } from "../../project.js"
 
 export default class Graph extends Command {
@@ -12,6 +16,7 @@ export default class Graph extends Command {
     "<%= config.bin %> klaus graph",
     "<%= config.bin %> klaus graph --module '*/cartridge/models/product'",
     "<%= config.bin %> klaus graph --format dot --output sfcc-project.dot",
+    "<%= config.bin %> klaus graph --format mermaid --output sfcc-project.mmd",
     "<%= config.bin %> klaus graph --format json --output sfcc-project.json",
   ]
   static flags = {
@@ -23,8 +28,8 @@ export default class Graph extends Command {
       description: "Colon-separated cartridge path in precedence order",
     }),
     format: Flags.string({
-      description: "Human-readable text, Graphviz DOT, or JSON output",
-      options: ["dot", "json", "text"],
+      description: "Human-readable text, Graphviz DOT, Mermaid, or JSON output",
+      options: ["dot", "json", "mermaid", "text"],
       default: "text",
     }),
     module: Flags.string({
@@ -38,8 +43,8 @@ export default class Graph extends Command {
 
   async run(): Promise<ProjectGraph> {
     const { flags } = await this.parse(Graph)
-    if (this.jsonEnabled() && flags.format === "dot") {
-      this.error("--format dot cannot be combined with --json")
+    if (this.jsonEnabled() && ["dot", "mermaid"].includes(flags.format)) {
+      this.error(`--format ${flags.format} cannot be combined with --json`)
     }
     if (this.jsonEnabled() && flags.output) {
       this.error("--output cannot be combined with --json; use --format json instead")
@@ -88,6 +93,8 @@ function renderGraph(
       return renderProjectGraphDot(result)
     case "json":
       return JSON.stringify(result, undefined, 2)
+    case "mermaid":
+      return renderProjectGraphMermaid(result)
     default:
       return renderProjectGraph(result, currentDirectory, colorize)
   }

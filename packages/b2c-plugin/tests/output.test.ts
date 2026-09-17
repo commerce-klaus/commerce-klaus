@@ -5,6 +5,7 @@ import {
   renderInspection,
   renderProjectGraph,
   renderProjectGraphDot,
+  renderProjectGraphMermaid,
   renderResolution,
   renderResolutionTrace,
   renderValidation,
@@ -50,11 +51,40 @@ describe("renderProjectGraph", () => {
   })
 
   test("renders Graphviz DOT without terminal colors", () => {
-    const output = renderProjectGraphDot(graph)
+    const output = renderProjectGraphDot({
+      ...graph,
+      nodes: [
+        ...graph.nodes,
+        { id: "route:Product:Show", kind: "route", label: "GET Product-Show" },
+      ],
+    })
 
     expect(output).toContain("digraph sfcc_project {")
     expect(output).toContain('[label="precedes"]')
+    expect(output).toContain('[label="GET Product-Show", shape="oval"]')
     expect(output).not.toContain("<green>")
+  })
+
+  test("renders deterministic Mermaid with escaped labels", () => {
+    const output = renderProjectGraphMermaid({
+      ...graph,
+      nodes: [
+        { ...graph.nodes[0], label: 'app "custom" & more' },
+        graph.nodes[1],
+        { id: "job-step:custom.Export", kind: "job-step", label: "custom.Export" },
+        { id: "custom-api:getExample", kind: "custom-api", label: "getExample" },
+        { id: "route:Product:Show", kind: "route", label: "GET Product-Show" },
+      ],
+    })
+
+    expect(output).toContain("flowchart LR")
+    expect(output).toContain('n0["app &quot;custom&quot; &amp; more"]:::cartridge')
+    expect(output).toContain('n2["custom.Export"]:::jobStep')
+    expect(output).toContain('n3["getExample"]:::customApi')
+    expect(output).toContain('n4["GET Product-Show"]:::route')
+    expect(output).toContain("n0 -->|precedes| n1")
+    expect(output).toContain("classDef cartridge fill:#d9e8f5")
+    expect(output).not.toContain("cartridge:/project")
   })
 })
 

@@ -1,0 +1,12 @@
+{
+  "step-types": {
+    "script-module-step": [
+      {
+        "@type-id": "custom.ExportCatalog",
+        "description": "Export the sample catalog",
+        "function": "run",
+        "module": "app_example/cartridge/scripts/jobs/export-catalog"
+      }
+    ]
+  }
+}

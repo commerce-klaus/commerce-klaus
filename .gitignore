@@ -32,4 +32,5 @@ dist-ssr
 
 coverage/
 docs/.vitepress/cache/
+docs/_partials/*.generated.md
 .b2c-script-types/

@@ -12,6 +12,7 @@
   "include": [
     "cartridge/**/*.js",
     "../sfcc-hooks.d.ts",
+    "../sfra-server.d.ts",
     "../../.b2c-script-types/types/*.generated.d.ts"
   ]
 }

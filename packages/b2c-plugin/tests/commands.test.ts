@@ -129,6 +129,23 @@ describe("command execution", () => {
     expect(output[0]).not.toContain("Project graph generated")
   })
 
+  test("graph emits Mermaid without human status text", async () => {
+    const projectDirectory = createProjectDirectory()
+    fs.mkdirSync(path.join(projectDirectory, "cartridges", "app_custom", "cartridge"), {
+      recursive: true,
+    })
+    const output = captureStdout()
+
+    await Graph.run(
+      ["--cartridges-dir", path.join(projectDirectory, "cartridges"), "--format", "mermaid"],
+      { root: packageDirectory },
+    )
+
+    expect(output).toHaveLength(1)
+    expect(output[0]).toMatch(/^flowchart LR/u)
+    expect(output[0]).not.toContain("Project graph generated")
+  })
+
   test("graph writes Graphviz DOT directly to an output file", async () => {
     const projectDirectory = createProjectDirectory()
     fs.mkdirSync(path.join(projectDirectory, "cartridges", "app_custom", "cartridge"), {

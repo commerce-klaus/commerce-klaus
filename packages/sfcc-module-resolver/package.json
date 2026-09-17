@@ -48,6 +48,8 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
+    "acorn": "^8.18.0",
+    "acorn-walk": "^8.3.5",
     "fast-xml-parser": "^5.8.0",
     "yaml": "^2.9.0"
   },

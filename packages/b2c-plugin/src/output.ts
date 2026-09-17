@@ -79,6 +79,7 @@ export function renderProjectGraphDot(result: ProjectGraph): string {
     "job-step": "box",
     module: "note",
     schema: "cylinder",
+    route: "oval",
   }
   const lines = [
     "digraph sfcc_project {",
@@ -97,8 +98,45 @@ export function renderProjectGraphDot(result: ProjectGraph): string {
   return lines.join("\n")
 }
 
+export function renderProjectGraphMermaid(result: ProjectGraph): string {
+  const nodeIds = new Map(result.nodes.map((node, index) => [node.id, `n${index}`]))
+  const lines = [
+    "flowchart LR",
+    ...result.nodes.map(
+      (node) =>
+        `  ${nodeIds.get(node.id)}["${escapeMermaid(node.label)}"]:::${mermaidNodeClass(node.kind)}`,
+    ),
+    ...result.edges.map(
+      (edge) =>
+        `  ${nodeIds.get(edge.from)} -->|${escapeMermaid(edge.kind)}| ${nodeIds.get(edge.to)}`,
+    ),
+    "  classDef cartridge fill:#d9e8f5,stroke:#315d7d,color:#17202a,stroke-width:2px",
+    "  classDef module fill:#edf1f3,stroke:#65727b,color:#17202a",
+    "  classDef hook fill:#dff2e6,stroke:#3d7855,color:#17202a",
+    "  classDef jobStep fill:#fff0c7,stroke:#99711d,color:#17202a",
+    "  classDef customApi fill:#f9dfdc,stroke:#a44f48,color:#17202a",
+    "  classDef route fill:#dcefeb,stroke:#31766d,color:#17202a,stroke-width:2px",
+    "  classDef schema fill:#e8e2f2,stroke:#705d91,color:#17202a",
+  ]
+
+  return lines.join("\n")
+}
+
+function mermaidNodeClass(kind: ProjectGraph["nodes"][number]["kind"]): string {
+  return kind.replace(/-([a-z])/g, (_, character: string) => character.toUpperCase())
+}
+
 function escapeDot(value: string): string {
   return value.replaceAll("\\", "\\\\").replaceAll('"', '\\"').replaceAll("\n", "\\n")
+}
+
+function escapeMermaid(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll("\n", "<br/>")
 }
 
 export function renderResolution(
