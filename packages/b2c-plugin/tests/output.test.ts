@@ -6,6 +6,7 @@ import {
   renderProjectGraph,
   renderProjectGraphDot,
   renderResolution,
+  renderResolutionTrace,
   renderValidation,
   type Colorize,
 } from "../src/output.ts"
@@ -112,6 +113,37 @@ describe("renderResolution", () => {
 
     expect(output).toContain("Resolved: <yellow>no matching module found</yellow>")
     expect(output).toContain("<yellow>MISS</yellow>: Module could not be resolved.")
+  })
+})
+
+describe("renderResolutionTrace", () => {
+  test("renders attempted paths and the matching candidate", () => {
+    const output = renderResolutionTrace(
+      {
+        moduleName: "*/cartridge/models/product",
+        kind: "wildcard",
+        containingFile: "/project/cartridges/.klaus-entry.js",
+        cartridgeOrder: ["/project/cartridges/app_custom"],
+        attempts: [
+          {
+            cartridge: "/project/cartridges/app_custom",
+            candidates: [
+              "/project/cartridges/app_custom/cartridge/models/product",
+              "/project/cartridges/app_custom/cartridge/models/product.js",
+            ],
+            resolved: "/project/cartridges/app_custom/cartridge/models/product.js",
+          },
+        ],
+        resolved: "/project/cartridges/app_custom/cartridge/models/product.js",
+      },
+      "/project",
+      colorize,
+    )
+
+    expect(output).toContain("Mode: wildcard")
+    expect(output).toContain("<dim>MISS </dim>")
+    expect(output).toContain("<green>MATCH</green>")
+    expect(output).toContain("<green>DONE</green>: Resolution trace completed.")
   })
 })
 

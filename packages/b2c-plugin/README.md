@@ -123,7 +123,7 @@ job steps, and Custom API schemas. Use `--json` for structured graph data or
 `--format dot` for Graphviz output. `--output` (or `-o`) writes text, DOT, or
 JSON directly to a file and creates missing parent directories.
 
-## Explain module resolution
+## Resolve a module
 
 ```bash
 b2c klaus resolve '*/cartridge/scripts/example'
@@ -133,6 +133,21 @@ b2c klaus resolve '~/cartridge/scripts/example' \
 
 Wildcard resolution also reports every matching candidate in cartridge-path
 order, making overrides visible.
+
+## Explain module resolution
+
+```bash
+b2c klaus explain '*/cartridge/scripts/example'
+b2c klaus explain module.superModule \
+  --from cartridges/app_custom/cartridge/controllers/Page.js
+b2c klaus explain '~/cartridge/scripts/example' \
+  --from cartridges/app_custom/cartridge/controllers/Home.js --json
+```
+
+The command shows the resolution mode, effective cartridge order, importing
+cartridge, and every file path checked until a match is found. Use `resolve` for
+a concise result and `explain` when investigating precedence, extension, index
+module, or Super Module behavior.
 
 ## Diagnose a project
 

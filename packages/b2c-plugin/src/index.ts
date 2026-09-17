@@ -1,4 +1,5 @@
 export { default as DoctorCommand } from "./commands/klaus/doctor.js"
+export { default as ExplainCommand } from "./commands/klaus/explain.js"
 export { default as InspectCommand } from "./commands/klaus/inspect.js"
 export { default as ResolveCommand } from "./commands/klaus/resolve.js"
 export { default as ValidateCommand } from "./commands/klaus/validate.js"

@@ -3,6 +3,7 @@ import os from "node:os"
 import path from "node:path"
 import { afterEach, describe, expect, test } from "vite-plus/test"
 
+import { explainProjectModule } from "../src/commands/klaus/explain.ts"
 import { resolveProjectModule } from "../src/commands/klaus/resolve.ts"
 import {
   diagnoseProject,
@@ -90,6 +91,41 @@ describe("resolveProjectModule", () => {
         cartridgesDir: "cartridges",
       }),
     ).toMatchObject({ resolved: null, candidates: [] })
+  })
+})
+
+describe("explainProjectModule", () => {
+  test("reports every attempted wildcard file in cartridge order", () => {
+    const projectDirectory = createProjectDirectory()
+    const cartridgesDirectory = path.join(projectDirectory, "cartridges")
+    const appCustom = path.join(cartridgesDirectory, "app_custom")
+    const appBase = path.join(cartridgesDirectory, "app_base")
+    const baseModule = path.join(appBase, "cartridge", "models", "product.js")
+    fs.mkdirSync(path.join(appCustom, "cartridge"), { recursive: true })
+    writeFile(baseModule, "module.exports = {}")
+
+    const result = explainProjectModule({
+      moduleName: "*/cartridge/models/product",
+      cwd: projectDirectory,
+      cartridgesDir: "cartridges",
+      cartridgePath: "app_custom:app_base",
+    })
+
+    expect(result.resolved).toBe(baseModule)
+    expect(result.attempts).toHaveLength(2)
+    expect(result.attempts[0].candidates).toContain(
+      path.join(appCustom, "cartridge", "models", "product.js"),
+    )
+  })
+
+  test("requires an importer for contextual module forms", () => {
+    expect(() =>
+      explainProjectModule({
+        moduleName: "module.superModule",
+        cwd: "/project",
+        cartridgesDir: "cartridges",
+      }),
+    ).toThrow("--from is required for module.superModule")
   })
 })
 

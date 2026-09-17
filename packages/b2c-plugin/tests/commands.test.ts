@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url"
 import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import Doctor from "../src/commands/klaus/doctor.ts"
+import Explain from "../src/commands/klaus/explain.ts"
 import Graph from "../src/commands/klaus/graph.ts"
 import Inspect from "../src/commands/klaus/inspect.ts"
 import Resolve from "../src/commands/klaus/resolve.ts"
@@ -43,7 +44,7 @@ test("registers source files for every new pattern command", () => {
   ) as { oclif?: { commands?: { strategy?: string; target?: string } } }
 
   expect(manifest.oclif?.commands).toEqual({ strategy: "pattern", target: "./dist/commands" })
-  for (const command of ["doctor", "graph", "inspect", "resolve", "validate"]) {
+  for (const command of ["doctor", "explain", "graph", "inspect", "resolve", "validate"]) {
     expect(
       fs.existsSync(path.join(packageDirectory, "src", "commands", "klaus", `${command}.ts`)),
     ).toBe(true)
@@ -52,6 +53,7 @@ test("registers source files for every new pattern command", () => {
 
 test("all project commands support B2C CLI JSON output", () => {
   expect(Doctor.enableJsonFlag).toBe(true)
+  expect(Explain.enableJsonFlag).toBe(true)
   expect(Graph.enableJsonFlag).toBe(true)
   expect(Inspect.enableJsonFlag).toBe(true)
   expect(Resolve.enableJsonFlag).toBe(true)
@@ -59,6 +61,36 @@ test("all project commands support B2C CLI JSON output", () => {
 })
 
 describe("command execution", () => {
+  test("explain emits the structured resolution trace in JSON mode", async () => {
+    const projectDirectory = createProjectDirectory()
+    const modulePath = path.join(
+      projectDirectory,
+      "cartridges",
+      "app_custom",
+      "cartridge",
+      "scripts",
+      "example.js",
+    )
+    fs.mkdirSync(path.dirname(modulePath), { recursive: true })
+    fs.writeFileSync(modulePath, "module.exports = {}")
+    const output = captureStdout()
+    vi.spyOn(ux, "colorizeJson").mockImplementation((value) => JSON.stringify(value))
+
+    const result = await Explain.run(
+      [
+        "*/cartridge/scripts/example",
+        "--cartridges-dir",
+        path.join(projectDirectory, "cartridges"),
+        "--json",
+      ],
+      { root: packageDirectory },
+    )
+
+    expect(result).toMatchObject({ kind: "wildcard", resolved: modulePath })
+    expect(output).toHaveLength(1)
+    expect(JSON.parse(output[0] ?? "")).toEqual(result)
+  })
+
   test("graph emits only the structured result in JSON mode", async () => {
     const projectDirectory = createProjectDirectory()
     fs.mkdirSync(path.join(projectDirectory, "cartridges", "app_custom", "cartridge"), {

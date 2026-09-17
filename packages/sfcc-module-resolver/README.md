@@ -8,6 +8,7 @@ Shared Node.js utilities for SFCC cartridge order, module resolution, super modu
 
 - Infers cartridge order from configuration, environment, `jsconfig`, or `site.xml`
 - Resolves `*/`, `~/`, cartridge aliases, and `module.superModule`
+- Explains resolution with every attempted file path and the selected match
 - Provides deterministic filesystem helpers for SFCC-aware tooling
 - Reads and resolves cartridge hook registrations
 - Discovers effective hook scripts in cartridge-path order
@@ -42,6 +43,18 @@ import { createSfccModuleResolver, inferCartridgeOrder } from "@commerce-klaus/s
 
 const cartridgeRoots = inferCartridgeOrder({ cartridgesDir: "cartridges" })
 const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
+```
+
+Inspect the exact lookup path without changing resolution behavior:
+
+```ts
+import { explainSfccModuleResolution } from "@commerce-klaus/sfcc-module-resolver"
+
+const trace = explainSfccModuleResolution(
+  "*/cartridge/models/product",
+  importingFile,
+  cartridgeRoots,
+)
 ```
 
 Validate metadata contracts without changing the resolver's tolerant lookup

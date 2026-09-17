@@ -53,7 +53,7 @@ export function resolveProjectModule(options: {
 
 export default class Resolve extends Command {
   static enableJsonFlag = true
-  static summary = "Explain how an SFCC module resolves"
+  static summary = "Resolve an SFCC module"
   static examples = [
     "<%= config.bin %> klaus resolve '*/cartridge/scripts/example'",
     "<%= config.bin %> klaus resolve '~/cartridge/scripts/example' --from cartridges/app_custom/cartridge/controllers/Home.js",

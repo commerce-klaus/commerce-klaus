@@ -87,6 +87,12 @@ const resolved = resolveSfccModule("*/cartridge/scripts/util", importer)
 - `createSfccModuleResolver(cartridgeRoots)`
   - Returns `resolveSfccModule(moduleName, containingFile): string | undefined`
   - Supports `server`, `server/*`, `~/`, `*/`, and cartridge aliases (`app_x/cartridge/...`)
+- `explainSfccModuleResolution(moduleName, containingFile, cartridgeRoots): SfccModuleResolutionTrace`
+  - Uses the same lookup path as `createSfccModuleResolver`
+  - Reports the resolution kind, containing cartridge, each attempted file path, and the selected match
+  - Accepts `module.superModule` to trace lower-precedence fallback lookup
+- `getCandidateFilePaths(basePath, moduleName): string[]`
+  - Returns extension and directory index candidates in their actual lookup order
 - `resolveCandidateFile(basePath, moduleName): string | undefined`
 - `findContainingCartridgeRoot(filePath, cartridgeRoots): string | undefined`
 

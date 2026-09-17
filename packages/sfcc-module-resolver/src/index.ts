@@ -31,9 +31,16 @@ export type { HookRegistration, RequiredHookExport, ResolvedHookRegistration } f
 export {
   SUPPORTED_RUNTIME_EXTENSIONS,
   createSfccModuleResolver,
+  explainSfccModuleResolution,
+  getCandidateFilePaths,
   resolveCandidateFile,
   stripExt,
   toPosixPath,
+} from "./module-resolution.ts"
+export type {
+  SfccModuleResolutionAttempt,
+  SfccModuleResolutionKind,
+  SfccModuleResolutionTrace,
 } from "./module-resolution.ts"
 
 export {

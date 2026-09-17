@@ -411,7 +411,7 @@ changes to `.js`, `.ds`, `.json`, `.yaml`, or `.yml` files under the cartridges
 directory. Rapid file events are combined into one validation run. Watch mode
 uses human-readable output and cannot be combined with `--json`.
 
-## Explain module resolution
+## Resolve a module
 
 Resolve an SFCC module and show all wildcard candidates in cartridge-path
 order:
@@ -436,9 +436,44 @@ vp exec b2c klaus resolve '*/cartridge/scripts/example'
 
 :::
 
-For a `~/` module, provide the importing file with `--from`. All five project
+For a `~/` module, provide the importing file with `--from`. All six project
 commands accept `--cartridges-dir`, `--cartridge-path`, and the standard
 `--json` flag where applicable.
+
+## Explain module resolution
+
+Show every path Commerce Klaus checks before resolving a module:
+
+::: code-group
+
+```bash [pnpm]
+pnpm exec b2c klaus explain '*/cartridge/scripts/example'
+pnpm exec b2c klaus explain module.superModule --from cartridges/app_custom/cartridge/controllers/Page.js
+```
+
+```bash [yarn]
+yarn exec b2c klaus explain '*/cartridge/scripts/example'
+yarn exec b2c klaus explain module.superModule --from cartridges/app_custom/cartridge/controllers/Page.js
+```
+
+```bash [npm]
+npm exec -- b2c klaus explain '*/cartridge/scripts/example'
+npm exec -- b2c klaus explain module.superModule --from cartridges/app_custom/cartridge/controllers/Page.js
+```
+
+```bash [Vite+]
+vp exec b2c klaus explain '*/cartridge/scripts/example'
+vp exec b2c klaus explain module.superModule --from cartridges/app_custom/cartridge/controllers/Page.js
+```
+
+:::
+
+The trace reports the resolution mode, importer and containing cartridge,
+effective cartridge order, and each exact file candidate as `MISS` or `MATCH`.
+This includes extensionless files, `.js`, `.ds`, `.json`, declaration files,
+and directory index candidates in their actual lookup order. `~/` and
+`module.superModule` require `--from`; the latter starts searching only after
+the importing cartridge. Use `--json` for the structured trace.
 
 ## Standalone commands
 

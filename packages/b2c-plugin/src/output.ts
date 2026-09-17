@@ -1,5 +1,6 @@
 import path from "node:path"
 
+import type { ExplainResult } from "./commands/klaus/explain.js"
 import type { ResolveResult } from "./commands/klaus/resolve.js"
 import type { DoctorResult, ProjectGraph, ProjectInspection, ProjectValidation } from "./project.js"
 
@@ -135,6 +136,58 @@ export function renderResolution(
       ? `${colorize("green", "DONE")}: Module resolution completed.`
       : `${colorize("yellow", "MISS")}: Module could not be resolved.`,
   )
+  return lines.join("\n")
+}
+
+export function renderResolutionTrace(
+  result: ExplainResult,
+  currentDirectory: string,
+  colorize: Colorize,
+): string {
+  const lines = [
+    `Explaining SFCC module ${colorize("dim", result.moduleName)}`,
+    `Mode: ${result.kind}`,
+    `Importer: ${colorize("dim", displayPath(result.containingFile, currentDirectory))}`,
+  ]
+
+  if (result.containingCartridge) {
+    lines.push(`Containing cartridge: ${path.basename(result.containingCartridge)}`)
+  }
+
+  lines.push(
+    `Cartridge path: ${formatResultCount(result.cartridgeOrder.length, "cartridge", "none found", colorize)}`,
+  )
+  for (const [index, cartridgeRoot] of result.cartridgeOrder.entries()) {
+    lines.push(`  ${index + 1}. ${path.basename(cartridgeRoot)}`)
+  }
+
+  lines.push(`Search: ${formatResultCount(result.attempts.length, "location", "none", colorize)}`)
+  for (const attempt of result.attempts) {
+    if (attempt.cartridge) {
+      lines.push(`  ${path.basename(attempt.cartridge)}`)
+    }
+    for (const candidate of attempt.candidates) {
+      const matched = candidate === attempt.resolved
+      lines.push(
+        `    ${matched ? colorize("green", "MATCH") : colorize("dim", "MISS ")} ${colorize("dim", displayPath(candidate, currentDirectory))}`,
+      )
+      if (matched) {
+        break
+      }
+    }
+  }
+
+  lines.push(
+    result.resolved
+      ? `Resolved: ${colorize("green", displayPath(result.resolved, currentDirectory))}`
+      : `Resolved: ${colorize("yellow", "no matching module found")}`,
+  )
+  lines.push(
+    result.resolved
+      ? `${colorize("green", "DONE")}: Resolution trace completed.`
+      : `${colorize("yellow", "MISS")}: Resolution trace completed without a match.`,
+  )
+
   return lines.join("\n")
 }
 

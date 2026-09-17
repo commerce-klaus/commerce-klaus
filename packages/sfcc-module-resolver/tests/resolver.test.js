@@ -6,6 +6,7 @@ import { expect, test } from "vite-plus/test"
 import {
   SUPER_MODULE_TOKEN,
   createSfccModuleResolver,
+  explainSfccModuleResolution,
   getSiteTemplateCartridgePath,
   inferCartridgeOrder,
   resolveCartridgeRoots,
@@ -171,6 +172,62 @@ test("createSfccModuleResolver resolves ~/, */ and cartridge aliases", () => {
     expect(resolveSfccModule("~/cartridge/scripts/helper", sourceFile)).toBe(localScript)
     expect(resolveSfccModule("*/cartridge/models/core", sourceFile)).toBe(coreModel)
     expect(resolveSfccModule("app_brand/cartridge/models/brand", sourceFile)).toBe(brandModel)
+  })
+})
+
+test("explainSfccModuleResolution traces wildcard candidates until the first match", () => {
+  withTempDir((tempDir) => {
+    const appCustom = path.join(tempDir, "app_custom")
+    const appBase = path.join(tempDir, "app_base")
+    const baseModule = path.join(appBase, "cartridge", "models", "product.js")
+    fs.mkdirSync(path.dirname(baseModule), { recursive: true })
+    fs.writeFileSync(baseModule, "module.exports = {}\n")
+
+    const trace = explainSfccModuleResolution(
+      "*/cartridge/models/product",
+      path.join(appCustom, "cartridge", "controllers", "Home.js"),
+      [appCustom, appBase],
+    )
+
+    expect(trace).toMatchObject({
+      kind: "wildcard",
+      containingCartridge: appCustom,
+      resolved: baseModule,
+    })
+    expect(trace.attempts).toHaveLength(2)
+    expect(trace.attempts[0]).toMatchObject({ cartridge: appCustom })
+    expect(trace.attempts[0].candidates).toContain(
+      path.join(appCustom, "cartridge", "models", "product.js"),
+    )
+    expect(trace.attempts[1]).toMatchObject({ cartridge: appBase, resolved: baseModule })
+  })
+})
+
+test("explainSfccModuleResolution starts super-module lookup after the importing cartridge", () => {
+  withTempDir((tempDir) => {
+    const appCustom = path.join(tempDir, "app_custom")
+    const appCore = path.join(tempDir, "app_core")
+    const appBase = path.join(tempDir, "app_base")
+    const relativeModule = path.join("cartridge", "controllers", "Page.js")
+    const customModule = path.join(appCustom, relativeModule)
+    const baseModule = path.join(appBase, relativeModule)
+    fs.mkdirSync(path.dirname(customModule), { recursive: true })
+    fs.mkdirSync(path.dirname(baseModule), { recursive: true })
+    fs.writeFileSync(customModule, "module.exports = module.superModule\n")
+    fs.writeFileSync(baseModule, "module.exports = {}\n")
+
+    const trace = explainSfccModuleResolution("module.superModule", customModule, [
+      appCustom,
+      appCore,
+      appBase,
+    ])
+
+    expect(trace).toMatchObject({
+      kind: "super-module",
+      containingCartridge: appCustom,
+      resolved: baseModule,
+    })
+    expect(trace.attempts.map((attempt) => attempt.cartridge)).toEqual([appCore, appBase])
   })
 })
 
