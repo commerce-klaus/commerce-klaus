@@ -97,6 +97,55 @@ describe("command execution", () => {
     expect(output[0]).not.toContain("Project graph generated")
   })
 
+  test("graph writes Graphviz DOT directly to an output file", async () => {
+    const projectDirectory = createProjectDirectory()
+    fs.mkdirSync(path.join(projectDirectory, "cartridges", "app_custom", "cartridge"), {
+      recursive: true,
+    })
+    const outputFile = path.join(projectDirectory, "artifacts", "sfcc-project.dot")
+    const output = captureStdout()
+
+    await Graph.run(
+      [
+        "--cartridges-dir",
+        path.join(projectDirectory, "cartridges"),
+        "--format",
+        "dot",
+        "--output",
+        outputFile,
+      ],
+      { root: packageDirectory },
+    )
+
+    expect(fs.readFileSync(outputFile, "utf8")).toMatch(/^digraph sfcc_project \{/u)
+    expect(output).toHaveLength(1)
+    expect(output[0]).toContain("DONE")
+    expect(output[0]).not.toContain("digraph sfcc_project")
+  })
+
+  test("graph writes structured JSON directly to an output file", async () => {
+    const projectDirectory = createProjectDirectory()
+    fs.mkdirSync(path.join(projectDirectory, "cartridges", "app_custom", "cartridge"), {
+      recursive: true,
+    })
+    const outputFile = path.join(projectDirectory, "sfcc-project.json")
+    captureStdout()
+
+    const result = await Graph.run(
+      [
+        "--cartridges-dir",
+        path.join(projectDirectory, "cartridges"),
+        "--format",
+        "json",
+        "--output",
+        outputFile,
+      ],
+      { root: packageDirectory },
+    )
+
+    expect(JSON.parse(fs.readFileSync(outputFile, "utf8"))).toEqual(result)
+  })
+
   test("inspect emits only the structured result in JSON mode", async () => {
     const projectDirectory = createProjectDirectory()
     fs.mkdirSync(path.join(projectDirectory, "cartridges", "app_custom", "cartridge"), {

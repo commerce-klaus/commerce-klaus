@@ -114,12 +114,14 @@ steps, and Custom APIs. Use JSON output for CI or editor integrations.
 ```bash
 b2c klaus graph
 b2c klaus graph --module '*/cartridge/models/product'
-b2c klaus graph --format dot > sfcc-project.dot
+b2c klaus graph --format dot --output sfcc-project.dot
+b2c klaus graph --format json --output sfcc-project.json
 ```
 
 The graph connects cartridge precedence, `module.superModule` chains, hooks,
 job steps, and Custom API schemas. Use `--json` for structured graph data or
-Graphviz DOT output for external visualization.
+`--format dot` for Graphviz output. `--output` (or `-o`) writes text, DOT, or
+JSON directly to a file and creates missing parent directories.
 
 ## Explain module resolution
 

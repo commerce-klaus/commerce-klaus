@@ -339,25 +339,29 @@ job step implementations, and Custom API schemas:
 ```bash [pnpm]
 pnpm exec b2c klaus graph
 pnpm exec b2c klaus graph --module '*/cartridge/models/product'
-pnpm exec b2c klaus graph --format dot > sfcc-project.dot
+pnpm exec b2c klaus graph --format dot --output sfcc-project.dot
+pnpm exec b2c klaus graph --format json --output sfcc-project.json
 ```
 
 ```bash [yarn]
 yarn exec b2c klaus graph
 yarn exec b2c klaus graph --module '*/cartridge/models/product'
-yarn exec b2c klaus graph --format dot > sfcc-project.dot
+yarn exec b2c klaus graph --format dot --output sfcc-project.dot
+yarn exec b2c klaus graph --format json --output sfcc-project.json
 ```
 
 ```bash [npm]
 npm exec -- b2c klaus graph
 npm exec -- b2c klaus graph --module '*/cartridge/models/product'
-npm exec -- b2c klaus graph --format dot > sfcc-project.dot
+npm exec -- b2c klaus graph --format dot --output sfcc-project.dot
+npm exec -- b2c klaus graph --format json --output sfcc-project.json
 ```
 
 ```bash [Vite+]
 vp exec b2c klaus graph
 vp exec b2c klaus graph --module '*/cartridge/models/product'
-vp exec b2c klaus graph --format dot > sfcc-project.dot
+vp exec b2c klaus graph --format dot --output sfcc-project.dot
+vp exec b2c klaus graph --format json --output sfcc-project.json
 ```
 
 :::
@@ -365,7 +369,10 @@ vp exec b2c klaus graph --format dot > sfcc-project.dot
 The default output is a concise, colored relationship list. `--format dot`
 emits Graphviz DOT without decorative output, while `--json` returns the same
 nodes and typed edges as structured data. `--module` accepts the
-`*/cartridge/...` form and limits module discovery to that path.
+`*/cartridge/...` form and limits module discovery to that path. `--output`
+(short form `-o`) writes text, DOT, or JSON directly to a file and creates
+missing parent directories. Use `--format json --output <path>` for a JSON
+artifact; the standard `--json` flag remains reserved for structured stdout.
 
 ## Validate project contracts
 
