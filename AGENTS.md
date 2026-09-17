@@ -207,6 +207,13 @@ and process globals between tests because Vitest workers are reused.
   Use VitePress code groups where supported. Repository development commands
   remain Vite+ only because this monorepo does not support npm or Yarn as its
   workspace package manager.
+- Keep `b2c-plugin` command output consistent with the Salesforce B2C CLI and
+  the existing Commerce Klaus type commands. Use oclif `ux.stdout()` and
+  `ux.colorize()` for human-readable output: green for successful values and
+  `PASS`/`DONE` states, yellow for warnings and empty results, red for errors,
+  and dim text for paths or supporting detail. Write concise, friendly status
+  messages, and emit no decorative text or ANSI color output when `--json` is
+  active so automation receives only the structured command result.
 - Public behavior needs focused tests, user-facing documentation, and a
   Changeset. Internal-only refactors and test-only changes normally do not need
   a Changeset.

@@ -35,6 +35,9 @@
     "check": "vp check",
     "prepublishOnly": "pnpm run build"
   },
+  "dependencies": {
+    "@commerce-klaus/sfcc-module-resolver": "workspace:^"
+  },
   "devDependencies": {
     "@commerce-klaus/typescript-sfcc": "workspace:^",
     "@oclif/core": "^4.8.0",

@@ -71,3 +71,35 @@ b2c klaus types sync --force --min-version 26.7.0
 
 This runs Salesforce's Script API type synchronization and then generates
 project-specific types for custom attributes, hooks, Custom APIs, and job steps.
+
+## Inspect a project
+
+```bash
+b2c klaus inspect
+b2c klaus inspect --cartridge-path app_custom:app_storefront_base --json
+```
+
+The command reports the effective cartridge order and the resolved hooks, job
+steps, and Custom APIs. Use JSON output for CI or editor integrations.
+
+## Explain module resolution
+
+```bash
+b2c klaus resolve '*/cartridge/scripts/example'
+b2c klaus resolve '~/cartridge/scripts/example' \
+  --from cartridges/app_custom/cartridge/controllers/Home.js
+```
+
+Wildcard resolution also reports every matching candidate in cartridge-path
+order, making overrides visible.
+
+## Diagnose a project
+
+```bash
+b2c klaus doctor
+b2c klaus doctor --cartridge-path app_custom:app_storefront_base --json
+```
+
+The command checks that the cartridges directory and explicitly configured
+cartridges exist. It also warns about entries that do not contain a
+`cartridge/` directory and exits with a non-zero status when errors are found.

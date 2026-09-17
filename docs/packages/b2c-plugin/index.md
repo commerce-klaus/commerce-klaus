@@ -3,11 +3,12 @@
 Run Commerce Klaus development tools through the
 [Salesforce B2C CLI](https://salesforcecommercecloud.github.io/b2c-developer-tooling/).
 
-The plugin is a thin command adapter. Type checking, generated declarations,
-and SFCC module resolution remain implemented by
-`@commerce-klaus/typescript-sfcc`, so the B2C CLI and standalone commands have
-the same behavior. The package is a peer dependency so the editor plugin and
-B2C CLI commands always use the same compatible project-level version.
+The plugin is a thin command adapter. Type checking and generated declarations
+remain implemented by `@commerce-klaus/typescript-sfcc`; cartridge discovery,
+metadata inspection, and SFCC module resolution remain implemented by
+`@commerce-klaus/sfcc-module-resolver`. The TypeScript package is a peer
+dependency so the editor plugin and B2C CLI commands always use the same
+compatible project-level version.
 
 ## Install
 
@@ -208,6 +209,85 @@ vp exec b2c klaus types sync --json
 ```
 
 :::
+
+## Inspect and diagnose a project
+
+Show the effective cartridge order and resolved hooks, job steps, and Custom
+APIs:
+
+::: code-group
+
+```bash [pnpm]
+pnpm exec b2c klaus inspect --json
+```
+
+```bash [yarn]
+yarn exec b2c klaus inspect --json
+```
+
+```bash [npm]
+npm exec -- b2c klaus inspect --json
+```
+
+```bash [Vite+]
+vp exec b2c klaus inspect --json
+```
+
+:::
+
+Check that the cartridges directory and configured cartridges exist:
+
+::: code-group
+
+```bash [pnpm]
+pnpm exec b2c klaus doctor --cartridge-path app_custom:app_storefront_base
+```
+
+```bash [yarn]
+yarn exec b2c klaus doctor --cartridge-path app_custom:app_storefront_base
+```
+
+```bash [npm]
+npm exec -- b2c klaus doctor --cartridge-path app_custom:app_storefront_base
+```
+
+```bash [Vite+]
+vp exec b2c klaus doctor --cartridge-path app_custom:app_storefront_base
+```
+
+:::
+
+Warnings do not fail the command. Configuration errors produce a non-zero exit
+status, making `doctor` suitable for CI.
+
+## Explain module resolution
+
+Resolve an SFCC module and show all wildcard candidates in cartridge-path
+order:
+
+::: code-group
+
+```bash [pnpm]
+pnpm exec b2c klaus resolve '*/cartridge/scripts/example'
+```
+
+```bash [yarn]
+yarn exec b2c klaus resolve '*/cartridge/scripts/example'
+```
+
+```bash [npm]
+npm exec -- b2c klaus resolve '*/cartridge/scripts/example'
+```
+
+```bash [Vite+]
+vp exec b2c klaus resolve '*/cartridge/scripts/example'
+```
+
+:::
+
+For a `~/` module, provide the importing file with `--from`. All three project
+commands accept `--cartridges-dir`, `--cartridge-path`, and the standard
+`--json` flag where applicable.
 
 ## Standalone commands
 
