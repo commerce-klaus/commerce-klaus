@@ -18,7 +18,7 @@ plugin provides the complete SFCC-aware typecheck through
 
 The example's `prepare` script links the workspace's
 `@commerce-klaus/b2c-plugin` into its local Salesforce B2C CLI during dependency
-installation. To refresh that development link manually, run `pnpm prepare`.
+installation. To refresh that development link manually, run `vp run prepare`.
 
 Run all checks with:
 

@@ -13,8 +13,23 @@ TypeScript tooling for Salesforce Commerce Cloud cartridge projects. It provides
 
 ## Install
 
-```bash
+Salesforce Script API declarations are synchronized through the
+[Salesforce B2C Developer Tooling CLI](https://salesforcecommercecloud.github.io/b2c-developer-tooling/).
+
+```bash [pnpm]
 pnpm add -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
+```
+
+```bash [yarn]
+yarn add -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
+```
+
+```bash [npm]
+npm install -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
+```
+
+```bash [Vite+]
+vp install -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
 ```
 
 Enable the editor plugin in a cartridge `jsconfig.json` or `tsconfig.json`:
@@ -29,9 +44,24 @@ Enable the editor plugin in a cartridge `jsconfig.json` or `tsconfig.json`:
 
 Synchronize types and run the cartridge typecheck:
 
-```bash
+```bash [pnpm]
 pnpm exec sfcc-ts-sync-types
 pnpm exec sfcc-ts-typecheck
+```
+
+```bash [yarn]
+yarn exec sfcc-ts-sync-types
+yarn exec sfcc-ts-typecheck
+```
+
+```bash [npm]
+npm exec -- sfcc-ts-sync-types
+npm exec -- sfcc-ts-typecheck
+```
+
+```bash [Vite+]
+vp exec sfcc-ts-sync-types
+vp exec sfcc-ts-typecheck
 ```
 
 Both standalone commands use the same oclif command implementation as the B2C

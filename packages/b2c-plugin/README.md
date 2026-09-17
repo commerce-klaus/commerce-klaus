@@ -1,14 +1,27 @@
 # @commerce-klaus/b2c-plugin
 
-Commerce Klaus commands for the Salesforce B2C CLI.
+Commerce Klaus commands for the
+[Salesforce B2C CLI](https://salesforcecommercecloud.github.io/b2c-developer-tooling/).
 
 `@commerce-klaus/typescript-sfcc` is a peer dependency so the editor plugin and
 B2C CLI commands use the same project-level version.
 
 ## Install
 
-```bash
+```bash [pnpm]
 pnpm add -D @commerce-klaus/b2c-plugin @commerce-klaus/typescript-sfcc @salesforce/b2c-cli typescript
+```
+
+```bash [yarn]
+yarn add -D @commerce-klaus/b2c-plugin @commerce-klaus/typescript-sfcc @salesforce/b2c-cli typescript
+```
+
+```bash [npm]
+npm install -D @commerce-klaus/b2c-plugin @commerce-klaus/typescript-sfcc @salesforce/b2c-cli typescript
+```
+
+```bash [Vite+]
+vp install -D @commerce-klaus/b2c-plugin @commerce-klaus/typescript-sfcc @salesforce/b2c-cli typescript
 ```
 
 Register the project-local plugin after dependency installation:
@@ -21,7 +34,23 @@ Register the project-local plugin after dependency installation:
 }
 ```
 
-Run `pnpm prepare` to refresh the link after changing the plugin locally.
+Run the `prepare` script to refresh the link after changing the plugin locally:
+
+```bash [pnpm]
+pnpm run prepare
+```
+
+```bash [yarn]
+yarn run prepare
+```
+
+```bash [npm]
+npm run prepare
+```
+
+```bash [Vite+]
+vp run prepare
+```
 
 ## Typecheck cartridges
 

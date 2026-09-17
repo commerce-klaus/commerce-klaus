@@ -56,6 +56,10 @@ yarn add -D @commerce-klaus/babel-plugin-sfcc-modules
 npm install -D @commerce-klaus/babel-plugin-sfcc-modules
 ```
 
+```sh [Vite+]
+vp install -D @commerce-klaus/babel-plugin-sfcc-modules
+```
+
 :::
 
 ## Usage

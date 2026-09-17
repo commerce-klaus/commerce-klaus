@@ -51,6 +51,10 @@ yarn add -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
 npm install -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
 ```
 
+```bash [Vite+]
+vp install -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
+```
+
 :::
 
 ## SFCC Script Types Setup
@@ -66,7 +70,8 @@ The path is calculated relative to each project config, so both setups are suppo
 - `cartridges/jsconfig.json`
 - `cartridges/<cartridge>/jsconfig.json`
 
-Example workflow with the B2C Developer Tooling CLI:
+Example workflow with the
+[Salesforce B2C Developer Tooling CLI](https://salesforcecommercecloud.github.io/b2c-developer-tooling/):
 
 ```bash
 b2c setup ide vscode-types --copy --force --output .b2c-script-types/jsconfig.generated.json
@@ -235,13 +240,34 @@ Recommended `package.json` scripts:
   "scripts": {
     "types:sfcc:sync": "sfcc-ts-sync-types --min-version 26.7.0",
     "types:sfcc:sync:force": "sfcc-ts-sync-types --force",
-    "prepare": "pnpm types:sfcc:sync",
+    "prepare": "sfcc-ts-sync-types --min-version 26.7.0",
     "typecheck:cartridges": "sfcc-ts-typecheck"
   }
 }
 ```
 
-If your CI install uses `--ignore-scripts`, run `pnpm types:sfcc:sync` explicitly before `sfcc-ts-typecheck`.
+If your CI install uses `--ignore-scripts`, run the synchronization script
+explicitly before `sfcc-ts-typecheck`:
+
+::: code-group
+
+```bash [pnpm]
+pnpm run types:sfcc:sync
+```
+
+```bash [yarn]
+yarn run types:sfcc:sync
+```
+
+```bash [npm]
+npm run types:sfcc:sync
+```
+
+```bash [Vite+]
+vp run types:sfcc:sync
+```
+
+:::
 
 ## Custom APIs
 
@@ -360,17 +386,55 @@ Default behavior (no flags):
 
 Basic calls:
 
-```bash
+::: code-group
+
+```bash [pnpm]
 pnpm exec sfcc-ts-typecheck
 pnpm exec sfcc-ts-typecheck --project cartridges/jsconfig.json
 pnpm exec sfcc-ts-typecheck --project cartridges/tsconfig.json
 ```
 
+```bash [yarn]
+yarn exec sfcc-ts-typecheck
+yarn exec sfcc-ts-typecheck --project cartridges/jsconfig.json
+yarn exec sfcc-ts-typecheck --project cartridges/tsconfig.json
+```
+
+```bash [npm]
+npm exec -- sfcc-ts-typecheck
+npm exec -- sfcc-ts-typecheck --project cartridges/jsconfig.json
+npm exec -- sfcc-ts-typecheck --project cartridges/tsconfig.json
+```
+
+```bash [Vite+]
+vp exec sfcc-ts-typecheck
+vp exec sfcc-ts-typecheck --project cartridges/jsconfig.json
+vp exec sfcc-ts-typecheck --project cartridges/tsconfig.json
+```
+
+:::
+
 If your project config is outside the cartridges folder, pass the cartridges root explicitly:
 
-```bash
+::: code-group
+
+```bash [pnpm]
 pnpm exec sfcc-ts-typecheck --project config/tsconfig.cartridges.json --cartridges-dir cartridges
 ```
+
+```bash [yarn]
+yarn exec sfcc-ts-typecheck --project config/tsconfig.cartridges.json --cartridges-dir cartridges
+```
+
+```bash [npm]
+npm exec -- sfcc-ts-typecheck --project config/tsconfig.cartridges.json --cartridges-dir cartridges
+```
+
+```bash [Vite+]
+vp exec sfcc-ts-typecheck --project config/tsconfig.cartridges.json --cartridges-dir cartridges
+```
+
+:::
 
 `package.json` example:
 

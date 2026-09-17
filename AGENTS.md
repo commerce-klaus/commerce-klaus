@@ -202,6 +202,11 @@ and process globals between tests because Vitest workers are reused.
 - VitePress navigation is maintained manually. When adding or moving docs,
   update `docs/.vitepress/config.ts`; add blog posts to both
   `docs/blog/index.md` and the Blog sidebar.
+- In consumer-facing documentation, every package installation and
+  package-executed CLI example must include Vite+, pnpm, Yarn, and npm variants.
+  Use VitePress code groups where supported. Repository development commands
+  remain Vite+ only because this monorepo does not support npm or Yarn as its
+  workspace package manager.
 - Public behavior needs focused tests, user-facing documentation, and a
   Changeset. Internal-only refactors and test-only changes normally do not need
   a Changeset.

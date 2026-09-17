@@ -17,8 +17,20 @@ Framework-independent SFCC runtime modules and dependency mocking for local test
 
 ## Install
 
-```bash
+```bash [pnpm]
 pnpm add -D @commerce-klaus/sfcc-test-runtime
+```
+
+```bash [yarn]
+yarn add -D @commerce-klaus/sfcc-test-runtime
+```
+
+```bash [npm]
+npm install -D @commerce-klaus/sfcc-test-runtime
+```
+
+```bash [Vite+]
+vp install -D @commerce-klaus/sfcc-test-runtime
 ```
 
 Most Vitest projects should install `@commerce-klaus/vitest-sfcc` instead and use `@commerce-klaus/vitest-sfcc/runtime` for runtime-only APIs and types.

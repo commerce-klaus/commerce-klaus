@@ -19,8 +19,20 @@ resolver-only `containingFile` option.
 
 ## Install
 
-```bash
+```bash [pnpm]
 pnpm add @commerce-klaus/sfcc-module-resolver
+```
+
+```bash [yarn]
+yarn add @commerce-klaus/sfcc-module-resolver
+```
+
+```bash [npm]
+npm install @commerce-klaus/sfcc-module-resolver
+```
+
+```bash [Vite+]
+vp install @commerce-klaus/sfcc-module-resolver
 ```
 
 ```ts

@@ -16,8 +16,20 @@ Shareable ESLint flat config for Salesforce Commerce Cloud projects. It catches 
 
 ## Install
 
-```bash
+```bash [pnpm]
 pnpm add -D eslint @commerce-klaus/eslint-config-sfcc
+```
+
+```bash [yarn]
+yarn add -D eslint @commerce-klaus/eslint-config-sfcc
+```
+
+```bash [npm]
+npm install -D eslint @commerce-klaus/eslint-config-sfcc
+```
+
+```bash [Vite+]
+vp install -D eslint @commerce-klaus/eslint-config-sfcc
 ```
 
 ```js

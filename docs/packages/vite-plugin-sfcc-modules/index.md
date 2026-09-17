@@ -71,6 +71,10 @@ yarn add -D @commerce-klaus/vite-plugin-sfcc-modules
 npm install -D @commerce-klaus/vite-plugin-sfcc-modules
 ```
 
+```bash [Vite+]
+vp install -D @commerce-klaus/vite-plugin-sfcc-modules
+```
+
 :::
 
 ## Usage

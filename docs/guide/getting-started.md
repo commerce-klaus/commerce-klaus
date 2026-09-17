@@ -6,7 +6,7 @@ Commerce Klaus is a set of focused packages. Adopt only the parts your project n
 
 - Node.js 22.12 or newer
 - An SFCC cartridge project
-- pnpm, npm, or Yarn
+- Vite+, pnpm, Yarn, or npm
 
 ## Recommended setup
 
@@ -32,6 +32,12 @@ npm install -D eslint typescript @salesforce/b2c-cli \
   @commerce-klaus/typescript-sfcc
 ```
 
+```bash [Vite+]
+vp install -D eslint typescript @salesforce/b2c-cli \
+  @commerce-klaus/eslint-config-sfcc \
+  @commerce-klaus/typescript-sfcc
+```
+
 :::
 
 Add the recommended ESLint flat config:
@@ -45,9 +51,25 @@ export default defineConfig(sfcc.configs.recommended)
 
 For a faster lint path, Commerce Klaus also exposes its supported SFCC and SiteGenesis rules through Oxlint's JavaScript plugin API:
 
+::: code-group
+
 ```bash [pnpm]
 pnpm add -D oxlint @commerce-klaus/eslint-config-sfcc
 ```
+
+```bash [yarn]
+yarn add -D oxlint @commerce-klaus/eslint-config-sfcc
+```
+
+```bash [npm]
+npm install -D oxlint @commerce-klaus/eslint-config-sfcc
+```
+
+```bash [Vite+]
+vp install -D oxlint @commerce-klaus/eslint-config-sfcc
+```
+
+:::
 
 ```js [oxlint.config.mjs]
 import sfcc from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
@@ -69,17 +91,53 @@ Enable cartridge-aware TypeScript resolution:
 
 Synchronize Salesforce types and check the cartridges:
 
-```bash
+::: code-group
+
+```bash [pnpm]
 pnpm exec sfcc-ts-sync-types
 pnpm exec sfcc-ts-typecheck
 ```
 
-To run the same operations through the Salesforce B2C CLI, add the Commerce
-Klaus plugin as a development dependency:
+```bash [yarn]
+yarn exec sfcc-ts-sync-types
+yarn exec sfcc-ts-typecheck
+```
 
-```bash
+```bash [npm]
+npm exec -- sfcc-ts-sync-types
+npm exec -- sfcc-ts-typecheck
+```
+
+```bash [Vite+]
+vp exec sfcc-ts-sync-types
+vp exec sfcc-ts-typecheck
+```
+
+:::
+
+To run the same operations through the
+[Salesforce B2C CLI](https://salesforcecommercecloud.github.io/b2c-developer-tooling/),
+add the Commerce Klaus plugin as a development dependency:
+
+::: code-group
+
+```bash [pnpm]
 pnpm add -D @commerce-klaus/b2c-plugin @salesforce/b2c-cli
 ```
+
+```bash [yarn]
+yarn add -D @commerce-klaus/b2c-plugin @salesforce/b2c-cli
+```
+
+```bash [npm]
+npm install -D @commerce-klaus/b2c-plugin @salesforce/b2c-cli
+```
+
+```bash [Vite+]
+vp install -D @commerce-klaus/b2c-plugin @salesforce/b2c-cli
+```
+
+:::
 
 Register the project-local plugin after dependency installation:
 
@@ -94,10 +152,29 @@ Register the project-local plugin after dependency installation:
 The package manager runs `prepare` during installation. Then use the plugin
 commands in project scripts or invoke them directly:
 
-```bash
+::: code-group
+
+```bash [pnpm]
 pnpm exec b2c klaus types sync
 pnpm exec b2c klaus types check
 ```
+
+```bash [yarn]
+yarn exec b2c klaus types sync
+yarn exec b2c klaus types check
+```
+
+```bash [npm]
+npm exec -- b2c klaus types sync
+npm exec -- b2c klaus types check
+```
+
+```bash [Vite+]
+vp exec b2c klaus types sync
+vp exec b2c klaus types check
+```
+
+:::
 
 Keep the standalone `sfcc-ts-*` commands for project-local scripts and CI when
 plugin installation state should not be shared outside the lockfile.
@@ -118,6 +195,10 @@ yarn add -D vitest @commerce-klaus/vitest-sfcc
 
 ```bash [npm]
 npm install -D vitest @commerce-klaus/vitest-sfcc
+```
+
+```bash [Vite+]
+vp install -D vitest @commerce-klaus/vitest-sfcc
 ```
 
 :::

@@ -13,8 +13,20 @@ Babel plugin for resolving Salesforce Commerce Cloud server-side module patterns
 
 ## Install
 
-```bash
+```bash [pnpm]
 pnpm add -D @commerce-klaus/babel-plugin-sfcc-modules
+```
+
+```bash [yarn]
+yarn add -D @commerce-klaus/babel-plugin-sfcc-modules
+```
+
+```bash [npm]
+npm install -D @commerce-klaus/babel-plugin-sfcc-modules
+```
+
+```bash [Vite+]
+vp install -D @commerce-klaus/babel-plugin-sfcc-modules
 ```
 
 ```json

@@ -25,8 +25,20 @@ Vitest run.
 
 ## Install
 
-```bash
+```bash [pnpm]
 pnpm add -D @commerce-klaus/vite-plugin-sfcc-modules
+```
+
+```bash [yarn]
+yarn add -D @commerce-klaus/vite-plugin-sfcc-modules
+```
+
+```bash [npm]
+npm install -D @commerce-klaus/vite-plugin-sfcc-modules
+```
+
+```bash [Vite+]
+vp install -D @commerce-klaus/vite-plugin-sfcc-modules
 ```
 
 ```ts

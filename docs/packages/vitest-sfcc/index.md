@@ -74,6 +74,10 @@ yarn add -D @commerce-klaus/vitest-sfcc vitest
 npm install -D @commerce-klaus/vitest-sfcc vitest
 ```
 
+```bash [Vite+]
+vp install -D @commerce-klaus/vitest-sfcc vitest
+```
+
 :::
 
 Do not install `@commerce-klaus/sfcc-test-runtime` separately when using the Vitest integration. It is an internal dependency and its public APIs are re-exported through `@commerce-klaus/vitest-sfcc/runtime`.

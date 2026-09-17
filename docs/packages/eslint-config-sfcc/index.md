@@ -57,6 +57,10 @@ yarn add -D eslint @commerce-klaus/eslint-config-sfcc
 npm install -D eslint @commerce-klaus/eslint-config-sfcc
 ```
 
+```bash [Vite+]
+vp install -D eslint @commerce-klaus/eslint-config-sfcc
+```
+
 :::
 
 ### Use in `eslint.config.js`
@@ -243,6 +247,10 @@ yarn add -D @typescript-eslint/parser
 
 ```bash [npm]
 npm install -D @typescript-eslint/parser
+```
+
+```bash [Vite+]
+vp install -D @typescript-eslint/parser
 ```
 
 :::

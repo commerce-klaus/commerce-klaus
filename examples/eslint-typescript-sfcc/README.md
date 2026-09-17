@@ -15,7 +15,7 @@ JavaScript and its JSDoc annotations without emitting build artifacts.
 
 The example's `prepare` script links the workspace's
 `@commerce-klaus/b2c-plugin` into its local Salesforce B2C CLI during dependency
-installation. To refresh that development link manually, run `pnpm prepare`.
+installation. To refresh that development link manually, run `vp run prepare`.
 
 From this directory, run:
 

@@ -29,8 +29,20 @@ the test runtime. You do not need to install or configure that plugin alongside
 
 ## Install
 
-```bash
+```bash [pnpm]
 pnpm add -D @commerce-klaus/vitest-sfcc vitest
+```
+
+```bash [yarn]
+yarn add -D @commerce-klaus/vitest-sfcc vitest
+```
+
+```bash [npm]
+npm install -D @commerce-klaus/vitest-sfcc vitest
+```
+
+```bash [Vite+]
+vp install -D @commerce-klaus/vitest-sfcc vitest
 ```
 
 ## Usage

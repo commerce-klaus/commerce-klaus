@@ -57,6 +57,10 @@ yarn add -D @commerce-klaus/sfcc-test-runtime
 npm install -D @commerce-klaus/sfcc-test-runtime
 ```
 
+```bash [Vite+]
+vp install -D @commerce-klaus/sfcc-test-runtime
+```
+
 :::
 
 Do not add this direct dependency when `@commerce-klaus/vitest-sfcc` already owns the test integration. Use its `@commerce-klaus/vitest-sfcc/runtime` subpath instead.
