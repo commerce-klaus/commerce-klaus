@@ -382,18 +382,22 @@ Validate hook registrations, job step definitions, and Custom API contracts:
 
 ```bash [pnpm]
 pnpm exec b2c klaus validate
+pnpm exec b2c klaus validate --watch
 ```
 
 ```bash [yarn]
 yarn exec b2c klaus validate
+yarn exec b2c klaus validate --watch
 ```
 
 ```bash [npm]
 npm exec -- b2c klaus validate
+npm exec -- b2c klaus validate --watch
 ```
 
 ```bash [Vite+]
 vp exec b2c klaus validate
+vp exec b2c klaus validate --watch
 ```
 
 :::
@@ -402,6 +406,10 @@ Missing scripts, modules, schemas, and OAS operations are reported as errors.
 Hook and job step registrations hidden by an earlier cartridge are reported as
 warnings. Errors produce a non-zero exit status. Use `--json` to receive stable
 diagnostic codes, severities, source files, and summary counts for automation.
+Use `--watch` (short form `-w`) during development to rerun validation after
+changes to `.js`, `.ds`, `.json`, `.yaml`, or `.yml` files under the cartridges
+directory. Rapid file events are combined into one validation run. Watch mode
+uses human-readable output and cannot be combined with `--json`.
 
 ## Explain module resolution
 

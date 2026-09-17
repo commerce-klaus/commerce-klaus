@@ -149,13 +149,16 @@ cartridges exist. It also warns about entries that do not contain a
 
 ```bash
 b2c klaus validate
+b2c klaus validate --watch
 b2c klaus validate --cartridge-path app_custom:app_storefront_base --json
 ```
 
 The command validates hook registrations, job step definitions, and Custom API
 contracts. Missing scripts, modules, schemas, and operations are errors;
 registrations hidden by cartridge precedence are warnings. Validation errors
-produce a non-zero exit status for CI.
+produce a non-zero exit status for CI. `--watch` (or `-w`) reruns validation
+when cartridge scripts, registrations, or API schemas change. Watch mode uses
+human-readable output and cannot be combined with `--json`.
 
 [npm-url]: https://www.npmjs.com/package/@commerce-klaus/b2c-plugin
 [npm-image]: https://badgen.net/npm/v/@commerce-klaus/b2c-plugin

@@ -287,6 +287,9 @@ importers:
       '@commerce-klaus/sfcc-module-resolver':
         specifier: workspace:^
         version: link:../sfcc-module-resolver
+      chokidar:
+        specifier: ^5.0.0
+        version: 5.0.0
     devDependencies:
       '@commerce-klaus/typescript-sfcc':
         specifier: workspace:^

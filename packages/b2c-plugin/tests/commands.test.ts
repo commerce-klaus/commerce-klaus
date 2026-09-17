@@ -254,4 +254,48 @@ describe("command execution", () => {
     expect(JSON.parse(output[0] ?? "")).toEqual(result)
     expect(output[0]).not.toContain("Validating SFCC project")
   })
+
+  test("validate watch reruns validation and updates the exit code", async () => {
+    const projectDirectory = createProjectDirectory()
+    const cartridgesDirectory = path.join(projectDirectory, "cartridges")
+    fs.mkdirSync(path.join(cartridgesDirectory, "app_custom", "cartridge"), {
+      recursive: true,
+    })
+    const output = captureStdout()
+    process.exitCode = undefined
+    const failingResult = {
+      ok: false,
+      errors: 1,
+      warnings: 0,
+      diagnostics: [],
+      cartridgesDirectory,
+      cartridgeOrder: [],
+    }
+    const passingResult = { ...failingResult, ok: true, errors: 0 }
+
+    class TestValidate extends Validate {
+      private validations = [failingResult, passingResult]
+
+      protected validate(): typeof failingResult {
+        const result = this.validations.shift()
+        if (!result) {
+          throw new Error("Unexpected validation run")
+        }
+        return result
+      }
+
+      protected async watchForChanges(_directory: string, onChange: () => void): Promise<void> {
+        onChange()
+      }
+    }
+
+    const result = await TestValidate.run(["--cartridges-dir", cartridgesDirectory, "--watch"], {
+      root: packageDirectory,
+    })
+
+    expect(result.ok).toBe(true)
+    expect(process.exitCode).toBeUndefined()
+    expect(output.filter((line) => line.includes("Validating SFCC project"))).toHaveLength(2)
+    expect(output.some((line) => line.includes("WATCH"))).toBe(true)
+  })
 })

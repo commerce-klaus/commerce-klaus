@@ -36,7 +36,8 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@commerce-klaus/sfcc-module-resolver": "workspace:^"
+    "@commerce-klaus/sfcc-module-resolver": "workspace:^",
+    "chokidar": "^5.0.0"
   },
   "devDependencies": {
     "@commerce-klaus/typescript-sfcc": "workspace:^",
