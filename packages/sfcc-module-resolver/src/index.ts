@@ -44,6 +44,14 @@ export {
   transformSuperModuleSource,
 } from "./super-module.ts"
 
+export { validateSfccProject } from "./project-validation.ts"
+export type {
+  SfccProjectDiagnostic,
+  SfccProjectDiagnosticSeverity,
+  SfccProjectValidationResult,
+  ValidateSfccProjectOptions,
+} from "./project-validation.ts"
+
 export {
   findResolvedStepTypeDefinitions,
   getResolvedStepTypeDefinitionsForScriptFile,

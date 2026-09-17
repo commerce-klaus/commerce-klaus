@@ -4,6 +4,8 @@ import {
   findResolvedStepTypeDefinitions,
   resolveCartridgeRoots,
   resolveCartridgesDir,
+  validateSfccProject,
+  type SfccProjectValidationResult,
 } from "@commerce-klaus/sfcc-module-resolver"
 import fs from "node:fs"
 import path from "node:path"
@@ -20,6 +22,11 @@ export type ProjectInspection = {
   hooks: Array<{ name: string; scriptPath: string }>
   jobSteps: Array<{ typeId: string; modulePath: string }>
   customApis: Array<{ endpoint: string; schemaPath: string }>
+}
+
+export type ProjectValidation = SfccProjectValidationResult & {
+  cartridgesDirectory: string
+  cartridgeOrder: string[]
 }
 
 export function getProjectInspection(options: ProjectOptions): ProjectInspection {
@@ -45,6 +52,21 @@ export function getProjectInspection(options: ProjectOptions): ProjectInspection
       endpoint,
       schemaPath,
     })),
+  }
+}
+
+export function validateProject(options: ProjectOptions): ProjectValidation {
+  const cartridgesDirectory = resolveCartridgesDir(options.cartridgesDir, options.cwd)
+  const cartridgeOrder = resolveCartridgeRoots({
+    basePath: options.cartridgesDir,
+    cwd: options.cwd,
+    cartridgePath: options.cartridgePath?.split(":"),
+  })
+
+  return {
+    cartridgesDirectory,
+    cartridgeOrder,
+    ...validateSfccProject({ cartridgesDir: cartridgesDirectory, cartridgeRoots: cartridgeOrder }),
   }
 }
 

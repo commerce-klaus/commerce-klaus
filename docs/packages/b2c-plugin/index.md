@@ -260,6 +260,35 @@ vp exec b2c klaus doctor --cartridge-path app_custom:app_storefront_base
 Warnings do not fail the command. Configuration errors produce a non-zero exit
 status, making `doctor` suitable for CI.
 
+## Validate project contracts
+
+Validate hook registrations, job step definitions, and Custom API contracts:
+
+::: code-group
+
+```bash [pnpm]
+pnpm exec b2c klaus validate
+```
+
+```bash [yarn]
+yarn exec b2c klaus validate
+```
+
+```bash [npm]
+npm exec -- b2c klaus validate
+```
+
+```bash [Vite+]
+vp exec b2c klaus validate
+```
+
+:::
+
+Missing scripts, modules, schemas, and OAS operations are reported as errors.
+Hook and job step registrations hidden by an earlier cartridge are reported as
+warnings. Errors produce a non-zero exit status. Use `--json` to receive stable
+diagnostic codes, severities, source files, and summary counts for automation.
+
 ## Explain module resolution
 
 Resolve an SFCC module and show all wildcard candidates in cartridge-path
@@ -285,7 +314,7 @@ vp exec b2c klaus resolve '*/cartridge/scripts/example'
 
 :::
 
-For a `~/` module, provide the importing file with `--from`. All three project
+For a `~/` module, provide the importing file with `--from`. All four project
 commands accept `--cartridges-dir`, `--cartridge-path`, and the standard
 `--json` flag where applicable.
 

@@ -1,6 +1,12 @@
 import { describe, expect, test } from "vite-plus/test"
 
-import { renderDoctor, renderInspection, renderResolution, type Colorize } from "../src/output.ts"
+import {
+  renderDoctor,
+  renderInspection,
+  renderResolution,
+  renderValidation,
+  type Colorize,
+} from "../src/output.ts"
 
 const colorize: Colorize = (style, text) => `<${style}>${text}</${style}>`
 
@@ -97,5 +103,56 @@ describe("renderDoctor", () => {
         colorize,
       ),
     ).toContain("<green>PASS</green>: Project configuration looks valid.")
+  })
+})
+
+describe("renderValidation", () => {
+  test("renders diagnostics and a failing summary", () => {
+    const output = renderValidation(
+      {
+        ok: false,
+        errors: 1,
+        warnings: 1,
+        cartridgesDirectory: "/project/cartridges",
+        cartridgeOrder: ["/project/cartridges/app_custom"],
+        diagnostics: [
+          {
+            code: "hook-overridden",
+            severity: "warning",
+            file: "/project/cartridges/app_custom/hooks.json",
+            message: "Hook is overridden.",
+          },
+          {
+            code: "hook-script-not-found",
+            severity: "error",
+            file: "/project/cartridges/app_custom/hooks.json",
+            message: "Hook script was not found.",
+          },
+        ],
+      },
+      "/project",
+      colorize,
+    )
+
+    expect(output).toContain("<yellow>WARN</yellow> [hook-overridden]")
+    expect(output).toContain("<red>ERROR</red> [hook-script-not-found]")
+    expect(output).toContain("<red>FAIL</red>: Project validation found 1 error, 1 warning.")
+  })
+
+  test("renders a successful summary", () => {
+    expect(
+      renderValidation(
+        {
+          ok: true,
+          errors: 0,
+          warnings: 0,
+          cartridgesDirectory: "/project/cartridges",
+          cartridgeOrder: [],
+          diagnostics: [],
+        },
+        "/project",
+        colorize,
+      ),
+    ).toContain("<green>PASS</green>: Project validation completed with 0 errors, 0 warnings.")
   })
 })

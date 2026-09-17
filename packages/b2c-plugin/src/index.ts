@@ -1,5 +1,6 @@
 export { default as DoctorCommand } from "./commands/klaus/doctor.js"
 export { default as InspectCommand } from "./commands/klaus/inspect.js"
 export { default as ResolveCommand } from "./commands/klaus/resolve.js"
+export { default as ValidateCommand } from "./commands/klaus/validate.js"
 export { default as TypecheckCommand } from "./commands/klaus/types/check.js"
 export { default as SyncTypesCommand } from "./commands/klaus/types/sync.js"

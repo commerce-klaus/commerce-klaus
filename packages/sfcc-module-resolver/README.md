@@ -12,6 +12,7 @@ Shared Node.js utilities for SFCC cartridge order, module resolution, super modu
 - Reads and resolves cartridge hook registrations
 - Discovers effective hook scripts in cartridge-path order
 - Reads job step definitions, parameters, status codes, execution capabilities, and task timeouts from `steptypes.json`
+- Validates hook, job step, and Custom API contracts with structured diagnostics
 
 `SfccModuleResolutionOptions` is the shared configuration type used by the Vite
 and Vitest adapters. `ResolveCartridgeRootsOptions` extends it with the
@@ -40,6 +41,18 @@ import { createSfccModuleResolver, inferCartridgeOrder } from "@commerce-klaus/s
 
 const cartridgeRoots = inferCartridgeOrder({ cartridgesDir: "cartridges" })
 const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
+```
+
+Validate metadata contracts without changing the resolver's tolerant lookup
+behavior:
+
+```ts
+import { validateSfccProject } from "@commerce-klaus/sfcc-module-resolver"
+
+const result = validateSfccProject({
+  cartridgesDir: "cartridges",
+  cartridgeRoots,
+})
 ```
 
 ## Documentation

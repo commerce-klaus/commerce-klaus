@@ -23,6 +23,7 @@ Typical consumers in this monorepo:
 - `@commerce-klaus/eslint-config-sfcc`
 - `@commerce-klaus/babel-plugin-sfcc-modules`
 - `@commerce-klaus/vite-plugin-sfcc-modules`
+- `@commerce-klaus/b2c-plugin`
 
 ## Installation
 
@@ -132,6 +133,19 @@ const resolved = resolveSfccModule("*/cartridge/scripts/util", importer)
 
 Capability fields remain optional so consumers can distinguish an omitted declaration from an explicit `false`. The resolver exposes this metadata without inferring or enforcing a job context.
 
+### Project validation
+
+- `validateSfccProject({ cartridgesDir, cartridgeRoots }): SfccProjectValidationResult`
+  - Validates cartridge `package.json` hook declarations and `hooks.json`
+  - Resolves hook scripts and job step modules
+  - Validates Custom API entries, OAS schemas, operation IDs, and implementation scripts
+  - Reports hook and job step registrations hidden by cartridge precedence as warnings
+
+The result contains `ok`, `errors`, `warnings`, and a deterministic
+`diagnostics` array. Each diagnostic provides a stable `code`, `severity`,
+absolute source `file`, and human-readable `message`. Validation is additive:
+the existing discovery APIs continue to skip malformed or unresolved entries.
+
 ### Utilities
 
 - `stripExt(filePath): string`
@@ -202,6 +216,21 @@ if (exportStep?.kind === "chunk-script-module-step") {
 Malformed documents and definitions whose modules cannot be resolved are skipped during filesystem discovery. Duplicate type IDs use the same first-cartridge-wins priority as module and hook resolution.
 
 Each definition exposes normalized `parameters` and `statusCodes` arrays. Empty parameter containers and missing status declarations become empty arrays. Boolean metadata flags accept both JSON booleans and SFCC's string forms (`"true"` and `"false"`); default values remain lossless so consumers can apply runtime-specific conversion.
+
+### 6) Validate project contracts
+
+```ts
+import { validateSfccProject } from "@commerce-klaus/sfcc-module-resolver"
+
+const validation = validateSfccProject({
+  cartridgesDir: path.resolve("cartridges"),
+  cartridgeRoots,
+})
+
+for (const diagnostic of validation.diagnostics) {
+  console.log(diagnostic.code, diagnostic.file, diagnostic.message)
+}
+```
 
 ## Design decisions
 

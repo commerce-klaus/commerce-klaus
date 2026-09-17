@@ -1,7 +1,7 @@
 import path from "node:path"
 
 import type { ResolveResult } from "./commands/klaus/resolve.js"
-import type { DoctorResult, ProjectInspection } from "./project.js"
+import type { DoctorResult, ProjectInspection, ProjectValidation } from "./project.js"
 
 export type OutputStyle = "dim" | "green" | "red" | "yellow"
 export type Colorize = (style: OutputStyle, text: string) => string
@@ -102,6 +102,32 @@ export function renderDoctor(
     result.ok
       ? `${colorize("green", "PASS")}: Project configuration looks valid.`
       : `${colorize("red", "FAIL")}: Project configuration has errors.`,
+  )
+  return lines.join("\n")
+}
+
+export function renderValidation(
+  result: ProjectValidation,
+  currentDirectory: string,
+  colorize: Colorize,
+): string {
+  const lines = [
+    `Validating SFCC project in ${colorize("dim", displayPath(result.cartridgesDirectory, currentDirectory))}`,
+  ]
+
+  for (const diagnostic of result.diagnostics) {
+    const label =
+      diagnostic.severity === "error" ? colorize("red", "ERROR") : colorize("yellow", "WARN")
+    lines.push(
+      `${label} [${diagnostic.code}]: ${diagnostic.message} ${colorize("dim", displayPath(diagnostic.file, currentDirectory))}`,
+    )
+  }
+
+  const summary = `${formatCount(result.errors, "error")}, ${formatCount(result.warnings, "warning")}`
+  lines.push(
+    result.ok
+      ? `${colorize("green", "PASS")}: Project validation completed with ${summary}.`
+      : `${colorize("red", "FAIL")}: Project validation found ${summary}.`,
   )
   return lines.join("\n")
 }

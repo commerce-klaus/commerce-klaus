@@ -8,6 +8,7 @@ import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 import Doctor from "../src/commands/klaus/doctor.ts"
 import Inspect from "../src/commands/klaus/inspect.ts"
 import Resolve from "../src/commands/klaus/resolve.ts"
+import Validate from "../src/commands/klaus/validate.ts"
 
 const packageDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const temporaryDirectories: string[] = []
@@ -41,7 +42,7 @@ test("registers source files for every new pattern command", () => {
   ) as { oclif?: { commands?: { strategy?: string; target?: string } } }
 
   expect(manifest.oclif?.commands).toEqual({ strategy: "pattern", target: "./dist/commands" })
-  for (const command of ["doctor", "inspect", "resolve"]) {
+  for (const command of ["doctor", "inspect", "resolve", "validate"]) {
     expect(
       fs.existsSync(path.join(packageDirectory, "src", "commands", "klaus", `${command}.ts`)),
     ).toBe(true)
@@ -52,6 +53,7 @@ test("all project commands support B2C CLI JSON output", () => {
   expect(Doctor.enableJsonFlag).toBe(true)
   expect(Inspect.enableJsonFlag).toBe(true)
   expect(Resolve.enableJsonFlag).toBe(true)
+  expect(Validate.enableJsonFlag).toBe(true)
 })
 
 describe("command execution", () => {
@@ -141,5 +143,26 @@ describe("command execution", () => {
 
     expect(result.ok).toBe(true)
     expect(process.exitCode).toBeUndefined()
+  })
+
+  test("validate emits JSON diagnostics and fails for invalid contracts", async () => {
+    const projectDirectory = createProjectDirectory()
+    const cartridgeRoot = path.join(projectDirectory, "cartridges", "app_custom")
+    fs.mkdirSync(cartridgeRoot, { recursive: true })
+    fs.writeFileSync(path.join(cartridgeRoot, "steptypes.json"), "not json")
+    const output = captureStdout()
+    vi.spyOn(ux, "colorizeJson").mockImplementation((value) => JSON.stringify(value))
+    process.exitCode = undefined
+
+    const result = await Validate.run(
+      ["--cartridges-dir", path.join(projectDirectory, "cartridges"), "--json"],
+      { root: packageDirectory },
+    )
+
+    expect(result).toMatchObject({ ok: false, errors: 1, warnings: 0 })
+    expect(process.exitCode).toBe(1)
+    expect(output).toHaveLength(1)
+    expect(JSON.parse(output[0] ?? "")).toEqual(result)
+    expect(output[0]).not.toContain("Validating SFCC project")
   })
 })

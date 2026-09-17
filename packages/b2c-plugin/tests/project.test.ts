@@ -4,7 +4,7 @@ import path from "node:path"
 import { afterEach, describe, expect, test } from "vite-plus/test"
 
 import { resolveProjectModule } from "../src/commands/klaus/resolve.ts"
-import { diagnoseProject, getProjectInspection } from "../src/project.ts"
+import { diagnoseProject, getProjectInspection, validateProject } from "../src/project.ts"
 
 const temporaryDirectories: string[] = []
 
@@ -177,4 +177,34 @@ describe("diagnoseProject", () => {
       findings: [],
     })
   })
+})
+
+test("validateProject uses the effective cartridge order", () => {
+  const projectDirectory = createProjectDirectory()
+  const cartridgesDirectory = path.join(projectDirectory, "cartridges")
+  const cartridgeRoot = path.join(cartridgesDirectory, "app_custom")
+  writeFile(
+    path.join(cartridgeRoot, "steptypes.json"),
+    JSON.stringify({
+      "step-types": {
+        "script-module-step": [
+          {
+            "@type-id": "custom.Missing",
+            module: "app_custom/cartridge/scripts/missing",
+          },
+        ],
+      },
+    }),
+  )
+
+  const result = validateProject({
+    cwd: projectDirectory,
+    cartridgesDir: "cartridges",
+    cartridgePath: "app_custom",
+  })
+
+  expect(result.cartridgeOrder).toEqual([cartridgeRoot])
+  expect(result.diagnostics).toEqual([
+    expect.objectContaining({ code: "step-module-not-found", severity: "error" }),
+  ])
 })

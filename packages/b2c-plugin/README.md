@@ -103,3 +103,15 @@ b2c klaus doctor --cartridge-path app_custom:app_storefront_base --json
 The command checks that the cartridges directory and explicitly configured
 cartridges exist. It also warns about entries that do not contain a
 `cartridge/` directory and exits with a non-zero status when errors are found.
+
+## Validate project contracts
+
+```bash
+b2c klaus validate
+b2c klaus validate --cartridge-path app_custom:app_storefront_base --json
+```
+
+The command validates hook registrations, job step definitions, and Custom API
+contracts. Missing scripts, modules, schemas, and operations are errors;
+registrations hidden by cartridge precedence are warnings. Validation errors
+produce a non-zero exit status for CI.
