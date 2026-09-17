@@ -3,12 +3,58 @@ import { describe, expect, test } from "vite-plus/test"
 import {
   renderDoctor,
   renderInspection,
+  renderProjectGraph,
+  renderProjectGraphDot,
   renderResolution,
   renderValidation,
   type Colorize,
 } from "../src/output.ts"
 
 const colorize: Colorize = (style, text) => `<${style}>${text}</${style}>`
+
+describe("renderProjectGraph", () => {
+  const graph = {
+    cartridgesDirectory: "/project/cartridges",
+    cartridgeOrder: ["/project/cartridges/app_custom", "/project/cartridges/app_base"],
+    nodes: [
+      {
+        id: "cartridge:/project/cartridges/app_custom",
+        kind: "cartridge" as const,
+        label: "app_custom",
+        path: "/project/cartridges/app_custom",
+      },
+      {
+        id: "cartridge:/project/cartridges/app_base",
+        kind: "cartridge" as const,
+        label: "app_base",
+        path: "/project/cartridges/app_base",
+      },
+    ],
+    edges: [
+      {
+        from: "cartridge:/project/cartridges/app_custom",
+        kind: "precedes" as const,
+        to: "cartridge:/project/cartridges/app_base",
+      },
+    ],
+  }
+
+  test("renders friendly colored relationship output", () => {
+    const output = renderProjectGraph(graph, "/project", colorize)
+
+    expect(output).toContain("Cartridges: <green>2 cartridges</green>")
+    expect(output).toContain("app_custom <dim>--precedes--></dim> app_base")
+    expect(output).toContain("<green>DONE</green>: Project graph generated.")
+  })
+
+  test("renders Graphviz DOT without terminal colors", () => {
+    const output = renderProjectGraphDot(graph)
+
+    expect(output).toContain("digraph sfcc_project {")
+    expect(output).toContain('[label="precedes"]')
+    expect(output).not.toContain("<green>")
+  })
+})
 
 describe("renderInspection", () => {
   test("renders counts and friendly empty states", () => {

@@ -4,7 +4,12 @@ import path from "node:path"
 import { afterEach, describe, expect, test } from "vite-plus/test"
 
 import { resolveProjectModule } from "../src/commands/klaus/resolve.ts"
-import { diagnoseProject, getProjectInspection, validateProject } from "../src/project.ts"
+import {
+  diagnoseProject,
+  getProjectGraph,
+  getProjectInspection,
+  validateProject,
+} from "../src/project.ts"
 
 const temporaryDirectories: string[] = []
 
@@ -116,6 +121,27 @@ test("inspect reports the effective project metadata", () => {
   ])
   expect(result.jobSteps).toEqual([])
   expect(result.customApis).toEqual([])
+})
+
+test("graph preserves the configured cartridge precedence", () => {
+  const projectDirectory = createProjectDirectory()
+  for (const cartridge of ["app_base", "app_custom"]) {
+    fs.mkdirSync(path.join(projectDirectory, "cartridges", cartridge, "cartridge"), {
+      recursive: true,
+    })
+  }
+
+  const result = getProjectGraph({
+    cwd: projectDirectory,
+    cartridgesDir: "cartridges",
+    cartridgePath: "app_custom:app_base",
+  })
+
+  expect(result.cartridgeOrder.map((root) => path.basename(root))).toEqual([
+    "app_custom",
+    "app_base",
+  ])
+  expect(result.edges).toContainEqual(expect.objectContaining({ kind: "precedes" }))
 })
 
 describe("diagnoseProject", () => {

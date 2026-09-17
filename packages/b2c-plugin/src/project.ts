@@ -1,10 +1,12 @@
 import {
+  createSfccProjectGraph,
   findCustomApiDefinitions,
   findResolvedHookRegistrations,
   findResolvedStepTypeDefinitions,
   resolveCartridgeRoots,
   resolveCartridgesDir,
   validateSfccProject,
+  type SfccProjectGraph,
   type SfccProjectValidationResult,
 } from "@commerce-klaus/sfcc-module-resolver"
 import fs from "node:fs"
@@ -27,6 +29,17 @@ export type ProjectInspection = {
 export type ProjectValidation = SfccProjectValidationResult & {
   cartridgesDirectory: string
   cartridgeOrder: string[]
+}
+
+export type ProjectGraph = SfccProjectGraph
+
+export function getProjectGraph(options: ProjectOptions & { module?: string }): ProjectGraph {
+  return createSfccProjectGraph({
+    cartridgesDir: options.cartridgesDir,
+    cwd: options.cwd,
+    cartridgePath: options.cartridgePath?.split(":"),
+    module: options.module,
+  })
 }
 
 export function getProjectInspection(options: ProjectOptions): ProjectInspection {

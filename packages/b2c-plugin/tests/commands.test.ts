@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url"
 import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import Doctor from "../src/commands/klaus/doctor.ts"
+import Graph from "../src/commands/klaus/graph.ts"
 import Inspect from "../src/commands/klaus/inspect.ts"
 import Resolve from "../src/commands/klaus/resolve.ts"
 import Validate from "../src/commands/klaus/validate.ts"
@@ -42,7 +43,7 @@ test("registers source files for every new pattern command", () => {
   ) as { oclif?: { commands?: { strategy?: string; target?: string } } }
 
   expect(manifest.oclif?.commands).toEqual({ strategy: "pattern", target: "./dist/commands" })
-  for (const command of ["doctor", "inspect", "resolve", "validate"]) {
+  for (const command of ["doctor", "graph", "inspect", "resolve", "validate"]) {
     expect(
       fs.existsSync(path.join(packageDirectory, "src", "commands", "klaus", `${command}.ts`)),
     ).toBe(true)
@@ -51,12 +52,51 @@ test("registers source files for every new pattern command", () => {
 
 test("all project commands support B2C CLI JSON output", () => {
   expect(Doctor.enableJsonFlag).toBe(true)
+  expect(Graph.enableJsonFlag).toBe(true)
   expect(Inspect.enableJsonFlag).toBe(true)
   expect(Resolve.enableJsonFlag).toBe(true)
   expect(Validate.enableJsonFlag).toBe(true)
 })
 
 describe("command execution", () => {
+  test("graph emits only the structured result in JSON mode", async () => {
+    const projectDirectory = createProjectDirectory()
+    fs.mkdirSync(path.join(projectDirectory, "cartridges", "app_custom", "cartridge"), {
+      recursive: true,
+    })
+    const output = captureStdout()
+    vi.spyOn(ux, "colorizeJson").mockImplementation((value) => JSON.stringify(value))
+
+    const result = await Graph.run(
+      ["--cartridges-dir", path.join(projectDirectory, "cartridges"), "--json"],
+      { root: packageDirectory },
+    )
+
+    expect(result.nodes).toEqual(
+      expect.arrayContaining([expect.objectContaining({ kind: "cartridge", label: "app_custom" })]),
+    )
+    expect(output).toHaveLength(1)
+    expect(JSON.parse(output[0] ?? "")).toEqual(result)
+    expect(output[0]).not.toContain("Graphing SFCC project")
+  })
+
+  test("graph emits Graphviz DOT without human status text", async () => {
+    const projectDirectory = createProjectDirectory()
+    fs.mkdirSync(path.join(projectDirectory, "cartridges", "app_custom", "cartridge"), {
+      recursive: true,
+    })
+    const output = captureStdout()
+
+    await Graph.run(
+      ["--cartridges-dir", path.join(projectDirectory, "cartridges"), "--format", "dot"],
+      { root: packageDirectory },
+    )
+
+    expect(output).toHaveLength(1)
+    expect(output[0]).toMatch(/^digraph sfcc_project \{/u)
+    expect(output[0]).not.toContain("Project graph generated")
+  })
+
   test("inspect emits only the structured result in JSON mode", async () => {
     const projectDirectory = createProjectDirectory()
     fs.mkdirSync(path.join(projectDirectory, "cartridges", "app_custom", "cartridge"), {

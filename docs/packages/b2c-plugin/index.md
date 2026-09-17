@@ -296,6 +296,44 @@ vp exec b2c klaus doctor --cartridge-path app_custom:app_storefront_base
 Warnings do not fail the command. Configuration errors produce a non-zero exit
 status, making `doctor` suitable for CI.
 
+## Visualize project relationships
+
+Create a graph of cartridge precedence, `module.superModule` chains, hook and
+job step implementations, and Custom API schemas:
+
+::: code-group
+
+```bash [pnpm]
+pnpm exec b2c klaus graph
+pnpm exec b2c klaus graph --module '*/cartridge/models/product'
+pnpm exec b2c klaus graph --format dot > sfcc-project.dot
+```
+
+```bash [yarn]
+yarn exec b2c klaus graph
+yarn exec b2c klaus graph --module '*/cartridge/models/product'
+yarn exec b2c klaus graph --format dot > sfcc-project.dot
+```
+
+```bash [npm]
+npm exec -- b2c klaus graph
+npm exec -- b2c klaus graph --module '*/cartridge/models/product'
+npm exec -- b2c klaus graph --format dot > sfcc-project.dot
+```
+
+```bash [Vite+]
+vp exec b2c klaus graph
+vp exec b2c klaus graph --module '*/cartridge/models/product'
+vp exec b2c klaus graph --format dot > sfcc-project.dot
+```
+
+:::
+
+The default output is a concise, colored relationship list. `--format dot`
+emits Graphviz DOT without decorative output, while `--json` returns the same
+nodes and typed edges as structured data. `--module` accepts the
+`*/cartridge/...` form and limits module discovery to that path.
+
 ## Validate project contracts
 
 Validate hook registrations, job step definitions, and Custom API contracts:
@@ -350,7 +388,7 @@ vp exec b2c klaus resolve '*/cartridge/scripts/example'
 
 :::
 
-For a `~/` module, provide the importing file with `--from`. All four project
+For a `~/` module, provide the importing file with `--from`. All five project
 commands accept `--cartridges-dir`, `--cartridge-path`, and the standard
 `--json` flag where applicable.
 

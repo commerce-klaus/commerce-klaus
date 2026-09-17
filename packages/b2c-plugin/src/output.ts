@@ -1,7 +1,7 @@
 import path from "node:path"
 
 import type { ResolveResult } from "./commands/klaus/resolve.js"
-import type { DoctorResult, ProjectInspection, ProjectValidation } from "./project.js"
+import type { DoctorResult, ProjectGraph, ProjectInspection, ProjectValidation } from "./project.js"
 
 export type OutputStyle = "dim" | "green" | "red" | "yellow"
 export type Colorize = (style: OutputStyle, text: string) => string
@@ -44,6 +44,60 @@ export function renderInspection(
   ]
 
   return lines.join("\n")
+}
+
+export function renderProjectGraph(
+  result: ProjectGraph,
+  currentDirectory: string,
+  colorize: Colorize,
+): string {
+  const lines = [
+    `Graphing SFCC project in ${colorize("dim", displayPath(result.cartridgesDirectory, currentDirectory))}`,
+    `Cartridges: ${formatResultCount(result.cartridgeOrder.length, "cartridge", "none found", colorize)}`,
+    ...result.cartridgeOrder.map(
+      (cartridgeRoot, index) => `  ${index + 1}. ${path.basename(cartridgeRoot)}`,
+    ),
+    `Relationships: ${formatResultCount(result.edges.length, "edge", "none found", colorize)}`,
+  ]
+  const nodesById = new Map(result.nodes.map((node) => [node.id, node]))
+  for (const edge of result.edges) {
+    const source = nodesById.get(edge.from)?.label ?? edge.from
+    const target = nodesById.get(edge.to)?.label ?? edge.to
+    lines.push(`  ${source} ${colorize("dim", `--${edge.kind}-->`)} ${target}`)
+  }
+  lines.push(`${colorize("green", "DONE")}: Project graph generated.`)
+
+  return lines.join("\n")
+}
+
+export function renderProjectGraphDot(result: ProjectGraph): string {
+  const shapes: Record<ProjectGraph["nodes"][number]["kind"], string> = {
+    cartridge: "folder",
+    "custom-api": "component",
+    hook: "hexagon",
+    "job-step": "box",
+    module: "note",
+    schema: "cylinder",
+  }
+  const lines = [
+    "digraph sfcc_project {",
+    '  rankdir="LR";',
+    ...result.nodes.map(
+      (node) =>
+        `  "${escapeDot(node.id)}" [label="${escapeDot(node.label)}", shape="${shapes[node.kind]}"];`,
+    ),
+    ...result.edges.map(
+      (edge) =>
+        `  "${escapeDot(edge.from)}" -> "${escapeDot(edge.to)}" [label="${escapeDot(edge.kind)}"];`,
+    ),
+    "}",
+  ]
+
+  return lines.join("\n")
+}
+
+function escapeDot(value: string): string {
+  return value.replaceAll("\\", "\\\\").replaceAll('"', '\\"').replaceAll("\n", "\\n")
 }
 
 export function renderResolution(

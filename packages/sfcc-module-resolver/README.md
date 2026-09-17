@@ -13,6 +13,7 @@ Shared Node.js utilities for SFCC cartridge order, module resolution, super modu
 - Discovers effective hook scripts in cartridge-path order
 - Reads job step definitions, parameters, status codes, execution capabilities, and task timeouts from `steptypes.json`
 - Validates hook, job step, and Custom API contracts with structured diagnostics
+- Builds deterministic project graphs for cartridge precedence, super modules, and metadata contracts
 
 `SfccModuleResolutionOptions` is the shared configuration type used by the Vite
 and Vitest adapters. `ResolveCartridgeRootsOptions` extends it with the
@@ -52,6 +53,17 @@ import { validateSfccProject } from "@commerce-klaus/sfcc-module-resolver"
 const result = validateSfccProject({
   cartridgesDir: "cartridges",
   cartridgeRoots,
+})
+```
+
+Build a project relationship graph for JSON, text, or Graphviz consumers:
+
+```ts
+import { createSfccProjectGraph } from "@commerce-klaus/sfcc-module-resolver"
+
+const graph = createSfccProjectGraph({
+  cartridgesDir: "cartridges",
+  cartridgePath: ["app_custom", "app_storefront_base"],
 })
 ```
 

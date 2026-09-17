@@ -52,6 +52,16 @@ export type {
   ValidateSfccProjectOptions,
 } from "./project-validation.ts"
 
+export { createSfccProjectGraph } from "./project-graph.ts"
+export type {
+  CreateSfccProjectGraphOptions,
+  SfccProjectGraph,
+  SfccProjectGraphEdge,
+  SfccProjectGraphEdgeKind,
+  SfccProjectGraphNode,
+  SfccProjectGraphNodeKind,
+} from "./project-graph.ts"
+
 export {
   findResolvedStepTypeDefinitions,
   getResolvedStepTypeDefinitionsForScriptFile,

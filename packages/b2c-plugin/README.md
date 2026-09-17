@@ -96,6 +96,18 @@ b2c klaus inspect --cartridge-path app_custom:app_storefront_base --json
 The command reports the effective cartridge order and the resolved hooks, job
 steps, and Custom APIs. Use JSON output for CI or editor integrations.
 
+## Visualize project relationships
+
+```bash
+b2c klaus graph
+b2c klaus graph --module '*/cartridge/models/product'
+b2c klaus graph --format dot > sfcc-project.dot
+```
+
+The graph connects cartridge precedence, `module.superModule` chains, hooks,
+job steps, and Custom API schemas. Use `--json` for structured graph data or
+Graphviz DOT output for external visualization.
+
 ## Explain module resolution
 
 ```bash

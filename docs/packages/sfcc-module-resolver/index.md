@@ -146,6 +146,18 @@ The result contains `ok`, `errors`, `warnings`, and a deterministic
 absolute source `file`, and human-readable `message`. Validation is additive:
 the existing discovery APIs continue to skip malformed or unresolved entries.
 
+### Project graph
+
+- `createSfccProjectGraph({ cartridgesDir, cwd?, cartridgePath?, module? }): SfccProjectGraph`
+  - Adds cartridge nodes and `precedes` edges in effective path order
+  - Discovers JavaScript and Demandware Script files that use `module.superModule`
+  - Adds resolved hooks, job steps, Custom APIs, implementation modules, and schemas
+  - Accepts an optional `*/cartridge/...` module filter for focused graphs
+
+The graph contains deterministic `nodes` and typed `edges`. Node kinds are
+`cartridge`, `module`, `hook`, `job-step`, `custom-api`, and `schema`; edge kinds
+are `precedes`, `overrides`, `super-module`, `implements`, and `uses-schema`.
+
 ### Utilities
 
 - `stripExt(filePath): string`
@@ -229,6 +241,21 @@ const validation = validateSfccProject({
 
 for (const diagnostic of validation.diagnostics) {
   console.log(diagnostic.code, diagnostic.file, diagnostic.message)
+}
+```
+
+### 7) Build a project graph
+
+```ts
+import { createSfccProjectGraph } from "@commerce-klaus/sfcc-module-resolver"
+
+const graph = createSfccProjectGraph({
+  cartridgesDir: path.resolve("cartridges"),
+  cartridgePath: ["app_custom", "app_storefront_base"],
+})
+
+for (const edge of graph.edges) {
+  console.log(edge.kind, edge.from, edge.to)
 }
 ```
 
