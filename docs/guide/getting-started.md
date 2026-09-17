@@ -74,6 +74,34 @@ pnpm exec sfcc-ts-sync-types
 pnpm exec sfcc-ts-typecheck
 ```
 
+To run the same operations through the Salesforce B2C CLI, add the Commerce
+Klaus plugin as a development dependency:
+
+```bash
+pnpm add -D @commerce-klaus/b2c-plugin @salesforce/b2c-cli
+```
+
+Register the project-local plugin after dependency installation:
+
+```json [package.json]
+{
+  "scripts": {
+    "prepare": "b2c plugins link node_modules/@commerce-klaus/b2c-plugin --no-install"
+  }
+}
+```
+
+The package manager runs `prepare` during installation. Then use the plugin
+commands in project scripts or invoke them directly:
+
+```bash
+pnpm exec b2c klaus types sync
+pnpm exec b2c klaus types check
+```
+
+Keep the standalone `sfcc-ts-*` commands for project-local scripts and CI when
+plugin installation state should not be shared outside the lockfile.
+
 ## Add SFCC-aware unit tests
 
 Use the dedicated Vitest integration when tests need to execute cartridge code:

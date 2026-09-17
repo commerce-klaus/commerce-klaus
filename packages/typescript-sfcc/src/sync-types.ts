@@ -5,17 +5,18 @@ import {
   existsSync as nodeExistsSync,
   mkdirSync as nodeMkdirSync,
   readFileSync as nodeReadFileSync,
-  realpathSync as nodeRealpathSync,
   writeFileSync as nodeWriteFileSync,
 } from "node:fs"
 import path from "node:path"
-import { fileURLToPath } from "node:url"
 
-import { generateCustomApiTypes } from "./custom-apis.ts"
-import { generateCustomAttributesTypes } from "./custom-attributes.ts"
-import { generateHookTypes } from "./hook-types.ts"
-import { generateJobStepTypes } from "./job-step-types.ts"
-import { resolveSiteTemplatePath } from "./shared.ts"
+import { generateCustomApiTypes, type GenerateCustomApiTypesResult } from "./custom-apis.ts"
+import {
+  generateCustomAttributesTypes,
+  type GenerateCustomAttributesTypesResult,
+} from "./custom-attributes.ts"
+import { generateHookTypes, type GenerateHookTypesResult } from "./hook-types.ts"
+import { generateJobStepTypes, type GenerateJobStepTypesResult } from "./job-step-types.ts"
+import { renderSyncTypesResult, type SyncTypesColorize } from "./sync-types-output.ts"
 
 interface SpawnResultLike {
   status: number | null
@@ -40,9 +41,47 @@ export interface SyncTypesCliOptions {
   writeFileSync?: (filePath: string, content: string, encoding: BufferEncoding) => void
   writeStdout?: (text: string) => void
   writeStderr?: (text: string) => void
+  colorize?: SyncTypesColorize
+  onResult?: (result: SyncTypesResult) => void
 }
 
-export function runSyncTypesCli(args: string[], options: SyncTypesCliOptions = {}): number {
+export interface SyncTypesOptions {
+  currentDirectory?: string
+  platform?: string
+  force?: boolean
+  minimumVersion?: string
+  outputPath?: string
+  siteTemplatePath?: string
+  existsSync?: (filePath: string) => boolean
+  mkdirSync?: (dirPath: string, options: { recursive: boolean }) => void
+  readFileSync?: (filePath: string, encoding: BufferEncoding) => string
+  spawnSync?: SpawnSyncLike
+  writeFileSync?: (filePath: string, content: string, encoding: BufferEncoding) => void
+}
+
+export class SyncTypesExecutionError extends Error {
+  constructor(
+    message: string,
+    readonly exitCode: number,
+  ) {
+    super(message)
+    this.name = "SyncTypesExecutionError"
+  }
+}
+
+export interface SyncTypesResult {
+  scriptTypes: {
+    refreshed: boolean
+    version?: string
+    minimumVersion?: string
+  }
+  customAttributes: GenerateCustomAttributesTypesResult
+  hooks: GenerateHookTypesResult
+  customApis: GenerateCustomApiTypesResult
+  jobSteps: GenerateJobStepTypesResult
+}
+
+export function syncTypes(options: SyncTypesOptions = {}): SyncTypesResult {
   const currentDirectory = options.currentDirectory ?? process.cwd()
   const platform = options.platform ?? process.platform
   const existsSync = options.existsSync ?? nodeExistsSync
@@ -50,13 +89,10 @@ export function runSyncTypesCli(args: string[], options: SyncTypesCliOptions = {
   const readFileSync = options.readFileSync ?? nodeReadFileSync
   const spawnSync = options.spawnSync ?? nodeSpawnSync
   const writeFileSync = options.writeFileSync ?? nodeWriteFileSync
-  const writeStdout = options.writeStdout ?? ((text: string) => process.stdout.write(text))
-  const writeStderr = options.writeStderr ?? ((text: string) => process.stderr.write(text))
-
-  const force = args.includes("--force")
-  const minVersion = getArgValue(args, "--min-version")
-  const outputPath = getArgValue(args, "--output") ?? ".b2c-script-types/jsconfig.generated.json"
-  const siteTemplatePath = getArgValue(args, "--site-template-path")
+  const force = options.force ?? false
+  const minVersion = options.minimumVersion
+  const outputPath = options.outputPath ?? ".b2c-script-types/jsconfig.generated.json"
+  const siteTemplatePath = options.siteTemplatePath
 
   const markerFile = path.resolve(currentDirectory, ".b2c-script-types/types/global.d.ts")
   const upstreamMetadataFile = path.resolve(
@@ -70,153 +106,115 @@ export function runSyncTypesCli(args: string[], options: SyncTypesCliOptions = {
   const currentVersionParts = parseSemver(currentVersion)
 
   if (minVersion && !minVersionParts) {
-    writeStderr(`Invalid --min-version value: ${minVersion}. Expected format: X.Y.Z\n`)
-    return 1
+    throw new SyncTypesExecutionError(
+      `Invalid --min-version value: ${minVersion}. Expected format: X.Y.Z`,
+      1,
+    )
   }
 
-  if (!force && existsSync(markerFile)) {
-    if (
-      minVersionParts &&
-      currentVersionParts &&
-      compareSemver(currentVersionParts, minVersionParts) < 0
-    ) {
-      writeStdout(
-        `SFCC script types version ${currentVersion} is below required ${minVersion}; refreshing vendored types.\n`,
+  const refreshRequired =
+    force ||
+    !existsSync(markerFile) ||
+    (minVersionParts !== undefined &&
+      (!currentVersionParts || compareSemver(currentVersionParts, minVersionParts) < 0))
+
+  if (refreshRequired) {
+    const b2cArgs = ["setup", "ide", "vscode-types", "--copy", "--force", "--output", outputPath]
+    const commandResult = existsSync(localB2cBinary)
+      ? spawnSync(localB2cBinary, b2cArgs, {
+          stdio: "inherit",
+          shell: platform === "win32",
+        })
+      : spawnSync("pnpm", ["b2c", ...b2cArgs], {
+          stdio: "inherit",
+          shell: platform === "win32",
+        })
+
+    const exitCode = commandResult.status ?? 1
+    if (exitCode !== 0) {
+      throw new SyncTypesExecutionError(
+        "Salesforce Script API type synchronization failed.",
+        exitCode,
       )
-    } else if (minVersionParts && !currentVersionParts) {
-      writeStdout(
-        "SFCC script types version metadata is missing or invalid; refreshing vendored types.\n",
-      )
-    } else {
-      writeStdout(
-        "SFCC script types already present and up to date; skipping sync. Use --force to refresh.\n",
-      )
-      const generatedHookTypes = generateHookTypes({
-        workspaceRoot: currentDirectory,
-        existsSync,
-        mkdirSync,
-        readFileSync,
-        writeFileSync,
-      })
-      writeStdout(
-        `Generated ${generatedHookTypes.declarationsCount} Salesforce hook declaration aliases at ${generatedHookTypes.outputFilePath}.\n`,
-      )
-      const generatedCustomApiTypes = generateCustomApiTypes({
-        workspaceRoot: currentDirectory,
-        existsSync,
-        mkdirSync,
-        writeFileSync,
-      })
-      if (generatedCustomApiTypes.written) {
-        writeStdout(
-          `Generated ${generatedCustomApiTypes.schemasCount} custom API schema(s) and ${generatedCustomApiTypes.operationsCount} operation(s) at ${generatedCustomApiTypes.outputFilePath}.\n`,
-        )
-      }
-      const generatedJobStepTypes = generateJobStepTypes({
-        workspaceRoot: currentDirectory,
-        existsSync,
-        mkdirSync,
-        writeFileSync,
-      })
-      if (generatedJobStepTypes.written) {
-        writeStdout(
-          `Generated ${generatedJobStepTypes.declarationsCount} job step declaration(s) at ${generatedJobStepTypes.outputFilePath}.\n`,
-        )
-      }
-      return 0
     }
-  }
-
-  const b2cArgs = ["setup", "ide", "vscode-types", "--copy", "--force", "--output", outputPath]
-  const result = existsSync(localB2cBinary)
-    ? spawnSync(localB2cBinary, b2cArgs, {
-        stdio: "inherit",
-        shell: platform === "win32",
-      })
-    : spawnSync("pnpm", ["b2c", ...b2cArgs], {
-        stdio: "inherit",
-        shell: platform === "win32",
-      })
-
-  const exitCode = result.status ?? 1
-  if (exitCode !== 0) {
-    return exitCode
   }
 
   const typesDirectory = path.resolve(currentDirectory, ".b2c-script-types", "types")
   mkdirSync(typesDirectory, { recursive: true })
 
-  const generatedTypes = generateCustomAttributesTypes({
+  const customAttributes = generateCustomAttributesTypes({
     workspaceRoot: currentDirectory,
     siteTemplatePath,
     existsSync,
     readFileSync,
   })
-  const generatedHookTypes = generateHookTypes({
+  const hooks = generateHookTypes({
     workspaceRoot: currentDirectory,
     existsSync,
     mkdirSync,
     readFileSync,
     writeFileSync,
   })
-  const generatedJobStepTypes = generateJobStepTypes({
+  const jobSteps = generateJobStepTypes({
     workspaceRoot: currentDirectory,
     existsSync,
     mkdirSync,
     writeFileSync,
   })
 
-  if (!generatedTypes.written) {
-    const configuredMetaDirectory = path.join(
-      resolveSiteTemplatePath(currentDirectory, siteTemplatePath),
-      "meta",
-    )
-    const relativeMetaDirectory =
-      path.relative(currentDirectory, configuredMetaDirectory).replaceAll(path.sep, "/") ||
-      configuredMetaDirectory.replaceAll(path.sep, "/")
-    writeStdout(
-      `No custom attribute metadata found under ${relativeMetaDirectory}/*.xml; skipping custom attribute type generation.\n`,
-    )
+  const customApis = generateCustomApiTypes({
+    workspaceRoot: currentDirectory,
+    existsSync,
+    mkdirSync,
+    writeFileSync,
+  })
+  return {
+    scriptTypes: {
+      refreshed: refreshRequired,
+      version: readCurrentVersion(upstreamMetadataFile, existsSync, readFileSync),
+      minimumVersion: minVersion,
+    },
+    customAttributes,
+    hooks,
+    customApis,
+    jobSteps,
+  }
+}
+
+export function runSyncTypesCli(args: string[], options: SyncTypesCliOptions = {}): number {
+  const currentDirectory = options.currentDirectory ?? process.cwd()
+  const writeStdout = options.writeStdout ?? ((text: string) => process.stdout.write(text))
+  const writeStderr = options.writeStderr ?? ((text: string) => process.stderr.write(text))
+  const siteTemplatePath = getArgValue(args, "--site-template-path")
+
+  try {
+    const result = syncTypes({
+      currentDirectory,
+      platform: options.platform,
+      force: args.includes("--force"),
+      minimumVersion: getArgValue(args, "--min-version"),
+      outputPath: getArgValue(args, "--output"),
+      siteTemplatePath,
+      existsSync: options.existsSync,
+      mkdirSync: options.mkdirSync,
+      readFileSync: options.readFileSync,
+      spawnSync: options.spawnSync,
+      writeFileSync: options.writeFileSync,
+    })
+
+    renderSyncTypesResult(result, currentDirectory, siteTemplatePath, writeStdout, options.colorize)
+    options.onResult?.(result)
+
     return 0
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    writeStderr(`${message}\n`)
+    return error instanceof SyncTypesExecutionError ? error.exitCode : 1
   }
-
-  writeStdout(
-    `Generated ${generatedTypes.declarationsCount} custom attribute declaration blocks with ${generatedTypes.attributesCount} attributes at ${generatedTypes.outputFilePath}.\n`,
-  )
-  writeStdout(
-    `Generated ${generatedHookTypes.declarationsCount} Salesforce hook declaration aliases at ${generatedHookTypes.outputFilePath}.\n`,
-  )
-  if (generatedJobStepTypes.written) {
-    writeStdout(
-      `Generated ${generatedJobStepTypes.declarationsCount} job step declaration(s) at ${generatedJobStepTypes.outputFilePath}.\n`,
-    )
-  }
-
-  const generatedCustomApiTypes = generateCustomApiTypes({
-    workspaceRoot: currentDirectory,
-    existsSync,
-    mkdirSync,
-    writeFileSync,
-  })
-  if (generatedCustomApiTypes.written) {
-    writeStdout(
-      `Generated ${generatedCustomApiTypes.schemasCount} custom API schema(s) and ${generatedCustomApiTypes.operationsCount} operation(s) at ${generatedCustomApiTypes.outputFilePath}.\n`,
-    )
-  }
-
-  return 0
 }
 
 export function main(args = process.argv.slice(2), options: SyncTypesCliOptions = {}): number {
-  const writeStderr = options.writeStderr ?? ((text: string) => process.stderr.write(text))
-
-  try {
-    return runSyncTypesCli(args, options)
-  } catch (error) {
-    const message = error instanceof Error ? (error.stack ?? error.message) : String(error)
-    writeStderr(`${message}\n`)
-    return 1
-  }
+  return runSyncTypesCli(args, options)
 }
 
 function getArgValue(args: string[], name: string): string | undefined {
@@ -281,37 +279,10 @@ function readCurrentVersion(
   }
 }
 
-function isDirectExecution(): boolean {
-  const executedPath = process.argv[1]
-  if (!executedPath) {
-    return false
-  }
-
-  const expectedPath = fileURLToPath(import.meta.url)
-
-  if (looksLikeSyncTypesCliEntrypoint(executedPath)) {
-    return true
-  }
-
-  try {
-    if (nodeExistsSync(executedPath) && nodeExistsSync(expectedPath)) {
-      return nodeRealpathSync(executedPath) === nodeRealpathSync(expectedPath)
-    }
-
-    return path.resolve(executedPath) === path.resolve(expectedPath)
-  } catch {
-    return path.resolve(executedPath) === path.resolve(expectedPath)
-  }
-}
-
 export function looksLikeSyncTypesCliEntrypoint(filePath: string): boolean {
   const fileName = path.basename(filePath)
   return (
     /^sfcc-ts-sync-types(?:\.cmd|\.ps1)?$/u.test(fileName) ||
     /^sync-types\.(?:cjs|mjs|js|ts)$/u.test(fileName)
   )
-}
-
-if (isDirectExecution()) {
-  process.exit(main())
 }

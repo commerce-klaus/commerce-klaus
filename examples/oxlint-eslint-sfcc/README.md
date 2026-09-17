@@ -12,8 +12,13 @@ larger example:
 
 The Vite config contains the Oxlint setup directly because Vite+ uses Oxlint
 internally. No separate `oxlint.config.mjs` is needed. A standard TypeScript
-configuration covers Vite+'s TypeScript-Go check; `sfcc-ts-typecheck` provides
-the complete SFCC-aware typecheck.
+configuration covers Vite+'s TypeScript-Go check; the Commerce Klaus B2C CLI
+plugin provides the complete SFCC-aware typecheck through
+`b2c klaus types check`.
+
+The example's `prepare` script links the workspace's
+`@commerce-klaus/b2c-plugin` into its local Salesforce B2C CLI during dependency
+installation. To refresh that development link manually, run `pnpm prepare`.
 
 Run all checks with:
 

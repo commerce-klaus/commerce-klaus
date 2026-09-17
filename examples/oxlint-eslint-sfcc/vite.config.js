@@ -19,6 +19,11 @@ export default defineConfig({
   },
   run: {
     tasks: {
+      "setup:b2c-plugin": {
+        command: "b2c plugins link ../../packages/b2c-plugin --no-install",
+        cache: false,
+        dependsOn: ["@commerce-klaus/b2c-plugin#build"],
+      },
       lint: {
         command: "vp lint && eslint cartridges",
         dependsOn: ["@commerce-klaus/eslint-config-sfcc#build"],

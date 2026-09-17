@@ -92,6 +92,7 @@ export default defineConfig({
           text: "Packages",
           items: [
             { text: "Overview", link: "/packages/" },
+            { text: "B2C CLI plugin", link: "/packages/b2c-plugin/" },
             { text: "ESLint config", link: "/packages/eslint-config-sfcc/" },
             { text: "TypeScript tooling", link: "/packages/typescript-sfcc/" },
             { text: "Vitest integration", link: "/packages/vitest-sfcc/" },

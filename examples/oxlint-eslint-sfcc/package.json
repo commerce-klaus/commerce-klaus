@@ -5,12 +5,15 @@
   "type": "module",
   "scripts": {
     "build": "vp run lint && vp run typecheck:cartridges && vp run test",
-    "typecheck:cartridges": "sfcc-ts-typecheck"
+    "prepare": "vp run setup:b2c-plugin",
+    "typecheck:cartridges": "b2c klaus types check"
   },
   "devDependencies": {
+    "@commerce-klaus/b2c-plugin": "workspace:*",
     "@commerce-klaus/eslint-config-sfcc": "workspace:*",
     "@commerce-klaus/typescript-sfcc": "workspace:*",
     "@commerce-klaus/vite-plugin-sfcc-modules": "workspace:*",
+    "@salesforce/b2c-cli": "^2.0.0",
     "@types/node": "catalog:",
     "@typescript-eslint/parser": "^8.68.0",
     "eslint": "^10.0.1",

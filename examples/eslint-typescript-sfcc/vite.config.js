@@ -15,6 +15,11 @@ export default defineConfig({
   ],
   run: {
     tasks: {
+      "setup:b2c-plugin": {
+        command: "b2c plugins link ../../packages/b2c-plugin --no-install",
+        cache: false,
+        dependsOn: ["@commerce-klaus/b2c-plugin#build"],
+      },
       test: {
         command: "vp test",
         dependsOn: ["@commerce-klaus/vitest-sfcc#build"],

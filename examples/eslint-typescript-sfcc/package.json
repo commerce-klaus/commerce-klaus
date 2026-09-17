@@ -6,16 +6,18 @@
   "scripts": {
     "build": "pnpm run lint && pnpm run typecheck:cartridges && vp run test",
     "lint": "eslint cartridges",
-    "typecheck:cartridges": "pnpm types:sfcc:sync && sfcc-ts-typecheck",
-    "types:sfcc:sync": "sfcc-ts-sync-types --min-version 26.7.0",
-    "types:sfcc:sync:force": "sfcc-ts-sync-types --force"
+    "prepare": "vp run setup:b2c-plugin",
+    "typecheck:cartridges": "b2c klaus types sync --min-version 26.7.0 && b2c klaus types check",
+    "types:sfcc:sync": "b2c klaus types sync --min-version 26.7.0",
+    "types:sfcc:sync:force": "b2c klaus types sync --force"
   },
   "devDependencies": {
+    "@commerce-klaus/b2c-plugin": "workspace:*",
     "@commerce-klaus/eslint-config-sfcc": "workspace:*",
     "@commerce-klaus/typescript-sfcc": "workspace:*",
     "@commerce-klaus/vitest-sfcc": "workspace:*",
     "@eslint/js": "^10.0.1",
-    "@salesforce/b2c-cli": "^1.23.2",
+    "@salesforce/b2c-cli": "^2.0.0",
     "@types/node": "catalog:",
     "@typescript-eslint/eslint-plugin": "^8.68.0",
     "@typescript-eslint/parser": "^8.68.0",

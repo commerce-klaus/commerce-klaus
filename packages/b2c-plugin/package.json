@@ -1,0 +1,67 @@
+{
+  "name": "@commerce-klaus/b2c-plugin",
+  "version": "0.0.0",
+  "description": "Commerce Klaus commands for the Salesforce B2C CLI",
+  "keywords": [
+    "b2c-cli",
+    "commercecloud",
+    "oclif",
+    "salesforce",
+    "sfcc"
+  ],
+  "homepage": "https://commerce-klaus.github.io/commerce-klaus/packages/b2c-plugin/",
+  "bugs": {
+    "url": "https://github.com/commerce-klaus/commerce-klaus/issues"
+  },
+  "license": "MIT",
+  "author": "Jens Simon <https://github.com/jenssimon>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/commerce-klaus/commerce-klaus",
+    "directory": "packages/b2c-plugin"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "registry": "https://registry.npmjs.org"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vp test",
+    "check": "vp check",
+    "prepublishOnly": "pnpm run build"
+  },
+  "devDependencies": {
+    "@commerce-klaus/typescript-sfcc": "workspace:^",
+    "@oclif/core": "^4.8.0",
+    "@salesforce/b2c-cli": "^2.0.0",
+    "@types/node": "catalog:",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "@commerce-klaus/typescript-sfcc": "^1.6.0",
+    "@oclif/core": "^4",
+    "@salesforce/b2c-cli": ">=1.23.0 <3",
+    "typescript": ">=5.5.0"
+  },
+  "oclif": {
+    "commands": {
+      "strategy": "pattern",
+      "target": "./dist/commands"
+    },
+    "topics": {
+      "klaus": {
+        "description": "Run Commerce Klaus development tools"
+      }
+    }
+  },
+  "engines": {
+    "node": ">=22.16.0"
+  },
+  "packageManager": "pnpm@12.4.2"
+}

@@ -6,6 +6,7 @@ Pragmatic developer tooling for Salesforce Commerce Cloud (SFCC). Commerce Klaus
 
 | Package                                                                                                                | Purpose                                                        |
 | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| [`@commerce-klaus/b2c-plugin`](https://www.npmjs.com/package/@commerce-klaus/b2c-plugin)                               | Commerce Klaus commands for the Salesforce B2C CLI             |
 | [`@commerce-klaus/eslint-config-sfcc`](https://www.npmjs.com/package/@commerce-klaus/eslint-config-sfcc)               | ESLint rules for SFCC and Rhino compatibility                  |
 | [`@commerce-klaus/typescript-sfcc`](https://www.npmjs.com/package/@commerce-klaus/typescript-sfcc)                     | Cartridge-aware TypeScript tooling and generated project types |
 | [`@commerce-klaus/vite-plugin-sfcc-modules`](https://www.npmjs.com/package/@commerce-klaus/vite-plugin-sfcc-modules)   | SFCC module resolution for other Vite-based tooling            |

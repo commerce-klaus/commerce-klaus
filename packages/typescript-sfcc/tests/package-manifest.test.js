@@ -16,3 +16,20 @@ test("CLI bin targets exist before the package is built", () => {
     expect(fs.existsSync(path.resolve(packageDirectory, binTarget))).toBe(true)
   }
 })
+
+test("typecheck CLI runner is available to command adapters", () => {
+  expect(packageManifest.exports["./typecheck-cli"]).toEqual({
+    types: "./dist/typecheck-cartridges.d.mts",
+    import: "./dist/typecheck-cartridges.mjs",
+    require: "./dist/typecheck-cartridges.cjs",
+  })
+})
+
+test("oclif commands are available to CLI adapters", () => {
+  expect(packageManifest.exports["./commands"]).toEqual({
+    types: "./dist/commands.d.mts",
+    import: "./dist/commands.mjs",
+    require: "./dist/commands.cjs",
+  })
+  expect(packageManifest.dependencies["@oclif/core"]).toMatch(/^\^4\./u)
+})

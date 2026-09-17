@@ -7,6 +7,7 @@ export default defineConfig({
       "src/typecheck.ts",
       "src/typecheck-cartridges.ts",
       "src/sync-types.ts",
+      "src/commands.ts",
       "src/tsserver-plugin.cts",
     ],
     format: ["esm", "cjs"],

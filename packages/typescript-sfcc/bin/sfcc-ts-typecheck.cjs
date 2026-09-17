@@ -1,8 +1,17 @@
 #!/usr/bin/env node
 
-void import("../dist/typecheck-cartridges.cjs")
-  .then(({ main }) => {
-    process.exitCode = main(process.argv.slice(2))
+const path = require("node:path")
+const packageJson = require("../package.json")
+
+void Promise.all([import("../dist/commands.cjs"), import("@oclif/core")])
+  .then(([{ TypecheckCommand }, { handle }]) => {
+    return TypecheckCommand.run(process.argv.slice(2), {
+      root: path.resolve(__dirname, ".."),
+      pjson: {
+        ...packageJson,
+        oclif: { ...packageJson.oclif, bin: "sfcc-ts-typecheck" },
+      },
+    }).catch(handle)
   })
   .catch((error) => {
     console.error(error)

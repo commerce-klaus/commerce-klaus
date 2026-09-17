@@ -200,6 +200,9 @@ importers:
 
   examples/eslint-typescript-sfcc:
     devDependencies:
+      '@commerce-klaus/b2c-plugin':
+        specifier: workspace:*
+        version: link:../../packages/b2c-plugin
       '@commerce-klaus/eslint-config-sfcc':
         specifier: workspace:*
         version: link:../../packages/eslint-config-sfcc
@@ -213,8 +216,8 @@ importers:
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.9.1(jiti@2.7.0)(supports-color@8.1.1))
       '@salesforce/b2c-cli':
-        specifier: ^1.23.2
-        version: 1.23.2(@types/node@24.13.5)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        specifier: ^2.0.0
+        version: 2.0.0(@types/node@24.13.5)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       '@types/node':
         specifier: 'catalog:'
         version: 24.13.5
@@ -245,6 +248,9 @@ importers:
 
   examples/oxlint-eslint-sfcc:
     devDependencies:
+      '@commerce-klaus/b2c-plugin':
+        specifier: workspace:*
+        version: link:../../packages/b2c-plugin
       '@commerce-klaus/eslint-config-sfcc':
         specifier: workspace:*
         version: link:../../packages/eslint-config-sfcc
@@ -254,6 +260,9 @@ importers:
       '@commerce-klaus/vite-plugin-sfcc-modules':
         specifier: workspace:*
         version: link:../../packages/vite-plugin-sfcc-modules
+      '@salesforce/b2c-cli':
+        specifier: ^2.0.0
+        version: 2.0.0(@types/node@24.13.5)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       '@types/node':
         specifier: 'catalog:'
         version: 24.13.5
@@ -272,6 +281,27 @@ importers:
       vite-plus:
         specifier: ^0.3.0
         version: 0.3.2(@types/node@24.13.5)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@4.1.11)(jiti@2.7.0)(yaml@2.9.0)
+
+  packages/b2c-plugin:
+    devDependencies:
+      '@commerce-klaus/typescript-sfcc':
+        specifier: workspace:^
+        version: link:../typescript-sfcc
+      '@oclif/core':
+        specifier: ^4.8.0
+        version: 4.8.0
+      '@salesforce/b2c-cli':
+        specifier: ^2.0.0
+        version: 2.0.0(@types/node@24.13.5)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.13.5
+      typescript:
+        specifier: npm:@typescript/typescript6@^6.0.2
+        version: '@typescript/typescript6@6.0.2'
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.3.2(@types/node@24.13.5)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@4.1.11)(jiti@2.7.0)(yaml@2.9.1)
 
   packages/babel-plugin-sfcc-modules:
     dependencies:
@@ -395,9 +425,12 @@ importers:
       '@commerce-klaus/sfcc-module-resolver':
         specifier: workspace:^
         version: link:../sfcc-module-resolver
+      '@oclif/core':
+        specifier: ^4.8.0
+        version: 4.8.0
       '@salesforce/b2c-cli':
         specifier: '>=1.18.0'
-        version: 1.23.2(@types/node@24.13.5)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.0.0(@types/node@24.13.5)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       fast-xml-parser:
         specifier: ^5.8.0
         version: 5.11.1
@@ -1525,19 +1558,21 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@salesforce/b2c-cli@1.23.2':
-    resolution: {integrity: sha512-baz7stKU40k224FvV8iSL0Cobywq9VcrgwaNJ5vgcgD925kTsqZBy+Nzo8Ll8/blvco4EXkKKojzFyxl+d88bQ==}
+  '@salesforce/b2c-cli@2.0.0':
+    resolution: {integrity: sha512-X8MbIv2+Rd+hn7+l0wvFrDZqt5TVVEVl8Xv71AZMiGk2ORcYCD0njWDKLSBJRb/BeGqJ205ptrSjhJNQrhE+2Q==}
     engines: {node: '>=22.16.0'}
     hasBin: true
 
-  '@salesforce/b2c-tooling-sdk@1.24.2':
-    resolution: {integrity: sha512-dV4h4YsfOG7aC6yyITTJrHPzPwy3dIu4yt2V6eLnnEH8cEnsX38C8qfQ8C03sSOHBVTQjscDzLM+3bW5W+JB2g==}
+  '@salesforce/b2c-tooling-sdk@2.0.0':
+    resolution: {integrity: sha512-baLItfrAC5P4wwzEwSLYwDDI7xRTuyjZKJSiym3m+S7JMYLUOhg2nV+NvyAIoi8O7Mt0TI02mlc76MryKxKFDA==}
     engines: {node: '>=22.16.0'}
     peerDependencies:
       '@oclif/core': ^4
     peerDependenciesMeta:
       '@oclif/core':
         optional: true
+    bundledDependencies:
+      - '@salesforce/b2c-api-schemas'
 
   '@shikijs/core@4.4.3':
     resolution: {integrity: sha512-QCR4q2ZO/ILJEuwiBMel4wdcTDb1JGwfjKTxPDF6x8ixOaluPrVqIn06C99AcRPhmYlBR56d/Fb+GN58GzExpg==}
@@ -3152,6 +3187,10 @@ packages:
   jake@10.9.4:
     resolution: {integrity: sha512-wpHYzhxiVQL+IV05BLE2Xn34zW1S223hvjtqk0+gsPrwd/8JNLXJgZZM/iPFsYc1xyphF+6M6EvdE5E9MBGkDA==}
     engines: {node: '>=10'}
+    hasBin: true
+
+  jiti@2.6.1:
+    resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
     hasBin: true
 
   jiti@2.7.0:
@@ -5262,7 +5301,7 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@salesforce/b2c-cli@1.23.2(@types/node@24.13.5)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)':
+  '@salesforce/b2c-cli@2.0.0(@types/node@24.13.5)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)':
     dependencies:
       '@inquirer/prompts': 8.2.0(@types/node@24.13.5)
       '@oclif/core': 4.8.0
@@ -5272,7 +5311,7 @@ snapshots:
       '@oclif/plugin-plugins': 5.4.53(supports-color@8.1.1)
       '@oclif/plugin-version': 2.2.36
       '@oclif/plugin-warn-if-update-available': 3.1.52(supports-color@8.1.1)
-      '@salesforce/b2c-tooling-sdk': 1.24.2(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)
+      '@salesforce/b2c-tooling-sdk': 2.0.0(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)
       cliui: 9.0.1
       glob: 13.0.0
       marked: 15.0.12
@@ -5286,7 +5325,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@salesforce/b2c-tooling-sdk@1.24.2(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)':
+  '@salesforce/b2c-tooling-sdk@2.0.0(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)':
     dependencies:
       '@vscode/debugadapter': 1.68.0
       chokidar: 5.0.0
@@ -5295,6 +5334,7 @@ snapshots:
       fuse.js: 7.1.0
       glob: 13.0.0
       i18next: 25.7.4(@typescript/typescript6@6.0.2)
+      jiti: 2.6.1
       js-yaml: 4.2.0
       jsonschema: 1.5.0
       jszip: 3.10.1
@@ -5430,7 +5470,6 @@ snapshots:
   '@types/node@25.9.5':
     dependencies:
       undici-types: 7.24.6
-    optional: true
 
   '@types/unist@3.0.3': {}
 
@@ -6869,6 +6908,8 @@ snapshots:
       filelist: 1.0.6
       picocolors: 1.1.1
 
+  jiti@2.6.1: {}
+
   jiti@2.7.0: {}
 
   jju@1.4.0: {}
@@ -7550,7 +7591,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.2
-      '@types/node': 24.13.5
+      '@types/node': 25.9.5
       long: 5.3.2
 
   pump@3.0.4:
@@ -7901,8 +7942,7 @@ snapshots:
 
   undici-types@7.18.2: {}
 
-  undici-types@7.24.6:
-    optional: true
+  undici-types@7.24.6: {}
 
   undici@7.28.0: {}
 

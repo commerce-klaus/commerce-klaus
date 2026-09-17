@@ -2,11 +2,17 @@ import { expect, test } from "vite-plus/test"
 
 import { looksLikeSyncTypesCliEntrypoint, runSyncTypesCli } from "../src/sync-types.ts"
 
-function createFakeEnvironment({ files = [], metadataVersion, localBinary = false } = {}) {
+function createFakeEnvironment({
+  colorize,
+  files = [],
+  metadataVersion,
+  localBinary = false,
+} = {}) {
   const fileSet = new Set(files)
   const calls = []
   let stdout = ""
   let stderr = ""
+  let syncResult
 
   const cwd = "/workspace"
   const markerFile = "/workspace/.b2c-script-types/types/global.d.ts"
@@ -24,6 +30,9 @@ function createFakeEnvironment({ files = [], metadataVersion, localBinary = fals
     },
     get stderr() {
       return stderr
+    },
+    get result() {
+      return syncResult
     },
     run(args) {
       return runSyncTypesCli(args, {
@@ -63,6 +72,10 @@ function createFakeEnvironment({ files = [], metadataVersion, localBinary = fals
         writeStderr: (text) => {
           stderr += text
         },
+        colorize,
+        onResult: (result) => {
+          syncResult = result
+        },
       })
     },
   }
@@ -77,8 +90,25 @@ test("runSyncTypesCli skips when marker exists and no refresh is required", () =
 
   expect(exitCode).toBe(0)
   expect(env.calls).toHaveLength(0)
-  expect(env.stdout).toContain("skipping sync")
-  expect(env.stdout).toContain("Salesforce hook declaration aliases")
+  expect(env.stdout).toContain("Script API types: up to date")
+  expect(env.stdout).toContain("Hooks: 0 declarations ->")
+  expect(env.result.scriptTypes.refreshed).toBe(false)
+})
+
+test("runSyncTypesCli applies semantic output styles through an injected colorizer", () => {
+  const env = createFakeEnvironment({
+    files: ["/workspace/.b2c-script-types/types/global.d.ts"],
+    colorize: (style, text) => `<${style}>${text}</${style}>`,
+  })
+
+  const exitCode = env.run([])
+
+  expect(exitCode).toBe(0)
+  expect(env.stdout).toContain("Script API types: <green>up to date</green>")
+  expect(env.stdout).toContain("Custom APIs: <yellow>no contracts found</yellow>")
+  expect(env.stdout).toContain(
+    "Hooks: <green>0 declarations</green> -> <dim>.b2c-script-types/types/sfcc-hooks.generated.d.ts</dim>",
+  )
 })
 
 test("runSyncTypesCli refreshes when minimum version is not met", () => {
@@ -105,6 +135,7 @@ test("runSyncTypesCli refreshes when minimum version is not met", () => {
     "--output",
     ".b2c-script-types/jsconfig.generated.json",
   ])
+  expect(env.result.scriptTypes.refreshed).toBe(true)
 })
 
 test("runSyncTypesCli uses local b2c binary when available", () => {

@@ -28,4 +28,4 @@ export { generateHookTypes } from "./hook-types.ts"
 export { generateCustomApiTypes } from "./custom-apis.ts"
 export { generateJobStepTypes } from "./job-step-types.ts"
 
-export { main as syncTypesMain, runSyncTypesCli } from "./sync-types.ts"
+export { syncTypes, main as syncTypesMain, runSyncTypesCli } from "./sync-types.ts"

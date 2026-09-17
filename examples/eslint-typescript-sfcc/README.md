@@ -13,6 +13,10 @@ names such as `app_example`.
 The cartridge remains JavaScript that can run on SFCC. TypeScript checks the
 JavaScript and its JSDoc annotations without emitting build artifacts.
 
+The example's `prepare` script links the workspace's
+`@commerce-klaus/b2c-plugin` into its local Salesforce B2C CLI during dependency
+installation. To refresh that development link manually, run `pnpm prepare`.
+
 From this directory, run:
 
 ```bash
@@ -27,8 +31,9 @@ Or run all checks together:
 vp run build
 ```
 
-The cartridge typecheck first synchronizes Salesforce script types with a
-minimum version of `26.7.0`. Existing up-to-date types are reused.
+The cartridge typecheck runs `b2c klaus types sync` with a minimum Salesforce
+type version of `26.7.0`, followed by `b2c klaus types check`. Existing
+up-to-date types are reused.
 
 The example metadata defines an `ExampleNotification` custom object with a
 string `eventCode` attribute. Type synchronization generates

@@ -6,6 +6,7 @@ Commerce Klaus covers the development loop around SFCC server-side JavaScript: s
 
 | Package                                                                     | Use it for                                                             |
 | --------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| [`@commerce-klaus/b2c-plugin`](./b2c-plugin/)                               | Running Commerce Klaus tools through the Salesforce B2C CLI            |
 | [`@commerce-klaus/eslint-config-sfcc`](./eslint-config-sfcc/)               | Rhino compatibility and SFCC-specific correctness rules                |
 | [`@commerce-klaus/typescript-sfcc`](./typescript-sfcc/)                     | Editor resolution, cartridge typechecking, and generated project types |
 | [`@commerce-klaus/vitest-sfcc`](./vitest-sfcc/)                             | SFCC runtime modules and cartridge-aware dependency mocking in Vitest  |

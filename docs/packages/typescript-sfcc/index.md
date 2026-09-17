@@ -349,6 +349,10 @@ The package ships these CLI binaries:
 - `sfcc-ts-typecheck`
 - `sfcc-ts-sync-types`
 
+Both commands use oclif, matching the B2C CLI plugin commands for flag parsing,
+help, colored terminal output, errors, and structured `--json` output. Run either
+command with `--help` to see its complete option reference.
+
 Default behavior (no flags):
 
 - searches from the current working directory upwards for `cartridges/jsconfig.json`
@@ -416,6 +420,10 @@ Diagnostics for a specific `hooks.json` registration (unresolved script, missing
 - `--force`: always refreshes vendored types
 - `--output <path>`: optional output path for generated `jsconfig` metadata
 - `--site-template-path <path>`: optional path to the site template directory (relative to current directory or absolute). The tool reads metadata from `<path>/meta/*.xml`.
+
+Both standalone commands also accept `--project-directory <path>` (alias
+`--working-directory`) and `--json`. Colors are automatically disabled when the
+terminal does not support them.
 
 [npm-url]: https://www.npmjs.com/package/@commerce-klaus/typescript-sfcc
 [npm-image]: https://badgen.net/npm/v/@commerce-klaus/typescript-sfcc

@@ -49,10 +49,20 @@
       "import": "./dist/typecheck.mjs",
       "require": "./dist/typecheck.cjs"
     },
+    "./typecheck-cli": {
+      "types": "./dist/typecheck-cartridges.d.mts",
+      "import": "./dist/typecheck-cartridges.mjs",
+      "require": "./dist/typecheck-cartridges.cjs"
+    },
     "./sync-types": {
       "types": "./dist/sync-types.d.mts",
       "import": "./dist/sync-types.mjs",
       "require": "./dist/sync-types.cjs"
+    },
+    "./commands": {
+      "types": "./dist/commands.d.mts",
+      "import": "./dist/commands.mjs",
+      "require": "./dist/commands.cjs"
     },
     "./package.json": "./package.json"
   },
@@ -69,6 +79,7 @@
   },
   "dependencies": {
     "@commerce-klaus/sfcc-module-resolver": "workspace:^",
+    "@oclif/core": "^4.8.0",
     "fast-xml-parser": "^5.8.0"
   },
   "devDependencies": {
