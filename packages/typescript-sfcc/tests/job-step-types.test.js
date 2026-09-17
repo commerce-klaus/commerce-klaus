@@ -5,6 +5,7 @@ import { expect, test } from "vite-plus/test"
 
 import { generateJobStepTypes } from "../src/job-step-types.ts"
 import { runProjectTypecheck } from "../src/typecheck.ts"
+import { typecheckTest } from "./test-helpers.js"
 
 test("generateJobStepTypes creates declarations from effective steptypes.json definitions", () => {
   const workspaceRoot = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-ts-job-step-types-test-"))
@@ -107,7 +108,7 @@ test("generateJobStepTypes creates declarations from effective steptypes.json de
   }
 })
 
-test("generated chunk functions use project-defined item types", () => {
+typecheckTest("generated chunk functions use project-defined item types", () => {
   const workspaceRoot = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-ts-job-step-items-test-"))
   const cartridgesDir = path.join(workspaceRoot, "cartridges")
   const cartridgeRoot = path.join(cartridgesDir, "app_jobs")

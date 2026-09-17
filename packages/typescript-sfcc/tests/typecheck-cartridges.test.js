@@ -5,6 +5,7 @@ import { expect, test } from "vite-plus/test"
 
 import { validateHookRegistrations } from "../src/hooks.ts"
 import { main } from "../src/typecheck-cartridges.ts"
+import { typecheckTest } from "./test-helpers.js"
 
 function withTempDir(run) {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-ts-tooling-cli-test-"))
@@ -111,7 +112,7 @@ function runCli(args, currentDirectory) {
   return { exitCode, stdout, stderr }
 }
 
-test("CLI exits with code 0 for valid default project", async () => {
+typecheckTest("CLI exits with code 0 for valid default project", async () => {
   await withTempDir(async (tempDir) => {
     setupValidProject(tempDir)
 
@@ -170,7 +171,7 @@ test("CLI typechecks solution config even without references", async () => {
   })
 })
 
-test("CLI validates hooks.json CommonJS exports", async () => {
+typecheckTest("CLI validates hooks.json CommonJS exports", async () => {
   await withTempDir(async (tempDir) => {
     const { solutionConfigPath } = setupValidProject(tempDir)
     const cartridgeRoot = path.join(tempDir, "cartridges", "app_base")

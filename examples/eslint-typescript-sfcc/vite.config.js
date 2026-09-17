@@ -20,6 +20,10 @@ export default defineConfig({
         cache: false,
         dependsOn: ["@commerce-klaus/b2c-plugin#build"],
       },
+      "lint:cartridges": {
+        command: "eslint cartridges",
+        dependsOn: ["@commerce-klaus/eslint-config-sfcc#build"],
+      },
       test: {
         command: "vp test",
         dependsOn: ["@commerce-klaus/vitest-sfcc#build"],

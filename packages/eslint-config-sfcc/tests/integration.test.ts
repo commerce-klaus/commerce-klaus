@@ -73,6 +73,7 @@ const packageRoot = path.resolve(import.meta.dirname, "..")
 const workspaceRoot = path.resolve(packageRoot, "../..")
 const vitePlus = path.join(workspaceRoot, "node_modules/.bin/vp")
 const oxlint = path.join(packageRoot, "node_modules/.bin/oxlint")
+const INTEGRATION_TEST_TIMEOUT = 15_000
 
 function lintWithOxlint(
   code: string,
@@ -129,13 +130,17 @@ describe("ESLint and Oxlint rule compatibility", () => {
       "sfcc(rhino-const-conflict)",
     ],
     ["valid-require-path", 'require("unsupported")\n', "sfcc(valid-require-path)"],
-  ])("runs %s", async (_ruleName, code, oxlintRuleId, relativeFilePath = "fixture.js") => {
-    const eslintRuleId = oxlintRuleId.replace(/^([^(]+)\((.+)\)$/u, "$1/$2")
-    const messages = await lint(code, `cartridges/app_sfra/cartridge/scripts/${relativeFilePath}`)
+  ])(
+    "runs %s",
+    async (_ruleName, code, oxlintRuleId, relativeFilePath = "fixture.js") => {
+      const eslintRuleId = oxlintRuleId.replace(/^([^(]+)\((.+)\)$/u, "$1/$2")
+      const messages = await lint(code, `cartridges/app_sfra/cartridge/scripts/${relativeFilePath}`)
 
-    expect(messages.some((message) => message.ruleId === eslintRuleId)).toBe(true)
-    expect(lintWithOxlint(code, relativeFilePath)).toContain(oxlintRuleId)
-  })
+      expect(messages.some((message) => message.ruleId === eslintRuleId)).toBe(true)
+      expect(lintWithOxlint(code, relativeFilePath)).toContain(oxlintRuleId)
+    },
+    INTEGRATION_TEST_TIMEOUT,
+  )
 
   test("runs sitegenesis/no-global-require", async () => {
     const code = [

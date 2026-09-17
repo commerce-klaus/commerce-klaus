@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm run lint && pnpm run typecheck:cartridges && vp run test",
+    "build": "vp run lint:cartridges && pnpm run typecheck:cartridges && vp run test",
     "lint": "eslint cartridges",
     "prepare": "vp run setup:b2c-plugin",
     "typecheck:cartridges": "b2c klaus types sync --min-version 26.7.0 && b2c klaus types check",
