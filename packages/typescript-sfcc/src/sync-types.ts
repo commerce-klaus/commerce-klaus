@@ -5,6 +5,7 @@ import {
   existsSync as nodeExistsSync,
   mkdirSync as nodeMkdirSync,
   readFileSync as nodeReadFileSync,
+  unlinkSync as nodeUnlinkSync,
   writeFileSync as nodeWriteFileSync,
 } from "node:fs"
 import path from "node:path"
@@ -38,6 +39,7 @@ export interface SyncTypesCliOptions {
   mkdirSync?: (dirPath: string, options: { recursive: boolean }) => void
   readFileSync?: (filePath: string, encoding: BufferEncoding) => string
   spawnSync?: SpawnSyncLike
+  unlinkSync?: (filePath: string) => void
   writeFileSync?: (filePath: string, content: string, encoding: BufferEncoding) => void
   writeStdout?: (text: string) => void
   writeStderr?: (text: string) => void
@@ -56,6 +58,7 @@ export interface SyncTypesOptions {
   mkdirSync?: (dirPath: string, options: { recursive: boolean }) => void
   readFileSync?: (filePath: string, encoding: BufferEncoding) => string
   spawnSync?: SpawnSyncLike
+  unlinkSync?: (filePath: string) => void
   writeFileSync?: (filePath: string, content: string, encoding: BufferEncoding) => void
 }
 
@@ -88,6 +91,7 @@ export function syncTypes(options: SyncTypesOptions = {}): SyncTypesResult {
   const mkdirSync = options.mkdirSync ?? nodeMkdirSync
   const readFileSync = options.readFileSync ?? nodeReadFileSync
   const spawnSync = options.spawnSync ?? nodeSpawnSync
+  const unlinkSync = options.unlinkSync ?? nodeUnlinkSync
   const writeFileSync = options.writeFileSync ?? nodeWriteFileSync
   const force = options.force ?? false
   const minVersion = options.minimumVersion
@@ -168,6 +172,10 @@ export function syncTypes(options: SyncTypesOptions = {}): SyncTypesResult {
     mkdirSync,
     writeFileSync,
   })
+  removeObsoleteGeneratedFile(customAttributes, existsSync, unlinkSync)
+  removeObsoleteGeneratedFile(customApis, existsSync, unlinkSync)
+  removeObsoleteGeneratedFile(jobSteps, existsSync, unlinkSync)
+
   return {
     scriptTypes: {
       refreshed: refreshRequired,
@@ -199,6 +207,7 @@ export function runSyncTypesCli(args: string[], options: SyncTypesCliOptions = {
       mkdirSync: options.mkdirSync,
       readFileSync: options.readFileSync,
       spawnSync: options.spawnSync,
+      unlinkSync: options.unlinkSync,
       writeFileSync: options.writeFileSync,
     })
 
@@ -210,6 +219,16 @@ export function runSyncTypesCli(args: string[], options: SyncTypesCliOptions = {
     const message = error instanceof Error ? error.message : String(error)
     writeStderr(`${message}\n`)
     return error instanceof SyncTypesExecutionError ? error.exitCode : 1
+  }
+}
+
+function removeObsoleteGeneratedFile(
+  result: { outputFilePath: string; written: boolean },
+  existsSync: (filePath: string) => boolean,
+  unlinkSync: (filePath: string) => void,
+): void {
+  if (!result.written && existsSync(result.outputFilePath)) {
+    unlinkSync(result.outputFilePath)
   }
 }
 

@@ -1,12 +1,25 @@
+import { ux } from "@oclif/core"
 import fs from "node:fs"
+import os from "node:os"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
-import { describe, expect, test } from "vite-plus/test"
+import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import Typecheck from "../src/commands/klaus/types/check.ts"
+import TypesStatus from "../src/commands/klaus/types/status.ts"
 import SyncTypes, { createB2cCommandArgs } from "../src/commands/klaus/types/sync.ts"
 
 const packageDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
+const temporaryDirectories: string[] = []
+const originalExitCode = process.exitCode
+
+afterEach(() => {
+  vi.restoreAllMocks()
+  process.exitCode = originalExitCode
+  for (const directory of temporaryDirectories.splice(0)) {
+    fs.rmSync(directory, { force: true, recursive: true })
+  }
+})
 
 test("uses the project's TypeScript SFCC package as a peer", () => {
   const manifest = JSON.parse(
@@ -17,12 +30,37 @@ test("uses the project's TypeScript SFCC package as a peer", () => {
   }
 
   expect(manifest.dependencies?.["@commerce-klaus/typescript-sfcc"]).toBeUndefined()
-  expect(manifest.peerDependencies?.["@commerce-klaus/typescript-sfcc"]).toBe("^1.6.0")
+  expect(manifest.peerDependencies?.["@commerce-klaus/typescript-sfcc"]).toBe("^1.6.1")
 })
 
 test("type commands support B2C CLI JSON output", () => {
   expect(Typecheck.enableJsonFlag).toBe(true)
   expect(SyncTypes.enableJsonFlag).toBe(true)
+  expect(TypesStatus.enableJsonFlag).toBe(true)
+})
+
+test("types status emits structured JSON and fails when generated types are missing", async () => {
+  const projectDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "b2c-types-status-"))
+  temporaryDirectories.push(projectDirectory)
+  const typesDirectory = path.join(projectDirectory, ".b2c-script-types/types")
+  fs.mkdirSync(typesDirectory, { recursive: true })
+  fs.writeFileSync(path.join(typesDirectory, "global.d.ts"), "export {}\n", "utf8")
+  const output: string[] = []
+  vi.spyOn(ux, "stdout").mockImplementation((text) => {
+    output.push(Array.isArray(text) ? text.join("\n") : (text ?? ""))
+  })
+  vi.spyOn(ux, "colorizeJson").mockImplementation((value) => JSON.stringify(value))
+  process.exitCode = undefined
+
+  const result = await TypesStatus.run(["--project-directory", projectDirectory, "--json"], {
+    root: packageDirectory,
+  })
+
+  expect(result.current).toBe(false)
+  expect(process.exitCode).toBe(2)
+  expect(output).toHaveLength(1)
+  expect(JSON.parse(output[0] ?? "")).toEqual(result)
+  expect(output[0]).not.toContain("Checking SFCC type status")
 })
 
 describe("createB2cCommandArgs", () => {

@@ -74,6 +74,18 @@ b2c klaus types sync --force --min-version 26.7.0
 This runs Salesforce's Script API type synchronization and then generates
 project-specific types for custom attributes, hooks, Custom APIs, and job steps.
 
+## Check type status
+
+```bash
+b2c klaus types status
+b2c klaus types status --min-version 26.7.0 --json
+```
+
+The command checks whether Salesforce Script API types are present and meet the
+optional minimum version. It renders the expected project-specific declarations
+without writing files and reports missing, stale, current, and unnecessary
+outputs. A missing or stale output produces exit code `2` for CI.
+
 ## Inspect a project
 
 ```bash

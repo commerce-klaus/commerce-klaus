@@ -128,6 +128,36 @@ Available options:
 The command delegates Salesforce declaration generation to `b2c setup ide
 vscode-types` before generating the Commerce Klaus declarations.
 
+## Check type status
+
+Check Salesforce Script API types and generated project declarations without
+changing files:
+
+::: code-group
+
+```bash [pnpm]
+pnpm exec b2c klaus types status --min-version 26.7.0
+```
+
+```bash [yarn]
+yarn exec b2c klaus types status --min-version 26.7.0
+```
+
+```bash [npm]
+npm exec -- b2c klaus types status --min-version 26.7.0
+```
+
+```bash [Vite+]
+vp exec b2c klaus types status --min-version 26.7.0
+```
+
+:::
+
+The command renders the declarations expected from the current metadata in
+memory and compares them with `.b2c-script-types/types`. It reports each output
+as current, missing, stale, or not required. Exit code `2` means synchronization
+is required; exit code `1` indicates a runtime or configuration error.
+
 ## Typecheck cartridges
 
 Run the cartridge-aware TypeScript checker:
@@ -186,28 +216,32 @@ vp exec b2c klaus types check \
 Use `--project-directory <path>` when invoking the command outside the project
 root. `--working-directory` is accepted as an alias.
 
-Both commands support B2C CLI's standard `--json` flag for automation:
+All three type commands support B2C CLI's standard `--json` flag for automation:
 
 ::: code-group
 
 ```bash [pnpm]
 pnpm exec b2c klaus types check --json
 pnpm exec b2c klaus types sync --json
+pnpm exec b2c klaus types status --json
 ```
 
 ```bash [yarn]
 yarn exec b2c klaus types check --json
 yarn exec b2c klaus types sync --json
+yarn exec b2c klaus types status --json
 ```
 
 ```bash [npm]
 npm exec -- b2c klaus types check --json
 npm exec -- b2c klaus types sync --json
+npm exec -- b2c klaus types status --json
 ```
 
 ```bash [Vite+]
 vp exec b2c klaus types check --json
 vp exec b2c klaus types sync --json
+vp exec b2c klaus types status --json
 ```
 
 :::

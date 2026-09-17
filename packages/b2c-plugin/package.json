@@ -47,7 +47,7 @@
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
-    "@commerce-klaus/typescript-sfcc": "^1.6.0",
+    "@commerce-klaus/typescript-sfcc": "^1.6.1",
     "@oclif/core": "^4",
     "@salesforce/b2c-cli": ">=1.23.0 <3",
     "typescript": ">=5.5.0"

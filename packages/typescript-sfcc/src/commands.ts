@@ -6,6 +6,8 @@ import { renderSyncTypesResult } from "./sync-types-output.ts"
 import { SyncTypesExecutionError, syncTypes, type SyncTypesResult } from "./sync-types.ts"
 import { parseArguments } from "./typecheck-cartridges.ts"
 import { formatDiagnostics, typecheckSolutionProjects } from "./typecheck.ts"
+import { renderTypesStatus } from "./types-status-output.ts"
+import { getTypesStatus, type TypesStatusResult } from "./types-status.ts"
 
 export interface TypecheckCommandResult {
   success: true
@@ -229,5 +231,55 @@ export class SyncTypesCommand extends CommerceKlausCommand {
       salesforce: salesforceResult,
       types: result,
     }
+  }
+}
+
+export class TypesStatusCommand extends CommerceKlausCommand {
+  static description = "Check whether Salesforce and project-specific SFCC types are up to date"
+  static enableJsonFlag = true
+  static examples = ["<%= config.bin %>", "<%= config.bin %> --min-version 26.7.0"]
+  static usage: string | string[] | undefined = "[flags]"
+  static flags = {
+    help: Flags.boolean({ char: "h", description: "Show CLI help." }),
+    "min-version": Flags.string({
+      description: "Minimum accepted Salesforce Script API types version",
+    }),
+    "site-template-path": Flags.string({
+      description: "Path to the site template used for metadata type generation",
+    }),
+    "project-directory": Flags.string({
+      aliases: ["working-directory"],
+      description: "Project directory",
+    }),
+  }
+
+  async run(): Promise<TypesStatusResult> {
+    const { flags } = await this.parse(TypesStatusCommand)
+    if (flags.help) {
+      return this.showCommandHelp()
+    }
+
+    const currentDirectory = path.resolve(
+      flags["project-directory"] ?? process.env.SFCC_WORKING_DIRECTORY ?? process.cwd(),
+    )
+    let result: TypesStatusResult
+    try {
+      result = getTypesStatus({
+        currentDirectory,
+        minimumVersion: flags["min-version"],
+        siteTemplatePath: flags["site-template-path"],
+      })
+    } catch (error) {
+      this.error(error instanceof Error ? error : String(error))
+    }
+
+    if (!this.jsonEnabled()) {
+      ux.stdout(renderTypesStatus(result, ux.colorize))
+    }
+    if (!result.current) {
+      process.exitCode = 2
+    }
+
+    return result
   }
 }
