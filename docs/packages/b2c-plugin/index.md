@@ -1,3 +1,5 @@
+[![NPM version][npm-image]][npm-url] [![Downloads][npm-downloads-image]][npm-url]
+
 # @commerce-klaus/b2c-plugin
 
 Run Commerce Klaus development tools through the
@@ -348,3 +350,7 @@ vp exec sfcc-ts-typecheck
 
 They are useful in CI environments where every executable must be represented
 directly by the project lockfile rather than an installed B2C CLI plugin.
+
+[npm-url]: https://www.npmjs.com/package/@commerce-klaus/b2c-plugin
+[npm-image]: https://badgen.net/npm/v/@commerce-klaus/b2c-plugin
+[npm-downloads-image]: https://badgen.net/npm/dw/@commerce-klaus/b2c-plugin

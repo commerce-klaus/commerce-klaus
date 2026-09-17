@@ -1,6 +1,6 @@
-# @commerce-klaus/sfcc-test-runtime
-
 [![NPM version][npm-image]][npm-url] [![Downloads][npm-downloads-image]][npm-url]
+
+# @commerce-klaus/sfcc-test-runtime
 
 Framework-independent SFCC runtime modules and dependency mocking for local tests.
 

@@ -1,3 +1,5 @@
+[![NPM version][npm-image]][npm-url] [![Downloads][npm-downloads-image]][npm-url]
+
 # @commerce-klaus/b2c-plugin
 
 Commerce Klaus commands for the
@@ -115,3 +117,7 @@ The command validates hook registrations, job step definitions, and Custom API
 contracts. Missing scripts, modules, schemas, and operations are errors;
 registrations hidden by cartridge precedence are warnings. Validation errors
 produce a non-zero exit status for CI.
+
+[npm-url]: https://www.npmjs.com/package/@commerce-klaus/b2c-plugin
+[npm-image]: https://badgen.net/npm/v/@commerce-klaus/b2c-plugin
+[npm-downloads-image]: https://badgen.net/npm/dw/@commerce-klaus/b2c-plugin

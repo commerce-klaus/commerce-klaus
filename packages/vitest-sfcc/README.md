@@ -1,6 +1,6 @@
-# @commerce-klaus/vitest-sfcc
-
 [![NPM version][npm-image]][npm-url] [![Downloads][npm-downloads-image]][npm-url]
+
+# @commerce-klaus/vitest-sfcc
 
 Cartridge-aware SFCC runtime and dependency mocking for Vitest.
 
