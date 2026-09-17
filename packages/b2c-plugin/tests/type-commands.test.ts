@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url"
 import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import Typecheck from "../src/commands/klaus/types/check.ts"
+import CleanTypes from "../src/commands/klaus/types/clean.ts"
 import TypesStatus from "../src/commands/klaus/types/status.ts"
 import SyncTypes, { createB2cCommandArgs } from "../src/commands/klaus/types/sync.ts"
 
@@ -34,9 +35,40 @@ test("uses the project's TypeScript SFCC package as a peer", () => {
 })
 
 test("type commands support B2C CLI JSON output", () => {
+  expect(CleanTypes.enableJsonFlag).toBe(true)
   expect(Typecheck.enableJsonFlag).toBe(true)
   expect(SyncTypes.enableJsonFlag).toBe(true)
   expect(TypesStatus.enableJsonFlag).toBe(true)
+})
+
+test("types clean emits structured JSON and removes only generated types", async () => {
+  const projectDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "b2c-types-clean-"))
+  temporaryDirectories.push(projectDirectory)
+  const typesDirectory = path.join(projectDirectory, ".b2c-script-types/types")
+  fs.mkdirSync(typesDirectory, { recursive: true })
+  const generatedFile = path.join(typesDirectory, "sfcc-hooks.generated.d.ts")
+  const scriptApiFile = path.join(typesDirectory, "global.d.ts")
+  fs.writeFileSync(generatedFile, "generated\n")
+  fs.writeFileSync(scriptApiFile, "script API\n")
+  const output: string[] = []
+  vi.spyOn(ux, "stdout").mockImplementation((text) => {
+    output.push(Array.isArray(text) ? text.join("\n") : (text ?? ""))
+  })
+  vi.spyOn(ux, "colorizeJson").mockImplementation((value) => JSON.stringify(value))
+
+  const result = await CleanTypes.run(["--project-directory", projectDirectory, "--json"], {
+    root: packageDirectory,
+  })
+
+  expect(result.files.find((file) => file.path === generatedFile)).toMatchObject({
+    exists: true,
+    removed: true,
+  })
+  expect(fs.existsSync(generatedFile)).toBe(false)
+  expect(fs.existsSync(scriptApiFile)).toBe(true)
+  expect(output).toHaveLength(1)
+  expect(JSON.parse(output[0] ?? "")).toEqual(result)
+  expect(output[0]).not.toContain("Cleaning generated SFCC types")
 })
 
 test("types status emits structured JSON and fails when generated types are missing", async () => {

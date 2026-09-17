@@ -27,5 +27,11 @@ export { validateHookRegistrations } from "./hooks.ts"
 export { generateHookTypes } from "./hook-types.ts"
 export { generateCustomApiTypes } from "./custom-apis.ts"
 export { generateJobStepTypes } from "./job-step-types.ts"
+export {
+  cleanGeneratedTypes,
+  type CleanGeneratedTypesEntry,
+  type CleanGeneratedTypesOptions,
+  type CleanGeneratedTypesResult,
+} from "./clean-types.ts"
 
 export { syncTypes, main as syncTypesMain, runSyncTypesCli } from "./sync-types.ts"

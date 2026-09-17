@@ -68,6 +68,11 @@ Both standalone commands use the same oclif command implementation as the B2C
 CLI plugin, including `--help`, `--json`, consistent errors, and color-aware
 terminal output.
 
+The package API also exposes `cleanGeneratedTypes()` for removing only the four
+project-specific `sfcc-*.generated.d.ts` outputs managed by Commerce Klaus. It
+preserves synchronized Salesforce Script API types and unrelated declarations,
+and accepts `dryRun: true` for a read-only preview.
+
 ## Documentation
 
 See the [complete setup, CLI, and generated types reference](https://commerce-klaus.github.io/commerce-klaus/packages/typescript-sfcc/).

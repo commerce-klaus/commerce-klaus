@@ -489,6 +489,24 @@ Both standalone commands also accept `--project-directory <path>` (alias
 `--working-directory`) and `--json`. Colors are automatically disabled when the
 terminal does not support them.
 
+### Clean generated declarations programmatically
+
+`cleanGeneratedTypes()` removes only the project-specific declarations managed
+by Commerce Klaus. Salesforce Script API types and unrelated declaration files
+in `.b2c-script-types/types` remain untouched:
+
+```ts
+import { cleanGeneratedTypes } from "@commerce-klaus/typescript-sfcc"
+
+const preview = cleanGeneratedTypes({
+  currentDirectory: process.cwd(),
+  dryRun: true,
+})
+```
+
+Each result entry distinguishes a file that exists from one that was actually
+removed, so the same API works for previews and cleanup automation.
+
 [npm-url]: https://www.npmjs.com/package/@commerce-klaus/typescript-sfcc
 [npm-image]: https://badgen.net/npm/v/@commerce-klaus/typescript-sfcc
 [npm-downloads-image]: https://badgen.net/npm/dw/@commerce-klaus/typescript-sfcc
