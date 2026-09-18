@@ -29,6 +29,11 @@ async function renderDiagram(): Promise<void> {
     const { svg } = await mermaid.render(`project-graph-${sequence}`, definition)
     if (sequence === renderSequence && diagram.value) {
       diagram.value.innerHTML = svg
+      const renderedSvg = diagram.value.querySelector("svg")
+      if (renderedSvg) {
+        const naturalWidth = renderedSvg.viewBox.baseVal.width
+        renderedSvg.style.width = `${Math.min(Math.max(naturalWidth, 760), 1600)}px`
+      }
       error.value = undefined
     }
   } catch (cause) {
@@ -51,6 +56,7 @@ watch(isDark, renderDiagram)
       <li class="module">Module</li>
       <li class="hook">Hook</li>
       <li class="job-step">Job step</li>
+      <li class="middleware">Middleware</li>
       <li class="custom-api">Custom API</li>
       <li class="route">SFRA route</li>
       <li class="schema">Schema</li>
@@ -125,6 +131,11 @@ watch(isDark, renderDiagram)
 .project-graph-legend .job-step::before {
   border-color: #99711d;
   background: #fff0c7;
+}
+
+.project-graph-legend .middleware::before {
+  border-color: #47818c;
+  background: #f4f7f8;
 }
 
 .project-graph-legend .custom-api::before {

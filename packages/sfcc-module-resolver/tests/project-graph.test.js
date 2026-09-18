@@ -90,6 +90,7 @@ test("createSfccProjectGraph maps contracts and supports a focused module graph"
     writeJson(path.join(apiDirectory, "api.json"), {
       endpoints: [{ endpoint: "getLoyaltyInfo", implementation: "script", schema: "schema.yaml" }],
     })
+    writeFile(path.join(apiDirectory, "script.js"), "exports.getLoyaltyInfo = function () {}\n")
     writeFile(
       path.join(apiDirectory, "schema.yaml"),
       [
@@ -116,6 +117,11 @@ test("createSfccProjectGraph maps contracts and supports a focused module graph"
     expect(graph.edges.map((edge) => edge.kind)).toEqual(
       expect.arrayContaining(["implements", "uses-schema"]),
     )
+    expect(graph.edges).toContainEqual({
+      from: `custom-api:${path.join(apiDirectory, "api.json")}#getLoyaltyInfo`,
+      kind: "implements",
+      to: `module:${path.join(apiDirectory, "script.js")}`,
+    })
 
     const focused = createSfccProjectGraph({
       cartridgesDir,
@@ -178,6 +184,21 @@ test("createSfccProjectGraph maps SFRA controller route customization", () => {
       label: "GET Product-Show",
     })
     expect(graph.nodes.some((node) => node.id === "route:Product:Dynamic")).toBe(false)
+    const showPipeline = graph.edges
+      .filter((edge) => edge.kind === "starts" || edge.kind === "next")
+      .map((edge) => [
+        graph.nodes.find((node) => node.id === edge.from)?.label,
+        edge.kind,
+        graph.nodes.find((node) => node.id === edge.to)?.label,
+      ])
+    expect(showPipeline).toEqual(
+      expect.arrayContaining([
+        ["GET Product-Show", "starts", "authorizeCustomer"],
+        ["authorizeCustomer", "next", "showProduct"],
+        ["showProduct", "next", "addRecommendations"],
+        ["GET Product-Search", "starts", "searchProducts"],
+      ]),
+    )
     expect(graph.edges).toEqual(
       expect.arrayContaining([
         {

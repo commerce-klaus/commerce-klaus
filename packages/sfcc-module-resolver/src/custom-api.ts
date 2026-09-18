@@ -83,6 +83,7 @@ export interface CustomApiOperationMatch {
 export interface CustomApiDefinition {
   apiJsonPath: string
   endpoint: string
+  implementationPath?: string
   schemaPath: string
   document: OasDocument
   operation?: CustomApiOperationMatch
@@ -347,6 +348,9 @@ export function findCustomApiDefinitions(cartridgesDir: string): CustomApiDefini
       definitions.push({
         apiJsonPath,
         endpoint: entry.endpoint,
+        ...(entry.implementation
+          ? { implementationPath: resolveCustomApiScriptPath(directory, entry.implementation) }
+          : {}),
         schemaPath,
         document,
         operation: findOperationByOperationId(document, entry.endpoint),

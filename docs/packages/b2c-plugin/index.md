@@ -332,7 +332,8 @@ status, making `doctor` suitable for CI.
 ## Visualize project relationships
 
 Create a graph of cartridge precedence, `module.superModule` chains, SFRA
-controller routes, hook and job step implementations, and Custom API schemas:
+controller routes and their effective middleware order, hook and job step
+implementations, and Custom API schemas and scripts:
 
 ::: code-group
 
@@ -385,8 +386,9 @@ remains reserved for structured stdout.
 This graph is generated during every documentation build from the repository's
 anonymous `app_custom:app_example` consumer project. It exercises cartridge
 precedence, an inherited SFRA `Product` controller with prepended, appended, and
-replaced routes, other Super Modules, hooks, a job step, and a Custom API schema
-using the current graph resolver and Mermaid renderer.
+replaced routes, the resulting route pipelines, other Super Modules, hooks, a
+job step, and a Custom API schema and implementation using the current graph
+resolver and Mermaid renderer.
 
 <!--@include: ../../_partials/project-graph.generated.md-->
 

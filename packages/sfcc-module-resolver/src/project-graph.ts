@@ -14,6 +14,7 @@ export type SfccProjectGraphNodeKind =
   | "custom-api"
   | "hook"
   | "job-step"
+  | "middleware"
   | "module"
   | "route"
   | "schema"
@@ -26,7 +27,9 @@ export type SfccProjectGraphEdgeKind =
   | "appends"
   | "prepends"
   | "replaces"
+  | "starts"
   | "super-module"
+  | "next"
   | "uses-schema"
 
 export interface SfccProjectGraphNode {
@@ -178,6 +181,14 @@ function addContractRelationships(
       label: path.basename(customApi.schemaPath),
       path: customApi.schemaPath,
     })
+    if (customApi.implementationPath) {
+      addModuleNode(nodes, customApi.implementationPath, cartridgeRoots)
+      edges.push({
+        from: customApiId,
+        kind: "implements",
+        to: fileNodeId("module", customApi.implementationPath),
+      })
+    }
     edges.push({ from: customApiId, kind: "uses-schema", to: schemaId })
   }
 }
@@ -212,6 +223,78 @@ function addSfraControllerRelationships(
         from: fileNodeId("module", controller.filePath),
         kind: route.action === "get" || route.action === "post" ? "registers" : `${route.action}s`,
         to: routeId,
+      })
+    }
+  }
+
+  addSfraMiddlewarePipelines(nodes, edges, controllers, routeMethods)
+}
+
+interface SfraMiddlewareStep {
+  id: string
+  label: string
+  path: string
+}
+
+interface SfraRoutePipeline {
+  middleware: SfraMiddlewareStep[]
+}
+
+function addSfraMiddlewarePipelines(
+  nodes: Map<string, SfccProjectGraphNode>,
+  edges: SfccProjectGraphEdge[],
+  controllers: ReturnType<typeof findSfraControllers>,
+  routeMethods: Map<string, string>,
+): void {
+  const pipelines = new Map<string, SfraRoutePipeline>()
+
+  for (const controller of controllers.toReversed()) {
+    if (!controller.extendsSuperModule) {
+      for (const routeKey of pipelines.keys()) {
+        if (routeKey.startsWith(`${controller.name}:`)) {
+          pipelines.delete(routeKey)
+        }
+      }
+    }
+
+    for (const [routeIndex, route] of controller.routes.entries()) {
+      const routeKey = `${controller.name}:${route.name}`
+      const middleware = route.middleware.map((label, middlewareIndex) => ({
+        id: `middleware:${controller.filePath}#${route.name}:${routeIndex}:${middlewareIndex}`,
+        label,
+        path: controller.filePath,
+      }))
+      const pipeline = pipelines.get(routeKey) ?? { middleware: [] }
+
+      if (route.action === "get" || route.action === "post" || route.action === "replace") {
+        pipeline.middleware = middleware
+      } else if (route.action === "prepend") {
+        pipeline.middleware.unshift(...middleware)
+      } else {
+        pipeline.middleware.push(...middleware)
+      }
+      pipelines.set(routeKey, pipeline)
+    }
+  }
+
+  for (const [routeKey, pipeline] of pipelines) {
+    if (!routeMethods.has(routeKey) || pipeline.middleware.length === 0) {
+      continue
+    }
+    for (const middleware of pipeline.middleware) {
+      addNode(nodes, {
+        id: middleware.id,
+        kind: "middleware",
+        label: middleware.label,
+        path: middleware.path,
+      })
+    }
+    edges.push({ from: `route:${routeKey}`, kind: "starts", to: pipeline.middleware[0].id })
+    for (let index = 0; index < pipeline.middleware.length - 1; index += 1) {
+      edges.push({
+        from: pipeline.middleware[index].id,
+        kind: "next",
+        to: pipeline.middleware[index + 1].id,
       })
     }
   }

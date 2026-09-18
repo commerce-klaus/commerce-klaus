@@ -7,11 +7,12 @@ export type SfraControllerRouteAction = "append" | "get" | "post" | "prepend" | 
 
 export interface SfraControllerRouteRegistration {
   action: SfraControllerRouteAction
-  middlewareCount: number
+  middleware: string[]
   name: string
 }
 
 export interface SfraControllerDefinition {
+  extendsSuperModule: boolean
   filePath: string
   name: string
   routes: SfraControllerRouteRegistration[]
@@ -57,6 +58,7 @@ export function parseSfraController(
     return undefined
   }
 
+  let extendsSuperModule = false
   const routes: SfraControllerRouteRegistration[] = []
   simple(ast, {
     CallExpression(node) {
@@ -69,6 +71,16 @@ export function parseSfraController(
       const object = callee.object as AstNode | undefined
       const property = callee.property as AstNode | undefined
       const action = property?.type === "Identifier" ? (property.name as string) : undefined
+      const arguments_ = call.arguments as AstNode[]
+      if (
+        object?.type === "Identifier" &&
+        serverBindings.has(object.name as string) &&
+        action === "extend" &&
+        isModuleSuperModule(arguments_[0])
+      ) {
+        extendsSuperModule = true
+        return
+      }
       if (
         object?.type !== "Identifier" ||
         !serverBindings.has(object.name as string) ||
@@ -78,7 +90,6 @@ export function parseSfraController(
         return
       }
 
-      const arguments_ = call.arguments as AstNode[]
       const routeName = literalString(arguments_[0])
       if (!routeName) {
         return
@@ -86,14 +97,21 @@ export function parseSfraController(
 
       routes.push({
         action: action as SfraControllerRouteAction,
-        middlewareCount: Math.max(0, arguments_.length - 1),
+        middleware: arguments_
+          .slice(1)
+          .map((argument, index) => expressionLabel(argument, `${action} middleware ${index + 1}`)),
         name: routeName,
       })
     },
   })
 
   return routes.length > 0
-    ? { filePath, name: path.basename(filePath, path.extname(filePath)), routes }
+    ? {
+        extendsSuperModule,
+        filePath,
+        name: path.basename(filePath, path.extname(filePath)),
+        routes,
+      }
     : undefined
 }
 
@@ -139,4 +157,36 @@ function isRequireServerCall(node: AstNode): boolean {
 
 function literalString(node: AstNode | undefined): string | undefined {
   return node?.type === "Literal" && typeof node.value === "string" ? node.value : undefined
+}
+
+function isModuleSuperModule(node: AstNode | undefined): boolean {
+  if (node?.type !== "MemberExpression" || node.computed) {
+    return false
+  }
+  const object = node.object as AstNode | undefined
+  const property = node.property as AstNode | undefined
+  return (
+    object?.type === "Identifier" &&
+    object.name === "module" &&
+    property?.type === "Identifier" &&
+    property.name === "superModule"
+  )
+}
+
+function expressionLabel(node: AstNode, fallback: string): string {
+  if (node.type === "Identifier") {
+    return node.name as string
+  }
+  if (node.type === "FunctionExpression") {
+    const identifier = node.id as AstNode | undefined
+    return identifier?.type === "Identifier" ? (identifier.name as string) : fallback
+  }
+  if (node.type === "MemberExpression" && !node.computed) {
+    const object = expressionLabel(node.object as AstNode, "")
+    const property = node.property as AstNode | undefined
+    if (object && property?.type === "Identifier") {
+      return `${object}.${property.name as string}`
+    }
+  }
+  return fallback
 }
