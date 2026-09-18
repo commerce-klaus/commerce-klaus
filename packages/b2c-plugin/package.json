@@ -1,6 +1,6 @@
 {
   "name": "@commerce-klaus/b2c-plugin",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Commerce Klaus commands for the Salesforce B2C CLI",
   "keywords": [
     "b2c-cli",
@@ -49,7 +49,7 @@
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
-    "@commerce-klaus/typescript-sfcc": "^1.6.1",
+    "@commerce-klaus/typescript-sfcc": "^1.7.0",
     "@oclif/core": "^4",
     "@salesforce/b2c-cli": ">=1.23.0 <3",
     "typescript": ">=5.5.0"

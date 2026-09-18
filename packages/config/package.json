@@ -1,6 +1,6 @@
 {
   "name": "@commerce-klaus/config",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Shared project configuration for Commerce Klaus tools",
   "keywords": [
     "commercecloud",

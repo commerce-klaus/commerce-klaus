@@ -1,5 +1,12 @@
 # @commerce-klaus/sfcc-test-runtime
 
+## 1.0.0
+
+### Major Changes
+
+- 2a25e79: Release the SFCC test runtime and cartridge-aware Vitest integration as stable
+  `1.0.0` packages.
+
 ## 0.2.0
 
 ### Minor Changes
