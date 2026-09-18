@@ -6,18 +6,18 @@ const server = require("server")
 // @ts-ignore -- `module.superModule` is provided by SFCC and resolved by typescript-sfcc.
 server.extend(module.superModule)
 
-server.prepend("Show", function (_request, response, next) {
+server.prepend("Show", function checkProductAccess(_request, response, next) {
   response.setViewData({ accessChecked: true })
   next()
 })
 
-server.append("Show", function (_request, response, next) {
+server.append("Show", function enrichWithLoyalty(_request, response, next) {
   const viewData = response.getViewData()
   response.setViewData(Object.assign({}, viewData, { loyaltyEnabled: true }))
   next()
 })
 
-server.replace("Recommendations", function (_request, response, next) {
+server.replace("Recommendations", function personalizeRecommendations(_request, response, next) {
   response.json({ personalized: true, productIds: [] })
   next()
 })

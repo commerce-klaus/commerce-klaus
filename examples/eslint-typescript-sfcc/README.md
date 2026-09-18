@@ -65,6 +65,8 @@ The `Product` SFRA controller makes that graph a process example rather than a
 catalog of isolated contracts. `app_example` registers the `Show` and
 `Recommendations` routes. `app_custom` extends the controller, prepends an
 access check and appends loyalty data to `Show`, and replaces `Recommendations`.
+The generated graph composes those registrations into their effective
+middleware execution order.
 
 The solution places `app_custom` before `app_example` in the cartridge path.
 The custom cartridge overrides `greeting.js` and accesses the next matching
