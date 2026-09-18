@@ -5,6 +5,7 @@ import {
   renderInspection,
   renderProjectImpact,
   renderProjectGraph,
+  renderProjectGraphDiff,
   renderProjectGraphDot,
   renderProjectGraphMermaid,
   renderResolution,
@@ -92,6 +93,50 @@ describe("renderProjectGraph", () => {
     expect(output).toContain("n0 -->|precedes| n1")
     expect(output).toContain("classDef cartridge fill:#d9e8f5")
     expect(output).not.toContain("cartridge:/project")
+  })
+})
+
+describe("renderProjectGraphDiff", () => {
+  test("renders cartridge paths and graph changes", () => {
+    const baseline = {
+      cartridgesDirectory: "/project/cartridges",
+      cartridgeOrder: ["/project/cartridges/app_base"],
+      nodes: [{ id: "route:Product:Show", kind: "route" as const, label: "GET Product-Show" }],
+      edges: [],
+    }
+    const comparison = {
+      ...baseline,
+      cartridgeOrder: ["/project/cartridges/app_custom", "/project/cartridges/app_base"],
+      nodes: [
+        ...baseline.nodes,
+        { id: "middleware:authorize", kind: "middleware" as const, label: "authorizeCustomer" },
+      ],
+      edges: [
+        {
+          from: "route:Product:Show",
+          kind: "starts" as const,
+          to: "middleware:authorize",
+        },
+      ],
+    }
+    const output = renderProjectGraphDiff(
+      {
+        baseline,
+        comparison,
+        nodes: { added: [comparison.nodes[1]], removed: [], changed: [] },
+        edges: { added: comparison.edges, removed: [] },
+      },
+      "/project",
+      colorize,
+    )
+
+    expect(output).toContain("Baseline: app_base")
+    expect(output).toContain("Comparison: app_custom:app_base")
+    expect(output).toContain("<green>+</green> middleware: authorizeCustomer")
+    expect(output).toContain(
+      "<green>+</green> GET Product-Show <dim>--starts--></dim> authorizeCustomer",
+    )
+    expect(output).toContain("<green>DONE</green>: Project graph comparison completed.")
   })
 })
 

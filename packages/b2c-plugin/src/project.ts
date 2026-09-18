@@ -1,5 +1,6 @@
 import {
   createSfccProjectGraph,
+  diffSfccProjectGraphs,
   filterSfccProjectGraph,
   findCustomApiDefinitions,
   findResolvedHookRegistrations,
@@ -8,6 +9,7 @@ import {
   resolveCartridgesDir,
   validateSfccProject,
   type SfccProjectGraph,
+  type SfccProjectGraphDiff,
   type SfccProjectGraphDirection,
   type SfccProjectValidationResult,
 } from "@commerce-klaus/sfcc-module-resolver"
@@ -34,8 +36,29 @@ export type ProjectValidation = SfccProjectValidationResult & {
 }
 
 export type ProjectGraph = SfccProjectGraph
+export type ProjectGraphDiff = SfccProjectGraphDiff
 export type ProjectGraphDirection = SfccProjectGraphDirection
 export type ProjectImpact = ProjectGraph & { file: string }
+
+export function getProjectGraphDiff(
+  options: ProjectOptions & { comparisonCartridgePath: string },
+): ProjectGraphDiff {
+  const sharedOptions = {
+    cartridgesDir: options.cartridgesDir,
+    cwd: options.cwd,
+  }
+
+  return diffSfccProjectGraphs(
+    createSfccProjectGraph({
+      ...sharedOptions,
+      cartridgePath: options.cartridgePath?.split(":"),
+    }),
+    createSfccProjectGraph({
+      ...sharedOptions,
+      cartridgePath: options.comparisonCartridgePath.split(":"),
+    }),
+  )
+}
 
 export function getProjectImpact(
   options: ProjectOptions & { depth?: number; file: string },

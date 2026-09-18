@@ -5,6 +5,7 @@ import type { ResolveResult } from "./commands/klaus/resolve.js"
 import type {
   DoctorResult,
   ProjectGraph,
+  ProjectGraphDiff,
   ProjectImpact,
   ProjectInspection,
   ProjectValidation,
@@ -75,6 +76,51 @@ export function renderProjectGraph(
   lines.push(`${colorize("green", "DONE")}: Project graph generated.`)
 
   return lines.join("\n")
+}
+
+export function renderProjectGraphDiff(
+  result: ProjectGraphDiff,
+  currentDirectory: string,
+  colorize: Colorize,
+): string {
+  const nodesById = new Map(
+    [...result.baseline.nodes, ...result.comparison.nodes].map((node) => [node.id, node]),
+  )
+  const lines = [
+    `Comparing SFCC project graphs in ${colorize("dim", displayPath(result.baseline.cartridgesDirectory, currentDirectory))}`,
+    `Baseline: ${formatCartridgeOrder(result.baseline.cartridgeOrder)}`,
+    `Comparison: ${formatCartridgeOrder(result.comparison.cartridgeOrder)}`,
+    `Added nodes: ${formatResultCount(result.nodes.added.length, "node", "none", colorize)}`,
+    ...result.nodes.added.map((node) => `  ${colorize("green", "+")} ${node.kind}: ${node.label}`),
+    `Removed nodes: ${formatResultCount(result.nodes.removed.length, "node", "none", colorize)}`,
+    ...result.nodes.removed.map(
+      (node) => `  ${colorize("yellow", "-")} ${node.kind}: ${node.label}`,
+    ),
+    `Changed nodes: ${formatResultCount(result.nodes.changed.length, "node", "none", colorize)}`,
+    ...result.nodes.changed.map(
+      ({ before, after }) =>
+        `  ${colorize("yellow", "~")} ${before.kind}: ${before.label} -> ${after.label}`,
+    ),
+    `Added relationships: ${formatResultCount(result.edges.added.length, "edge", "none", colorize)}`,
+    ...result.edges.added.map(
+      (edge) =>
+        `  ${colorize("green", "+")} ${nodesById.get(edge.from)?.label ?? edge.from} ${colorize("dim", `--${edge.kind}-->`)} ${nodesById.get(edge.to)?.label ?? edge.to}`,
+    ),
+    `Removed relationships: ${formatResultCount(result.edges.removed.length, "edge", "none", colorize)}`,
+    ...result.edges.removed.map(
+      (edge) =>
+        `  ${colorize("yellow", "-")} ${nodesById.get(edge.from)?.label ?? edge.from} ${colorize("dim", `--${edge.kind}-->`)} ${nodesById.get(edge.to)?.label ?? edge.to}`,
+    ),
+    `${colorize("green", "DONE")}: Project graph comparison completed.`,
+  ]
+
+  return lines.join("\n")
+}
+
+function formatCartridgeOrder(cartridgeOrder: string[]): string {
+  return cartridgeOrder.length > 0
+    ? cartridgeOrder.map((root) => path.basename(root)).join(":")
+    : "none"
 }
 
 export function renderProjectImpact(

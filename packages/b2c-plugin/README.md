@@ -115,6 +115,7 @@ steps, and Custom APIs. Use JSON output for CI or editor integrations.
 b2c klaus graph
 b2c klaus graph --focus 'Product-Show'
 b2c klaus graph --focus 'Product.js' --depth 2 --direction both
+b2c klaus graph --cartridge-path app_base --diff app_custom:app_base
 b2c klaus graph --module '*/cartridge/models/product'
 b2c klaus graph --format dot --output sfcc-project.dot
 b2c klaus graph --format mermaid --output sfcc-project.mmd
@@ -131,6 +132,10 @@ missing parent directories. `--focus` matches node IDs, labels, and paths
 case-insensitively, then follows outgoing dependencies. Use `--depth` to limit
 the traversal or `--direction dependents|both` to include incoming
 relationships. `--focus` and `--module` are mutually exclusive.
+Use `--diff <cartridge-path>` to compare the effective graph for the regular
+`--cartridge-path` baseline with another cartridge path. Diff output reports
+added, removed, and changed nodes and relationships in text or JSON format.
+DOT and Mermaid output are not supported for comparisons.
 
 ## Analyze file impact
 

@@ -63,11 +63,70 @@ export interface SfccProjectGraph {
   edges: SfccProjectGraphEdge[]
 }
 
+export interface SfccProjectGraphNodeChange {
+  before: SfccProjectGraphNode
+  after: SfccProjectGraphNode
+}
+
+export interface SfccProjectGraphDiff {
+  baseline: SfccProjectGraph
+  comparison: SfccProjectGraph
+  nodes: {
+    added: SfccProjectGraphNode[]
+    removed: SfccProjectGraphNode[]
+    changed: SfccProjectGraphNodeChange[]
+  }
+  edges: {
+    added: SfccProjectGraphEdge[]
+    removed: SfccProjectGraphEdge[]
+  }
+}
+
 export interface CreateSfccProjectGraphOptions {
   cartridgesDir: string
   cwd?: string
   cartridgePath?: string[]
   module?: string
+}
+
+export function diffSfccProjectGraphs(
+  baseline: SfccProjectGraph,
+  comparison: SfccProjectGraph,
+): SfccProjectGraphDiff {
+  const baselineNodes = new Map(baseline.nodes.map((node) => [node.id, node]))
+  const comparisonNodes = new Map(comparison.nodes.map((node) => [node.id, node]))
+  const baselineEdges = new Set(baseline.edges.map(projectGraphEdgeKey))
+  const comparisonEdges = new Set(comparison.edges.map(projectGraphEdgeKey))
+
+  return {
+    baseline,
+    comparison,
+    nodes: {
+      added: comparison.nodes.filter((node) => !baselineNodes.has(node.id)),
+      removed: baseline.nodes.filter((node) => !comparisonNodes.has(node.id)),
+      changed: comparison.nodes.flatMap((node) => {
+        const previousNode = baselineNodes.get(node.id)
+        return previousNode && !projectGraphNodesEqual(previousNode, node)
+          ? [{ before: previousNode, after: node }]
+          : []
+      }),
+    },
+    edges: {
+      added: comparison.edges.filter((edge) => !baselineEdges.has(projectGraphEdgeKey(edge))),
+      removed: baseline.edges.filter((edge) => !comparisonEdges.has(projectGraphEdgeKey(edge))),
+    },
+  }
+}
+
+function projectGraphNodesEqual(
+  first: SfccProjectGraphNode,
+  second: SfccProjectGraphNode,
+): boolean {
+  return first.kind === second.kind && first.label === second.label && first.path === second.path
+}
+
+function projectGraphEdgeKey(edge: SfccProjectGraphEdge): string {
+  return `${edge.from}\0${edge.kind}\0${edge.to}`
 }
 
 export function filterSfccProjectGraph(

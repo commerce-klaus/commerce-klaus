@@ -341,6 +341,7 @@ implementations, and Custom API HTTP endpoints, schemas, and scripts:
 pnpm exec b2c klaus graph
 pnpm exec b2c klaus graph --focus 'Product-Show'
 pnpm exec b2c klaus graph --focus 'Product.js' --depth 2 --direction both
+pnpm exec b2c klaus graph --cartridge-path app_base --diff app_custom:app_base
 pnpm exec b2c klaus graph --module '*/cartridge/models/product'
 pnpm exec b2c klaus graph --format dot --output sfcc-project.dot
 pnpm exec b2c klaus graph --format mermaid --output sfcc-project.mmd
@@ -351,6 +352,7 @@ pnpm exec b2c klaus graph --format json --output sfcc-project.json
 yarn exec b2c klaus graph
 yarn exec b2c klaus graph --focus 'Product-Show'
 yarn exec b2c klaus graph --focus 'Product.js' --depth 2 --direction both
+yarn exec b2c klaus graph --cartridge-path app_base --diff app_custom:app_base
 yarn exec b2c klaus graph --module '*/cartridge/models/product'
 yarn exec b2c klaus graph --format dot --output sfcc-project.dot
 yarn exec b2c klaus graph --format mermaid --output sfcc-project.mmd
@@ -361,6 +363,7 @@ yarn exec b2c klaus graph --format json --output sfcc-project.json
 npm exec -- b2c klaus graph
 npm exec -- b2c klaus graph --focus 'Product-Show'
 npm exec -- b2c klaus graph --focus 'Product.js' --depth 2 --direction both
+npm exec -- b2c klaus graph --cartridge-path app_base --diff app_custom:app_base
 npm exec -- b2c klaus graph --module '*/cartridge/models/product'
 npm exec -- b2c klaus graph --format dot --output sfcc-project.dot
 npm exec -- b2c klaus graph --format mermaid --output sfcc-project.mmd
@@ -371,6 +374,7 @@ npm exec -- b2c klaus graph --format json --output sfcc-project.json
 vp exec b2c klaus graph
 vp exec b2c klaus graph --focus 'Product-Show'
 vp exec b2c klaus graph --focus 'Product.js' --depth 2 --direction both
+vp exec b2c klaus graph --cartridge-path app_base --diff app_custom:app_base
 vp exec b2c klaus graph --module '*/cartridge/models/product'
 vp exec b2c klaus graph --format dot --output sfcc-project.dot
 vp exec b2c klaus graph --format mermaid --output sfcc-project.mmd
@@ -390,6 +394,10 @@ relationships instead, while `--direction both` traverses in both directions.
 Use `--depth <number>` to limit the number of traversed relationships. A depth
 of zero returns only matching nodes. `--focus` and `--module` are mutually
 exclusive.
+`--diff <cartridge-path>` compares the effective graph for the regular
+`--cartridge-path` baseline with another cartridge path. The result separates
+added, removed, and changed nodes and relationships. Comparisons support text
+and JSON output; DOT and Mermaid are reserved for individual graphs.
 `--output` (short form `-o`) writes text, DOT, Mermaid, or JSON directly to a
 file and creates missing parent directories. Use
 `--format json --output <path>` for a JSON artifact; the standard `--json` flag

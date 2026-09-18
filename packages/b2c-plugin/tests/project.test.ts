@@ -8,6 +8,7 @@ import { resolveProjectModule } from "../src/commands/klaus/resolve.ts"
 import {
   diagnoseProject,
   getProjectGraph,
+  getProjectGraphDiff,
   getProjectImpact,
   getProjectInspection,
   validateProject,
@@ -179,6 +180,72 @@ test("graph preserves the configured cartridge precedence", () => {
     "app_base",
   ])
   expect(result.edges).toContainEqual(expect.objectContaining({ kind: "precedes" }))
+})
+
+test("graph diff compares effective cartridge paths", () => {
+  const projectDirectory = createProjectDirectory()
+  const baseController = path.join(
+    projectDirectory,
+    "cartridges",
+    "app_base",
+    "cartridge",
+    "controllers",
+    "Product.js",
+  )
+  const customController = path.join(
+    projectDirectory,
+    "cartridges",
+    "app_custom",
+    "cartridge",
+    "controllers",
+    "Product.js",
+  )
+  writeFile(
+    baseController,
+    [
+      'const server = require("server")',
+      'server.get("Show", renderProduct)',
+      "module.exports = server.exports()",
+    ].join("\n"),
+  )
+  writeFile(
+    customController,
+    [
+      'const server = require("server")',
+      "server.extend(module.superModule)",
+      'server.prepend("Show", authorizeCustomer)',
+      "module.exports = server.exports()",
+    ].join("\n"),
+  )
+
+  const result = getProjectGraphDiff({
+    cwd: projectDirectory,
+    cartridgesDir: "cartridges",
+    cartridgePath: "app_base",
+    comparisonCartridgePath: "app_custom:app_base",
+  })
+
+  expect(result.baseline.cartridgeOrder).toEqual([
+    path.join(projectDirectory, "cartridges", "app_base"),
+  ])
+  expect(result.comparison.cartridgeOrder).toEqual([
+    path.join(projectDirectory, "cartridges", "app_custom"),
+    path.join(projectDirectory, "cartridges", "app_base"),
+  ])
+  expect(result.nodes.added.map((node) => node.label)).toEqual(
+    expect.arrayContaining([
+      "app_custom",
+      "app_custom/cartridge/controllers/Product.js",
+      "authorizeCustomer",
+    ]),
+  )
+  expect(result.edges.added).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ kind: "precedes" }),
+      expect.objectContaining({ kind: "prepends" }),
+      expect.objectContaining({ kind: "super-module" }),
+    ]),
+  )
 })
 
 test("impact follows the process relationships of a project file", () => {

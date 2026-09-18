@@ -75,6 +75,7 @@ Build a project relationship graph for JSON, text, or Graphviz consumers:
 ```ts
 import {
   createSfccProjectGraph,
+  diffSfccProjectGraphs,
   filterSfccProjectGraph,
 } from "@commerce-klaus/sfcc-module-resolver"
 
@@ -87,6 +88,12 @@ const productRouteGraph = filterSfccProjectGraph(graph, {
   focus: "Product-Show",
   direction: "dependencies",
 })
+
+const comparisonGraph = createSfccProjectGraph({
+  cartridgesDir: "cartridges",
+  cartridgePath: ["app_campaign", "app_custom", "app_storefront_base"],
+})
+const graphDiff = diffSfccProjectGraphs(graph, comparisonGraph)
 ```
 
 The graph links SFRA controllers to statically named `server.get()`,
@@ -99,6 +106,9 @@ path represented as the request entry point.
 `filterSfccProjectGraph()` matches node IDs, labels, and paths
 case-insensitively. It follows outgoing dependencies by default and supports
 `dependents` or `both` traversal with an optional maximum depth.
+`diffSfccProjectGraphs()` compares two deterministic graphs and reports added,
+removed, and changed nodes and relationships while retaining both source
+graphs for structured consumers.
 
 ## Documentation
 

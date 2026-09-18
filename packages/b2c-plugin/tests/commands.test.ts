@@ -156,12 +156,54 @@ describe("command execution", () => {
       { root: packageDirectory },
     )
 
+    if ("baseline" in result) {
+      throw new Error("Expected a focused project graph")
+    }
     expect(result.nodes.map((node) => node.label)).toEqual([
       "GET Product-Show",
       "authorizeCustomer",
       "renderProduct",
     ])
     expect(result.nodes.some((node) => node.label === "GET Product-Search")).toBe(false)
+  })
+
+  test("graph compares two cartridge paths in JSON mode", async () => {
+    const projectDirectory = createProjectDirectory()
+    for (const cartridge of ["app_base", "app_custom"]) {
+      fs.mkdirSync(path.join(projectDirectory, "cartridges", cartridge, "cartridge"), {
+        recursive: true,
+      })
+    }
+    const output = captureStdout()
+    vi.spyOn(ux, "colorizeJson").mockImplementation((value) => JSON.stringify(value))
+
+    const result = await Graph.run(
+      [
+        "--cartridges-dir",
+        path.join(projectDirectory, "cartridges"),
+        "--cartridge-path",
+        "app_base",
+        "--diff",
+        "app_custom:app_base",
+        "--json",
+      ],
+      { root: packageDirectory },
+    )
+
+    expect("baseline" in result && "comparison" in result).toBe(true)
+    if (!("baseline" in result && "comparison" in result)) {
+      throw new Error("Expected a project graph diff")
+    }
+    expect(result.baseline.cartridgeOrder.map((root) => path.basename(root))).toEqual(["app_base"])
+    expect(result.comparison.cartridgeOrder.map((root) => path.basename(root))).toEqual([
+      "app_custom",
+      "app_base",
+    ])
+    expect(result.nodes.added).toEqual(
+      expect.arrayContaining([expect.objectContaining({ kind: "cartridge", label: "app_custom" })]),
+    )
+    expect(output).toHaveLength(1)
+    expect(JSON.parse(output[0] ?? "")).toEqual(result)
   })
 
   test("graph emits Graphviz DOT without human status text", async () => {

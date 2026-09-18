@@ -3,7 +3,11 @@ import os from "node:os"
 import path from "node:path"
 import { expect, test } from "vite-plus/test"
 
-import { createSfccProjectGraph, filterSfccProjectGraph } from "../src/index.ts"
+import {
+  createSfccProjectGraph,
+  diffSfccProjectGraphs,
+  filterSfccProjectGraph,
+} from "../src/index.ts"
 
 function withTempDir(run) {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-project-graph-test-"))
@@ -103,6 +107,44 @@ test("filterSfccProjectGraph traverses focused relationships by direction and de
       (node) => node.id,
     ),
   ).toEqual(["route:Product:Show", "module:Product.js", "route:Product:Search"])
+})
+
+test("diffSfccProjectGraphs reports deterministic graph changes", () => {
+  const sharedNode = { id: "route:Product:Show", kind: "route", label: "GET Product-Show" }
+  const baseline = {
+    cartridgesDirectory: "/project/cartridges",
+    cartridgeOrder: ["/project/cartridges/app_base"],
+    nodes: [
+      sharedNode,
+      { id: "middleware:render", kind: "middleware", label: "renderProduct" },
+      { id: "hook:example", kind: "hook", label: "example.before" },
+    ],
+    edges: [
+      { from: sharedNode.id, kind: "starts", to: "middleware:render" },
+      { from: "hook:example", kind: "implements", to: "module:hook" },
+    ],
+  }
+  const comparison = {
+    cartridgesDirectory: "/project/cartridges",
+    cartridgeOrder: ["/project/cartridges/app_custom", "/project/cartridges/app_base"],
+    nodes: [
+      sharedNode,
+      { id: "middleware:render", kind: "middleware", label: "renderCustomizedProduct" },
+      { id: "middleware:authorize", kind: "middleware", label: "authorizeCustomer" },
+    ],
+    edges: [
+      { from: sharedNode.id, kind: "starts", to: "middleware:authorize" },
+      { from: "middleware:authorize", kind: "next", to: "middleware:render" },
+    ],
+  }
+
+  const result = diffSfccProjectGraphs(baseline, comparison)
+
+  expect(result.nodes.added).toEqual([comparison.nodes[2]])
+  expect(result.nodes.removed).toEqual([baseline.nodes[2]])
+  expect(result.nodes.changed).toEqual([{ before: baseline.nodes[1], after: comparison.nodes[1] }])
+  expect(result.edges.added).toEqual(comparison.edges)
+  expect(result.edges.removed).toEqual(baseline.edges)
 })
 
 test("createSfccProjectGraph maps contracts and supports a focused module graph", () => {
