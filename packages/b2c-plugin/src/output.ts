@@ -2,7 +2,13 @@ import path from "node:path"
 
 import type { ExplainResult } from "./commands/klaus/explain.js"
 import type { ResolveResult } from "./commands/klaus/resolve.js"
-import type { DoctorResult, ProjectGraph, ProjectInspection, ProjectValidation } from "./project.js"
+import type {
+  DoctorResult,
+  ProjectGraph,
+  ProjectImpact,
+  ProjectInspection,
+  ProjectValidation,
+} from "./project.js"
 
 export type OutputStyle = "dim" | "green" | "red" | "yellow"
 export type Colorize = (style: OutputStyle, text: string) => string
@@ -67,6 +73,30 @@ export function renderProjectGraph(
     lines.push(`  ${source} ${colorize("dim", `--${edge.kind}-->`)} ${target}`)
   }
   lines.push(`${colorize("green", "DONE")}: Project graph generated.`)
+
+  return lines.join("\n")
+}
+
+export function renderProjectImpact(
+  result: ProjectImpact,
+  currentDirectory: string,
+  colorize: Colorize,
+): string {
+  const lines = [
+    `Analyzing impact of ${colorize("dim", displayPath(result.file, currentDirectory))}`,
+    `Nodes: ${formatResultCount(result.nodes.length, "node", "none found", colorize)}`,
+    ...result.nodes.map(
+      (node) => `  ${node.kind}: ${node.label}${node.path === result.file ? " (source)" : ""}`,
+    ),
+    `Relationships: ${formatResultCount(result.edges.length, "edge", "none found", colorize)}`,
+  ]
+  const nodesById = new Map(result.nodes.map((node) => [node.id, node]))
+  for (const edge of result.edges) {
+    const source = nodesById.get(edge.from)?.label ?? edge.from
+    const target = nodesById.get(edge.to)?.label ?? edge.to
+    lines.push(`  ${source} ${colorize("dim", `--${edge.kind}-->`)} ${target}`)
+  }
+  lines.push(`${colorize("green", "DONE")}: Impact analysis completed.`)
 
   return lines.join("\n")
 }

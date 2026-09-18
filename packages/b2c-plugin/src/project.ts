@@ -35,6 +35,34 @@ export type ProjectValidation = SfccProjectValidationResult & {
 
 export type ProjectGraph = SfccProjectGraph
 export type ProjectGraphDirection = SfccProjectGraphDirection
+export type ProjectImpact = ProjectGraph & { file: string }
+
+export function getProjectImpact(
+  options: ProjectOptions & { depth?: number; file: string },
+): ProjectImpact {
+  const file = path.resolve(options.cwd, options.file)
+  if (!fs.existsSync(file) || !fs.statSync(file).isFile()) {
+    throw new Error(`File does not exist: ${file}`)
+  }
+
+  const graph = createSfccProjectGraph({
+    cartridgesDir: options.cartridgesDir,
+    cwd: options.cwd,
+    cartridgePath: options.cartridgePath?.split(":"),
+  })
+  if (!graph.nodes.some((node) => node.path === file)) {
+    throw new Error(`File is not represented in the project graph: ${file}`)
+  }
+
+  return {
+    ...filterSfccProjectGraph(graph, {
+      focus: file,
+      depth: options.depth,
+      direction: "both",
+    }),
+    file,
+  }
+}
 
 export function getProjectGraph(
   options: ProjectOptions & {

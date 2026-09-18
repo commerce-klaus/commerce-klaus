@@ -8,6 +8,7 @@ import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 import Doctor from "../src/commands/klaus/doctor.ts"
 import Explain from "../src/commands/klaus/explain.ts"
 import Graph from "../src/commands/klaus/graph.ts"
+import Impact from "../src/commands/klaus/impact.ts"
 import Inspect from "../src/commands/klaus/inspect.ts"
 import Resolve from "../src/commands/klaus/resolve.ts"
 import Validate from "../src/commands/klaus/validate.ts"
@@ -44,7 +45,15 @@ test("registers source files for every new pattern command", () => {
   ) as { oclif?: { commands?: { strategy?: string; target?: string } } }
 
   expect(manifest.oclif?.commands).toEqual({ strategy: "pattern", target: "./dist/commands" })
-  for (const command of ["doctor", "explain", "graph", "inspect", "resolve", "validate"]) {
+  for (const command of [
+    "doctor",
+    "explain",
+    "graph",
+    "impact",
+    "inspect",
+    "resolve",
+    "validate",
+  ]) {
     expect(
       fs.existsSync(path.join(packageDirectory, "src", "commands", "klaus", `${command}.ts`)),
     ).toBe(true)
@@ -55,6 +64,7 @@ test("all project commands support B2C CLI JSON output", () => {
   expect(Doctor.enableJsonFlag).toBe(true)
   expect(Explain.enableJsonFlag).toBe(true)
   expect(Graph.enableJsonFlag).toBe(true)
+  expect(Impact.enableJsonFlag).toBe(true)
   expect(Inspect.enableJsonFlag).toBe(true)
   expect(Resolve.enableJsonFlag).toBe(true)
   expect(Validate.enableJsonFlag).toBe(true)
@@ -169,6 +179,43 @@ describe("command execution", () => {
     expect(output).toHaveLength(1)
     expect(output[0]).toMatch(/^digraph sfcc_project \{/u)
     expect(output[0]).not.toContain("Project graph generated")
+  })
+
+  test("impact emits affected processes for a project file in JSON mode", async () => {
+    const projectDirectory = createProjectDirectory()
+    const controllerPath = path.join(
+      projectDirectory,
+      "cartridges",
+      "app_custom",
+      "cartridge",
+      "controllers",
+      "Product.js",
+    )
+    fs.mkdirSync(path.dirname(controllerPath), { recursive: true })
+    fs.writeFileSync(
+      controllerPath,
+      [
+        'const server = require("server")',
+        'server.get("Show", renderProduct)',
+        "module.exports = server.exports()",
+      ].join("\n"),
+    )
+    const output = captureStdout()
+    vi.spyOn(ux, "colorizeJson").mockImplementation((value) => JSON.stringify(value))
+
+    const result = await Impact.run(
+      [controllerPath, "--cartridges-dir", path.join(projectDirectory, "cartridges"), "--json"],
+      { root: packageDirectory },
+    )
+
+    expect(result.file).toBe(controllerPath)
+    expect(result.nodes.map((node) => node.label)).toEqual([
+      "app_custom/cartridge/controllers/Product.js",
+      "GET Product-Show",
+      "renderProduct",
+    ])
+    expect(output).toHaveLength(1)
+    expect(JSON.parse(output[0] ?? "")).toEqual(result)
   })
 
   test("graph emits Mermaid without human status text", async () => {

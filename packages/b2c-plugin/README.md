@@ -132,6 +132,19 @@ case-insensitively, then follows outgoing dependencies. Use `--depth` to limit
 the traversal or `--direction dependents|both` to include incoming
 relationships. `--focus` and `--module` are mutually exclusive.
 
+## Analyze file impact
+
+```bash
+b2c klaus impact cartridges/app_custom/cartridge/controllers/Product.js
+b2c klaus impact cartridges/app_custom/cartridge/scripts/hooks/order.js --depth 2
+```
+
+The command finds the graph nodes represented by a project file and follows
+relationships in both directions to show the affected SFRA routes, middleware,
+hooks, job steps, Custom APIs, schemas, and Super Modules. Use `--depth` to
+limit the traversal or `--json` for structured output. Files without known
+project graph relationships produce an explicit error.
+
 ## Resolve a module
 
 ```bash

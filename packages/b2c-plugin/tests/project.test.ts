@@ -8,6 +8,7 @@ import { resolveProjectModule } from "../src/commands/klaus/resolve.ts"
 import {
   diagnoseProject,
   getProjectGraph,
+  getProjectImpact,
   getProjectInspection,
   validateProject,
 } from "../src/project.ts"
@@ -178,6 +179,57 @@ test("graph preserves the configured cartridge precedence", () => {
     "app_base",
   ])
   expect(result.edges).toContainEqual(expect.objectContaining({ kind: "precedes" }))
+})
+
+test("impact follows the process relationships of a project file", () => {
+  const projectDirectory = createProjectDirectory()
+  const productController = path.join(
+    projectDirectory,
+    "cartridges",
+    "app_custom",
+    "cartridge",
+    "controllers",
+    "Product.js",
+  )
+  const searchController = path.join(
+    projectDirectory,
+    "cartridges",
+    "app_custom",
+    "cartridge",
+    "controllers",
+    "Search.js",
+  )
+  writeFile(
+    productController,
+    [
+      'const server = require("server")',
+      'server.get("Show", authorizeCustomer, renderProduct)',
+      "module.exports = server.exports()",
+    ].join("\n"),
+  )
+  writeFile(
+    searchController,
+    [
+      'const server = require("server")',
+      'server.get("Show", renderSearch)',
+      "module.exports = server.exports()",
+    ].join("\n"),
+  )
+
+  const result = getProjectImpact({
+    cwd: projectDirectory,
+    cartridgesDir: "cartridges",
+    file: path.relative(projectDirectory, productController),
+  })
+
+  expect(result.file).toBe(productController)
+  expect(result.nodes.map((node) => node.label)).toEqual([
+    "app_custom/cartridge/controllers/Product.js",
+    "GET Product-Show",
+    "authorizeCustomer",
+    "renderProduct",
+  ])
+  expect(result.nodes.some((node) => node.label === "GET Search-Show")).toBe(false)
 })
 
 describe("diagnoseProject", () => {

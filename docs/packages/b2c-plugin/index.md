@@ -407,6 +407,41 @@ path before reaching the operation, implementation script, and schema.
 
 <!--@include: ../../_partials/project-graph.generated.md-->
 
+## Analyze file impact
+
+Find the SFCC processes connected to a changed project file:
+
+::: code-group
+
+```bash [pnpm]
+pnpm exec b2c klaus impact cartridges/app_custom/cartridge/controllers/Product.js
+pnpm exec b2c klaus impact cartridges/app_custom/cartridge/scripts/hooks/order.js --depth 2
+```
+
+```bash [yarn]
+yarn exec b2c klaus impact cartridges/app_custom/cartridge/controllers/Product.js
+yarn exec b2c klaus impact cartridges/app_custom/cartridge/scripts/hooks/order.js --depth 2
+```
+
+```bash [npm]
+npm exec -- b2c klaus impact cartridges/app_custom/cartridge/controllers/Product.js
+npm exec -- b2c klaus impact cartridges/app_custom/cartridge/scripts/hooks/order.js --depth 2
+```
+
+```bash [Vite+]
+vp exec b2c klaus impact cartridges/app_custom/cartridge/controllers/Product.js
+vp exec b2c klaus impact cartridges/app_custom/cartridge/scripts/hooks/order.js --depth 2
+```
+
+:::
+
+The command resolves the file from the current working directory and traverses
+its project graph relationships in both directions. The result includes
+affected SFRA routes and middleware, hooks, job steps, Custom APIs, schemas,
+and Super Modules represented in the graph. Use `--depth <number>` to limit the
+traversal or `--json` for structured output. A missing file or a file without
+known project graph relationships produces an explicit error.
+
 ## Validate project contracts
 
 Validate hook registrations, job step definitions, and Custom API contracts:

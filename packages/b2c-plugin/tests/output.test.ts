@@ -3,6 +3,7 @@ import { describe, expect, test } from "vite-plus/test"
 import {
   renderDoctor,
   renderInspection,
+  renderProjectImpact,
   renderProjectGraph,
   renderProjectGraphDot,
   renderProjectGraphMermaid,
@@ -91,6 +92,43 @@ describe("renderProjectGraph", () => {
     expect(output).toContain("n0 -->|precedes| n1")
     expect(output).toContain("classDef cartridge fill:#d9e8f5")
     expect(output).not.toContain("cartridge:/project")
+  })
+})
+
+describe("renderProjectImpact", () => {
+  test("renders source nodes and affected relationships", () => {
+    const output = renderProjectImpact(
+      {
+        file: "/project/cartridges/app_custom/cartridge/controllers/Product.js",
+        cartridgesDirectory: "/project/cartridges",
+        cartridgeOrder: ["/project/cartridges/app_custom"],
+        nodes: [
+          {
+            id: "module:Product.js",
+            kind: "module",
+            label: "app_custom/cartridge/controllers/Product.js",
+            path: "/project/cartridges/app_custom/cartridge/controllers/Product.js",
+          },
+          { id: "route:Product:Show", kind: "route", label: "GET Product-Show" },
+        ],
+        edges: [
+          {
+            from: "module:Product.js",
+            kind: "registers",
+            to: "route:Product:Show",
+          },
+        ],
+      },
+      "/project",
+      colorize,
+    )
+
+    expect(output).toContain(
+      "Analyzing impact of <dim>cartridges/app_custom/cartridge/controllers/Product.js</dim>",
+    )
+    expect(output).toContain("module: app_custom/cartridge/controllers/Product.js (source)")
+    expect(output).toContain("Product.js <dim>--registers--></dim> GET Product-Show")
+    expect(output).toContain("<green>DONE</green>: Impact analysis completed.")
   })
 })
 
