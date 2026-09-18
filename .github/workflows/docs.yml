@@ -40,7 +40,10 @@ jobs:
         uses: actions/configure-pages@v6
 
       - name: Install dependencies
-        run: vp install --frozen-lockfile -- --link-workspace-packages
+        run: vp install --frozen-lockfile --ignore-scripts -- --link-workspace-packages
+
+      - name: Bootstrap workspace packages
+        run: vp run --no-cache --filter "./packages/*" build
 
       - name: Build documentation
         run: vp run docs:build
