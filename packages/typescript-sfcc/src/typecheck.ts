@@ -1,4 +1,5 @@
 import { resolveCommerceKlausConfig } from "@commerce-klaus/config"
+import { createRequire } from "node:module"
 import path from "node:path"
 import ts from "typescript"
 
@@ -21,28 +22,56 @@ export interface TypecheckOptions {
   configFile?: string | false
 }
 
-export function createFormatHost(currentDirectory: string): ts.FormatDiagnosticsHost {
+type TypeScript = typeof ts
+
+export function resolveTypeScript(currentDirectory: string): TypeScript {
+  const require = createRequire(path.join(path.resolve(currentDirectory), "package.json"))
+
+  try {
+    return require("typescript") as TypeScript
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "MODULE_NOT_FOUND"
+    ) {
+      return ts
+    }
+
+    throw error
+  }
+}
+
+export function createFormatHost(
+  currentDirectory: string,
+  typescript: TypeScript = ts,
+): ts.FormatDiagnosticsHost {
   return {
     getCanonicalFileName: (fileName) => fileName,
     getCurrentDirectory: () => currentDirectory,
-    getNewLine: () => ts.sys.newLine,
+    getNewLine: () => typescript.sys.newLine,
   }
 }
 
 export function parseConfigFile(
   configPath: string,
   currentDirectory: string,
+  typescript: TypeScript = ts,
 ): ts.ParsedCommandLine {
   const configParseHost: ts.ParseConfigFileHost = {
-    ...ts.sys,
+    ...typescript.sys,
     onUnRecoverableConfigFileDiagnostic: (diagnostic) => {
       throw new Error(
-        ts.formatDiagnosticsWithColorAndContext([diagnostic], createFormatHost(currentDirectory)),
+        typescript.formatDiagnosticsWithColorAndContext(
+          [diagnostic],
+          createFormatHost(currentDirectory, typescript),
+        ),
       )
     },
   }
 
-  const parsedConfig = ts.getParsedCommandLineOfConfigFile(configPath, {}, configParseHost)
+  const parsedConfig = typescript.getParsedCommandLineOfConfigFile(configPath, {}, configParseHost)
   if (!parsedConfig) {
     throw new Error(`Could not parse TypeScript config at ${configPath}`)
   }
@@ -54,8 +83,9 @@ export function runProjectTypecheck(
   configPath: string,
   cartridgeRoots: string[],
   currentDirectory: string,
+  typescript: TypeScript = ts,
 ): readonly ts.Diagnostic[] {
-  const parsedConfig = parseConfigFile(configPath, currentDirectory)
+  const parsedConfig = parseConfigFile(configPath, currentDirectory, typescript)
   const existingPaths = parsedConfig.options.paths ?? {}
   parsedConfig.options.paths = {
     ...existingPaths,
@@ -64,17 +94,17 @@ export function runProjectTypecheck(
 
   const configFilePath = parsedConfig.options.configFilePath
 
-  const moduleResolutionCache = ts.createModuleResolutionCache(
+  const moduleResolutionCache = typescript.createModuleResolutionCache(
     typeof configFilePath === "string" ? path.dirname(configFilePath) : currentDirectory,
     (fileName) => fileName,
     parsedConfig.options,
   )
-  const host = ts.createCompilerHost(parsedConfig.options, true)
+  const host = typescript.createCompilerHost(parsedConfig.options, true)
   const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
   const hostReadFile = host.readFile?.bind(host)
   const originalReadFile: ts.CompilerHost["readFile"] = hostReadFile
     ? (fileName) => hostReadFile(fileName)
-    : (fileName) => ts.sys.readFile(fileName)
+    : (fileName) => typescript.sys.readFile(fileName)
 
   host.readFile = (fileName) => {
     const fileContent = originalReadFile(fileName)
@@ -97,12 +127,12 @@ export function runProjectTypecheck(
       if (sfccResolved) {
         return {
           resolvedFileName: sfccResolved,
-          extension: pathToExtension(sfccResolved),
+          extension: pathToExtension(sfccResolved, typescript),
           isExternalLibraryImport: false,
         }
       }
 
-      return ts.resolveModuleName(
+      return typescript.resolveModuleName(
         moduleName,
         containingFile,
         options ?? parsedConfig.options,
@@ -131,14 +161,14 @@ export function runProjectTypecheck(
         return {
           resolvedModule: {
             resolvedFileName: sfccResolved,
-            extension: pathToExtension(sfccResolved),
+            extension: pathToExtension(sfccResolved, typescript),
             isExternalLibraryImport: false,
           },
         }
       }
 
       return {
-        resolvedModule: ts.resolveModuleName(
+        resolvedModule: typescript.resolveModuleName(
           moduleName,
           containingFile,
           options ?? parsedConfig.options,
@@ -150,14 +180,14 @@ export function runProjectTypecheck(
     })
   }
 
-  const program = ts.createProgram({
+  const program = typescript.createProgram({
     options: parsedConfig.options,
     rootNames: withGeneratedTypeFiles(parsedConfig.fileNames, configPath, cartridgeRoots),
     projectReferences: parsedConfig.projectReferences,
     host,
   })
 
-  return ts.getPreEmitDiagnostics(program)
+  return typescript.getPreEmitDiagnostics(program)
 }
 
 function withGeneratedTypeFiles(
@@ -178,6 +208,7 @@ function withGeneratedTypeFiles(
 
 export function typecheckSolutionProjects(options: TypecheckOptions): ts.Diagnostic[] {
   const cwd = path.resolve(options.cwd ?? process.cwd())
+  const typescript = resolveTypeScript(cwd)
   const centralConfig = resolveCommerceKlausConfig({
     cwd,
     configFile: options.configFile,
@@ -199,29 +230,36 @@ export function typecheckSolutionProjects(options: TypecheckOptions): ts.Diagnos
   const currentDirectory = path.dirname(resolvedCartridgesDir)
 
   const typecheckDiagnostics = configPaths.flatMap((configPath) =>
-    runProjectTypecheck(configPath, cartridgeRoots, currentDirectory),
+    runProjectTypecheck(configPath, cartridgeRoots, currentDirectory, typescript),
   )
 
   return [...typecheckDiagnostics, ...validateHookRegistrations(cartridgeRoots)]
 }
 
-export function formatDiagnostics(diagnostics: ts.Diagnostic[], currentDirectory: string): string {
-  return ts.formatDiagnosticsWithColorAndContext(diagnostics, createFormatHost(currentDirectory))
+export function formatDiagnostics(
+  diagnostics: ts.Diagnostic[],
+  currentDirectory: string,
+  typescript: TypeScript = resolveTypeScript(currentDirectory),
+): string {
+  return typescript.formatDiagnosticsWithColorAndContext(
+    diagnostics,
+    createFormatHost(currentDirectory, typescript),
+  )
 }
 
-function pathToExtension(filePath: string): ts.Extension {
+function pathToExtension(filePath: string, typescript: TypeScript): ts.Extension {
   if (filePath.endsWith(".d.ts")) {
-    return ts.Extension.Dts
+    return typescript.Extension.Dts
   }
   if (filePath.endsWith(".tsx")) {
-    return ts.Extension.Tsx
+    return typescript.Extension.Tsx
   }
   if (filePath.endsWith(".ts")) {
-    return ts.Extension.Ts
+    return typescript.Extension.Ts
   }
   if (filePath.endsWith(".jsx")) {
-    return ts.Extension.Jsx
+    return typescript.Extension.Jsx
   }
 
-  return ts.Extension.Js
+  return typescript.Extension.Js
 }

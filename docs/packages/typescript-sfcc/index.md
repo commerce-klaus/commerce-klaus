@@ -381,6 +381,10 @@ Both commands use oclif, matching the B2C CLI plugin commands for flag parsing,
 help, colored terminal output, errors, and structured `--json` output. Run either
 command with `--help` to see its complete option reference.
 
+The typecheck loads the project's installed TypeScript compiler, including when
+it runs through the B2C CLI plugin. This keeps compiler options and diagnostics
+aligned with the TypeScript version declared by the project.
+
 Default behavior (no flags):
 
 - searches from the current working directory upwards for `cartridges/jsconfig.json`

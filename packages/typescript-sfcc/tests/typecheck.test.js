@@ -9,6 +9,7 @@ import { getAdditionalTypeFiles } from "../src/shared.ts"
 import {
   formatDiagnostics,
   parseConfigFile,
+  resolveTypeScript,
   runProjectTypecheck,
   typecheckSolutionProjects,
 } from "../src/typecheck.ts"
@@ -42,6 +43,24 @@ function withEnvUnset(key, run) {
 function writeJson(filePath, content) {
   fs.writeFileSync(filePath, `${JSON.stringify(content, null, 2)}\n`)
 }
+
+test("resolveTypeScript loads TypeScript from the consumer project", () => {
+  withTempDir((tempDir) => {
+    const typescriptDirectory = path.join(tempDir, "node_modules", "typescript")
+    fs.mkdirSync(typescriptDirectory, { recursive: true })
+    writeJson(path.join(typescriptDirectory, "package.json"), {
+      main: "index.cjs",
+      name: "typescript",
+      version: "99.0.0-project",
+    })
+    fs.writeFileSync(
+      path.join(typescriptDirectory, "index.cjs"),
+      'module.exports = { version: "99.0.0-project" }\n',
+    )
+
+    expect(resolveTypeScript(tempDir).version).toBe("99.0.0-project")
+  })
+})
 
 test("getAdditionalTypeFiles includes generated, cartridges-level, and per-cartridge declarations", () => {
   const workspaceRoot = "/workspace"

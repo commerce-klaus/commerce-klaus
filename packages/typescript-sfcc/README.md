@@ -66,7 +66,8 @@ vp exec sfcc-ts-typecheck
 
 Both standalone commands use the same oclif command implementation as the B2C
 CLI plugin, including `--help`, `--json`, consistent errors, and color-aware
-terminal output.
+terminal output. Typechecks use the TypeScript compiler installed by the project,
+including when invoked through the B2C CLI plugin.
 
 The package API also exposes `cleanGeneratedTypes()` for removing only the four
 project-specific `sfcc-*.generated.d.ts` outputs managed by Commerce Klaus. It
