@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.11.0
+
+### Minor Changes
+
+- d4595b9: Add `@commerce-klaus/config` with shared `commerce-klaus.config.ts` or `.js`
+  project configuration and package-level or B2C CLI overrides for cartridge and
+  site resolution.
+
+### Patch Changes
+
+- Updated dependencies [4c7c232]
+- Updated dependencies [3f2e99a]
+- Updated dependencies [2e8bc10]
+- Updated dependencies [3c7ce68]
+- Updated dependencies [bca10ca]
+- Updated dependencies [d4595b9]
+- Updated dependencies [cc29c66]
+  - @commerce-klaus/sfcc-module-resolver@1.8.0
+  - @commerce-klaus/config@1.0.0
+
 ## 1.10.0
 
 ### Minor Changes

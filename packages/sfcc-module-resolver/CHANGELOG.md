@@ -1,5 +1,36 @@
 # @commerce-klaus/sfcc-module-resolver
 
+## 1.8.0
+
+### Minor Changes
+
+- 4c7c232: Add deterministic SFCC project graphs for cartridge precedence, super modules,
+  hooks, job steps, and Custom APIs, exposed through `b2c klaus graph` with text,
+  JSON, focused module, and Graphviz DOT output.
+- 3f2e99a: Compare project graphs for two effective cartridge paths and report added,
+  removed, and changed nodes and relationships in text or JSON format.
+- 2e8bc10: Add `b2c klaus graph --format mermaid` for embedding SFCC project relationship
+  graphs in Markdown and documentation. Project graphs now include statically
+  declared SFRA controller routes and their prepend, append, and replace
+  relationships.
+- 3c7ce68: Add `b2c klaus explain` and a shared resolution trace API that report the
+  effective cartridge order, containing cartridge, every attempted file path,
+  the selected match, and `module.superModule` fallback lookup.
+- bca10ca: Add structured validation for hook registrations, job step definitions, and Custom API contracts, exposed through the new `b2c klaus validate` command.
+- d4595b9: Add `@commerce-klaus/config` with shared `commerce-klaus.config.ts` or `.js`
+  project configuration and package-level or B2C CLI overrides for cartridge and
+  site resolution.
+- cc29c66: Show the effective SFRA middleware execution order in project graphs, including
+  inherited prepend, append, and replacement behavior. Custom API nodes now also
+  link their HTTP method and path to the operation, resolved implementation
+  script, and OpenAPI schema. Project graphs can be focused on matching node IDs,
+  labels, or paths and traversed by dependency direction and depth.
+
+### Patch Changes
+
+- Updated dependencies [d4595b9]
+  - @commerce-klaus/config@1.0.0
+
 ## 1.7.0
 
 ### Minor Changes
