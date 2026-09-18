@@ -28,11 +28,8 @@ jobs:
       - name: Install dependencies
         run: vp install --frozen-lockfile -- --link-workspace-packages
 
-      - name: Bootstrap shared resolver package
-        run: cd packages/sfcc-module-resolver && vp pack
-
-      - name: Bootstrap SFCC test runtime package
-        run: cd packages/sfcc-test-runtime && vp pack
+      - name: Bootstrap workspace packages
+        run: vp run --no-cache --filter "./packages/*" build
 
       - name: Create release PR or publish
         id: changesets
