@@ -22,21 +22,16 @@ afterEach(() => {
   }
 })
 
-test("uses the project's TypeScript SFCC package as a peer", () => {
+test("requires a TypeScript SFCC version with the B2C plugin API as a peer", () => {
   const manifest = JSON.parse(
     fs.readFileSync(path.join(packageDirectory, "package.json"), "utf8"),
   ) as {
     dependencies?: Record<string, string>
     peerDependencies?: Record<string, string>
   }
-  const typescriptSfccManifest = JSON.parse(
-    fs.readFileSync(path.join(packageDirectory, "../typescript-sfcc/package.json"), "utf8"),
-  ) as { version: string }
 
   expect(manifest.dependencies?.["@commerce-klaus/typescript-sfcc"]).toBeUndefined()
-  expect(manifest.peerDependencies?.["@commerce-klaus/typescript-sfcc"]).toBe(
-    `^${typescriptSfccManifest.version}`,
-  )
+  expect(manifest.peerDependencies?.["@commerce-klaus/typescript-sfcc"]).toBe("^1.7.1")
 })
 
 test("type commands support B2C CLI JSON output", () => {

@@ -33,3 +33,7 @@ test("oclif commands are available to CLI adapters", () => {
   })
   expect(packageManifest.dependencies["@oclif/core"]).toMatch(/^\^4\./u)
 })
+
+test("supports TypeScript 5.5 through 6", () => {
+  expect(packageManifest.peerDependencies.typescript).toBe(">=5.5.0 <7")
+})

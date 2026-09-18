@@ -90,7 +90,7 @@
   },
   "peerDependencies": {
     "@salesforce/b2c-cli": ">=1.18.0",
-    "typescript": ">=5.5.0"
+    "typescript": ">=5.5.0 <7"
   },
   "packageManager": "pnpm@12.4.2"
 }
