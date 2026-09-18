@@ -66,6 +66,19 @@
   font-size: 0.88em;
 }
 
+.vp-doc p:has(> a[href^="https://www.npmjs.com/package/"]) {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 4px;
+}
+
+.vp-doc p:has(> a[href^="https://www.npmjs.com/package/"]) img {
+  display: inline-block;
+  height: 20px;
+  margin: 0;
+}
+
 .vp-doc .vp-code-block-with-title {
   margin: 16px -24px;
 }
