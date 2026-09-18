@@ -303,4 +303,4 @@ Our goal with Commerce Klaus is to make the platform easier to work with in a mo
 
 Developers should spend their test effort describing business scenarios and intentional boundaries. They should not need to mock `require()` resolution simply because the local JavaScript runtime has never heard of a cartridge path.
 
-`vitest-sfcc` is still pre-1.0, and real storefronts will continue to reveal cases that a focused test runtime should support more clearly. Ideas, bug reports, and pull requests are welcome. The best next improvements will come from the places where SFCC projects still have to maintain repetitive test infrastructure of their own.
+~~`vitest-sfcc` is still pre-1.0~~ **Update (September 2026): `vitest-sfcc` has reached `1.0.0`.** Real storefronts will continue to reveal cases that a focused test runtime should support more clearly. Ideas, bug reports, and pull requests are welcome. The best next improvements will come from the places where SFCC projects still have to maintain repetitive test infrastructure of their own.

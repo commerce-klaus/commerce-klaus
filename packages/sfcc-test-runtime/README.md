@@ -4,9 +4,6 @@
 
 Framework-independent SFCC runtime modules and dependency mocking for local tests.
 
-> [!IMPORTANT]
-> This package is currently a pre-1.0 (`0.x`) release. Its API is usable but not yet considered stable, and minor releases may contain breaking changes until `1.0.0`.
-
 ## Highlights
 
 - Replaces module identifiers globally or one exact resolved file

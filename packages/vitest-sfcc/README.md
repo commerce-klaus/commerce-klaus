@@ -4,9 +4,6 @@
 
 Cartridge-aware SFCC runtime and dependency mocking for Vitest.
 
-> [!IMPORTANT]
-> This package is currently a pre-1.0 (`0.x`) release. Its API is usable but not yet considered stable, and minor releases may contain breaking changes until `1.0.0`.
-
 ## Highlights
 
 - Resolves `dw/*`, `*/`, `~/`, cartridge aliases, relative modules, and `module.superModule`

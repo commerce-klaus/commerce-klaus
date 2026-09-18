@@ -4,10 +4,6 @@
 
 Framework-independent SFCC runtime modules and dependency mocking for local tests.
 
-::: warning Pre-1.0 package
-This package is currently published as a `0.x` release. Its API is usable but not yet considered stable; minor releases may contain breaking changes until `1.0.0`. Review the changelog when upgrading.
-:::
-
 ## TL;DR
 
 Most Vitest projects should install [`@commerce-klaus/vitest-sfcc`](../vitest-sfcc/) and access runtime APIs through `@commerce-klaus/vitest-sfcc/runtime`. Install this package directly only when using the runtime without Vitest or building another test-runner integration.

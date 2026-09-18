@@ -4,10 +4,6 @@
 
 Cartridge-aware SFCC runtime and dependency mocking for Vitest. It provides a modern alternative to `proxyquire` for statically analyzable cartridge modules.
 
-::: warning Pre-1.0 package
-This package is currently published as a `0.x` release. Its API is usable but not yet considered stable; minor releases may contain breaking changes until `1.0.0`. Review the changelog when upgrading.
-:::
-
 ## TL;DR
 
 ```ts{2,5-9} [vitest.config.ts]
