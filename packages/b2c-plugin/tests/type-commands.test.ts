@@ -29,9 +29,14 @@ test("uses the project's TypeScript SFCC package as a peer", () => {
     dependencies?: Record<string, string>
     peerDependencies?: Record<string, string>
   }
+  const typescriptSfccManifest = JSON.parse(
+    fs.readFileSync(path.join(packageDirectory, "../typescript-sfcc/package.json"), "utf8"),
+  ) as { version: string }
 
   expect(manifest.dependencies?.["@commerce-klaus/typescript-sfcc"]).toBeUndefined()
-  expect(manifest.peerDependencies?.["@commerce-klaus/typescript-sfcc"]).toBe("^1.6.1")
+  expect(manifest.peerDependencies?.["@commerce-klaus/typescript-sfcc"]).toBe(
+    `^${typescriptSfccManifest.version}`,
+  )
 })
 
 test("type commands support B2C CLI JSON output", () => {
