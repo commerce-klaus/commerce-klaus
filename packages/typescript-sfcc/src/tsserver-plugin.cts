@@ -3,6 +3,7 @@ const {
   findCartridgesDir,
   getAdditionalTypeFiles,
   inferCartridgeOrder,
+  resolveCommerceKlausConfig,
   resolveWorkspaceRootFromProjectDir,
   transformSuperModuleSource,
 } = require("./shared") as typeof import("./shared.ts")
@@ -37,8 +38,11 @@ function init(modules: { typescript: typeof import("typescript") }) {
     languageService: unknown
   }) {
     const projectDir = info.project.getCurrentDirectory()
-    const cartridgesDir = findCartridgesDir(projectDir)
-    const cartridgeRoots = cartridgesDir ? inferCartridgeOrder(cartridgesDir) : []
+    const projectConfig = resolveCommerceKlausConfig({ cwd: projectDir })
+    const cartridgesDir = projectConfig.cartridgesDir ?? findCartridgesDir(projectDir)
+    const cartridgeRoots = cartridgesDir
+      ? inferCartridgeOrder(cartridgesDir, projectConfig.solutionConfigPath, projectConfig)
+      : []
     const workspaceRoot = resolveWorkspaceRootFromProjectDir(projectDir)
     const additionalTypeFiles = getAdditionalTypeFiles(
       { workspaceRoot, cartridgesDir: cartridgesDir ?? projectDir, cartridgeRoots },

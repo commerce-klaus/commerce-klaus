@@ -35,6 +35,8 @@ Type checking complements the ESLint compatibility rules. Types catch mismatched
 
 For the broader modernization strategy, see [Modernize SFCC JavaScript with confidence](/blog/modernize-sfcc-javascript-with-confidence).
 
+<!--@include: ../../_partials/project-configuration.md-->
+
 ## Install
 
 ::: code-group

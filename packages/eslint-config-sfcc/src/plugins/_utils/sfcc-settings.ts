@@ -1,5 +1,7 @@
 import type { Rule } from "eslint"
 
+import { resolveCommerceKlausConfig } from "@commerce-klaus/config"
+
 import type { SfccSettings } from "../../types/sfcc-settings.js"
 
 type RuleContextWithSettings = Rule.RuleContext & {
@@ -7,7 +9,26 @@ type RuleContextWithSettings = Rule.RuleContext & {
 }
 
 export function getSfccSettings(context: Rule.RuleContext): SfccSettings {
-  return (context as RuleContextWithSettings).settings?.sfcc ?? {}
+  const configuredSettings = (context as RuleContextWithSettings).settings?.sfcc ?? {}
+  const cwd =
+    (context as Rule.RuleContext & { cwd?: string }).cwd ??
+    (context as Rule.RuleContext & { getCwd?: () => string }).getCwd?.() ??
+    process.cwd()
+
+  return resolveSfccSettings(configuredSettings, cwd)
+}
+
+export function resolveSfccSettings(
+  configuredSettings: SfccSettings = {},
+  cwd: string = process.cwd(),
+): SfccSettings {
+  const centralConfig = resolveCommerceKlausConfig({
+    cwd,
+    configFile: configuredSettings.configFile,
+    overrides: configuredSettings,
+  })
+
+  return { ...centralConfig, ...configuredSettings }
 }
 
 export function withSfccSettings(

@@ -1,3 +1,4 @@
+import { findCommerceKlausConfig } from "@commerce-klaus/config"
 import { Command, CommandHelp, Flags, loadHelpClass, ux } from "@oclif/core"
 import { spawnSync } from "node:child_process"
 import path from "node:path"
@@ -130,7 +131,14 @@ export class TypecheckCommand extends CommerceKlausCommand {
     }
 
     try {
-      const diagnostics = typecheckSolutionProjects({ solutionConfigPath, cartridgesDir })
+      const diagnostics = typecheckSolutionProjects({
+        solutionConfigPath:
+          flags.project || !findCommerceKlausConfig(currentDirectory)
+            ? solutionConfigPath
+            : undefined,
+        cartridgesDir,
+        cwd: currentDirectory,
+      })
       const formattedDiagnostics = formatDiagnostics(diagnostics, currentDirectory).trimEnd()
 
       if (diagnostics.length > 0) {

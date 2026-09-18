@@ -36,6 +36,7 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
+    "@commerce-klaus/config": "workspace:^",
     "@commerce-klaus/sfcc-module-resolver": "workspace:^",
     "chokidar": "^5.0.0"
   },

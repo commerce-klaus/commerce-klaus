@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@commerce-klaus/b2c-plugin": "workspace:*",
+    "@commerce-klaus/config": "workspace:*",
     "@commerce-klaus/eslint-config-sfcc": "workspace:*",
     "@commerce-klaus/typescript-sfcc": "workspace:*",
     "@commerce-klaus/vitest-sfcc": "workspace:*",

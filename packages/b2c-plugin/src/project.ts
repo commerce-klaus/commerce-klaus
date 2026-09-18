@@ -1,3 +1,4 @@
+import { resolveCommerceKlausConfig } from "@commerce-klaus/config"
 import {
   createSfccProjectGraph,
   diffSfccProjectGraphs,
@@ -18,8 +19,17 @@ import path from "node:path"
 
 export type ProjectOptions = {
   cwd: string
-  cartridgesDir: string
+  cartridgesDir?: string
   cartridgePath?: string
+  configFile?: string | false
+  containingFile?: string
+}
+
+export type ResolvedProjectOptions = {
+  cwd: string
+  cartridgesDirectory: string
+  cartridgeRoots: string[]
+  configuredCartridgePath?: string[]
 }
 
 export type ProjectInspection = {
@@ -40,18 +50,54 @@ export type ProjectGraphDiff = SfccProjectGraphDiff
 export type ProjectGraphDirection = SfccProjectGraphDirection
 export type ProjectImpact = ProjectGraph & { file: string }
 
+export function resolveProjectOptions(options: ProjectOptions): ResolvedProjectOptions {
+  const config = resolveCommerceKlausConfig({
+    cwd: options.cwd,
+    configFile: options.configFile,
+    overrides: {
+      cartridgesDir: options.cartridgesDir,
+      cartridgePath: options.cartridgePath?.split(":"),
+    },
+  })
+  const cartridgesDirectory = resolveCartridgesDir(
+    config.cartridgesDir ?? "cartridges",
+    options.cwd,
+  )
+  const cartridgeRoots = resolveCartridgeRoots({
+    basePath: cartridgesDirectory,
+    cwd: options.cwd,
+    cartridgePath: config.cartridgePath,
+    siteTemplatePath: config.siteTemplatePath,
+    site: config.site,
+    solutionConfigPath: config.solutionConfigPath,
+    envCartridgePath: config.envCartridgePath,
+    configFile: false,
+    containingFile: options.containingFile
+      ? path.resolve(options.cwd, options.containingFile)
+      : undefined,
+  })
+
+  return {
+    cwd: options.cwd,
+    cartridgesDirectory,
+    cartridgeRoots,
+    configuredCartridgePath: config.cartridgePath,
+  }
+}
+
 export function getProjectGraphDiff(
   options: ProjectOptions & { comparisonCartridgePath: string },
 ): ProjectGraphDiff {
+  const project = resolveProjectOptions(options)
   const sharedOptions = {
-    cartridgesDir: options.cartridgesDir,
-    cwd: options.cwd,
+    cartridgesDir: project.cartridgesDirectory,
+    cwd: project.cwd,
   }
 
   return diffSfccProjectGraphs(
     createSfccProjectGraph({
       ...sharedOptions,
-      cartridgePath: options.cartridgePath?.split(":"),
+      cartridgePath: project.cartridgeRoots.map((root) => path.basename(root)),
     }),
     createSfccProjectGraph({
       ...sharedOptions,
@@ -63,15 +109,16 @@ export function getProjectGraphDiff(
 export function getProjectImpact(
   options: ProjectOptions & { depth?: number; file: string },
 ): ProjectImpact {
+  const project = resolveProjectOptions(options)
   const file = path.resolve(options.cwd, options.file)
   if (!fs.existsSync(file) || !fs.statSync(file).isFile()) {
     throw new Error(`File does not exist: ${file}`)
   }
 
   const graph = createSfccProjectGraph({
-    cartridgesDir: options.cartridgesDir,
-    cwd: options.cwd,
-    cartridgePath: options.cartridgePath?.split(":"),
+    cartridgesDir: project.cartridgesDirectory,
+    cwd: project.cwd,
+    cartridgePath: project.cartridgeRoots.map((root) => path.basename(root)),
   })
   if (!graph.nodes.some((node) => node.path === file)) {
     throw new Error(`File is not represented in the project graph: ${file}`)
@@ -95,10 +142,11 @@ export function getProjectGraph(
     module?: string
   },
 ): ProjectGraph {
+  const project = resolveProjectOptions(options)
   const graph = createSfccProjectGraph({
-    cartridgesDir: options.cartridgesDir,
-    cwd: options.cwd,
-    cartridgePath: options.cartridgePath?.split(":"),
+    cartridgesDir: project.cartridgesDirectory,
+    cwd: project.cwd,
+    cartridgePath: project.cartridgeRoots.map((root) => path.basename(root)),
     module: options.module,
   })
   if (!options.focus) {
@@ -118,12 +166,7 @@ export function getProjectGraph(
 }
 
 export function getProjectInspection(options: ProjectOptions): ProjectInspection {
-  const cartridgesDirectory = resolveCartridgesDir(options.cartridgesDir, options.cwd)
-  const cartridgeRoots = resolveCartridgeRoots({
-    basePath: options.cartridgesDir,
-    cwd: options.cwd,
-    cartridgePath: options.cartridgePath?.split(":"),
-  })
+  const { cartridgesDirectory, cartridgeRoots } = resolveProjectOptions(options)
 
   return {
     cartridgesDirectory,
@@ -144,12 +187,7 @@ export function getProjectInspection(options: ProjectOptions): ProjectInspection
 }
 
 export function validateProject(options: ProjectOptions): ProjectValidation {
-  const cartridgesDirectory = resolveCartridgesDir(options.cartridgesDir, options.cwd)
-  const cartridgeOrder = resolveCartridgeRoots({
-    basePath: options.cartridgesDir,
-    cwd: options.cwd,
-    cartridgePath: options.cartridgePath?.split(":"),
-  })
+  const { cartridgesDirectory, cartridgeRoots: cartridgeOrder } = resolveProjectOptions(options)
 
   return {
     cartridgesDirectory,
@@ -172,6 +210,7 @@ export type DoctorResult = {
 
 export function diagnoseProject(options: ProjectOptions): DoctorResult {
   const inspection = getProjectInspection(options)
+  const project = resolveProjectOptions(options)
   const findings: DoctorFinding[] = []
 
   if (!fs.existsSync(inspection.cartridgesDirectory)) {
@@ -183,10 +222,7 @@ export function diagnoseProject(options: ProjectOptions): DoctorResult {
     findings.push({ level: "error", message: "No cartridges were found" })
   }
 
-  const configuredCartridges = options.cartridgePath
-    ?.split(":")
-    .map((entry) => entry.trim())
-    .filter(Boolean)
+  const configuredCartridges = project.configuredCartridgePath
   for (const cartridge of configuredCartridges ?? []) {
     if (!fs.existsSync(path.join(inspection.cartridgesDirectory, cartridge))) {
       findings.push({

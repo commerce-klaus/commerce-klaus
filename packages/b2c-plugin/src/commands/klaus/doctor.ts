@@ -9,8 +9,7 @@ export default class Doctor extends Command {
   static examples = ["<%= config.bin %> klaus doctor", "<%= config.bin %> klaus doctor --json"]
   static flags = {
     "cartridges-dir": Flags.string({
-      description: "Directory containing the project cartridges",
-      default: "cartridges",
+      description: "Override the project cartridges directory",
     }),
     "cartridge-path": Flags.string({
       description: "Colon-separated cartridge path in precedence order",

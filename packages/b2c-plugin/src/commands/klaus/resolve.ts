@@ -1,12 +1,12 @@
 import {
   createSfccModuleResolver,
   resolveCandidateFile,
-  resolveCartridgeRoots,
 } from "@commerce-klaus/sfcc-module-resolver"
 import { Args, Command, Flags, ux } from "@oclif/core"
 import path from "node:path"
 
 import { renderResolution } from "../../output.js"
+import { resolveProjectOptions } from "../../project.js"
 
 export type ResolveResult = {
   module: string
@@ -18,19 +18,15 @@ export type ResolveResult = {
 export function resolveProjectModule(options: {
   moduleName: string
   cwd: string
-  cartridgesDir: string
+  cartridgesDir?: string
   cartridgePath?: string
   containingFile?: string
 }): ResolveResult {
-  const cartridgeRoots = resolveCartridgeRoots({
-    basePath: options.cartridgesDir,
-    cwd: options.cwd,
-    cartridgePath: options.cartridgePath?.split(":"),
-    containingFile: options.containingFile,
-  })
+  const project = resolveProjectOptions(options)
+  const cartridgeRoots = project.cartridgeRoots
   const containingFile = path.resolve(
     options.cwd,
-    options.containingFile ?? path.join(options.cartridgesDir, ".klaus-entry.js"),
+    options.containingFile ?? path.join(project.cartridgesDirectory, ".klaus-entry.js"),
   )
   const resolved = createSfccModuleResolver(cartridgeRoots)(options.moduleName, containingFile)
   const candidates = options.moduleName.startsWith("*/")
@@ -63,8 +59,7 @@ export default class Resolve extends Command {
   }
   static flags = {
     "cartridges-dir": Flags.string({
-      description: "Directory containing the project cartridges",
-      default: "cartridges",
+      description: "Override the project cartridges directory",
     }),
     "cartridge-path": Flags.string({
       description: "Colon-separated cartridge path in precedence order",

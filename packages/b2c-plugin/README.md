@@ -8,6 +8,10 @@ Commerce Klaus commands for the
 `@commerce-klaus/typescript-sfcc` is a peer dependency so the editor plugin and
 B2C CLI commands use the same project-level version.
 
+All project and type commands discover `commerce-klaus.config.ts` or
+`commerce-klaus.config.js`. Explicit command flags override the shared values
+for one invocation.
+
 ## Install
 
 ```bash [pnpm]

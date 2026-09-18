@@ -146,6 +146,25 @@ test("resolveCartridgeRoots resolves explicit cartridge path entries", () => {
   })
 })
 
+test("resolveCartridgeRoots combines central config with adapter overrides", () => {
+  withTempDir((tempDir) => {
+    const cartridgesDir = path.join(tempDir, "commerce", "cartridges")
+    fs.mkdirSync(path.join(cartridgesDir, "app_base"), { recursive: true })
+    fs.mkdirSync(path.join(cartridgesDir, "app_test"), { recursive: true })
+    fs.writeFileSync(
+      path.join(tempDir, "commerce-klaus.config.js"),
+      'export default { cartridgesDir: "commerce/cartridges", cartridgePath: ["app_base"] }\n',
+    )
+
+    const result = resolveCartridgeRoots({
+      cwd: tempDir,
+      cartridgePath: ["app_test", "app_base"],
+    })
+
+    expect(result.map((entry) => path.basename(entry))).toEqual(["app_test", "app_base"])
+  })
+})
+
 test("createSfccModuleResolver resolves ~/, */ and cartridge aliases", () => {
   withTempDir((tempDir) => {
     const appCore = path.join(tempDir, "app_core")

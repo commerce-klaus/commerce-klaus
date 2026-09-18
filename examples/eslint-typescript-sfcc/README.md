@@ -13,6 +13,10 @@ names such as `app_example`.
 The cartridge remains JavaScript that can run on SFCC. TypeScript checks the
 JavaScript and its JSDoc annotations without emitting build artifacts.
 
+The project-level `commerce-klaus.config.js` is the shared source for the
+cartridges directory, solution config, site template, and selected site.
+ESLint, TypeScript, Vitest, and the B2C CLI commands discover it automatically.
+
 The example's `prepare` script links the workspace's
 `@commerce-klaus/b2c-plugin` into its local Salesforce B2C CLI during dependency
 installation. To refresh that development link manually, run `vp run prepare`.
@@ -78,11 +82,11 @@ demonstrates the supported SFCC module patterns:
 - `app_example/cartridge/...` resolves an explicitly named cartridge.
 
 The Vite config applies `@commerce-klaus/vitest-sfcc`, which combines SFCC
-module loading with the deterministic test runtime, and loads the cartridge
-order from the `Example` site's `custom-cartridges` setting in the site
-template. The ESLint config passes the same site template and site to the SFCC
-recommended config, so `sfcc/valid-require-path` uses that cartridge order as
-well. The Vitest integration test imports the custom `price-label.js`
+module loading with the deterministic test runtime. The cartridge order comes
+from the solution references in `cartridges/jsconfig.json`; the shared config
+also identifies the `Example` site and its site template. ESLint and the B2C
+type commands consume the same project configuration without repeating those
+paths. The Vitest integration test imports the custom `price-label.js`
 implementation and verifies that `module.superModule` resolves and executes the
 base implementation from `app_example`. It also resets the SFCC test runtime
 with a site ID and custom preference before dynamically importing cartridge

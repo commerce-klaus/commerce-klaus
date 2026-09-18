@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { resolveCommerceKlausConfig } from "@commerce-klaus/config"
 import { spawnSync as nodeSpawnSync } from "node:child_process"
 import {
   existsSync as nodeExistsSync,
@@ -53,7 +54,9 @@ export interface SyncTypesOptions {
   force?: boolean
   minimumVersion?: string
   outputPath?: string
+  cartridgesDir?: string
   siteTemplatePath?: string
+  configFile?: string | false
   existsSync?: (filePath: string) => boolean
   mkdirSync?: (dirPath: string, options: { recursive: boolean }) => void
   readFileSync?: (filePath: string, encoding: BufferEncoding) => string
@@ -85,7 +88,15 @@ export interface SyncTypesResult {
 }
 
 export function syncTypes(options: SyncTypesOptions = {}): SyncTypesResult {
-  const currentDirectory = options.currentDirectory ?? process.cwd()
+  const currentDirectory = path.resolve(options.currentDirectory ?? process.cwd())
+  const config = resolveCommerceKlausConfig({
+    cwd: currentDirectory,
+    configFile: options.configFile,
+    overrides: {
+      cartridgesDir: options.cartridgesDir,
+      siteTemplatePath: options.siteTemplatePath,
+    },
+  })
   const platform = options.platform ?? process.platform
   const existsSync = options.existsSync ?? nodeExistsSync
   const mkdirSync = options.mkdirSync ?? nodeMkdirSync
@@ -96,7 +107,8 @@ export function syncTypes(options: SyncTypesOptions = {}): SyncTypesResult {
   const force = options.force ?? false
   const minVersion = options.minimumVersion
   const outputPath = options.outputPath ?? ".b2c-script-types/jsconfig.generated.json"
-  const siteTemplatePath = options.siteTemplatePath
+  const siteTemplatePath = config.siteTemplatePath
+  const cartridgesDir = config.cartridgesDir
 
   const markerFile = path.resolve(currentDirectory, ".b2c-script-types/types/global.d.ts")
   const upstreamMetadataFile = path.resolve(
@@ -161,6 +173,7 @@ export function syncTypes(options: SyncTypesOptions = {}): SyncTypesResult {
   })
   const jobSteps = generateJobStepTypes({
     workspaceRoot: currentDirectory,
+    cartridgesDir,
     existsSync,
     mkdirSync,
     writeFileSync,
@@ -168,6 +181,7 @@ export function syncTypes(options: SyncTypesOptions = {}): SyncTypesResult {
 
   const customApis = generateCustomApiTypes({
     workspaceRoot: currentDirectory,
+    cartridgesDir,
     existsSync,
     mkdirSync,
     writeFileSync,

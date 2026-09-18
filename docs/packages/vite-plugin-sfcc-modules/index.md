@@ -39,6 +39,8 @@ const base = module.superModule
 
 <!--@include: ../../_partials/sfcc-module-resolution-guide-link.md-->
 
+<!--@include: ../../_partials/project-configuration.md-->
+
 This plugin resolves those patterns according to cartridge path order and rewrites source code so Vite can process the full module graph.
 
 ## Choosing the right package
@@ -130,15 +132,16 @@ export default defineConfig({
 
 ### Options
 
-| Option               | Type       | Required | Description                                                                         |
-| -------------------- | ---------- | -------- | ----------------------------------------------------------------------------------- |
-| `cartridgePath`      | `string[]` | no       | Ordered cartridge lookup path. First match wins.                                    |
-| `basePath`           | `string`   | yes      | Path to the cartridges directory. Resolved relative to `cwd` (or `process.cwd()`).  |
-| `cwd`                | `string`   | no       | Working directory used to resolve relative paths.                                   |
-| `siteTemplatePath`   | `string`   | no       | Site-template root that contains `sites/<site>/site.xml`.                           |
-| `site`               | `string`   | no       | Site identifier used to read `custom-cartridges` from `site.xml`.                   |
-| `solutionConfigPath` | `string`   | no       | Path to `cartridges/jsconfig.json` for reference-based cartridge order.             |
-| `envCartridgePath`   | `string`   | no       | Cartridge order as a colon-separated string (same format as `SFCC_CARTRIDGE_PATH`). |
+| Option               | Type              | Required | Description                                                                         |
+| -------------------- | ----------------- | -------- | ----------------------------------------------------------------------------------- |
+| `cartridgePath`      | `string[]`        | no       | Ordered cartridge lookup path. First match wins.                                    |
+| `basePath`           | `string`          | no       | Cartridge directory override. Defaults to central config, then `cartridges`.        |
+| `cwd`                | `string`          | no       | Working directory used to resolve relative paths.                                   |
+| `siteTemplatePath`   | `string`          | no       | Site-template root that contains `sites/<site>/site.xml`.                           |
+| `site`               | `string`          | no       | Site identifier used to read `custom-cartridges` from `site.xml`.                   |
+| `solutionConfigPath` | `string`          | no       | Path to `cartridges/jsconfig.json` for reference-based cartridge order.             |
+| `envCartridgePath`   | `string`          | no       | Cartridge order as a colon-separated string (same format as `SFCC_CARTRIDGE_PATH`). |
+| `configFile`         | `string \| false` | no       | Explicit central config path, or `false` to disable discovery.                      |
 
 <!--@include: ../../_partials/cartridge-order-inference.md-->
 

@@ -20,12 +20,7 @@ export default defineConfig(
       "unicorn/filename-case": ["error", { case: "kebabCase", checkDirectories: false }],
     },
   },
-  createRecommendedConfig({
-    sfcc: {
-      siteTemplatePath: "sites/site_template",
-      site: "Example",
-    },
-  }),
+  createRecommendedConfig(),
   {
     files: ["cartridges/*/cartridge/controllers/*.js"],
     rules: {

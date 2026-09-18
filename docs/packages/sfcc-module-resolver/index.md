@@ -12,6 +12,10 @@ Shared SFCC cartridge path and module resolution utilities.
 
 At the API level, this package also centralizes cartridge-order detection, `hooks.json` registration lookups, and `steptypes.json` job-step discovery.
 
+The project-wide configuration contract is owned by
+[`@commerce-klaus/config`](../config/). This package consumes the resolved
+settings but does not expose the configuration loader.
+
 ## Why this package?
 
 Before centralization, resolution logic was spread across multiple packages, which made edge-case drift likely.

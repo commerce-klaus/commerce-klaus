@@ -45,6 +45,8 @@ const requireFileExtension: Rule.RuleModule = {
       cartridgePath: sfccSettings.cartridgePath,
       siteTemplatePath: sfccSettings.siteTemplatePath,
       site: sfccSettings.site,
+      solutionConfigPath: sfccSettings.solutionConfigPath,
+      envCartridgePath: sfccSettings.envCartridgePath,
     })
     const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
     const filename = path.isAbsolute(context.filename)

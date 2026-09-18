@@ -78,6 +78,7 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
+    "@commerce-klaus/config": "workspace:^",
     "@commerce-klaus/sfcc-module-resolver": "workspace:^",
     "@oclif/core": "^4.8.0",
     "fast-xml-parser": "^5.8.0"

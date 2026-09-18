@@ -21,6 +21,11 @@ Shared Node.js utilities for SFCC cartridge order, module resolution, super modu
 and Vitest adapters. `ResolveCartridgeRootsOptions` extends it with the
 resolver-only `containingFile` option.
 
+Projects can put shared options in `commerce-klaus.config.ts` or
+`commerce-klaus.config.js`. Package options remain supported and override the
+central values. The public configuration contract lives in
+`@commerce-klaus/config`; see the [project configuration guide](https://commerce-klaus.github.io/commerce-klaus/guide/project-configuration).
+
 ## Install
 
 ```bash [pnpm]

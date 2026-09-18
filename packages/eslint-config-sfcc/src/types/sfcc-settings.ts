@@ -5,4 +5,7 @@ export interface SfccSettings {
   cartridgePath?: string[]
   siteTemplatePath?: string
   site?: string
+  solutionConfigPath?: string
+  envCartridgePath?: string
+  configFile?: string | false
 }

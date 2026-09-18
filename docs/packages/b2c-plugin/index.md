@@ -12,6 +12,12 @@ metadata inspection, and SFCC module resolution remain implemented by
 dependency so the editor plugin and B2C CLI commands always use the same
 compatible project-level version.
 
+<!--@include: ../../_partials/project-configuration.md-->
+
+All `klaus` project and type commands use the central configuration. Explicit
+CLI flags such as `--cartridges-dir`, `--cartridge-path`, `--project`, and
+`--site-template-path` override the corresponding shared values for one run.
+
 ## Install
 
 Install the B2C CLI and TypeScript tooling in the project, then register the
@@ -524,7 +530,7 @@ vp exec b2c klaus resolve '*/cartridge/scripts/example'
 
 :::
 
-For a `~/` module, provide the importing file with `--from`. All six project
+For a `~/` module, provide the importing file with `--from`. All seven project
 commands accept `--cartridges-dir`, `--cartridge-path`, and the standard
 `--json` flag where applicable.
 

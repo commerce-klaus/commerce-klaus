@@ -34,6 +34,8 @@ const preferTildeRequirePath: Rule.RuleModule = {
       cartridgePath: sfccSettings.cartridgePath,
       siteTemplatePath: sfccSettings.siteTemplatePath,
       site: sfccSettings.site,
+      solutionConfigPath: sfccSettings.solutionConfigPath,
+      envCartridgePath: sfccSettings.envCartridgePath,
     })
     const filename = path.isAbsolute(context.filename)
       ? context.filename

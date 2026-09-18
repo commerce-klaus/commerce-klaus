@@ -5,6 +5,7 @@ import {
   resolveSuperModuleFilePath,
   stripExt,
   toPosixPath,
+  type SfccModuleResolutionOptions,
 } from "@commerce-klaus/sfcc-module-resolver"
 import importsVisitor from "imports-visitor"
 import path from "node:path"
@@ -13,15 +14,7 @@ type ImportLike = {
   source: string
 }
 
-type PluginOptions = {
-  cartridgePath?: string[]
-  basePath: string
-  cwd?: string
-  siteTemplatePath?: string
-  site?: string
-  solutionConfigPath?: string
-  envCartridgePath?: string
-}
+export type PluginOptions = SfccModuleResolutionOptions
 
 const getRelativeRequirePath = (moduleName: string, resolvedFile: string) => {
   const relativePath = toPosixPath(path.relative(path.dirname(moduleName), stripExt(resolvedFile)))
@@ -37,6 +30,7 @@ const getCartridgeRoots = (options: PluginOptions, filename: string): string[] =
     site: options.site,
     solutionConfigPath: options.solutionConfigPath,
     envCartridgePath: options.envCartridgePath,
+    configFile: options.configFile,
     containingFile: filename,
   })
 }

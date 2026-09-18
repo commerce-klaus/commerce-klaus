@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { findCommerceKlausConfig } from "@commerce-klaus/config"
 import fs from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
@@ -17,7 +18,15 @@ export function runCli(args: string[], options: CliRunOptions = {}): number {
   const writeStdout = options.writeStdout ?? ((text) => process.stdout.write(text))
 
   const { solutionConfigPath, cartridgesDir } = parseArguments(args, currentDirectory)
-  const diagnostics = typecheckSolutionProjects({ solutionConfigPath, cartridgesDir })
+  const hasExplicitProject = args.some((arg) => arg === "--project" || arg === "-p")
+  const diagnostics = typecheckSolutionProjects({
+    solutionConfigPath:
+      hasExplicitProject || !findCommerceKlausConfig(currentDirectory)
+        ? solutionConfigPath
+        : undefined,
+    cartridgesDir,
+    cwd: currentDirectory,
+  })
   const formatted = formatDiagnostics(diagnostics, currentDirectory)
 
   if (formatted) {

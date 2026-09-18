@@ -1,9 +1,11 @@
 import type { Linter } from "eslint"
 
 import pluginESx from "eslint-plugin-es-x"
+import path from "node:path"
 
 import type { SfccSettings } from "../types/sfcc-settings.js"
 
+import { resolveSfccSettings } from "../plugins/_utils/sfcc-settings.js"
 import sfcc from "../plugins/sfcc/index.js"
 import sitegenesis from "../plugins/sitegenesis/index.js"
 import rules from "../rules/index.js"
@@ -25,28 +27,33 @@ export interface RecommendedConfigOptions {
 
 /** Creates the recommended flat config for SFCC projects. */
 export function createRecommendedConfig(options: RecommendedConfigOptions = {}): Linter.Config[] {
-  const { cartridgesDir = "cartridges", files, ignores, sfcc: sfccOptions } = options
-  const normalizedCartridgesDir = normalizeCartridgesDir(cartridgesDir)
+  const { files, ignores, sfcc: sfccOptions } = options
+  const centralSfccOptions = resolveSfccSettings({ configFile: sfccOptions?.configFile })
+  const resolvedSfccOptions = resolveSfccSettings(sfccOptions)
+  const configuredCartridgesDir =
+    options.cartridgesDir ?? centralSfccOptions.cartridgesDir ?? "cartridges"
+  const globCartridgesDir = path.isAbsolute(configuredCartridgesDir)
+    ? path.relative(process.cwd(), configuredCartridgesDir).replaceAll(path.sep, "/") || "."
+    : configuredCartridgesDir
+  const normalizedCartridgesDir = normalizeCartridgesDir(globCartridgesDir)
   const targetFiles = files ?? [withBaseDir("**/*.{js,ds}")]
   const ignoredPaths = ignores ?? [
     withBaseDir("*/cartridge/client/**"),
     withBaseDir("*/cartridge/static/**"),
   ]
   const hasSfccOptions =
-    sfccOptions !== undefined &&
-    (sfccOptions.allowBareModules !== undefined ||
-      sfccOptions.checkCartridgeExists !== undefined ||
-      sfccOptions.cartridgePath !== undefined ||
-      sfccOptions.cartridgesDir !== undefined ||
-      sfccOptions.siteTemplatePath !== undefined ||
-      sfccOptions.site !== undefined)
+    Object.values(centralSfccOptions).some((value) => value !== undefined) ||
+    (sfccOptions !== undefined && Object.values(sfccOptions).some((value) => value !== undefined))
 
   const sfccSettings: SfccSettings | undefined = hasSfccOptions
     ? {
-        ...sfccOptions,
-        ...(sfccOptions?.cartridgesDir === undefined
-          ? { cartridgesDir: normalizedCartridgesDir }
-          : {}),
+        ...resolvedSfccOptions,
+        cartridgesDir: normalizeCartridgesDir(
+          sfccOptions?.cartridgesDir ??
+            options.cartridgesDir ??
+            resolvedSfccOptions.cartridgesDir ??
+            "cartridges",
+        ),
       }
     : undefined
 

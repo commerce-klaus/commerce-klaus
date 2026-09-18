@@ -1,3 +1,4 @@
+import { resolveCommerceKlausConfig } from "@commerce-klaus/config"
 import fs from "node:fs"
 import path from "node:path"
 
@@ -27,11 +28,21 @@ export interface TypesStatusResult {
 export interface GetTypesStatusOptions {
   currentDirectory?: string
   minimumVersion?: string
+  cartridgesDir?: string
   siteTemplatePath?: string
+  configFile?: string | false
 }
 
 export function getTypesStatus(options: GetTypesStatusOptions = {}): TypesStatusResult {
   const currentDirectory = path.resolve(options.currentDirectory ?? process.cwd())
+  const config = resolveCommerceKlausConfig({
+    cwd: currentDirectory,
+    configFile: options.configFile,
+    overrides: {
+      cartridgesDir: options.cartridgesDir,
+      siteTemplatePath: options.siteTemplatePath,
+    },
+  })
   const markerPath = path.join(currentDirectory, ".b2c-script-types/types/global.d.ts")
   const metadataPath = path.join(currentDirectory, ".b2c-script-types/types/upstream-package.json")
   const minimumVersion = options.minimumVersion
@@ -57,7 +68,7 @@ export function getTypesStatus(options: GetTypesStatusOptions = {}): TypesStatus
 
   const customAttributes = generateCustomAttributesTypes({
     workspaceRoot: currentDirectory,
-    siteTemplatePath: options.siteTemplatePath,
+    siteTemplatePath: config.siteTemplatePath,
     writeFileSync,
   })
   const hooks = generateHookTypes({
@@ -67,11 +78,13 @@ export function getTypesStatus(options: GetTypesStatusOptions = {}): TypesStatus
   })
   const customApis = generateCustomApiTypes({
     workspaceRoot: currentDirectory,
+    cartridgesDir: config.cartridgesDir,
     mkdirSync,
     writeFileSync,
   })
   const jobSteps = generateJobStepTypes({
     workspaceRoot: currentDirectory,
+    cartridgesDir: config.cartridgesDir,
     mkdirSync,
     writeFileSync,
   })

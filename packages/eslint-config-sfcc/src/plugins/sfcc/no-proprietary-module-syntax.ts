@@ -123,6 +123,8 @@ const noProprietaryModuleSyntax: Rule.RuleModule = {
       cartridgePath: sfccSettings.cartridgePath,
       siteTemplatePath: sfccSettings.siteTemplatePath,
       site: sfccSettings.site,
+      solutionConfigPath: sfccSettings.solutionConfigPath,
+      envCartridgePath: sfccSettings.envCartridgePath,
     })
     const filename =
       (context as Rule.RuleContext & { filename?: string }).filename ??

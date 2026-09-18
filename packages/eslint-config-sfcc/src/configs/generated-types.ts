@@ -1,7 +1,10 @@
 import type { Linter } from "eslint"
 
+import path from "node:path"
+
 import type { SfccSettings } from "../types/sfcc-settings.js"
 
+import { resolveSfccSettings } from "../plugins/_utils/sfcc-settings.js"
 import sfcc from "../plugins/sfcc/index.js"
 import { normalizeCartridgesDir } from "./normalize-cartridges-dir.js"
 
@@ -18,8 +21,15 @@ export interface GeneratedTypesConfigOptions {
 export function createGeneratedTypesConfig(
   options: GeneratedTypesConfigOptions = {},
 ): Linter.Config[] {
-  const { cartridgesDir = "cartridges", files, sfcc: sfccOptions } = options
-  const normalizedCartridgesDir = normalizeCartridgesDir(cartridgesDir)
+  const { files, sfcc: sfccOptions } = options
+  const centralSfccOptions = resolveSfccSettings({ configFile: sfccOptions?.configFile })
+  const resolvedSfccOptions = resolveSfccSettings(sfccOptions)
+  const configuredCartridgesDir =
+    options.cartridgesDir ?? centralSfccOptions.cartridgesDir ?? "cartridges"
+  const globCartridgesDir = path.isAbsolute(configuredCartridgesDir)
+    ? path.relative(process.cwd(), configuredCartridgesDir).replaceAll(path.sep, "/") || "."
+    : configuredCartridgesDir
+  const normalizedCartridgesDir = normalizeCartridgesDir(globCartridgesDir)
   const targetFiles = files ?? [withBaseDir("**/*.{js,ds}")]
 
   function withBaseDir(suffix: string): string {
@@ -33,10 +43,13 @@ export function createGeneratedTypesConfig(
       plugins: { sfcc },
       settings: {
         sfcc: {
-          ...sfccOptions,
-          ...(sfccOptions?.cartridgesDir === undefined
-            ? { cartridgesDir: normalizedCartridgesDir }
-            : {}),
+          ...resolvedSfccOptions,
+          cartridgesDir: normalizeCartridgesDir(
+            sfccOptions?.cartridgesDir ??
+              options.cartridgesDir ??
+              resolvedSfccOptions.cartridgesDir ??
+              "cartridges",
+          ),
         },
       },
       rules: {

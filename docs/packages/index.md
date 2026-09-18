@@ -15,6 +15,8 @@ Commerce Klaus covers the development loop around SFCC server-side JavaScript: s
 
 ## Shared foundation
 
+[`@commerce-klaus/config`](./config/) provides the public, project-wide configuration contract shared by Commerce Klaus tools.
+
 [`@commerce-klaus/sfcc-module-resolver`](./sfcc-module-resolver/) is the common Node.js resolution core used by the project-facing packages. It is also public for authors building additional SFCC-aware tools.
 
 [`@commerce-klaus/sfcc-test-runtime`](./sfcc-test-runtime/) is the framework-independent runtime core used by the Vitest integration. It provides isolated module replacements and focused implementations of common `dw/*` modules.

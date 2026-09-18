@@ -206,6 +206,9 @@ importers:
       '@commerce-klaus/b2c-plugin':
         specifier: workspace:*
         version: link:../../packages/b2c-plugin
+      '@commerce-klaus/config':
+        specifier: workspace:*
+        version: link:../../packages/config
       '@commerce-klaus/eslint-config-sfcc':
         specifier: workspace:*
         version: link:../../packages/eslint-config-sfcc
@@ -254,6 +257,9 @@ importers:
       '@commerce-klaus/b2c-plugin':
         specifier: workspace:*
         version: link:../../packages/b2c-plugin
+      '@commerce-klaus/config':
+        specifier: workspace:*
+        version: link:../../packages/config
       '@commerce-klaus/eslint-config-sfcc':
         specifier: workspace:*
         version: link:../../packages/eslint-config-sfcc
@@ -287,6 +293,9 @@ importers:
 
   packages/b2c-plugin:
     dependencies:
+      '@commerce-klaus/config':
+        specifier: workspace:^
+        version: link:../config
       '@commerce-klaus/sfcc-module-resolver':
         specifier: workspace:^
         version: link:../sfcc-module-resolver
@@ -347,8 +356,27 @@ importers:
         specifier: 'catalog:'
         version: 0.3.2(@types/node@24.13.5)(@vitest/coverage-v8@4.1.11)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
 
+  packages/config:
+    dependencies:
+      jiti:
+        specifier: ^2.7.0
+        version: 2.7.0
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.13.5
+      typescript:
+        specifier: npm:@typescript/typescript6@^6.0.2
+        version: '@typescript/typescript6@6.0.2'
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.3.2(@types/node@24.13.5)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@4.1.11)(jiti@2.7.0)(yaml@2.9.1)
+
   packages/eslint-config-sfcc:
     dependencies:
+      '@commerce-klaus/config':
+        specifier: workspace:^
+        version: link:../config
       '@commerce-klaus/sfcc-module-resolver':
         specifier: workspace:^
         version: link:../sfcc-module-resolver
@@ -401,6 +429,9 @@ importers:
 
   packages/sfcc-module-resolver:
     dependencies:
+      '@commerce-klaus/config':
+        specifier: workspace:^
+        version: link:../config
       acorn:
         specifier: ^8.18.0
         version: 8.18.0
@@ -438,6 +469,9 @@ importers:
 
   packages/typescript-sfcc:
     dependencies:
+      '@commerce-klaus/config':
+        specifier: workspace:^
+        version: link:../config
       '@commerce-klaus/sfcc-module-resolver':
         specifier: workspace:^
         version: link:../sfcc-module-resolver

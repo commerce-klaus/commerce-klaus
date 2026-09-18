@@ -84,6 +84,8 @@ The config disables Node.js and browser globals inherited from earlier flat conf
 
 <!--@include: ../../_partials/sfcc-module-resolution-guide-link.md-->
 
+<!--@include: ../../_partials/project-configuration.md-->
+
 The recommended config enables [`sfcc/valid-require-path`](rules/sfcc/valid-require-path.md). By default, the rule validates whether static `require()` and `import()` identifiers use a supported SFCC form. Enable `checkCartridgeExists` through `createRecommendedConfig()` to also resolve `*/`, `~/`, and named cartridge references against the project filesystem and report missing modules.
 
 ESLint validates source code; it does not transform or execute cartridge modules. `dw/*` imports are accepted as platform boundaries rather than looked up on disk. `module.superModule` is recognized as SFCC syntax, while the opt-in [`sfcc/no-proprietary-module-syntax`](rules/sfcc/no-proprietary-module-syntax.md) rule can prohibit it together with `*/` and `~/` when a project requires portable CommonJS modules.

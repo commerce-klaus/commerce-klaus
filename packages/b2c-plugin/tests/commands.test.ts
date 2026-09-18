@@ -70,6 +70,12 @@ test("all project commands support B2C CLI JSON output", () => {
   expect(Validate.enableJsonFlag).toBe(true)
 })
 
+test("project commands leave cartridges-dir unset for central config discovery", () => {
+  for (const command of [Doctor, Explain, Graph, Impact, Inspect, Resolve, Validate]) {
+    expect(command.flags["cartridges-dir"].default).toBeUndefined()
+  }
+})
+
 describe("command execution", () => {
   test("explain emits the structured resolution trace in JSON mode", async () => {
     const projectDirectory = createProjectDirectory()

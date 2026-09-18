@@ -32,7 +32,8 @@ export default function sfccModules({
   site,
   solutionConfigPath,
   envCartridgePath,
-}: SfccModulesOptions): Plugin {
+  configFile,
+}: SfccModulesOptions = {}): Plugin {
   const cartridgeRoots = resolveCartridgeRoots({
     basePath,
     cwd,
@@ -41,6 +42,7 @@ export default function sfccModules({
     site,
     solutionConfigPath,
     envCartridgePath,
+    configFile,
   })
   const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
 

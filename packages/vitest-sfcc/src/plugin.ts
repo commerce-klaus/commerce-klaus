@@ -57,7 +57,7 @@ function getHookCartridgeRoots(
   return cartridgeRoots.filter((root) => selectedCartridges.has(path.basename(root)))
 }
 
-export default function sfccVitest(options: SfccVitestOptions): SfccVitestPlugin {
+export default function sfccVitest(options: SfccVitestOptions = {}): SfccVitestPlugin {
   const cartridgeRoots = resolveCartridgeRoots(options)
   const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
   const hookRegistrations = findResolvedHookRegistrations(

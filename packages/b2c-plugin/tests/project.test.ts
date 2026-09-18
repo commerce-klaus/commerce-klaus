@@ -161,6 +161,39 @@ test("inspect reports the effective project metadata", () => {
   expect(result.customApis).toEqual([])
 })
 
+test("inspect uses central project configuration", () => {
+  const projectDirectory = createProjectDirectory()
+  const cartridgesDirectory = path.join(projectDirectory, "commerce", "cartridges")
+  fs.mkdirSync(path.join(cartridgesDirectory, "app_base", "cartridge"), { recursive: true })
+  fs.mkdirSync(path.join(cartridgesDirectory, "app_custom", "cartridge"), { recursive: true })
+  writeFile(
+    path.join(projectDirectory, "commerce-klaus.config.ts"),
+    `export default {
+      cartridgesDir: "commerce/cartridges",
+      cartridgePath: ["app_custom", "app_base"],
+    }\n`,
+  )
+
+  const result = getProjectInspection({ cwd: projectDirectory })
+
+  expect(result.cartridgesDirectory).toBe(cartridgesDirectory)
+  expect(result.cartridgeOrder.map((root) => path.basename(root))).toEqual([
+    "app_custom",
+    "app_base",
+  ])
+
+  const overrideDirectory = path.join(projectDirectory, "test-cartridges")
+  fs.mkdirSync(path.join(overrideDirectory, "app_test", "cartridge"), { recursive: true })
+  const overridden = getProjectInspection({
+    cwd: projectDirectory,
+    cartridgesDir: overrideDirectory,
+    cartridgePath: "app_test",
+  })
+
+  expect(overridden.cartridgesDirectory).toBe(overrideDirectory)
+  expect(overridden.cartridgeOrder).toEqual([path.join(overrideDirectory, "app_test")])
+})
+
 test("graph preserves the configured cartridge precedence", () => {
   const projectDirectory = createProjectDirectory()
   for (const cartridge of ["app_base", "app_custom"]) {

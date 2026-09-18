@@ -231,6 +231,8 @@ const validRequirePath: Rule.RuleModule = {
       cartridgePath: configuredCartridgePath,
       siteTemplatePath: options.siteTemplatePath,
       site: options.site,
+      solutionConfigPath: options.solutionConfigPath,
+      envCartridgePath: options.envCartridgePath,
     })
     const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
     const filename =

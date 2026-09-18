@@ -1,3 +1,4 @@
+import { resolveCommerceKlausConfig } from "@commerce-klaus/config"
 import { XMLParser } from "fast-xml-parser"
 import fs from "node:fs"
 import path from "node:path"
@@ -15,13 +16,15 @@ export type InferCartridgeOrderOptions = {
 }
 
 export type SfccModuleResolutionOptions = {
-  basePath: string
+  basePath?: string
   cwd?: string
   cartridgePath?: string[]
   siteTemplatePath?: string
   site?: string
   solutionConfigPath?: string
   envCartridgePath?: string
+  /** Explicit config path, or false to disable central config discovery. */
+  configFile?: string | false
 }
 
 export type ResolveCartridgeRootsOptions = SfccModuleResolutionOptions & {
@@ -74,16 +77,32 @@ export function resolveCartridgesBasePath(
 
 export function resolveCartridgeRoots(options: ResolveCartridgeRootsOptions): string[] {
   const cwd = options.cwd ?? process.cwd()
-  const cartridgesDir = resolveCartridgesBasePath(options.basePath, cwd, options.containingFile)
+  const config = resolveCommerceKlausConfig({
+    cwd,
+    configFile: options.configFile,
+    overrides: {
+      cartridgesDir: options.basePath,
+      cartridgePath: options.cartridgePath,
+      siteTemplatePath: options.siteTemplatePath,
+      site: options.site,
+      solutionConfigPath: options.solutionConfigPath,
+      envCartridgePath: options.envCartridgePath,
+    },
+  })
+  const cartridgesDir = resolveCartridgesBasePath(
+    config.cartridgesDir ?? "cartridges",
+    cwd,
+    options.containingFile,
+  )
 
   return inferCartridgeOrder({
     cartridgesDir,
     cwd,
-    cartridgePath: options.cartridgePath,
-    siteTemplatePath: options.siteTemplatePath,
-    site: options.site,
-    solutionConfigPath: options.solutionConfigPath,
-    envCartridgePath: options.envCartridgePath,
+    cartridgePath: config.cartridgePath,
+    siteTemplatePath: config.siteTemplatePath,
+    site: config.site,
+    solutionConfigPath: config.solutionConfigPath,
+    envCartridgePath: config.envCartridgePath,
   })
 }
 

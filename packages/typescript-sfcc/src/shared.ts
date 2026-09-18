@@ -1,3 +1,4 @@
+import { resolveCommerceKlausConfig } from "@commerce-klaus/config"
 import {
   DEFAULT_SITE_TEMPLATE_PATH,
   SUPER_MODULE_TOKEN,
@@ -35,6 +36,7 @@ export {
   findContainingCartridgeRoot,
   injectTopLevelStatement,
   readSolutionReferences,
+  resolveCommerceKlausConfig,
   resolveCandidateFile,
   resolveSuperModuleFilePath,
   resolveSuperModuleSpecifier,
@@ -46,10 +48,17 @@ export {
 export function inferCartridgeOrder(
   cartridgesDir: string,
   solutionConfigPath = path.join(cartridgesDir, "jsconfig.json"),
+  options: {
+    cartridgePath?: string[]
+    siteTemplatePath?: string
+    site?: string
+    envCartridgePath?: string
+  } = {},
 ): string[] {
   return inferCartridgeOrderFromResolver({
     cartridgesDir,
     solutionConfigPath,
+    ...options,
   })
 }
 

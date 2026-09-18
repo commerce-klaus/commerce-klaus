@@ -25,6 +25,10 @@ Source code and documentation are written in English.
 
 ## Repository Map and Ownership
 
+- `packages/config`: the public, dependency-light owner of the shared
+  `commerce-klaus.config.ts` or `.js` contract, discovery, loading, and path
+  normalization. Tool packages consume it directly; keep tool-specific behavior
+  out of this package.
 - `packages/sfcc-module-resolver`: the shared, Node-only source of truth for
   cartridge discovery and ordering, SFCC module resolution, super modules,
   hooks, job step definitions, and Custom API contracts. Put filesystem-based
@@ -61,10 +65,13 @@ Source code and documentation are written in English.
 Dependency direction flows from adapters toward the shared cores:
 
 ```text
-eslint-config-sfcc ----\
-typescript-sfcc -------+--> sfcc-module-resolver
-vite-plugin-sfcc ------+
-babel-plugin-sfcc -----/
+sfcc-module-resolver -------> config
+eslint-config-sfcc ----+----> config
+                       \----> sfcc-module-resolver
+typescript-sfcc -------+----> config
+                       \----> sfcc-module-resolver
+vite-plugin-sfcc -----------> sfcc-module-resolver
+babel-plugin-sfcc ----------> sfcc-module-resolver
 
 vitest-sfcc --> sfcc-module-resolver
 						 \-> sfcc-test-runtime

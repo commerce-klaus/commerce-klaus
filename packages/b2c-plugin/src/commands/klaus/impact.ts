@@ -15,8 +15,7 @@ export default class Impact extends Command {
   }
   static flags = {
     "cartridges-dir": Flags.string({
-      description: "Directory containing the project cartridges",
-      default: "cartridges",
+      description: "Override the project cartridges directory",
     }),
     "cartridge-path": Flags.string({
       description: "Colon-separated cartridge path in precedence order",

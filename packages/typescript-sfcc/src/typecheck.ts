@@ -1,3 +1,4 @@
+import { resolveCommerceKlausConfig } from "@commerce-klaus/config"
 import path from "node:path"
 import ts from "typescript"
 
@@ -14,8 +15,10 @@ import {
 } from "./shared.ts"
 
 export interface TypecheckOptions {
-  solutionConfigPath: string
+  solutionConfigPath?: string
   cartridgesDir?: string
+  cwd?: string
+  configFile?: string | false
 }
 
 export function createFormatHost(currentDirectory: string): ts.FormatDiagnosticsHost {
@@ -173,14 +176,22 @@ function withGeneratedTypeFiles(
   return [...rootNames, ...generatedTypePaths.filter((filePath) => !rootNames.includes(filePath))]
 }
 
-export function typecheckSolutionProjects({
-  solutionConfigPath,
-  cartridgesDir,
-}: TypecheckOptions): ts.Diagnostic[] {
-  const resolvedSolutionConfigPath = path.resolve(solutionConfigPath)
-  const resolvedCartridgesDir = cartridgesDir
-    ? path.resolve(cartridgesDir)
-    : path.dirname(resolvedSolutionConfigPath)
+export function typecheckSolutionProjects(options: TypecheckOptions): ts.Diagnostic[] {
+  const cwd = path.resolve(options.cwd ?? process.cwd())
+  const centralConfig = resolveCommerceKlausConfig({
+    cwd,
+    configFile: options.configFile,
+  })
+  const configuredSolutionPath = options.solutionConfigPath ?? centralConfig.solutionConfigPath
+  const resolvedSolutionConfigPath = configuredSolutionPath
+    ? path.resolve(cwd, configuredSolutionPath)
+    : path.resolve(cwd, centralConfig.cartridgesDir ?? "cartridges", "jsconfig.json")
+  const configuredCartridgesDir = options.cartridgesDir ?? centralConfig.cartridgesDir
+  const resolvedCartridgesDir = configuredCartridgesDir
+    ? path.resolve(cwd, configuredCartridgesDir)
+    : options.solutionConfigPath
+      ? path.dirname(resolvedSolutionConfigPath)
+      : path.resolve(cwd, "cartridges")
   const referencedConfigPaths = readSolutionReferences(resolvedSolutionConfigPath)
   const configPaths =
     referencedConfigPaths.length > 0 ? referencedConfigPaths : [resolvedSolutionConfigPath]

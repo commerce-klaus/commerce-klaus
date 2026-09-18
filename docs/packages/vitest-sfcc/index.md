@@ -35,6 +35,8 @@ const payment = await import("../cartridge/scripts/payment.js")
 
 <!--@include: ../../_partials/sfcc-module-resolution-guide-link.md-->
 
+<!--@include: ../../_partials/project-configuration.md-->
+
 ## Why this package exists
 
 SFCC cartridge code uses CommonJS, cartridge-specific module identifiers, platform modules, globals, hooks, controllers, and job metadata that Vitest cannot execute by itself. This package connects the shared cartridge resolver and framework-independent test runtime to Vite's module graph so tests can load real cartridge modules and replace only their external dependencies.
@@ -113,13 +115,14 @@ This reads `sites/<site>/site.xml` below `siteTemplatePath` and uses its `custom
 
 | Option               | Type                                | Required | Description                                                                    |
 | -------------------- | ----------------------------------- | -------- | ------------------------------------------------------------------------------ |
-| `basePath`           | `string`                            | yes      | Directory containing the project cartridges.                                   |
+| `basePath`           | `string`                            | no       | Cartridge directory override. Defaults to central config, then `cartridges`.   |
 | `cartridgePath`      | `string[]`                          | no       | Explicit cartridge order. First match wins.                                    |
 | `cwd`                | `string`                            | no       | Working directory used to resolve relative paths. Defaults to `process.cwd()`. |
 | `siteTemplatePath`   | `string`                            | no       | Site-template root containing `sites/<site>/site.xml`.                         |
 | `site`               | `string`                            | no       | Site identifier used to read `custom-cartridges` from `site.xml`.              |
 | `solutionConfigPath` | `string`                            | no       | Path to `cartridges/jsconfig.json` for reference-based cartridge order.        |
 | `envCartridgePath`   | `string`                            | no       | Colon-separated cartridge order, matching `SFCC_CARTRIDGE_PATH`.               |
+| `configFile`         | `string \| false`                   | no       | Explicit central config path, or `false` to disable discovery.                 |
 | `hookDiscovery`      | `false \| { cartridges: string[] }` | no       | Disable automatic hook discovery or limit it to named cartridges.              |
 | `runtime`            | `SfccTestRuntimeOptions`            | no       | Initial runtime options, including the current site id and custom preferences. |
 

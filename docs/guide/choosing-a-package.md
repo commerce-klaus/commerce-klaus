@@ -4,6 +4,7 @@ Commerce Klaus packages are designed to work independently and share SFCC semant
 
 | Goal                                                             | Package                                                                             |
 | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Share project settings across Commerce Klaus tools               | [`@commerce-klaus/config`](/packages/config/)                                       |
 | Run Commerce Klaus commands through the Salesforce B2C CLI       | [`@commerce-klaus/b2c-plugin`](/packages/b2c-plugin/)                               |
 | Detect invalid SFCC patterns with ESLint or Oxlint               | [`@commerce-klaus/eslint-config-sfcc`](/packages/eslint-config-sfcc/)               |
 | Resolve cartridge modules in the editor and typecheck JavaScript | [`@commerce-klaus/typescript-sfcc`](/packages/typescript-sfcc/)                     |

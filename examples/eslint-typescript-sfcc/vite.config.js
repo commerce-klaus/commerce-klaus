@@ -1,18 +1,8 @@
 import sfccVitest from "@commerce-klaus/vitest-sfcc"
-import path from "node:path"
-import { fileURLToPath } from "node:url"
 import { defineConfig } from "vite-plus"
 
-const configDirectory = path.dirname(fileURLToPath(import.meta.url))
-
 export default defineConfig({
-  plugins: [
-    sfccVitest({
-      basePath: path.join(configDirectory, "cartridges"),
-      siteTemplatePath: path.join(configDirectory, "sites/site_template"),
-      site: "Example",
-    }),
-  ],
+  plugins: [sfccVitest()],
   run: {
     tasks: {
       "setup:b2c-plugin": {

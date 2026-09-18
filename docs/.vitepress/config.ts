@@ -83,6 +83,7 @@ export default defineConfig({
           items: [
             { text: "Getting started", link: "/guide/getting-started" },
             { text: "Choosing a package", link: "/guide/choosing-a-package" },
+            { text: "Project configuration", link: "/guide/project-configuration" },
             { text: "SFCC module resolution", link: "/guide/sfcc-module-resolution" },
           ],
         },
@@ -104,6 +105,7 @@ export default defineConfig({
           text: "Shared foundations",
           collapsed: true,
           items: [
+            { text: "Project configuration", link: "/packages/config/" },
             { text: "Test runtime", link: "/packages/sfcc-test-runtime/" },
             { text: "Module resolver", link: "/packages/sfcc-module-resolver/" },
           ],
