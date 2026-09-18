@@ -55,6 +55,7 @@ watch(isDark, renderDiagram)
       <li class="cartridge">Cartridge</li>
       <li class="module">Module</li>
       <li class="hook">Hook</li>
+      <li class="http-endpoint">HTTP endpoint</li>
       <li class="job-step">Job step</li>
       <li class="middleware">Middleware</li>
       <li class="custom-api">Custom API</li>
@@ -126,6 +127,11 @@ watch(isDark, renderDiagram)
 .project-graph-legend .hook::before {
   border-color: #3d7855;
   background: #dff2e6;
+}
+
+.project-graph-legend .http-endpoint::before {
+  border-color: #33758f;
+  background: #d9eef7;
 }
 
 .project-graph-legend .job-step::before {

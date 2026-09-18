@@ -86,7 +86,8 @@ The graph links SFRA controllers to statically named `server.get()`,
 routes. For inherited controllers, it also composes the effective middleware
 pipeline in execution order, including replaced routes. Dynamic route names
 are left out rather than guessed. Custom API nodes link to both their OpenAPI
-schema and resolved implementation script.
+schema and resolved implementation script, with the matching HTTP method and
+path represented as the request entry point.
 
 ## Documentation
 

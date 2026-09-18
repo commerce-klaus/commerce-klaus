@@ -333,7 +333,7 @@ status, making `doctor` suitable for CI.
 
 Create a graph of cartridge precedence, `module.superModule` chains, SFRA
 controller routes and their effective middleware order, hook and job step
-implementations, and Custom API schemas and scripts:
+implementations, and Custom API HTTP endpoints, schemas, and scripts:
 
 ::: code-group
 
@@ -388,7 +388,8 @@ anonymous `app_custom:app_example` consumer project. It exercises cartridge
 precedence, an inherited SFRA `Product` controller with prepended, appended, and
 replaced routes, the resulting route pipelines, other Super Modules, hooks, a
 job step, and a Custom API schema and implementation using the current graph
-resolver and Mermaid renderer.
+resolver and Mermaid renderer. The Custom API flow starts at its OAS method and
+path before reaching the operation, implementation script, and schema.
 
 <!--@include: ../../_partials/project-graph.generated.md-->
 

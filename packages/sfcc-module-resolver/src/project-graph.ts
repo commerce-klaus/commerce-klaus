@@ -13,6 +13,7 @@ export type SfccProjectGraphNodeKind =
   | "cartridge"
   | "custom-api"
   | "hook"
+  | "http-endpoint"
   | "job-step"
   | "middleware"
   | "module"
@@ -21,6 +22,7 @@ export type SfccProjectGraphNodeKind =
 
 export type SfccProjectGraphEdgeKind =
   | "implements"
+  | "invokes"
   | "overrides"
   | "precedes"
   | "registers"
@@ -175,6 +177,16 @@ function addContractRelationships(
       label: customApi.endpoint,
       path: customApi.apiJsonPath,
     })
+    if (customApi.operation) {
+      const endpointId = `http-endpoint:${customApi.schemaPath}#${customApi.operation.method}:${customApi.operation.path}`
+      addNode(nodes, {
+        id: endpointId,
+        kind: "http-endpoint",
+        label: `${customApi.operation.method.toUpperCase()} ${customApi.operation.path}`,
+        path: customApi.schemaPath,
+      })
+      edges.push({ from: endpointId, kind: "invokes", to: customApiId })
+    }
     addNode(nodes, {
       id: schemaId,
       kind: "schema",

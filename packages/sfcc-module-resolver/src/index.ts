@@ -102,6 +102,7 @@ export type {
   ApiJsonFile,
   CustomApiDefinition,
   CustomApiOperationMatch,
+  OasHttpMethod,
   OasDocument,
   OasMediaType,
   OasOperation,

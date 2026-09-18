@@ -88,6 +88,7 @@ test("findCustomApiDefinitions resolves schemas and matches the operationId", ()
 
     expect(definitions).toHaveLength(1)
     expect(definitions[0].endpoint).toBe("getLoyaltyInfo")
+    expect(definitions[0].operation).toMatchObject({ method: "get", path: "/customers" })
     expect(definitions[0].implementationPath).toBe(
       path.join(tempDir, "my_cartridge", "cartridge", "rest-apis", "loyalty-info", "script.js"),
     )

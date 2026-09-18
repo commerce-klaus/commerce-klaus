@@ -12,6 +12,7 @@ import {
   runProjectTypecheck,
   typecheckSolutionProjects,
 } from "../src/typecheck.ts"
+import { typecheckTest } from "./test-helpers.js"
 
 function withTempDir(run) {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-ts-tooling-typecheck-test-"))
@@ -98,7 +99,7 @@ test("parseConfigFile reports errors for invalid config JSON", () => {
   })
 })
 
-test("runProjectTypecheck returns no diagnostics for valid JavaScript with JSDoc", () => {
+typecheckTest("runProjectTypecheck returns no diagnostics for valid JavaScript with JSDoc", () => {
   withTempDir((tempDir) => {
     const cartridgesDir = path.join(tempDir, "cartridges")
     const appCustom = path.join(cartridgesDir, "app_custom")

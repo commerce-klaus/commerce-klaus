@@ -122,6 +122,11 @@ test("createSfccProjectGraph maps contracts and supports a focused module graph"
       kind: "implements",
       to: `module:${path.join(apiDirectory, "script.js")}`,
     })
+    expect(graph.edges).toContainEqual({
+      from: `http-endpoint:${path.join(apiDirectory, "schema.yaml")}#get:/loyalty`,
+      kind: "invokes",
+      to: `custom-api:${path.join(apiDirectory, "api.json")}#getLoyaltyInfo`,
+    })
 
     const focused = createSfccProjectGraph({
       cartridgesDir,

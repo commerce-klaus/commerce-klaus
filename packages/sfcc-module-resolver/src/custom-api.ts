@@ -76,9 +76,13 @@ export interface ApiJsonFile {
 }
 
 export interface CustomApiOperationMatch {
+  method: OasHttpMethod
+  path: string
   pathItem: OasPathItem
   operation: OasOperation
 }
+
+export type OasHttpMethod = "delete" | "get" | "head" | "options" | "patch" | "post" | "put"
 
 export interface CustomApiDefinition {
   apiJsonPath: string
@@ -143,11 +147,11 @@ export function findOperationByOperationId(
   document: OasDocument,
   operationId: string,
 ): CustomApiOperationMatch | undefined {
-  for (const pathItem of Object.values(document.paths ?? {})) {
+  for (const [oasPath, pathItem] of Object.entries(document.paths ?? {})) {
     for (const method of HTTP_METHODS) {
       const operation = pathItem[method]
       if (operation?.operationId === operationId) {
-        return { pathItem, operation }
+        return { method, operation, path: oasPath, pathItem }
       }
     }
   }

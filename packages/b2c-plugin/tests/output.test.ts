@@ -56,12 +56,14 @@ describe("renderProjectGraph", () => {
       nodes: [
         ...graph.nodes,
         { id: "route:Product:Show", kind: "route", label: "GET Product-Show" },
+        { id: "http-endpoint:get:/products", kind: "http-endpoint", label: "GET /products" },
       ],
     })
 
     expect(output).toContain("digraph sfcc_project {")
     expect(output).toContain('[label="precedes"]')
     expect(output).toContain('[label="GET Product-Show", shape="oval"]')
+    expect(output).toContain('[label="GET /products", shape="oval"]')
     expect(output).not.toContain("<green>")
   })
 
@@ -75,6 +77,7 @@ describe("renderProjectGraph", () => {
         { id: "custom-api:getExample", kind: "custom-api", label: "getExample" },
         { id: "route:Product:Show", kind: "route", label: "GET Product-Show" },
         { id: "middleware:authorize", kind: "middleware", label: "authorizeCustomer" },
+        { id: "http-endpoint:get:/products", kind: "http-endpoint", label: "GET /products" },
       ],
     })
 
@@ -84,6 +87,7 @@ describe("renderProjectGraph", () => {
     expect(output).toContain('n3["getExample"]:::customApi')
     expect(output).toContain('n4["GET Product-Show"]:::route')
     expect(output).toContain('n5["authorizeCustomer"]:::middleware')
+    expect(output).toContain('n6["GET /products"]:::httpEndpoint')
     expect(output).toContain("n0 -->|precedes| n1")
     expect(output).toContain("classDef cartridge fill:#d9e8f5")
     expect(output).not.toContain("cartridge:/project")
