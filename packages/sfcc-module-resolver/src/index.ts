@@ -59,10 +59,12 @@ export type {
   ValidateSfccProjectOptions,
 } from "./project-validation.ts"
 
-export { createSfccProjectGraph } from "./project-graph.ts"
+export { createSfccProjectGraph, filterSfccProjectGraph } from "./project-graph.ts"
 export type {
   CreateSfccProjectGraphOptions,
+  FilterSfccProjectGraphOptions,
   SfccProjectGraph,
+  SfccProjectGraphDirection,
   SfccProjectGraphEdge,
   SfccProjectGraphEdgeKind,
   SfccProjectGraphNode,

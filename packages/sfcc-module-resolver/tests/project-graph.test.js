@@ -3,7 +3,7 @@ import os from "node:os"
 import path from "node:path"
 import { expect, test } from "vite-plus/test"
 
-import { createSfccProjectGraph } from "../src/index.ts"
+import { createSfccProjectGraph, filterSfccProjectGraph } from "../src/index.ts"
 
 function withTempDir(run) {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-project-graph-test-"))
@@ -59,6 +59,50 @@ test("createSfccProjectGraph maps cartridge precedence and transitive super modu
       },
     ])
   })
+})
+
+test("filterSfccProjectGraph traverses focused relationships by direction and depth", () => {
+  const graph = {
+    cartridgesDirectory: "/project/cartridges",
+    cartridgeOrder: [],
+    nodes: [
+      { id: "route:Product:Show", kind: "route", label: "GET Product-Show" },
+      { id: "middleware:authorize", kind: "middleware", label: "authorizeCustomer" },
+      { id: "middleware:render", kind: "middleware", label: "renderProduct" },
+      { id: "module:Product.js", kind: "module", label: "Product.js", path: "/project/Product.js" },
+      { id: "route:Product:Search", kind: "route", label: "GET Product-Search" },
+    ],
+    edges: [
+      { from: "module:Product.js", kind: "registers", to: "route:Product:Show" },
+      { from: "route:Product:Show", kind: "starts", to: "middleware:authorize" },
+      { from: "middleware:authorize", kind: "next", to: "middleware:render" },
+      { from: "module:Product.js", kind: "registers", to: "route:Product:Search" },
+    ],
+  }
+
+  expect(filterSfccProjectGraph(graph, { focus: "product-show" })).toMatchObject({
+    nodes: [
+      { id: "route:Product:Show" },
+      { id: "middleware:authorize" },
+      { id: "middleware:render" },
+    ],
+    edges: [
+      { from: "route:Product:Show", kind: "starts", to: "middleware:authorize" },
+      { from: "middleware:authorize", kind: "next", to: "middleware:render" },
+    ],
+  })
+  expect(
+    filterSfccProjectGraph(graph, {
+      focus: "authorizecustomer",
+      depth: 1,
+      direction: "dependents",
+    }).nodes.map((node) => node.id),
+  ).toEqual(["route:Product:Show", "middleware:authorize"])
+  expect(
+    filterSfccProjectGraph(graph, { focus: "/project/Product.js", depth: 1 }).nodes.map(
+      (node) => node.id,
+    ),
+  ).toEqual(["route:Product:Show", "module:Product.js", "route:Product:Search"])
 })
 
 test("createSfccProjectGraph maps contracts and supports a focused module graph", () => {

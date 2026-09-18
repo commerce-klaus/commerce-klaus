@@ -7,13 +7,15 @@ import {
   renderProjectGraphDot,
   renderProjectGraphMermaid,
 } from "../../output.js"
-import { getProjectGraph, type ProjectGraph } from "../../project.js"
+import { getProjectGraph, type ProjectGraph, type ProjectGraphDirection } from "../../project.js"
 
 export default class Graph extends Command {
   static enableJsonFlag = true
   static summary = "Visualize SFCC cartridge and contract relationships"
   static examples = [
     "<%= config.bin %> klaus graph",
+    "<%= config.bin %> klaus graph --focus 'Product-Show'",
+    "<%= config.bin %> klaus graph --focus 'Product.js' --depth 2 --direction both",
     "<%= config.bin %> klaus graph --module '*/cartridge/models/product'",
     "<%= config.bin %> klaus graph --format dot --output sfcc-project.dot",
     "<%= config.bin %> klaus graph --format mermaid --output sfcc-project.mmd",
@@ -32,6 +34,16 @@ export default class Graph extends Command {
       options: ["dot", "json", "mermaid", "text"],
       default: "text",
     }),
+    focus: Flags.string({
+      description: "Focus on nodes whose ID, label, or path contains this value",
+    }),
+    depth: Flags.integer({
+      description: "Maximum relationship depth from focused nodes",
+    }),
+    direction: Flags.string({
+      description: "Traverse dependencies, dependents, or both from focused nodes",
+      options: ["both", "dependencies", "dependents"],
+    }),
     module: Flags.string({
       description: "Focus on a */cartridge/... module across the cartridge path",
     }),
@@ -49,6 +61,21 @@ export default class Graph extends Command {
     if (this.jsonEnabled() && flags.output) {
       this.error("--output cannot be combined with --json; use --format json instead")
     }
+    if (flags.focus !== undefined && flags.focus.trim() === "") {
+      this.error("--focus must not be empty")
+    }
+    if (flags.focus && flags.module) {
+      this.error("--focus cannot be combined with --module")
+    }
+    if (flags.depth !== undefined && !flags.focus) {
+      this.error("--depth requires --focus")
+    }
+    if (flags.depth !== undefined && flags.depth < 0) {
+      this.error("--depth must be zero or greater")
+    }
+    if (flags.direction && !flags.focus) {
+      this.error("--direction requires --focus")
+    }
 
     let result: ProjectGraph
     try {
@@ -56,6 +83,9 @@ export default class Graph extends Command {
         cwd: process.cwd(),
         cartridgesDir: flags["cartridges-dir"],
         cartridgePath: flags["cartridge-path"],
+        depth: flags.depth,
+        direction: flags.direction as ProjectGraphDirection | undefined,
+        focus: flags.focus,
         module: flags.module,
       })
     } catch (error) {

@@ -73,11 +73,19 @@ const result = validateSfccProject({
 Build a project relationship graph for JSON, text, or Graphviz consumers:
 
 ```ts
-import { createSfccProjectGraph } from "@commerce-klaus/sfcc-module-resolver"
+import {
+  createSfccProjectGraph,
+  filterSfccProjectGraph,
+} from "@commerce-klaus/sfcc-module-resolver"
 
 const graph = createSfccProjectGraph({
   cartridgesDir: "cartridges",
   cartridgePath: ["app_custom", "app_storefront_base"],
+})
+
+const productRouteGraph = filterSfccProjectGraph(graph, {
+  focus: "Product-Show",
+  direction: "dependencies",
 })
 ```
 
@@ -88,6 +96,9 @@ pipeline in execution order, including replaced routes. Dynamic route names
 are left out rather than guessed. Custom API nodes link to both their OpenAPI
 schema and resolved implementation script, with the matching HTTP method and
 path represented as the request entry point.
+`filterSfccProjectGraph()` matches node IDs, labels, and paths
+case-insensitively. It follows outgoing dependencies by default and supports
+`dependents` or `both` traversal with an optional maximum depth.
 
 ## Documentation
 

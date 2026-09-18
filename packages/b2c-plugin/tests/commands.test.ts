@@ -112,6 +112,48 @@ describe("command execution", () => {
     expect(output[0]).not.toContain("Graphing SFCC project")
   })
 
+  test("graph focuses on matching nodes and their dependencies", async () => {
+    const projectDirectory = createProjectDirectory()
+    const controllerPath = path.join(
+      projectDirectory,
+      "cartridges",
+      "app_custom",
+      "cartridge",
+      "controllers",
+      "Product.js",
+    )
+    fs.mkdirSync(path.dirname(controllerPath), { recursive: true })
+    fs.writeFileSync(
+      controllerPath,
+      [
+        'const server = require("server")',
+        'server.get("Show", authorizeCustomer, renderProduct)',
+        'server.get("Search", searchProducts)',
+        "module.exports = server.exports()",
+      ].join("\n"),
+    )
+    captureStdout()
+    vi.spyOn(ux, "colorizeJson").mockImplementation((value) => JSON.stringify(value))
+
+    const result = await Graph.run(
+      [
+        "--cartridges-dir",
+        path.join(projectDirectory, "cartridges"),
+        "--focus",
+        "Product-Show",
+        "--json",
+      ],
+      { root: packageDirectory },
+    )
+
+    expect(result.nodes.map((node) => node.label)).toEqual([
+      "GET Product-Show",
+      "authorizeCustomer",
+      "renderProduct",
+    ])
+    expect(result.nodes.some((node) => node.label === "GET Product-Search")).toBe(false)
+  })
+
   test("graph emits Graphviz DOT without human status text", async () => {
     const projectDirectory = createProjectDirectory()
     fs.mkdirSync(path.join(projectDirectory, "cartridges", "app_custom", "cartridge"), {

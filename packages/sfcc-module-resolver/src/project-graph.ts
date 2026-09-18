@@ -47,6 +47,14 @@ export interface SfccProjectGraphEdge {
   to: string
 }
 
+export type SfccProjectGraphDirection = "both" | "dependencies" | "dependents"
+
+export interface FilterSfccProjectGraphOptions {
+  focus: string
+  depth?: number
+  direction?: SfccProjectGraphDirection
+}
+
 export interface SfccProjectGraph {
   cartridgesDirectory: string
   cartridgeOrder: string[]
@@ -60,6 +68,60 @@ export interface CreateSfccProjectGraphOptions {
   cwd?: string
   cartridgePath?: string[]
   module?: string
+}
+
+export function filterSfccProjectGraph(
+  graph: SfccProjectGraph,
+  options: FilterSfccProjectGraphOptions,
+): SfccProjectGraph {
+  const focus = options.focus.toLocaleLowerCase()
+  const direction = options.direction ?? "dependencies"
+  const includedNodeIds = new Set(
+    graph.nodes
+      .filter((node) =>
+        [node.id, node.label, node.path]
+          .filter((value): value is string => value !== undefined)
+          .some((value) => value.toLocaleLowerCase().includes(focus)),
+      )
+      .map((node) => node.id),
+  )
+  let frontier = [...includedNodeIds]
+
+  for (
+    let currentDepth = 0;
+    frontier.length > 0 && currentDepth < (options.depth ?? Infinity);
+    currentDepth += 1
+  ) {
+    const nextFrontier = new Set<string>()
+    for (const edge of graph.edges) {
+      if (
+        (direction === "dependencies" || direction === "both") &&
+        frontier.includes(edge.from) &&
+        !includedNodeIds.has(edge.to)
+      ) {
+        nextFrontier.add(edge.to)
+      }
+      if (
+        (direction === "dependents" || direction === "both") &&
+        frontier.includes(edge.to) &&
+        !includedNodeIds.has(edge.from)
+      ) {
+        nextFrontier.add(edge.from)
+      }
+    }
+    frontier = [...nextFrontier]
+    for (const nodeId of frontier) {
+      includedNodeIds.add(nodeId)
+    }
+  }
+
+  return {
+    ...graph,
+    nodes: graph.nodes.filter((node) => includedNodeIds.has(node.id)),
+    edges: graph.edges.filter(
+      (edge) => includedNodeIds.has(edge.from) && includedNodeIds.has(edge.to),
+    ),
+  }
 }
 
 export function createSfccProjectGraph(options: CreateSfccProjectGraphOptions): SfccProjectGraph {

@@ -276,7 +276,7 @@ test("CLI anchors hook diagnostics to the specific hooks.json registration", asy
   })
 })
 
-test("CLI reports malformed and unresolved hook registrations", async () => {
+typecheckTest("CLI reports malformed and unresolved hook registrations", async () => {
   await withTempDir(async (tempDir) => {
     const { solutionConfigPath } = setupValidProject(tempDir)
     const cartridgeRoot = path.join(tempDir, "cartridges", "app_base")

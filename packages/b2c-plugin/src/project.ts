@@ -1,5 +1,6 @@
 import {
   createSfccProjectGraph,
+  filterSfccProjectGraph,
   findCustomApiDefinitions,
   findResolvedHookRegistrations,
   findResolvedStepTypeDefinitions,
@@ -7,6 +8,7 @@ import {
   resolveCartridgesDir,
   validateSfccProject,
   type SfccProjectGraph,
+  type SfccProjectGraphDirection,
   type SfccProjectValidationResult,
 } from "@commerce-klaus/sfcc-module-resolver"
 import fs from "node:fs"
@@ -32,14 +34,36 @@ export type ProjectValidation = SfccProjectValidationResult & {
 }
 
 export type ProjectGraph = SfccProjectGraph
+export type ProjectGraphDirection = SfccProjectGraphDirection
 
-export function getProjectGraph(options: ProjectOptions & { module?: string }): ProjectGraph {
-  return createSfccProjectGraph({
+export function getProjectGraph(
+  options: ProjectOptions & {
+    depth?: number
+    direction?: SfccProjectGraphDirection
+    focus?: string
+    module?: string
+  },
+): ProjectGraph {
+  const graph = createSfccProjectGraph({
     cartridgesDir: options.cartridgesDir,
     cwd: options.cwd,
     cartridgePath: options.cartridgePath?.split(":"),
     module: options.module,
   })
+  if (!options.focus) {
+    return graph
+  }
+
+  const focusedGraph = filterSfccProjectGraph(graph, {
+    focus: options.focus,
+    depth: options.depth,
+    direction: options.direction,
+  })
+  if (focusedGraph.nodes.length === 0) {
+    throw new Error(`No graph nodes match focus: ${options.focus}`)
+  }
+
+  return focusedGraph
 }
 
 export function getProjectInspection(options: ProjectOptions): ProjectInspection {

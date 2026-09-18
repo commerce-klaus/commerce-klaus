@@ -339,6 +339,8 @@ implementations, and Custom API HTTP endpoints, schemas, and scripts:
 
 ```bash [pnpm]
 pnpm exec b2c klaus graph
+pnpm exec b2c klaus graph --focus 'Product-Show'
+pnpm exec b2c klaus graph --focus 'Product.js' --depth 2 --direction both
 pnpm exec b2c klaus graph --module '*/cartridge/models/product'
 pnpm exec b2c klaus graph --format dot --output sfcc-project.dot
 pnpm exec b2c klaus graph --format mermaid --output sfcc-project.mmd
@@ -347,6 +349,8 @@ pnpm exec b2c klaus graph --format json --output sfcc-project.json
 
 ```bash [yarn]
 yarn exec b2c klaus graph
+yarn exec b2c klaus graph --focus 'Product-Show'
+yarn exec b2c klaus graph --focus 'Product.js' --depth 2 --direction both
 yarn exec b2c klaus graph --module '*/cartridge/models/product'
 yarn exec b2c klaus graph --format dot --output sfcc-project.dot
 yarn exec b2c klaus graph --format mermaid --output sfcc-project.mmd
@@ -355,6 +359,8 @@ yarn exec b2c klaus graph --format json --output sfcc-project.json
 
 ```bash [npm]
 npm exec -- b2c klaus graph
+npm exec -- b2c klaus graph --focus 'Product-Show'
+npm exec -- b2c klaus graph --focus 'Product.js' --depth 2 --direction both
 npm exec -- b2c klaus graph --module '*/cartridge/models/product'
 npm exec -- b2c klaus graph --format dot --output sfcc-project.dot
 npm exec -- b2c klaus graph --format mermaid --output sfcc-project.mmd
@@ -363,6 +369,8 @@ npm exec -- b2c klaus graph --format json --output sfcc-project.json
 
 ```bash [Vite+]
 vp exec b2c klaus graph
+vp exec b2c klaus graph --focus 'Product-Show'
+vp exec b2c klaus graph --focus 'Product.js' --depth 2 --direction both
 vp exec b2c klaus graph --module '*/cartridge/models/product'
 vp exec b2c klaus graph --format dot --output sfcc-project.dot
 vp exec b2c klaus graph --format mermaid --output sfcc-project.mmd
@@ -376,6 +384,12 @@ emits Graphviz DOT without decorative output, while `--format mermaid` emits a
 left-to-right Mermaid flowchart suitable for Markdown and documentation.
 `--json` returns the same nodes and typed edges as structured data. `--module`
 accepts the `*/cartridge/...` form and limits module discovery to that path.
+`--focus` matches node IDs, labels, and paths case-insensitively and follows
+outgoing dependencies by default. `--direction dependents` follows incoming
+relationships instead, while `--direction both` traverses in both directions.
+Use `--depth <number>` to limit the number of traversed relationships. A depth
+of zero returns only matching nodes. `--focus` and `--module` are mutually
+exclusive.
 `--output` (short form `-o`) writes text, DOT, Mermaid, or JSON directly to a
 file and creates missing parent directories. Use
 `--format json --output <path>` for a JSON artifact; the standard `--json` flag

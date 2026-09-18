@@ -113,6 +113,8 @@ steps, and Custom APIs. Use JSON output for CI or editor integrations.
 
 ```bash
 b2c klaus graph
+b2c klaus graph --focus 'Product-Show'
+b2c klaus graph --focus 'Product.js' --depth 2 --direction both
 b2c klaus graph --module '*/cartridge/models/product'
 b2c klaus graph --format dot --output sfcc-project.dot
 b2c klaus graph --format mermaid --output sfcc-project.mmd
@@ -125,7 +127,10 @@ HTTP endpoints, schemas, and implementation scripts. Use `--json` for
 structured graph data or `--format dot` for Graphviz output. `--format
 mermaid` emits a Mermaid flowchart that can be embedded in Markdown. `--output`
 (or `-o`) writes text, DOT, Mermaid, or JSON directly to a file and creates
-missing parent directories.
+missing parent directories. `--focus` matches node IDs, labels, and paths
+case-insensitively, then follows outgoing dependencies. Use `--depth` to limit
+the traversal or `--direction dependents|both` to include incoming
+relationships. `--focus` and `--module` are mutually exclusive.
 
 ## Resolve a module
 
