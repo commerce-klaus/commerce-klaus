@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.1
+
+### Patch Changes
+
+- 5a370b2: Load the project's TypeScript compiler for cartridge typechecks, including checks invoked through the B2C CLI plugin. TypeScript 7 is excluded until compatibility is verified. The B2C plugin now requires a TypeScript SFCC version that exposes its plugin command API.
+
 ## 1.7.0
 
 ### Minor Changes

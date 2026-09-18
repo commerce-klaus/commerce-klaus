@@ -1,6 +1,6 @@
 {
   "name": "@commerce-klaus/b2c-plugin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Commerce Klaus commands for the Salesforce B2C CLI",
   "keywords": [
     "b2c-cli",
