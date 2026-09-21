@@ -26,6 +26,7 @@ const unicorn: Linter.RulesRecord = {
   "unicorn/prefer-module": "off",
   "unicorn/prefer-optional-catch-binding": "off",
   "unicorn/prefer-reflect-apply": "off",
+  "unicorn/prefer-string-raw": "off",
   "unicorn/prefer-structured-clone": "off",
   "unicorn/prefer-string-replace-all": "off",
   "unicorn/prefer-spread": "off",

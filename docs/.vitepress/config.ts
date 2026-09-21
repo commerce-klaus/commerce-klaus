@@ -159,6 +159,10 @@ export default defineConfig({
                   link: "/packages/eslint-config-sfcc/rules/sfcc/no-string-equals",
                 },
                 {
+                  text: "no-string-raw",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc/no-string-raw",
+                },
+                {
                   text: "no-type-annotations",
                   link: "/packages/eslint-config-sfcc/rules/sfcc/no-type-annotations",
                 },

@@ -315,11 +315,6 @@ describe("✅ SFCC Compatibility - Allowed ES2015+ Features", () => {
     expect(hasErrors(messages)).toBe(false)
   })
 
-  test("✅ String.raw", async () => {
-    const messages = await lint("const value = String.raw`line1\\nline2`\nmodule.exports = value")
-    expect(hasErrors(messages)).toBe(false)
-  })
-
   test("✅ Object.values", async () => {
     const messages = await lint(`
       const obj = { a: 1, b: 2 }
@@ -521,6 +516,11 @@ describe("❌ SFCC Compatibility - Disallowed ES2015+ Features", () => {
       var regex = /test/y
     `)
       expect(hasErrors(messages)).toBe(true)
+    })
+
+    test("❌ String.raw", async () => {
+      const messages = await lint("const value = String.raw`line1\\nline2`\nmodule.exports = value")
+      expect(messages.some((message) => message.ruleId === "sfcc/no-string-raw")).toBe(true)
     })
   })
 })

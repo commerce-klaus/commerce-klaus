@@ -9,6 +9,7 @@ const sfcc: Linter.RulesRecord = {
   "sfcc/no-type-annotations": "error",
   "sfcc/no-rhino-import-globals": "error",
   "sfcc/no-string-equals": "error",
+  "sfcc/no-string-raw": "error",
   "sfcc/prefer-const": "error",
   "sfcc/rhino-const-compat": "error",
   "sfcc/rhino-const-conflict": "error",

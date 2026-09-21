@@ -31,7 +31,7 @@ ES5 code remains valid, but it is the compatibility floor, not the target style.
 
 - **Language syntax:** `const` and `let`, arrow functions, destructuring, template literals, generator functions, exponentiation, and `for...of`
 - **Array:** `Array.from`, `Array.of`, `Array.prototype.find`, `Array.prototype.findIndex`, and `Array.prototype.includes`
-- **String:** `String.raw`, `String.fromCodePoint`, and the `includes`, `startsWith`, `endsWith`, `repeat`, `padStart`, and `padEnd` prototype methods
+- **String:** `String.fromCodePoint` and the `includes`, `startsWith`, `endsWith`, `repeat`, `padStart`, and `padEnd` prototype methods
 - **Object:** `Object.assign`, `Object.values`, and `Object.entries`
 - **Number:** `Number.isFinite`, `Number.isNaN`, `Number.isSafeInteger`, `Number.parseInt`, and `Number.parseFloat`
 
@@ -330,6 +330,7 @@ Use this section to decide whether a pattern is safe on SFCC, requires a targete
 | `importScript`, `importPackage`, or `importClass`   | Lint error   | Use CommonJS `require()`; see [`sfcc/no-rhino-import-globals`](rules/sfcc/no-rhino-import-globals.md). |
 | SFCC `empty(...)`                                   | Lint error   | Use an explicit type-appropriate check; see [`sfcc/no-empty-global`](rules/sfcc/no-empty-global.md).   |
 | Java-style `String.equals(...)`                     | Lint error   | Use strict equality; see [`sfcc/no-string-equals`](rules/sfcc/no-string-equals.md).                    |
+| `String.raw`                                        | Lint error   | Use an escaped string literal; see [`sfcc/no-string-raw`](rules/sfcc/no-string-raw.md).                |
 | `.ds` file                                          | Lint error   | Rename it to `.js`; see [`sfcc/no-ds-files`](rules/sfcc/no-ds-files.md).                               |
 | `default xml namespace = "..."` or `for each (...)` | Parser error | Rewrite it before lint rules can run.                                                                  |
 
@@ -454,6 +455,7 @@ Every rule in this plugin addresses an intentional compatibility or project-poli
 | [sfcc/no-custom-api-additional-properties](rules/sfcc/no-custom-api-additional-properties.md) | Disallows `additionalProperties` in Custom API request body schemas, since the platform does not register such endpoints.                                                                                    | `error` |
 | [sfcc/no-custom-api-response-methods](rules/sfcc/no-custom-api-response-methods.md)           | Disallows legacy global `response` APIs in Custom API implementations, which must return JSON through `RESTResponseMgr`.                                                                                     | `error` |
 | [sfcc/no-string-equals](rules/sfcc/no-string-equals.md)                                       | Disallows Java-style `String.equals(...)` calls in JavaScript files. Use strict equality (`===`) instead.                                                                                                    | `error` |
+| [sfcc/no-string-raw](rules/sfcc/no-string-raw.md)                                             | Disallows `String.raw` because affected SFCC Rhino versions can expose its result as an internal `ConsString` to Java-backed platform APIs.                                                                  | `error` |
 | [sfcc/no-type-annotations](rules/sfcc/no-type-annotations.md)                                 | Disallows type annotation syntax in JavaScript files (e.g. `const x: string = ...`, `function y(): number {}`). Rhino/E4X may accept it, but it is invalid in standard JavaScript; use JSDoc typing instead. | `error` |
 | [sfcc/no-rhino-import-globals](rules/sfcc/no-rhino-import-globals.md)                         | Disallows legacy Rhino globals `importScript(...)`, `importPackage(...)`, and `importClass(...)`. Use CommonJS `require()` instead.                                                                          | `error` |
 | [sfcc/no-rhino-extensions](rules/sfcc/no-rhino-extensions.md)                                 | Disallows Rhino and LiveConnect runtime globals such as `Iterator`, `Packages`, `java`, and `javax`.                                                                                                         | Off     |

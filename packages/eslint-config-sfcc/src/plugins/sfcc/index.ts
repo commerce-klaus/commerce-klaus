@@ -18,6 +18,7 @@ import noRhinoImportGlobals from "./no-rhino-import-globals.js"
 import noServiceFramework from "./no-service-framework.js"
 import noSfraServer from "./no-sfra-server.js"
 import noStringEquals from "./no-string-equals.js"
+import noStringRaw from "./no-string-raw.js"
 import noTypeAnnotations from "./no-type-annotations.js"
 import preferConst from "./prefer-const.js"
 import preferGeneratedCustomApiTypes from "./prefer-generated-custom-api-types.js"
@@ -60,6 +61,7 @@ const sfcc = {
     "no-service-framework": noServiceFramework,
     "no-sfra-server": noSfraServer,
     "no-string-equals": noStringEquals,
+    "no-string-raw": noStringRaw,
     "prefer-generated-custom-api-types": preferGeneratedCustomApiTypes,
     "prefer-generated-hook-types": preferGeneratedHookTypes,
     "prefer-generated-job-step-types": preferGeneratedJobStepTypes,
