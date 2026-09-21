@@ -1,5 +1,10 @@
 import type { Linter } from "eslint"
 
+import {
+  compatibility21_2,
+  compatibility22_7,
+  createCompatibilityConfig,
+} from "./configs/compatibility.js"
 import generatedTypes, { createGeneratedTypesConfig } from "./configs/generated-types.js"
 import oxlint, { oxlintRules } from "./configs/oxlint.js"
 import recommended, { createRecommendedConfig } from "./configs/recommended.js"
@@ -15,6 +20,8 @@ import sfccPlugin from "./plugins/sfcc/index.js"
 import sitegenesis from "./plugins/sitegenesis/index.js"
 
 type Configs = {
+  "compatibility-21.2": Linter.Config[]
+  "compatibility-22.7": Linter.Config[]
   "generated-types": Linter.Config[]
   recommended: Linter.Config[]
   "storefront-next": Linter.Config[]
@@ -25,6 +32,8 @@ type Configs = {
 }
 
 const configs: Configs = {
+  "compatibility-21.2": compatibility21_2,
+  "compatibility-22.7": compatibility22_7,
   "generated-types": generatedTypes,
   recommended,
   "storefront-next": storefrontNext,
@@ -45,6 +54,8 @@ const eslintConfigSfcc: { configs: typeof configs; plugins: typeof plugins } = {
 }
 
 export {
+  compatibility21_2,
+  compatibility22_7,
   configs,
   generatedTypes,
   oxlint,
@@ -59,7 +70,13 @@ export {
   sitegenesisControllers,
   sitegenesisPipelines,
 }
-export { createGeneratedTypesConfig, createRecommendedConfig, createStorefrontConfig }
+export {
+  createCompatibilityConfig,
+  createGeneratedTypesConfig,
+  createRecommendedConfig,
+  createStorefrontConfig,
+}
+export type { CompatibilityConfigOptions, CompatibilityVersion } from "./configs/compatibility.js"
 export type { GeneratedTypesConfigOptions } from "./configs/generated-types.js"
 export type { StorefrontConfigOptions, StorefrontPreset } from "./configs/storefront.js"
 export default eslintConfigSfcc

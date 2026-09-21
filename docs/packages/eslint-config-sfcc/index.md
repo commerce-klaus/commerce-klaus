@@ -31,9 +31,10 @@ ES5 code remains valid, but it is the compatibility floor, not the target style.
 
 - **Language syntax:** `const` and `let`, arrow functions, destructuring, template literals, generator functions, exponentiation, and `for...of`
 - **Array:** `Array.from`, `Array.of`, `Array.prototype.find`, `Array.prototype.findIndex`, and `Array.prototype.includes`
-- **String:** `String.fromCodePoint` and the `includes`, `startsWith`, `endsWith`, `repeat`, `padStart`, and `padEnd` prototype methods
-- **Object:** `Object.assign`, `Object.values`, and `Object.entries`
+- **String:** `String.fromCodePoint` and the `includes`, `startsWith`, `endsWith`, `repeat`, `padStart`, `padEnd`, `trimStart`, and `trimEnd` prototype methods
+- **Object:** `Object.assign`, `Object.values`, `Object.entries`, and `Object.fromEntries`
 - **Number:** `Number.isFinite`, `Number.isNaN`, `Number.isSafeInteger`, `Number.parseInt`, and `Number.parseFloat`
+- **Globals and primitives:** `globalThis` and `BigInt`
 
 The rule configuration and integration tests define the compatibility contract. Features outside this verified set may still be restricted when the sandbox cannot execute them reliably.
 
@@ -77,6 +78,35 @@ export default defineConfig(
 
 By default, JavaScript files under `cartridges/` are linted. Client-side and static asset folders are excluded.
 The config disables Node.js and browser globals inherited from earlier flat config entries, then enables only the CommonJS and SFCC runtime globals available to server-side cartridge code.
+
+### Older compatibility modes
+
+The recommended config follows the current SFCC Script API. Add a compatibility preset after `recommended` when a code version targets an older compatibility mode:
+
+```js [eslint.config.js]
+import { defineConfig } from "eslint/config"
+import sfcc from "@commerce-klaus/eslint-config-sfcc"
+
+export default defineConfig(sfcc.configs.recommended, sfcc.configs["compatibility-21.2"])
+```
+
+| Preset               | Additional restrictions                                                                                                                               |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `compatibility-21.2` | Disallows BigInt, `globalThis`, and `Object.entries`, `Object.values`, and `Object.fromEntries`; disables conflicting Unicorn replacement suggestions |
+| `compatibility-22.7` | Currently none; establishes an explicit 22.7 contract for future Script API additions                                                                 |
+
+Use `createCompatibilityConfig()` to apply an older mode to a custom cartridges directory or explicit file globs:
+
+```js [eslint.config.js]
+import { createCompatibilityConfig } from "@commerce-klaus/eslint-config-sfcc"
+
+export default defineConfig(
+  sfcc.configs.recommended,
+  createCompatibilityConfig("21.2", { cartridgesDir: "commerce/cartridges" }),
+)
+```
+
+Compatibility presets are additive restrictions. They do not replace `recommended` and must be composed after it.
 
 ## SFCC module resolution
 

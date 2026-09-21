@@ -19,6 +19,25 @@ async function lint(code: string, filename = "fixture.js") {
 }
 
 describe("unicorn:recommended config", () => {
+  test.each([
+    ["array reversal", "const reversed = [...values].reverse()", "unicorn/no-array-reverse"],
+    ["array splicing", "const shortened = values.splice(0, 1)", "unicorn/no-array-splice"],
+    [
+      "last array match",
+      "const result = values.filter(Boolean).pop()",
+      "unicorn/prefer-array-find",
+    ],
+    [
+      "string match iteration",
+      "let match; while ((match = /x/g.exec(value))) consume(match)",
+      "unicorn/prefer-string-match-all",
+    ],
+  ])("does not suggest unsupported %s APIs", async (_name, code, ruleId) => {
+    const messages = await lint(code)
+
+    expect(messages.some((message) => message.ruleId === ruleId)).toBe(false)
+  })
+
   test("flags legacy underscore controller filename", async () => {
     const code = "module.exports = function handle() {}"
     const messages = await lint(code, "cartridges/app/cartridge/controllers/checkout_controller.js")

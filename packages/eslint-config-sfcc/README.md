@@ -11,6 +11,7 @@ Shareable ESLint flat config for Salesforce Commerce Cloud projects. It catches 
 - Handles Rhino-specific `const` and scoping behavior
 - Includes SFCC and SiteGenesis rules
 - Provides Storefront Next, PWA, SFRA, and SiteGenesis policy presets
+- Provides additive presets for older SFCC compatibility modes
 - Provides an opt-in preset for enforcing generated project types at metadata boundaries
 - Supports ESLint and an Oxlint-compatible preset
 
@@ -52,6 +53,18 @@ The recommended config checks server-side JavaScript below `cartridges/` and exc
 It also disables Node.js and browser globals inherited from earlier flat config entries while keeping CommonJS and SFCC runtime globals available.
 
 It also disables selected incompatible rules from ESLint core/recommended, `eslint-plugin-unicorn`, `typescript-eslint`, and `eslint-plugin-sonarjs`. This keeps those presets usable alongside SFCC code without suggesting unsupported Rhino syntax, APIs, or module patterns. See the configuration guide for the documented compatibility overrides.
+
+The recommended config follows the current SFCC Script API. Projects using an older
+compatibility mode can add the corresponding preset after `recommended`:
+
+```js
+export default defineConfig(sfcc.configs.recommended, sfcc.configs["compatibility-21.2"])
+```
+
+Presets are available for compatibility modes `21.2` and `22.7`. The `22.7` preset
+currently matches the recommended API baseline and establishes an explicit version
+contract for future Script API additions. The `21.2` preset also prevents Unicorn
+from suggesting BigInt, `globalThis`, or `Object.fromEntries` as replacements.
 
 ## Documentation
 

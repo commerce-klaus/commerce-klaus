@@ -6,11 +6,15 @@ import type { Linter } from "eslint"
 const es: Linter.RulesRecord = {
   // features that are supported
   "es-x/no-array-prototype-includes": "off",
+  "es-x/no-bigint": "off",
   "es-x/no-exponential-operators": "off",
+  "es-x/no-global-this": "off",
   "es-x/no-object-values": "off",
   "es-x/no-object-entries": "off",
+  "es-x/no-object-fromentries": "off",
   "es-x/no-for-of-loops": "off",
   "es-x/no-string-prototype-padstart-padend": "off",
+  "es-x/no-string-prototype-trimstart-trimend": "off",
 
   // ES2015 features not supported on SFCC/Rhino:
   "es-x/no-classes": "error",
