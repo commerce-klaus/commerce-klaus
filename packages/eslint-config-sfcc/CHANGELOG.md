@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.12.0
+
+### Minor Changes
+
+- 562409d: Add `compatibility-21.2` and `compatibility-22.7` presets for projects targeting older SFCC compatibility modes. Keep the recommended config aligned with the current Script API and prevent Unicorn from suggesting unsupported runtime APIs or syntax.
+
+### Patch Changes
+
+- 21b198d: Add the recommended `sfcc/no-string-raw` rule to prevent Rhino `ConsString` values from leaking into Java-backed SFCC APIs, with an auto-fix for static tagged templates. Disable `unicorn/prefer-string-raw` because its suggestions are unsafe for affected SFCC Rhino versions.
+
 ## 1.11.0
 
 ### Minor Changes
