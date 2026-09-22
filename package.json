@@ -10,7 +10,7 @@
     "docs:preview": "vitepress preview docs",
     "version-packages": "changeset version",
     "version-packages-lockfile": "changeset version && vp install --lockfile-only -- --link-workspace-packages && vp fmt",
-    "release": "vp pm publish -r --report-summary",
+    "release": "vp pm publish -r --report-summary && jq -c '.publishedPackages[] | {type: \"git-tag\", tag: (.name + \"@\" + .version), packageName: .name}' pnpm-publish-summary.json > \"$CHANGESETS_OUTPUT\"",
     "ready": "vp check && vp run -r test && vp run -r build && vp run docs:build",
     "prepare": "vp config"
   },
