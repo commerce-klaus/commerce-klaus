@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.12.1
+
+### Patch Changes
+
+- 9a0ba6b: Disable `unicorn/no-for-each` to prevent unsafe `for...of` replacements for SFCC host objects, and document why SFCC compatibility overrides are required.
+
 ## 1.12.0
 
 ### Minor Changes
