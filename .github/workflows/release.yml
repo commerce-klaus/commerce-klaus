@@ -31,27 +31,38 @@ jobs:
       - name: Bootstrap workspace packages
         run: vp run --no-cache --filter "./packages/*" build
 
-      - name: Create release PR or publish
+      - name: Create or update release PR
         id: changesets
         uses: changesets/action@v2.1.2
         with:
           version-script: vp run version-packages-lockfile
-          publish-script: vp run release
-          create-github-releases: true
-          push-git-tags: true
           commit-message: "chore(release): version packages"
           pr-title: "chore(release): version packages"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish packages
+        if: steps.changesets.outputs.has-changesets == 'false'
+        run: vp run release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEBUG: "*"
           NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
           NPM_CONFIG_LOGLEVEL: verbose
+
+      - name: Create tags and GitHub releases
+        id: publish
+        if: steps.changesets.outputs.has-changesets == 'false'
+        uses: changesets/action/publish@v2.1.2
+        with:
+          script: vp run release:output
+          create-github-releases: true
+          push-git-tags: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Release diagnostics
         if: always()
         run: |
           set -euo pipefail
-          echo "changesets.outputs.published=${{ steps.changesets.outputs.published }}"
-          echo "changesets.outputs.publishedPackages=${{ steps.changesets.outputs.publishedPackages }}"
+          echo "publish.outputs.published=${{ steps.publish.outputs.published }}"
+          echo "publish.outputs.publishedPackages=${{ steps.publish.outputs.published-packages }}"
           echo "Tags on HEAD:"
           git tag --points-at HEAD || true
