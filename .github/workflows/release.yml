@@ -37,6 +37,8 @@ jobs:
         with:
           version-script: vp run version-packages-lockfile
           publish-script: vp run release
+          create-github-releases: true
+          push-git-tags: true
           commit-message: "chore(release): version packages"
           pr-title: "chore(release): version packages"
         env:
