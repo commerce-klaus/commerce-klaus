@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.12.2
+
+### Patch Changes
+
+- 5775694: Validate the npm Trusted Publishing release workflow.
+
 ## 1.12.1
 
 ### Patch Changes
