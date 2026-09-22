@@ -45,7 +45,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEBUG: "*"
           NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
-          NPM_CONFIG_PROVENANCE: true
           NPM_CONFIG_LOGLEVEL: verbose
 
       - name: Release diagnostics
