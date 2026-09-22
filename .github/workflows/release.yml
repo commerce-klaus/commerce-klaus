@@ -36,7 +36,10 @@ jobs:
         uses: changesets/action@v2.1.2
         with:
           version-script: vp run version-packages-lockfile
-          publish-script: vp run release
+          publish-script: >-
+            vp run release &&
+            jq -c '.publishedPackages[] | {type: "git-tag", tag: (.name + "@" + .version), packageName: .name}'
+            pnpm-publish-summary.json > "$CHANGESETS_OUTPUT"
           create-github-releases: true
           push-git-tags: true
           commit-message: "chore(release): version packages"
