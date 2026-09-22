@@ -53,7 +53,7 @@ jobs:
         if: steps.changesets.outputs.has-changesets == 'false'
         uses: changesets/action/publish@v2.1.2
         with:
-          script: vp run release:output
+          script: pnpm run release:output
           create-github-releases: true
           push-git-tags: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
