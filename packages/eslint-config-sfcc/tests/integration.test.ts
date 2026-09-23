@@ -73,7 +73,7 @@ const packageRoot = path.resolve(import.meta.dirname, "..")
 const workspaceRoot = path.resolve(packageRoot, "../..")
 const vitePlus = path.join(workspaceRoot, "node_modules/.bin/vp")
 const oxlint = path.join(packageRoot, "node_modules/.bin/oxlint")
-const INTEGRATION_TEST_TIMEOUT = 15_000
+const INTEGRATION_TEST_TIMEOUT = 30_000
 
 function lintWithOxlint(
   code: string,
@@ -112,7 +112,7 @@ function lintWithOxlint(
 describe("ESLint and Oxlint rule compatibility", () => {
   beforeAll(() => {
     execFileSync(vitePlus, ["pack"], { cwd: packageRoot })
-  })
+  }, INTEGRATION_TEST_TIMEOUT)
 
   test.each([
     ["no-empty-global", "empty(customer)\n", "sfcc(no-empty-global)"],

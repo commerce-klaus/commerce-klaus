@@ -203,7 +203,6 @@
 ### Patch Changes
 
 - 8099634: Migrate from `eslint-plugin-es` to `eslint-plugin-es-x` in the SFCC recommended config.
-
   - replace `eslint-plugin-es` + `@eslint/compat` with `eslint-plugin-es-x`
   - apply `restrict-to-es2015` as the baseline and keep SFCC-specific overrides in a separate layer
   - switch rule IDs from `es/*` to `es-x/*`
@@ -290,13 +289,11 @@
 ### Patch Changes
 
 - 5539459: Improve `sfcc/no-empty-global` suggestions for nullable object references.
-
   - add an extra `!value` suggestion for identifiers and member expressions when a null or nullable object reference check may be appropriate
   - clarify in the rule documentation when a nullable reference check is a reasonable replacement for `empty(...)`
   - keep the existing explicit suggestions for strings, arrays, plain objects, and SFCC collections
 
 - 344a27d: Fix `sfcc/no-empty-global` to report only true environment-global `empty()` calls.
-
   - ignore shadowed/local `empty` identifiers (for example function declarations and parameters)
   - keep reporting SFCC global `empty()` usage with the existing suggestions
   - add regression tests for local shadowing cases
@@ -396,7 +393,6 @@
 ### Minor Changes
 
 - 3fde52a: Added new rule ignores for eslint-plugin-unicorn
-
   - `unicorn/logical-assignment-operators`
   - `unicorn/no-computed-property-existence-check`
   - `unicorn/prefer-iterator-to-array-at-end`
@@ -412,7 +408,6 @@
 ### Major Changes
 
 - f99d236: Initial Commerce Klaus release baseline for `@commerce-klaus/eslint-config-sfcc`.
-
   - Prepare the first scoped release under the Commerce Klaus organization.
   - Continues [@jenssimon/eslint-config-sfcc](https://github.com/jenssimon/eslint-config-sfcc).
 

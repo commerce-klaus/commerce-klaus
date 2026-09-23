@@ -35,7 +35,6 @@
 - dbc817b: Add optional cartridge-order inference when `cartridgePath` is not provided.
 
   The Babel plugin can now derive cartridge order from:
-
   - `envCartridgePath` (or `SFCC_CARTRIDGE_PATH`)
   - `solutionConfigPath` references
   - `siteTemplatePath` + `site` (`custom-cartridges` in `site.xml`)
@@ -90,7 +89,6 @@
 ### Major Changes
 
 - f99d236: Initial Commerce Klaus release baseline for `@commerce-klaus/babel-plugin-sfcc-modules`.
-
   - Prepare the first scoped release under the Commerce Klaus organization.
   - Continues [babel-config-sfcc-modules](https://github.com/jenssimon/babel-config-sfcc-modules).
 
