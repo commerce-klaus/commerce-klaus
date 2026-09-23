@@ -47,7 +47,6 @@
 - d4ceba2: Add optional cartridge-order inference to the Vite plugin when cartridgePath is not provided.
 
   The plugin can now derive cartridge order from:
-
   - envCartridgePath (or SFCC_CARTRIDGE_PATH)
   - solutionConfigPath references
   - siteTemplatePath + site (custom-cartridges in site.xml)
@@ -103,7 +102,6 @@
 ### Major Changes
 
 - f99d236: Initial Commerce Klaus release baseline for `@commerce-klaus/vite-plugin-sfcc-modules`.
-
   - Prepare the first scoped release under the Commerce Klaus organization.
   - Continues [vite-config-sfcc-modules](https://github.com/jenssimon/vite-config-sfcc-modules).
 
