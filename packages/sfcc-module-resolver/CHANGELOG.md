@@ -1,5 +1,11 @@
 # @commerce-klaus/sfcc-module-resolver
 
+## 1.8.1
+
+### Patch Changes
+
+- 6ffcd68: Accept job step definitions with an empty `description` value.
+
 ## 1.8.0
 
 ### Minor Changes
