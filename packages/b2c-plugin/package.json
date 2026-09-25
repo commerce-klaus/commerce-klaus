@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@commerce-klaus/typescript-sfcc": "workspace:^",
-    "@oclif/core": "^4.8.0",
+    "@oclif/core": "^5.0.0",
     "@salesforce/b2c-cli": "^2.0.0",
     "@types/node": "catalog:",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
@@ -50,7 +50,7 @@
   },
   "peerDependencies": {
     "@commerce-klaus/typescript-sfcc": "^1.7.2",
-    "@oclif/core": "^4",
+    "@oclif/core": "^4 || ^5.0.0",
     "@salesforce/b2c-cli": ">=1.23.0 <3",
     "typescript": ">=5.5.0"
   },
