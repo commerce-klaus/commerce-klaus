@@ -119,8 +119,8 @@ const EXECUTION_BOOLEAN_FIELDS = {
 function parseExecutionMetadata(record: UnknownRecord): StepTypeExecutionMetadata | undefined {
   const metadata: StepTypeExecutionMetadata = {}
   if (Object.hasOwn(record, "description")) {
-    const description = readString(record, "description")
-    if (!description) {
+    const description = record.description
+    if (typeof description !== "string") {
       return undefined
     }
     metadata.description = description

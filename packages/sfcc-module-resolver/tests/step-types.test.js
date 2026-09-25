@@ -66,6 +66,7 @@ test("getStepTypeDefinitionsFromDocument parses script and chunk steps", () => {
           },
           {
             "@type-id": "custom.EmptyParameters",
+            description: "",
             function: "Run",
             module: "app_jobs/cartridge/scripts/empty-parameters",
             parameters: {},
@@ -135,6 +136,7 @@ test("getStepTypeDefinitionsFromDocument parses script and chunk steps", () => {
       typeId: "custom.GenerateFeed",
     },
     {
+      description: "",
       functionName: "Run",
       kind: "script-module-step",
       module: "app_jobs/cartridge/scripts/empty-parameters",
