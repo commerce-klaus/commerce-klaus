@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.12.3
+
+### Patch Changes
+
+- 6ffcd68: Accept job step definitions with an empty `description` value.
+- Updated dependencies [6ffcd68]
+  - @commerce-klaus/sfcc-module-resolver@1.8.1
+
 ## 1.12.2
 
 ### Patch Changes
