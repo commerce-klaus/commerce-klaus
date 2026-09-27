@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.13.0
+
+### Minor Changes
+
+- 442aeb1: Report invalid job step definitions individually with reusable JSON-path
+  diagnostics while continuing to validate valid sibling definitions.
+
+### Patch Changes
+
+- Updated dependencies [442aeb1]
+  - @commerce-klaus/sfcc-module-resolver@1.9.0
+
 ## 1.12.3
 
 ### Patch Changes
