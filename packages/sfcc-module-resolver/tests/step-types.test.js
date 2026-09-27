@@ -7,6 +7,7 @@ import {
   findResolvedStepTypeDefinitions,
   getResolvedStepTypeDefinitionsForScriptFile,
   getStepTypeDefinitionsFromDocument,
+  parseStepTypeDefinitionsFromDocument,
 } from "../src/index.ts"
 
 function withTempDir(run) {
@@ -270,6 +271,41 @@ test("getStepTypeDefinitionsFromDocument rejects malformed definitions", () => {
       },
     }),
   ).toBeUndefined()
+})
+
+test("parseStepTypeDefinitionsFromDocument reports invalid definitions without hiding valid ones", () => {
+  expect(
+    parseStepTypeDefinitionsFromDocument({
+      "step-types": {
+        "script-module-step": [
+          {
+            "@type-id": "custom.Valid",
+            module: "app_jobs/cartridge/scripts/valid",
+          },
+          {
+            "@type-id": "custom.MissingModule",
+          },
+        ],
+      },
+    }),
+  ).toEqual({
+    definitions: [
+      {
+        functionName: "execute",
+        kind: "script-module-step",
+        module: "app_jobs/cartridge/scripts/valid",
+        parameters: [],
+        statusCodes: [],
+        typeId: "custom.Valid",
+      },
+    ],
+    diagnostics: [
+      {
+        message: "Job step custom.MissingModule contains invalid or missing fields.",
+        path: "step-types.script-module-step[1]",
+      },
+    ],
+  })
 })
 
 test("findResolvedStepTypeDefinitions resolves modules and honors cartridge priority", () => {

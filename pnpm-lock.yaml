@@ -249,8 +249,8 @@ importers:
         specifier: npm:@typescript/typescript6@^6.0.2
         version: '@typescript/typescript6@6.0.2'
       vite-plus:
-        specifier: ^0.3.0
-        version: 0.3.3(@types/node@24.13.6)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
+        specifier: 'catalog:'
+        version: 0.1.21-alpha.7(@types/node@24.13.6)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@voidzero-dev/vite-plus-core@0.1.21-alpha.7(@types/node@24.13.6)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.0)
 
   examples/oxlint-eslint-sfcc:
     devDependencies:
@@ -288,8 +288,8 @@ importers:
         specifier: npm:@typescript/typescript6@^6.0.2
         version: '@typescript/typescript6@6.0.2'
       vite-plus:
-        specifier: ^0.3.0
-        version: 0.3.3(@types/node@24.13.6)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
+        specifier: 'catalog:'
+        version: 0.1.21-alpha.7(@types/node@24.13.6)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@voidzero-dev/vite-plus-core@0.1.21-alpha.7(@types/node@24.13.6)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.0)
 
   packages/b2c-plugin:
     dependencies:
@@ -389,6 +389,9 @@ importers:
       globals:
         specifier: '>=13.24.0'
         version: 17.12.0
+      jsonc-eslint-parser:
+        specifier: ^3.3.0
+        version: 3.3.0
     devDependencies:
       '@eslint/js':
         specifier: ^10.0.1
@@ -3770,6 +3773,10 @@ packages:
     resolution: {integrity: sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==}
     engines: {node: '>=6'}
     hasBin: true
+
+  jsonc-eslint-parser@3.3.0:
+    resolution: {integrity: sha512-hYTGkHGNRZnXOFZ1urhINADoqDrGfpy53cjw+dxk84QE0pUDujQzeUeamNs6Mz44/TKD49z2x6/GVSu4ZrtA+Q==}
+    engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
   jsonc-parser@3.3.1:
     resolution: {integrity: sha512-HUgH65KyejrUFPvHFPbqOY0rsFip3Bo5wb4ngvdi1EpCYWUQDC5V+Y7mZws+DLkr4M//zQJoanu1SP+87Dv1oQ==}
@@ -8076,6 +8083,12 @@ snapshots:
   json-stable-stringify-without-jsonify@1.0.1: {}
 
   json5@2.2.3: {}
+
+  jsonc-eslint-parser@3.3.0:
+    dependencies:
+      acorn: 8.18.0
+      eslint-visitor-keys: 5.0.1
+      verkit: 0.3.2
 
   jsonc-parser@3.3.1: {}
 

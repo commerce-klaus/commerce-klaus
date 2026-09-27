@@ -1,6 +1,7 @@
 import type { Linter } from "eslint"
 
 import pluginESx from "eslint-plugin-es-x"
+import * as jsoncParser from "jsonc-eslint-parser"
 import path from "node:path"
 
 import type { SfccSettings } from "../types/sfcc-settings.js"
@@ -82,6 +83,18 @@ export function createRecommendedConfig(options: RecommendedConfigOptions = {}):
       },
       ...(sfccSettings === undefined ? {} : { settings: { sfcc: sfccSettings } }),
       rules,
+    },
+    {
+      files: [withBaseDir("*/steptypes.json")],
+      languageOptions: {
+        parser: jsoncParser,
+      },
+      plugins: {
+        sfcc,
+      },
+      rules: {
+        "sfcc/valid-step-type-definition": "error",
+      },
     },
   ]
 }

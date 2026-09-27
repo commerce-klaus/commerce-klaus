@@ -222,6 +222,10 @@ export default defineConfig({
                   text: "valid-require-path",
                   link: "/packages/eslint-config-sfcc/rules/sfcc/valid-require-path",
                 },
+                {
+                  text: "valid-step-type-definition",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc/valid-step-type-definition",
+                },
               ],
             },
             {

@@ -28,7 +28,7 @@ Guides, package references, ESLint rule documentation, and the ideas behind the 
 
 ## Development
 
-This monorepo uses [Vite+](https://viteplus.dev/) and pnpm workspaces. Node.js 22.12 or newer is required.
+This monorepo uses [Vite+](https://viteplus.dev/) and pnpm workspaces. Node.js 22.13 or newer is required.
 
 ```bash
 vp install

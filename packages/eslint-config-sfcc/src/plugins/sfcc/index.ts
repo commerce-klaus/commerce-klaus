@@ -34,6 +34,7 @@ import validCustomApiExport from "./valid-custom-api-export.js"
 import validHookExport from "./valid-hook-export.js"
 import validJobStepExport from "./valid-job-step-export.js"
 import validRequirePath from "./valid-require-path.js"
+import validStepTypeDefinition from "./valid-step-type-definition.js"
 
 const sfcc = {
   meta: {
@@ -76,6 +77,7 @@ const sfcc = {
     "valid-hook-export": validHookExport,
     "valid-job-step-export": validJobStepExport,
     "valid-require-path": validRequirePath,
+    "valid-step-type-definition": validStepTypeDefinition,
   },
 }
 

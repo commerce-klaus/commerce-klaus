@@ -20,6 +20,6 @@
     "eslint": "^10.0.1",
     "globals": "^17.4.0",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
-    "vite-plus": "^0.3.0"
+    "vite-plus": "catalog:"
   }
 }

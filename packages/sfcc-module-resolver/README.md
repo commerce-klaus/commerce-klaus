@@ -75,6 +75,15 @@ const result = validateSfccProject({
 })
 ```
 
+Parse `steptypes.json` incrementally when an integration needs diagnostics for
+individual definitions without hiding valid sibling entries:
+
+```ts
+import { parseStepTypeDefinitionsFromDocument } from "@commerce-klaus/sfcc-module-resolver"
+
+const { definitions, diagnostics } = parseStepTypeDefinitionsFromDocument(document)
+```
+
 Build a project relationship graph for JSON, text, or Graphviz consumers:
 
 ```ts

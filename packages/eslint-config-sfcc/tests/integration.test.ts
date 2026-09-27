@@ -175,11 +175,12 @@ describe("ESLint and Oxlint rule compatibility", () => {
         }),
       )
     }
+    const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), "eslint-hook-test-"))
     const eslint = new ESLint({
+      cwd: fixtureRoot,
       overrideConfigFile: true,
       overrideConfig: createRecommendedConfig({ files: ["**/*.{js,ds}"], ignores: [] }),
     })
-    const fixtureRoot = fs.mkdtempSync(path.join(packageRoot, "eslint-hook-test-"))
 
     try {
       fs.mkdirSync(path.join(fixtureRoot, path.dirname(relativeFilePath)), { recursive: true })

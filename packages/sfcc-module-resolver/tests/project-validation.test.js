@@ -127,3 +127,27 @@ test("validateSfccProject rejects empty and incorrectly typed metadata fields", 
     ])
   })
 })
+
+test("validateSfccProject identifies invalid job step definitions", () => {
+  withTempDir((tempDir) => {
+    const cartridgesDir = path.join(tempDir, "cartridges")
+    const cartridgeRoot = path.join(cartridgesDir, "app_custom")
+    writeJson(path.join(cartridgeRoot, "steptypes.json"), {
+      "step-types": {
+        "script-module-step": [{ "@type-id": "custom.MissingModule" }],
+      },
+    })
+
+    const result = validateSfccProject({ cartridgesDir, cartridgeRoots: [cartridgeRoot] })
+
+    expect(result.diagnostics).toEqual([
+      {
+        code: "invalid-step-type-definition",
+        severity: "error",
+        file: path.join(cartridgeRoot, "steptypes.json"),
+        message:
+          "step-types.script-module-step[0]: Job step custom.MissingModule contains invalid or missing fields.",
+      },
+    ])
+  })
+})

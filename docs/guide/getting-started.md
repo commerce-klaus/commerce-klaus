@@ -4,7 +4,7 @@ Commerce Klaus is a set of focused packages. Adopt only the parts your project n
 
 ## Requirements
 
-- Node.js 22.12 or newer
+- Node.js 22.13 or newer
 - An SFCC cartridge project
 - Vite+, pnpm, Yarn, or npm
 

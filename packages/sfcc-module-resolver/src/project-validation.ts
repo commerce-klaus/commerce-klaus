@@ -15,7 +15,7 @@ import {
   resolveHookScriptPath,
 } from "./hooks.ts"
 import { resolveCandidateFile } from "./module-resolution.ts"
-import { getStepTypeDefinitionsFromDocument } from "./step-types.ts"
+import { parseStepTypeDefinitionsFromDocument } from "./step-types.ts"
 
 export type SfccProjectDiagnosticSeverity = "error" | "warning"
 
@@ -148,23 +148,29 @@ function validateStepTypes(cartridgeRoots: string[], diagnostics: SfccProjectDia
       continue
     }
 
-    let definitions
+    let parsedDocument
     try {
-      definitions = getStepTypeDefinitionsFromDocument(readJson(stepTypesPath))
+      parsedDocument = parseStepTypeDefinitionsFromDocument(readJson(stepTypesPath))
     } catch {
-      definitions = undefined
-    }
-    if (!definitions) {
       addDiagnostic(diagnostics, {
         code: "invalid-step-types-file",
         severity: "error",
         file: stepTypesPath,
-        message: "The step types file does not contain valid step definitions.",
+        message: "The step types file is not valid JSON.",
       })
       continue
     }
 
-    for (const definition of definitions) {
+    for (const diagnostic of parsedDocument.diagnostics) {
+      addDiagnostic(diagnostics, {
+        code: "invalid-step-type-definition",
+        severity: "error",
+        file: stepTypesPath,
+        message: `${diagnostic.path}: ${diagnostic.message}`,
+      })
+    }
+
+    for (const definition of parsedDocument.definitions) {
       const modulePath = resolveCandidateFile(
         path.resolve(path.dirname(cartridgeRoot), definition.module),
         definition.module,

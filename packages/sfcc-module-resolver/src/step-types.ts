@@ -61,6 +61,16 @@ export type ResolvedStepTypeDefinition = StepTypeDefinition & {
   modulePath: string
 }
 
+export type StepTypeDocumentDiagnostic = {
+  message: string
+  path: string
+}
+
+export type StepTypeDocumentParseResult = {
+  definitions: StepTypeDefinition[]
+  diagnostics: StepTypeDocumentDiagnostic[]
+}
+
 type UnknownRecord = Record<string, unknown>
 
 function isRecord(value: unknown): value is UnknownRecord {
@@ -312,32 +322,74 @@ function parseChunkScriptModuleStep(
   }
 }
 
-export function getStepTypeDefinitionsFromDocument(
+export function parseStepTypeDefinitionsFromDocument(
   document: unknown,
-): StepTypeDefinition[] | undefined {
+): StepTypeDocumentParseResult {
+  const diagnostics: StepTypeDocumentDiagnostic[] = []
   if (!isRecord(document) || !isRecord(document["step-types"])) {
-    return undefined
+    return {
+      definitions: [],
+      diagnostics: [
+        {
+          message: 'The document must contain a "step-types" object.',
+          path: "step-types",
+        },
+      ],
+    }
   }
 
   const stepTypes = document["step-types"]
   const scriptSteps = stepTypes["script-module-step"]
   const chunkSteps = stepTypes["chunk-script-module-step"]
   if (scriptSteps === undefined && chunkSteps === undefined) {
-    return undefined
-  }
-  if (
-    (scriptSteps !== undefined && !Array.isArray(scriptSteps)) ||
-    (chunkSteps !== undefined && !Array.isArray(chunkSteps))
-  ) {
-    return undefined
+    return {
+      definitions: [],
+      diagnostics: [
+        {
+          message: "At least one script or chunk module step array is required.",
+          path: "step-types",
+        },
+      ],
+    }
   }
 
-  const parsedScriptSteps = (scriptSteps ?? []).map(parseScriptModuleStep)
-  const parsedChunkSteps = (chunkSteps ?? []).map(parseChunkScriptModuleStep)
-  const definitions = [...parsedScriptSteps, ...parsedChunkSteps]
-  return definitions.every((definition) => definition !== undefined)
-    ? (definitions as StepTypeDefinition[])
-    : undefined
+  const definitions: StepTypeDefinition[] = []
+  for (const [field, values, parse] of [
+    ["script-module-step", scriptSteps, parseScriptModuleStep],
+    ["chunk-script-module-step", chunkSteps, parseChunkScriptModuleStep],
+  ] as const) {
+    if (values === undefined) {
+      continue
+    }
+    const fieldPath = `step-types.${field}`
+    if (!Array.isArray(values)) {
+      diagnostics.push({ message: "The value must be an array.", path: fieldPath })
+      continue
+    }
+    for (const [index, value] of values.entries()) {
+      const definition = parse(value)
+      if (definition) {
+        definitions.push(definition)
+        continue
+      }
+      const typeId = isRecord(value) ? readString(value, "@type-id") : undefined
+      diagnostics.push({
+        message: typeId
+          ? `Job step ${typeId} contains invalid or missing fields.`
+          : 'The job step must be an object with valid "@type-id" and module fields.',
+        path: `${fieldPath}[${index}]`,
+      })
+    }
+  }
+
+  return { definitions, diagnostics }
+}
+
+export function getStepTypeDefinitionsFromDocument(
+  document: unknown,
+): StepTypeDefinition[] | undefined {
+  const result = parseStepTypeDefinitionsFromDocument(document)
+  return result.diagnostics.length === 0 ? result.definitions : undefined
 }
 
 export function findResolvedStepTypeDefinitions(

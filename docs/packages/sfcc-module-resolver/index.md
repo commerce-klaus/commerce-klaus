@@ -136,6 +136,9 @@ const resolved = resolveSfccModule("*/cartridge/scripts/util", importer)
   - Exposes declared status codes as a normalized string array
   - Normalizes task `timeout-in-seconds` metadata into an optional positive `timeoutSeconds` number
   - Preserves descriptions and normalizes site, organization, parallel-execution, and transactional flags from JSON booleans or SFCC string forms
+- `parseStepTypeDefinitionsFromDocument(document): StepTypeDocumentParseResult`
+  - Returns valid definitions alongside structured diagnostics for invalid document sections and individual entries
+  - Includes a stable JSON path and message for each diagnostic so CLI, lint, and editor integrations can share the same validation behavior
 - `findResolvedStepTypeDefinitions(cartridgeRoots): ResolvedStepTypeDefinition[]`
   - Reads `steptypes.json` from each cartridge root
   - Resolves module paths with the standard SFCC runtime extensions and index-module fallback
@@ -155,6 +158,8 @@ The result contains `ok`, `errors`, `warnings`, and a deterministic
 `diagnostics` array. Each diagnostic provides a stable `code`, `severity`,
 absolute source `file`, and human-readable `message`. Validation is additive:
 the existing discovery APIs continue to skip malformed or unresolved entries.
+Invalid job step entries are reported individually while valid sibling entries
+continue through module resolution and precedence validation.
 
 ### Project graph
 

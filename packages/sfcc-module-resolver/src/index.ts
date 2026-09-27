@@ -81,6 +81,7 @@ export {
   findResolvedStepTypeDefinitions,
   getResolvedStepTypeDefinitionsForScriptFile,
   getStepTypeDefinitionsFromDocument,
+  parseStepTypeDefinitionsFromDocument,
 } from "./step-types.ts"
 export type {
   ChunkScriptModuleStepTypeDefinition,
@@ -88,6 +89,8 @@ export type {
   ResolvedStepTypeDefinition,
   ScriptModuleStepTypeDefinition,
   StepTypeExecutionMetadata,
+  StepTypeDocumentDiagnostic,
+  StepTypeDocumentParseResult,
   StepTypeParameterDefinition,
   StepTypeDefinition,
 } from "./step-types.ts"
