@@ -63,13 +63,15 @@ export default defineConfig({
       },
       "docs:generate": {
         command: "node --experimental-strip-types docs/.vitepress/generate-project-graph.ts",
-        input: [
-          "docs/.vitepress/generate-project-graph.ts",
-          "examples/eslint-typescript-sfcc/cartridges/**",
-          "packages/b2c-plugin/src/output.ts",
-          "packages/sfcc-module-resolver/src/**",
-        ],
-        output: ["docs/_partials/project-graph.generated.md"],
+        cache: {
+          input: [
+            "docs/.vitepress/generate-project-graph.ts",
+            "examples/eslint-typescript-sfcc/cartridges/**",
+            "packages/b2c-plugin/src/output.ts",
+            "packages/sfcc-module-resolver/src/**",
+          ],
+          output: ["docs/_partials/project-graph.generated.md"],
+        },
       },
     },
   },

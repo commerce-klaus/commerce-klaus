@@ -175,8 +175,8 @@ catalogs:
       version: 1.0.0-rc.1
 
 overrides:
-  vite: npm:@voidzero-dev/vite-plus-core@latest
-  vitest: ^5.0.0
+  vite@*: npm:@voidzero-dev/vite-plus-core@latest
+  vitest@*: ^5.0.0
 
 importers:
 
@@ -1182,16 +1182,9 @@ packages:
     resolution: {integrity: sha512-CAtBcMBjtuYwv2lf1U3tavAAhFtG3lYvrpestPjfIUyGSoc5kJZME1heS8Ao7IxNgp5sHFm1wNoU2vJbHJKLQg==}
     engines: {node: '>=18.0.0'}
 
-  '@oxc-project/runtime@0.129.0':
-    resolution: {integrity: sha512-0+S67blQakgeNqoKGozOUp5rQBrz2ynXZ2QIINXZPiafsD0YL0UogB9hAWc1S7k6VSNwKYC/N7MqT0V6IzpHkQ==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-
   '@oxc-project/runtime@0.151.0':
     resolution: {integrity: sha512-fNuliiqGTseerW2FTbxq6UOQavKL/NvNh9K3peJZZVNi1NbM4Ehscwp3MX9nu+9bfbSfmPUEivF779XQU5exiw==}
     engines: {node: ^20.19.0 || >=22.12.0}
-
-  '@oxc-project/types@0.129.0':
-    resolution: {integrity: sha512-3oz8m3FGdr2nDXVqmFUw7jolKliC4MoyXYIG2c7gpjBnzUWQpUGIYcXYKxTdTi+N2jusvt610ckTMkxdwHkYEg==}
 
   '@oxc-project/types@0.151.0':
     resolution: {integrity: sha512-J1yXrIlNDZVzE3ada310xeAw7nH8yCAyLPuUIsjKatFPmfn5bS1oW+cM+QsGOtVWd5nhSpbwZWx/rue+r5Z+PA==}
@@ -2039,69 +2032,6 @@ packages:
 
   '@vitest/utils@5.0.1':
     resolution: {integrity: sha512-E9+yEA+jsfaoxZcUHFzEqUrQcoNh2EwrPT5efIqkUPUwD5Ua2Li9BRWaYeRwvzvdLgTSVrre8oKNeyrfg7KkdQ==}
-
-  '@voidzero-dev/vite-plus-core@0.1.21-alpha.7':
-    resolution: {integrity: sha512-XAR+KVhCV2pKK8yjbe0GY2qHyL2bUIDsu3JB2vbRvn5wcp0pu80FAAQ7gqACUsz4xx8Vh3iGhoac4HzX88Ve2A==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    peerDependencies:
-      '@arethetypeswrong/core': ^0.18.1
-      '@tsdown/css': 0.22.0
-      '@tsdown/exe': 0.22.0
-      '@types/node': ^20.19.0 || >=22.12.0
-      '@vitejs/devtools': ^0.1.18
-      esbuild: ^0.27.0 || ^0.28.0
-      jiti: '>=1.21.0'
-      less: ^4.0.0
-      publint: ^0.3.8
-      sass: ^1.70.0
-      sass-embedded: ^1.70.0
-      stylus: '>=0.54.8'
-      sugarss: ^5.0.0
-      terser: ^5.16.0
-      tsx: ^4.8.1
-      typescript: ^5.0.0 || ^6.0.0
-      unplugin-unused: ^0.5.0
-      unrun: '*'
-      yaml: ^2.4.2
-    peerDependenciesMeta:
-      '@arethetypeswrong/core':
-        optional: true
-      '@tsdown/css':
-        optional: true
-      '@tsdown/exe':
-        optional: true
-      '@types/node':
-        optional: true
-      '@vitejs/devtools':
-        optional: true
-      esbuild:
-        optional: true
-      jiti:
-        optional: true
-      less:
-        optional: true
-      publint:
-        optional: true
-      sass:
-        optional: true
-      sass-embedded:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-      tsx:
-        optional: true
-      typescript:
-        optional: true
-      unplugin-unused:
-        optional: true
-      unrun:
-        optional: true
-      yaml:
-        optional: true
 
   '@voidzero-dev/vite-plus-core@1.0.0-rc.1':
     resolution: {integrity: sha512-rDi/3UcdK3NPqIC/JKJfdTS6LepPsHleRD4bnOM9bNRt/PrkBKnWB1n58toZw9o3HrY3fW4Ie067fCeshou//Q==}
@@ -5449,11 +5379,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@oxc-project/runtime@0.129.0': {}
-
   '@oxc-project/runtime@0.151.0': {}
-
-  '@oxc-project/types@0.129.0': {}
 
   '@oxc-project/types@0.151.0': {}
 
@@ -6110,10 +6036,10 @@ snapshots:
       d3-selection: 3.0.0
       d3-transition: 3.0.1(d3-selection@3.0.0)
 
-  '@vitejs/plugin-vue@6.0.8(@voidzero-dev/vite-plus-core@0.1.21-alpha.7(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(vue@3.5.43(typescript@6.0.3))':
+  '@vitejs/plugin-vue@6.0.8(@voidzero-dev/vite-plus-core@1.0.0-rc.1(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(vue@3.5.43(typescript@6.0.3))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
-      vite: '@voidzero-dev/vite-plus-core@0.1.21-alpha.7(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)'
+      vite: '@voidzero-dev/vite-plus-core@1.0.0-rc.1(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)'
       vue: 3.5.43(typescript@6.0.3)
 
   '@vitest/browser-preview@5.0.1(@voidzero-dev/vite-plus-core@1.0.0-rc.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0))(vitest@5.0.1)':
@@ -6296,19 +6222,6 @@ snapshots:
       '@vitest/pretty-format': 5.0.1
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.1
-
-  '@voidzero-dev/vite-plus-core@0.1.21-alpha.7(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)':
-    dependencies:
-      '@oxc-project/runtime': 0.129.0
-      '@oxc-project/types': 0.129.0
-      lightningcss: 1.33.0
-      postcss: 8.5.28
-    optionalDependencies:
-      '@types/node': 25.9.5
-      fsevents: 2.3.3
-      jiti: 2.7.0
-      typescript: 6.0.3
-      yaml: 2.9.0
 
   '@voidzero-dev/vite-plus-core@1.0.0-rc.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0)':
     dependencies:
@@ -9122,7 +9035,7 @@ snapshots:
       '@iconify-json/simple-icons': 1.2.94
       '@shikijs/transformers': 4.4.3
       '@types/markdown-it': 14.2.0
-      '@vitejs/plugin-vue': 6.0.8(@voidzero-dev/vite-plus-core@0.1.21-alpha.7(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(vue@3.5.43(typescript@6.0.3))
+      '@vitejs/plugin-vue': 6.0.8(@voidzero-dev/vite-plus-core@1.0.0-rc.1(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(vue@3.5.43(typescript@6.0.3))
       '@vue/devtools-api': 8.2.1
       '@vue/shared': 3.5.42
       '@vueuse/core': 14.4.0(vue@3.5.43(typescript@6.0.3))
@@ -9131,14 +9044,12 @@ snapshots:
       mark.js: 8.11.1
       minisearch: 7.2.0
       shiki: 4.4.3
-      vite: '@voidzero-dev/vite-plus-core@0.1.21-alpha.7(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)'
+      vite: '@voidzero-dev/vite-plus-core@1.0.0-rc.1(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)'
       vue: 3.5.43(typescript@6.0.3)
     optionalDependencies:
       postcss: 8.5.26
     transitivePeerDependencies:
       - '@arethetypeswrong/core'
-      - '@tsdown/css'
-      - '@tsdown/exe'
       - '@types/node'
       - '@vitejs/devtools'
       - async-validator
