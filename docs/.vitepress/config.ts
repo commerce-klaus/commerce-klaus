@@ -31,6 +31,7 @@ export default defineConfig({
   lastUpdated: true,
   sitemap: {
     hostname: "https://commerce-klaus.github.io/commerce-klaus/",
+    transformItems: (items) => items.filter((item) => !item.url.includes("npm-statistics")),
   },
   head: [
     ["link", { rel: "icon", type: "image/png", sizes: "64x64", href: `${base}favicon.png` }],

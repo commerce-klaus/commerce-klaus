@@ -103,6 +103,19 @@
   border-top: 1px solid var(--vp-c-divider);
 }
 
+.npm-statistics-page .vp-doc img[src^="https://www.npm.bet/svg"] {
+  width: 100%;
+  margin: 20px 0 40px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 6px;
+  background: #fff;
+}
+
+.dark .npm-statistics-page .vp-doc img[src^="https://www.npm.bet/svg"] {
+  border-color: #405048;
+  filter: invert(0.88) hue-rotate(180deg);
+}
+
 @media (min-width: 640px) {
   .vp-doc .vp-code-block-with-title {
     margin: 16px 0;
