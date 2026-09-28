@@ -1,5 +1,14 @@
 # @commerce-klaus/b2c-plugin
 
+## 1.0.3
+
+### Patch Changes
+
+- 442aeb1: Report invalid job step definitions individually with reusable JSON-path
+  diagnostics while continuing to validate valid sibling definitions.
+- Updated dependencies [442aeb1]
+  - @commerce-klaus/sfcc-module-resolver@1.9.0
+
 ## 1.0.2
 
 ### Patch Changes

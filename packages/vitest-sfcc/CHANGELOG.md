@@ -1,5 +1,12 @@
 # @commerce-klaus/vitest-sfcc
 
+## 1.0.2
+
+### Patch Changes
+
+- Updated dependencies [442aeb1]
+  - @commerce-klaus/sfcc-module-resolver@1.9.0
+
 ## 1.0.1
 
 ### Patch Changes
