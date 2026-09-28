@@ -267,8 +267,8 @@ export function inferCartridgeOrder(options: InferCartridgeOrderOptions): string
 
   const configuredEnv = cleanCartridgePathEntries(
     options.envCartridgePath
-      ? options.envCartridgePath.split(":")
-      : process.env.SFCC_CARTRIDGE_PATH?.split(":"),
+      ? options.envCartridgePath.split(/[:,]/)
+      : (process.env.SFCC_CARTRIDGES ?? process.env.SFCC_CARTRIDGE_PATH)?.split(/[:,]/),
   )
   if (configuredEnv.length > 0) {
     return toExistingCartridgeRoots(baseDir, configuredEnv)

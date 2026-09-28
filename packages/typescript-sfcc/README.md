@@ -42,6 +42,11 @@ Enable the editor plugin in a cartridge `jsconfig.json` or `tsconfig.json`:
 }
 ```
 
+The plugin composes with the official Salesforce B2C Commerce VS Code extension.
+Existing language-service resolutions from Salesforce take precedence; Commerce
+Klaus fills unresolved modules and adds generated project declarations and
+`module.superModule` support.
+
 Synchronize types and run the cartridge typecheck:
 
 ```bash [pnpm]
@@ -68,6 +73,10 @@ Both standalone commands use the same oclif command implementation as the B2C
 CLI plugin, including `--help`, `--json`, consistent errors, and color-aware
 terminal output. Typechecks use the TypeScript compiler installed by the project,
 including when invoked through the B2C CLI plugin.
+
+The Salesforce extension provides editor IntelliSense but does not run a
+project-wide TypeScript check. Keep `sfcc-ts-typecheck` in local and CI workflows
+for reproducible diagnostics outside the editor.
 
 The package API also exposes `cleanGeneratedTypes()` for removing only the four
 project-specific `sfcc-*.generated.d.ts` outputs managed by Commerce Klaus. It

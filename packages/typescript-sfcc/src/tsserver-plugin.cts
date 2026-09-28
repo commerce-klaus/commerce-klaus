@@ -3,6 +3,7 @@ const {
   findCartridgesDir,
   getAdditionalTypeFiles,
   inferCartridgeOrder,
+  preferExistingResolution,
   resolveCommerceKlausConfig,
   resolveWorkspaceRootFromProjectDir,
   transformSuperModuleSource,
@@ -93,12 +94,10 @@ function init(modules: { typescript: typeof import("typescript") }) {
           )
 
       return moduleNames.map((moduleName, index) => {
-        const sfccResolved = resolveSfccModule(moduleName, containingFile)
-        if (sfccResolved) {
-          return toResolvedModule(sfccResolved)
-        }
-
-        return defaultResolved[index]
+        return preferExistingResolution(defaultResolved[index], () => {
+          const sfccResolved = resolveSfccModule(moduleName, containingFile)
+          return sfccResolved ? toResolvedModule(sfccResolved) : undefined
+        })
       })
     }
 
@@ -129,12 +128,17 @@ function init(modules: { typescript: typeof import("typescript") }) {
           }))
 
       return moduleLiterals.map((literal, index) => {
+        const existingResolution = defaultResolved[index]
+        if (existingResolution?.resolvedModule) {
+          return existingResolution
+        }
+
         const sfccResolved = resolveSfccModule(literal.text, containingFile)
         if (sfccResolved) {
           return { resolvedModule: toResolvedModule(sfccResolved) }
         }
 
-        return defaultResolved[index]
+        return existingResolution
       })
     }
 

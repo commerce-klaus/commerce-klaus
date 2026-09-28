@@ -45,6 +45,13 @@ export {
   transformSuperModuleSource,
 }
 
+export function preferExistingResolution<T>(
+  existingResolution: T | undefined,
+  resolveFallback: () => T | undefined,
+): T | undefined {
+  return existingResolution ?? resolveFallback()
+}
+
 export function inferCartridgeOrder(
   cartridgesDir: string,
   solutionConfigPath = path.join(cartridgesDir, "jsconfig.json"),

@@ -18,7 +18,7 @@ export interface CommerceKlausConfig {
   site?: string
   /** Solution jsconfig.json or tsconfig.json used to infer cartridge order. */
   solutionConfigPath?: string
-  /** Colon-separated cartridge order, matching SFCC_CARTRIDGE_PATH. */
+  /** Colon- or comma-separated cartridge order, matching SFCC_CARTRIDGES. */
   envCartridgePath?: string
 }
 

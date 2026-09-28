@@ -10,6 +10,7 @@ import {
   inferCartridgeOrder,
   transformSuperModuleSource,
 } from "../src/index.ts"
+import { preferExistingResolution } from "../src/shared.ts"
 
 function withTempDir(run) {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-ts-tooling-test-"))
@@ -70,6 +71,22 @@ test("createSfccPaths resolves dw mapping for per-cartridge configs", () => {
   const paths = createSfccPaths(configPath, cartridgeRoots)
 
   expect(paths["dw/*"]).toEqual(["../../.b2c-script-types/types/dw/*"])
+})
+
+test("preferExistingResolution preserves upstream results and only calls the fallback when needed", () => {
+  const upstreamResolution = { resolvedFileName: "/salesforce/resolved.js" }
+  let fallbackCalls = 0
+  const resolveFallback = () => {
+    fallbackCalls += 1
+    return { resolvedFileName: "/commerce-klaus/resolved.js" }
+  }
+
+  expect(preferExistingResolution(upstreamResolution, resolveFallback)).toBe(upstreamResolution)
+  expect(fallbackCalls).toBe(0)
+  expect(preferExistingResolution(undefined, resolveFallback)).toEqual({
+    resolvedFileName: "/commerce-klaus/resolved.js",
+  })
+  expect(fallbackCalls).toBe(1)
 })
 
 test("createSfccModuleResolver resolves ~/, */ and cartridge alias imports", () => {

@@ -43,6 +43,37 @@ test("inferCartridgeOrder uses configured cartridgePath before other sources", (
   })
 })
 
+test("inferCartridgeOrder uses Salesforce SFCC_CARTRIDGES before the legacy environment variable", () => {
+  withTempDir((tempDir) => {
+    const cartridgesDir = path.join(tempDir, "cartridges")
+    const appCore = path.join(cartridgesDir, "app_core")
+    const appBase = path.join(cartridgesDir, "app_storefront_base")
+    const previousCartridges = process.env.SFCC_CARTRIDGES
+    const previousCartridgePath = process.env.SFCC_CARTRIDGE_PATH
+
+    fs.mkdirSync(appCore, { recursive: true })
+    fs.mkdirSync(appBase, { recursive: true })
+    process.env.SFCC_CARTRIDGES = "app_storefront_base,app_core"
+    process.env.SFCC_CARTRIDGE_PATH = "app_core:app_storefront_base"
+
+    try {
+      expect(inferCartridgeOrder({ cartridgesDir })).toEqual([appBase, appCore])
+    } finally {
+      if (previousCartridges === undefined) {
+        delete process.env.SFCC_CARTRIDGES
+      } else {
+        process.env.SFCC_CARTRIDGES = previousCartridges
+      }
+
+      if (previousCartridgePath === undefined) {
+        delete process.env.SFCC_CARTRIDGE_PATH
+      } else {
+        process.env.SFCC_CARTRIDGE_PATH = previousCartridgePath
+      }
+    }
+  })
+})
+
 test("inferCartridgeOrder falls back to site template", () => {
   withTempDir((tempDir) => {
     const cartridgesDir = path.join(tempDir, "cartridges")

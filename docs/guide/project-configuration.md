@@ -58,7 +58,7 @@ configuration stable when a tool runs from a package or cartridge directory.
 | `siteTemplatePath`   | `string`   | Site-template root containing `sites/<site>/site.xml`.                            |
 | `site`               | `string`   | Site identifier used to read `custom-cartridges` from `site.xml`.                 |
 | `solutionConfigPath` | `string`   | Solution `jsconfig.json` or `tsconfig.json` used to infer cartridge order.        |
-| `envCartridgePath`   | `string`   | Colon-separated cartridge order, matching the `SFCC_CARTRIDGE_PATH` value format. |
+| `envCartridgePath`   | `string`   | Colon- or comma-separated cartridge order, matching Salesforce `SFCC_CARTRIDGES`. |
 
 ## Overrides
 

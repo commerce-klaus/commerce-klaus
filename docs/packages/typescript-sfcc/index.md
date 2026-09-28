@@ -370,6 +370,14 @@ Add the plugin to your cartridge `jsconfig.json` or `tsconfig.json`:
 }
 ```
 
+The plugin is additive when the
+[official Salesforce B2C Commerce VS Code extension](https://salesforcecommercecloud.github.io/b2c-developer-tooling/vscode-extension/)
+is installed. Resolutions already supplied by Salesforce's TypeScript Server
+plugin take precedence. Commerce Klaus only resolves modules left unresolved and
+continues to load generated project declarations and transform
+`module.superModule`. Without the Salesforce extension, the Commerce Klaus
+resolver remains a standalone fallback.
+
 ## CLI
 
 The package ships these CLI binaries:
@@ -384,6 +392,10 @@ command with `--help` to see its complete option reference.
 The typecheck loads the project's installed TypeScript compiler, including when
 it runs through the B2C CLI plugin. This keeps compiler options and diagnostics
 aligned with the TypeScript version declared by the project.
+
+The Salesforce extension provides editor IntelliSense but does not expose a
+project-wide TypeScript check. Use `sfcc-ts-typecheck` locally and in CI to apply
+the same cartridge-aware checks without depending on an editor extension.
 
 Default behavior (no flags):
 
