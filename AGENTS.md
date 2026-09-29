@@ -209,6 +209,11 @@ and process globals between tests because Vitest workers are reused.
 - VitePress navigation is maintained manually. When adding or moving docs,
   update `docs/.vitepress/config.ts`; add blog posts to both
   `docs/blog/index.md` and the Blog sidebar.
+- Treat `docs/packages/*` as the canonical source for package descriptions,
+  configuration, APIs, and detailed usage. Keep package READMEs compact for npm
+  and GitHub discovery: retain a short overview, installation, a minimal quick
+  start, and a prominent link to the full documentation; do not duplicate
+  option tables, command references, advanced examples, or troubleshooting.
 - In consumer-facing documentation, every package installation and
   package-executed CLI example must include Vite+, pnpm, Yarn, and npm variants.
   Use VitePress code groups where supported. Repository development commands

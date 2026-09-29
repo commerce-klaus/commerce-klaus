@@ -43,7 +43,7 @@ and CLI flags override matching central values.
 
 ## Documentation
 
-See the [project configuration guide](https://commerce-klaus.github.io/commerce-klaus/guide/project-configuration).
+See the [complete project configuration reference](https://commerce-klaus.github.io/commerce-klaus/packages/config/).
 
 ## License
 
