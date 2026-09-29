@@ -13,11 +13,13 @@ TypeScript tooling for Salesforce Commerce Cloud cartridge projects. It provides
 
 ## What Commerce Klaus adds
 
-[The official Salesforce B2C Commerce extension](https://salesforcecommercecloud.github.io/b2c-developer-tooling/vscode-extension/)
+[The official Salesforce B2C Commerce IDE Extension](https://salesforcecommercecloud.github.io/b2c-developer-tooling/vscode-extension/)
 is the preferred foundation for Script API IntelliSense and standard cartridge
-module resolution in VS Code. It also provides XSD-based validation, completion,
-and hover documentation for B2C metadata XML. Commerce Klaus composes with it
-and adds generated project guarantees that can also run outside the editor:
+module resolution in VS Code. The broader
+[Salesforce B2C Developer Tooling](https://salesforcecommercecloud.github.io/b2c-developer-tooling/)
+also bundles XSD schemas and offers XML validation through its CLI. Commerce
+Klaus composes with these tools and adds generated project guarantees that can
+also run outside the editor:
 
 | Area                    | Commerce Klaus addition                                                                                | Practical benefit                                                      |
 | ----------------------- | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
