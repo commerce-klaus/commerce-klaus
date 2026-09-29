@@ -9,6 +9,24 @@ The package currently ships two main entry points:
 - a tsserver plugin that resolves SFCC-specific module patterns such as `~/...`, `*/...`, cartridge aliases, and `module.superModule`
 - a CLI that typechecks cartridge projects with the same resolution behavior
 
+## What Commerce Klaus adds
+
+The
+[official Salesforce B2C Commerce extension](https://salesforcecommercecloud.github.io/b2c-developer-tooling/vscode-extension/)
+is the preferred foundation for Script API IntelliSense and standard cartridge
+module resolution in VS Code. It also provides XSD-based validation, completion,
+and hover documentation for B2C metadata XML. Commerce Klaus preserves those
+capabilities and adds generated project contracts plus checks that can run
+without an editor:
+
+| Area                    | Commerce Klaus addition                                                                                | Practical benefit                                                      |
+| ----------------------- | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| Project contracts       | Projects metadata, `hooks.json`, Custom API schemas, and `steptypes.json` into TypeScript declarations | Configuration and JavaScript implementation are checked together       |
+| Super modules           | Resolves and types `module.superModule` chains                                                         | Cartridge overrides remain navigable and type-safe                     |
+| Type checking           | Runs the cartridge-aware TypeScript compiler from the command line                                     | The same class of diagnostics can block CI without a VS Code extension |
+| Registration validation | Checks hook descriptors, referenced scripts, and required CommonJS exports                             | Broken registrations fail before deployment                            |
+| Shared tooling          | Reuses the same cartridge semantics across TypeScript, ESLint, Vite, Babel, and Vitest packages        | Local tools agree about which cartridge implementation wins            |
+
 ## Keep the JavaScript, add the guarantees
 
 SFCC projects often contain years of production-tested CommonJS JavaScript. Rewriting that code in TypeScript would introduce a compilation step between the source developers inspect and the code running in the sandbox. That can make deployment artifacts, production stack traces, and urgent debugging harder to follow.
