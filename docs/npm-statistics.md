@@ -5,7 +5,7 @@ aside: false
 editLink: false
 pageClass: npm-statistics-page
 head:
-	- [meta, { name: robots, content: "noindex, nofollow" }]
+  - [meta, { name: robots, content: "noindex, nofollow" }]
 ---
 
 # npm download statistics

@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url"
 import { defineConfig } from "vitepress"
 import { defineBlogConfig } from "vitepress-plugin-blog/config"
+import llmstxt from "vitepress-plugin-llms"
 
 const repository = "https://github.com/commerce-klaus/commerce-klaus"
 const base = "/commerce-klaus/"
@@ -13,6 +14,7 @@ const blog = defineBlogConfig({
     recentPostsLabel: "Recent posts",
   },
 })
+const llmsPlugins = llmstxt() as unknown as (typeof blog.plugin)[]
 const noWrap = (text: string) =>
   text
     .replaceAll("Salesforce Commerce Cloud", "Salesforce\u00a0Commerce\u00a0Cloud")
@@ -26,7 +28,7 @@ export default defineConfig({
   base,
   cleanUrls: true,
   vite: {
-    plugins: [blog.plugin],
+    plugins: [blog.plugin, ...llmsPlugins],
   },
   lastUpdated: true,
   sitemap: {
