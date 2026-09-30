@@ -226,7 +226,7 @@ importers:
         version: 10.0.1(eslint@10.9.1(jiti@2.7.0)(supports-color@8.1.1))
       '@salesforce/b2c-cli':
         specifier: ^2.0.0
-        version: 2.2.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.2.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       '@types/node':
         specifier: 'catalog:'
         version: 24.19.0
@@ -274,7 +274,7 @@ importers:
         version: link:../../packages/vite-plugin-sfcc-modules
       '@salesforce/b2c-cli':
         specifier: ^2.0.0
-        version: 2.2.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.2.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       '@types/node':
         specifier: 'catalog:'
         version: 24.19.0
@@ -314,7 +314,7 @@ importers:
         version: 4.14.0
       '@salesforce/b2c-cli':
         specifier: ^2.0.0
-        version: 2.2.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.2.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       '@types/node':
         specifier: 'catalog:'
         version: 24.19.0
@@ -446,7 +446,7 @@ importers:
         version: 8.3.5
       fast-xml-parser:
         specifier: ^5.8.0
-        version: 5.11.1
+        version: 5.11.2
       yaml:
         specifier: ^2.9.0
         version: 2.9.1
@@ -486,10 +486,10 @@ importers:
         version: 4.14.0
       '@salesforce/b2c-cli':
         specifier: '>=1.18.0'
-        version: 2.2.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.2.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       fast-xml-parser:
         specifier: ^5.8.0
-        version: 5.11.1
+        version: 5.11.2
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1150,8 +1150,8 @@ packages:
     resolution: {integrity: sha512-K8BeapFUfrfxbRAUQAG5oBOCwo1+bNWzaVnPxTCutkfrTBn6T/j91FIhqxWJ32SUeQ9T3iy1zcmPZ5ROZEvDrg==}
     engines: {node: '>=22.12.0'}
 
-  '@nodable/entities@3.0.0':
-    resolution: {integrity: sha512-8L9xFeTYKhm49xfIypoe2W5wV1m/3Z58kT+7kR9A8OyFxcPduI4VmxaUMQyKYrRjUoLLSXv6EKKID5Tvj9cUVw==}
+  '@nodable/entities@3.1.0':
+    resolution: {integrity: sha512-LsS/DjHr+uDM647Gru/cA8+J3a3HfhttwCKLyuoyN7yXTFCxKBtSgMQBvrW9yNPa2/zDRUNuGPaH5QUFoa4arQ==}
 
   '@npmcli/fs@5.0.0':
     resolution: {integrity: sha512-7OsC1gNORBEawOa5+j2pXN9vsicaIOH5cPXxoR6fJOmH6/EXpJB2CajXOu1fPRFun2m1lktEFX11+P89hqO/og==}
@@ -1651,8 +1651,8 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@salesforce/b2c-cli@2.2.0':
-    resolution: {integrity: sha512-5ktloRok46X57NZIWA4PkYVlHlNsYu3HxE+UqBuolRjaYM/R/n9qQocl5F4lhsV5DiiczHx9pHaMTHzJB/G0BA==}
+  '@salesforce/b2c-cli@2.2.1':
+    resolution: {integrity: sha512-Fropx4zI+3oFnx8rSH7EMBlscICvBMc8Lwt0NF8Avt920tHHKUWlv+EU2ijxWUCjV2Hkj1Kvz8y4oz1qlUWVfw==}
     engines: {node: '>=22.16.0'}
     hasBin: true
 
@@ -3327,8 +3327,8 @@ packages:
   fast-xml-builder@1.3.1:
     resolution: {integrity: sha512-pIM/1n3ntFXKYrUZwW7QCK0gAW7XY+wzj1YMIV3tLDvPj/V+zTGJK5e3/4WJfwj0qWw2ElNXiTixda/R+3YSug==}
 
-  fast-xml-parser@5.11.1:
-    resolution: {integrity: sha512-TBw6K/fxoQGGjCmZDw9w/ZwP3uDcnTM4YH/g+PFRWr8sbe5idXtxNN6vITh4+1ruCZaho6uBFurElsA7F0zzgw==}
+  fast-xml-parser@5.11.2:
+    resolution: {integrity: sha512-R9iDuNrQYeQut46cn2r2wHKn4HYzVDvDm5J1wW+koZewykv0yuO2HChTYeZtrULyHIDM9cj9TUXloCsueCQUog==}
     hasBin: true
 
   fastest-levenshtein@1.0.16:
@@ -5684,7 +5684,7 @@ snapshots:
     dependencies:
       '@chevrotain/types': 11.1.2
 
-  '@nodable/entities@3.0.0': {}
+  '@nodable/entities@3.1.0': {}
 
   '@npmcli/fs@5.0.0':
     dependencies:
@@ -6025,7 +6025,7 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@salesforce/b2c-cli@2.2.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)':
+  '@salesforce/b2c-cli@2.2.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)':
     dependencies:
       '@inquirer/prompts': 8.2.0(@types/node@24.19.0)
       '@oclif/core': 4.8.0
@@ -8014,9 +8014,9 @@ snapshots:
       path-expression-matcher: 1.6.2
       xml-naming: 0.3.0
 
-  fast-xml-parser@5.11.1:
+  fast-xml-parser@5.11.2:
     dependencies:
-      '@nodable/entities': 3.0.0
+      '@nodable/entities': 3.1.0
       fast-xml-builder: 1.3.1
       is-unsafe: 2.0.2
       path-expression-matcher: 1.6.2
