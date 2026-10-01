@@ -190,7 +190,7 @@ importers:
         version: 12.0.0
       vite-plus:
         specifier: 'catalog:'
-        version: 1.0.0(@types/node@25.9.5)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
+        version: 1.0.0(@types/node@25.9.5)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
       vitepress:
         specifier: 2.0.0-alpha.20
         version: 2.0.0-alpha.20(@types/node@25.9.5)(change-case@5.4.4)(fuse.js@7.1.0)(jiti@2.7.0)(postcss@8.5.26)(typescript@6.0.3)(yaml@2.9.0)
@@ -253,7 +253,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vite-plus:
         specifier: 'catalog:'
-        version: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
+        version: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
 
   examples/oxlint-eslint-sfcc:
     devDependencies:
@@ -292,7 +292,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vite-plus:
         specifier: 'catalog:'
-        version: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
+        version: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
 
   packages/b2c-plugin:
     dependencies:
@@ -323,7 +323,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vite-plus:
         specifier: 'catalog:'
-        version: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1)
+        version: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1)
 
   packages/babel-plugin-sfcc-modules:
     dependencies:
@@ -351,13 +351,13 @@ importers:
         version: 24.19.0
       '@vitest/coverage-v8':
         specifier: ^5.0.0
-        version: 5.0.2(@vitest/browser@5.0.1)(vitest@5.0.1)
+        version: 5.0.3(vitest@5.0.1)
       typescript:
         specifier: ^7.0.0
         version: 7.0.2
       vite-plus:
         specifier: 'catalog:'
-        version: 1.0.0(@types/node@24.19.0)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
+        version: 1.0.0(@types/node@24.19.0)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
 
   packages/config:
     dependencies:
@@ -373,7 +373,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vite-plus:
         specifier: 'catalog:'
-        version: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1)
+        version: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1)
 
   packages/eslint-config-sfcc:
     dependencies:
@@ -413,7 +413,7 @@ importers:
         version: 8.71.0(@typescript/typescript6@6.0.2)(eslint@10.9.1(jiti@2.7.0)(supports-color@8.1.1))(supports-color@8.1.1)
       '@vitest/coverage-v8':
         specifier: ^5.0.0
-        version: 5.0.2(@vitest/browser@5.0.1)(vitest@5.0.1)
+        version: 5.0.3(vitest@5.0.1)
       bumpp:
         specifier: ^12.0.0
         version: 12.3.0
@@ -425,13 +425,13 @@ importers:
         version: 76.0.0(eslint@10.9.1(jiti@2.7.0)(supports-color@8.1.1))
       oxlint:
         specifier: 'catalog:'
-        version: 1.86.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0))
+        version: 1.86.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0))
       typescript:
         specifier: npm:@typescript/typescript6@^6.0.2
         version: '@typescript/typescript6@6.0.2'
       vite-plus:
         specifier: 'catalog:'
-        version: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
+        version: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
 
   packages/sfcc-module-resolver:
     dependencies:
@@ -459,7 +459,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vite-plus:
         specifier: 'catalog:'
-        version: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1)
+        version: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1)
 
   packages/sfcc-test-runtime:
     devDependencies:
@@ -471,7 +471,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vite-plus:
         specifier: 'catalog:'
-        version: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
+        version: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
 
   packages/typescript-sfcc:
     dependencies:
@@ -499,7 +499,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vite-plus:
         specifier: 'catalog:'
-        version: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
+        version: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
 
   packages/vite-plugin-sfcc-modules:
     dependencies:
@@ -515,13 +515,13 @@ importers:
         version: 24.19.0
       '@vitest/coverage-v8':
         specifier: ^5.0.0
-        version: 5.0.2(@vitest/browser@5.0.1)(vitest@5.0.1)
+        version: 5.0.3(vitest@5.0.1)
       typescript:
         specifier: ^7.0.0
         version: 7.0.2
       vite-plus:
         specifier: 'catalog:'
-        version: 1.0.0(@types/node@24.19.0)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
+        version: 1.0.0(@types/node@24.19.0)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
 
   packages/vitest-sfcc:
     dependencies:
@@ -542,7 +542,7 @@ importers:
         version: '@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0)'
       vitest:
         specifier: ^5.0.0
-        version: 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.0)
+        version: 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.0)
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -552,7 +552,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vite-plus:
         specifier: 'catalog:'
-        version: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
+        version: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
 
 packages:
 
@@ -2084,19 +2084,10 @@ packages:
     peerDependencies:
       vitest: ^5.0.0
 
-  '@vitest/coverage-v8@5.0.1':
-    resolution: {integrity: sha512-FRC8ACiudC3dI6MTplzRSYWHDRnIv2IPfbzs4FdoJNsMal/35sWV8hwIfV8ZcqzSPy+uXHeMVONt9CEqtOU17w==}
+  '@vitest/coverage-v8@5.0.3':
+    resolution: {integrity: sha512-+klsyz7BvT1vCU28Zkfzms1Ia78XD0V41U3FUtRaa3S+vOr/EXvK1O6BvVD7l1RzEjm6SONR2aybOvDDf9u0mQ==}
     peerDependencies:
-      '@vitest/browser': 5.0.1
-      vitest: ^5.0.0
-    peerDependenciesMeta:
-      '@vitest/browser':
-        optional: true
-
-  '@vitest/coverage-v8@5.0.2':
-    resolution: {integrity: sha512-3ffHBEi8DOOBLwIGBhOBZbRfYFYWjMUuxZicONdhuFEFEG5AVsMOSrVeuROskqnqpbOmEJwxM2eTVZ9N3a1t+A==}
-    peerDependencies:
-      '@vitest/browser': 5.0.2
+      '@vitest/browser': 5.0.3
       vitest: ^5.0.0
     peerDependenciesMeta:
       '@vitest/browser':
@@ -6500,7 +6491,7 @@ snapshots:
       '@testing-library/dom': 10.4.1
       '@testing-library/user-event': 14.6.7(@testing-library/dom@10.4.1)
       '@vitest/browser': 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(vitest@5.0.1)(yaml@2.9.0)
-      vitest: 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.0)
+      vitest: 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/browser-preview@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.0)
     transitivePeerDependencies:
       - '@arethetypeswrong/core'
       - '@types/node'
@@ -6528,7 +6519,7 @@ snapshots:
       '@testing-library/dom': 10.4.1
       '@testing-library/user-event': 14.6.7(@testing-library/dom@10.4.1)
       '@vitest/browser': 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(vitest@5.0.1)(yaml@2.9.1)
-      vitest: 5.0.1(@types/node@25.9.5)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
+      vitest: 5.0.1(@types/node@25.9.5)(@vitest/browser-preview@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
     transitivePeerDependencies:
       - '@arethetypeswrong/core'
       - '@types/node'
@@ -6556,7 +6547,7 @@ snapshots:
       '@testing-library/dom': 10.4.1
       '@testing-library/user-event': 14.6.7(@testing-library/dom@10.4.1)
       '@vitest/browser': 5.0.1(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(vitest@5.0.1)(yaml@2.9.0)
-      vitest: 5.0.1(@types/node@24.19.0)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
+      vitest: 5.0.1(@types/node@24.19.0)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
     transitivePeerDependencies:
       - '@arethetypeswrong/core'
       - '@types/node'
@@ -6584,7 +6575,7 @@ snapshots:
       '@testing-library/dom': 10.4.1
       '@testing-library/user-event': 14.6.7(@testing-library/dom@10.4.1)
       '@vitest/browser': 5.0.1(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(vitest@5.0.1)(yaml@2.9.0)
-      vitest: 5.0.1(@types/node@25.9.5)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
+      vitest: 5.0.1(@types/node@25.9.5)(@vitest/browser-preview@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
     transitivePeerDependencies:
       - '@arethetypeswrong/core'
       - '@types/node'
@@ -6617,7 +6608,7 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.1
-      vitest: 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.0)
+      vitest: 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/browser-preview@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.0)
       ws: 8.21.3
     transitivePeerDependencies:
       - '@arethetypeswrong/core'
@@ -6651,7 +6642,7 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.1
-      vitest: 5.0.1(@types/node@25.9.5)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
+      vitest: 5.0.1(@types/node@25.9.5)(@vitest/browser-preview@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
       ws: 8.21.3
     transitivePeerDependencies:
       - '@arethetypeswrong/core'
@@ -6685,7 +6676,7 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.1
-      vitest: 5.0.1(@types/node@24.19.0)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
+      vitest: 5.0.1(@types/node@24.19.0)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
       ws: 8.21.3
     transitivePeerDependencies:
       - '@arethetypeswrong/core'
@@ -6719,7 +6710,7 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.1
-      vitest: 5.0.1(@types/node@25.9.5)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
+      vitest: 5.0.1(@types/node@25.9.5)(@vitest/browser-preview@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
       ws: 8.21.3
     transitivePeerDependencies:
       - '@arethetypeswrong/core'
@@ -6743,7 +6734,7 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@vitest/coverage-v8@5.0.1(@vitest/browser@5.0.1)(vitest@5.0.1)':
+  '@vitest/coverage-v8@5.0.3(vitest@5.0.1)':
     dependencies:
       '@bcoe/v8-coverage': 1.0.2
       '@vitest/istanbul-lib-coverage': 1.0.1
@@ -6753,24 +6744,7 @@ snapshots:
       obug: 2.1.4
       std-env: 4.2.0
       tinyrainbow: 3.1.1
-      vitest: 5.0.1(@types/node@25.9.5)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
-    optionalDependencies:
-      '@vitest/browser': 5.0.1(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(vitest@5.0.1)(yaml@2.9.0)
-    optional: true
-
-  '@vitest/coverage-v8@5.0.2(@vitest/browser@5.0.1)(vitest@5.0.1)':
-    dependencies:
-      '@bcoe/v8-coverage': 1.0.2
-      '@vitest/istanbul-lib-coverage': 1.0.1
-      '@vitest/istanbul-lib-report': 1.0.1
-      ast-v8-to-istanbul: 1.0.5
-      magicast: 0.5.4
-      obug: 2.1.4
-      std-env: 4.2.0
-      tinyrainbow: 3.1.1
-      vitest: 5.0.1(@types/node@24.19.0)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
-    optionalDependencies:
-      '@vitest/browser': 5.0.1(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(vitest@5.0.1)(yaml@2.9.0)
+      vitest: 5.0.1(@types/node@24.19.0)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
 
   '@vitest/istanbul-lib-coverage@1.0.1': {}
 
@@ -6903,7 +6877,7 @@ snapshots:
       pathe: 2.0.3
       sirv: 3.0.2
       tinyrainbow: 3.1.1
-      vitest: 5.0.1(@types/node@25.9.5)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
+      vitest: 5.0.1(@types/node@25.9.5)(@vitest/browser-preview@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
 
   '@vitest/utils@5.0.1':
     dependencies:
@@ -8847,7 +8821,7 @@ snapshots:
       type-check: 0.4.0
       word-wrap: 1.2.5
 
-  oxfmt@0.70.0(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)):
+  oxfmt@0.70.0(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)):
     dependencies:
       tinypool: 2.1.2
     optionalDependencies:
@@ -8870,9 +8844,9 @@ snapshots:
       '@oxfmt/binding-win32-arm64-msvc': 0.70.0
       '@oxfmt/binding-win32-ia32-msvc': 0.70.0
       '@oxfmt/binding-win32-x64-msvc': 0.70.0
-      vite-plus: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
+      vite-plus: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
 
-  oxfmt@0.70.0(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1)):
+  oxfmt@0.70.0(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1)):
     dependencies:
       tinypool: 2.1.2
     optionalDependencies:
@@ -8895,9 +8869,9 @@ snapshots:
       '@oxfmt/binding-win32-arm64-msvc': 0.70.0
       '@oxfmt/binding-win32-ia32-msvc': 0.70.0
       '@oxfmt/binding-win32-x64-msvc': 0.70.0
-      vite-plus: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1)
+      vite-plus: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1)
 
-  oxfmt@0.70.0(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)):
+  oxfmt@0.70.0(vite-plus@1.0.0(@types/node@24.19.0)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)):
     dependencies:
       tinypool: 2.1.2
     optionalDependencies:
@@ -8920,9 +8894,9 @@ snapshots:
       '@oxfmt/binding-win32-arm64-msvc': 0.70.0
       '@oxfmt/binding-win32-ia32-msvc': 0.70.0
       '@oxfmt/binding-win32-x64-msvc': 0.70.0
-      vite-plus: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
+      vite-plus: 1.0.0(@types/node@24.19.0)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
 
-  oxfmt@0.70.0(vite-plus@1.0.0(@types/node@24.19.0)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)):
+  oxfmt@0.70.0(vite-plus@1.0.0(@types/node@25.9.5)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)):
     dependencies:
       tinypool: 2.1.2
     optionalDependencies:
@@ -8945,32 +8919,7 @@ snapshots:
       '@oxfmt/binding-win32-arm64-msvc': 0.70.0
       '@oxfmt/binding-win32-ia32-msvc': 0.70.0
       '@oxfmt/binding-win32-x64-msvc': 0.70.0
-      vite-plus: 1.0.0(@types/node@24.19.0)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
-
-  oxfmt@0.70.0(vite-plus@1.0.0(@types/node@25.9.5)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)):
-    dependencies:
-      tinypool: 2.1.2
-    optionalDependencies:
-      '@oxfmt/binding-android-arm-eabi': 0.70.0
-      '@oxfmt/binding-android-arm64': 0.70.0
-      '@oxfmt/binding-darwin-arm64': 0.70.0
-      '@oxfmt/binding-darwin-x64': 0.70.0
-      '@oxfmt/binding-freebsd-x64': 0.70.0
-      '@oxfmt/binding-linux-arm-gnueabihf': 0.70.0
-      '@oxfmt/binding-linux-arm-musleabihf': 0.70.0
-      '@oxfmt/binding-linux-arm64-gnu': 0.70.0
-      '@oxfmt/binding-linux-arm64-musl': 0.70.0
-      '@oxfmt/binding-linux-ppc64-gnu': 0.70.0
-      '@oxfmt/binding-linux-riscv64-gnu': 0.70.0
-      '@oxfmt/binding-linux-riscv64-musl': 0.70.0
-      '@oxfmt/binding-linux-s390x-gnu': 0.70.0
-      '@oxfmt/binding-linux-x64-gnu': 0.70.0
-      '@oxfmt/binding-linux-x64-musl': 0.70.0
-      '@oxfmt/binding-openharmony-arm64': 0.70.0
-      '@oxfmt/binding-win32-arm64-msvc': 0.70.0
-      '@oxfmt/binding-win32-ia32-msvc': 0.70.0
-      '@oxfmt/binding-win32-x64-msvc': 0.70.0
-      vite-plus: 1.0.0(@types/node@25.9.5)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
+      vite-plus: 1.0.0(@types/node@25.9.5)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
 
   oxlint-tsgolint@7.0.2003:
     optionalDependencies:
@@ -8981,7 +8930,7 @@ snapshots:
       '@oxlint-tsgolint/win32-arm64': 7.0.2003
       '@oxlint-tsgolint/win32-x64': 7.0.2003
 
-  oxlint@1.85.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)):
+  oxlint@1.85.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)):
     optionalDependencies:
       '@oxlint/binding-android-arm-eabi': 1.85.0
       '@oxlint/binding-android-arm64': 1.85.0
@@ -9003,9 +8952,9 @@ snapshots:
       '@oxlint/binding-win32-ia32-msvc': 1.85.0
       '@oxlint/binding-win32-x64-msvc': 1.85.0
       oxlint-tsgolint: 7.0.2003
-      vite-plus: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
+      vite-plus: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
 
-  oxlint@1.85.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1)):
+  oxlint@1.85.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1)):
     optionalDependencies:
       '@oxlint/binding-android-arm-eabi': 1.85.0
       '@oxlint/binding-android-arm64': 1.85.0
@@ -9027,9 +8976,9 @@ snapshots:
       '@oxlint/binding-win32-ia32-msvc': 1.85.0
       '@oxlint/binding-win32-x64-msvc': 1.85.0
       oxlint-tsgolint: 7.0.2003
-      vite-plus: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1)
+      vite-plus: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1)
 
-  oxlint@1.85.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)):
+  oxlint@1.85.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@24.19.0)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)):
     optionalDependencies:
       '@oxlint/binding-android-arm-eabi': 1.85.0
       '@oxlint/binding-android-arm64': 1.85.0
@@ -9051,9 +9000,9 @@ snapshots:
       '@oxlint/binding-win32-ia32-msvc': 1.85.0
       '@oxlint/binding-win32-x64-msvc': 1.85.0
       oxlint-tsgolint: 7.0.2003
-      vite-plus: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
+      vite-plus: 1.0.0(@types/node@24.19.0)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
 
-  oxlint@1.85.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@24.19.0)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)):
+  oxlint@1.85.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@25.9.5)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)):
     optionalDependencies:
       '@oxlint/binding-android-arm-eabi': 1.85.0
       '@oxlint/binding-android-arm64': 1.85.0
@@ -9075,33 +9024,9 @@ snapshots:
       '@oxlint/binding-win32-ia32-msvc': 1.85.0
       '@oxlint/binding-win32-x64-msvc': 1.85.0
       oxlint-tsgolint: 7.0.2003
-      vite-plus: 1.0.0(@types/node@24.19.0)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
+      vite-plus: 1.0.0(@types/node@25.9.5)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
 
-  oxlint@1.85.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@25.9.5)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)):
-    optionalDependencies:
-      '@oxlint/binding-android-arm-eabi': 1.85.0
-      '@oxlint/binding-android-arm64': 1.85.0
-      '@oxlint/binding-darwin-arm64': 1.85.0
-      '@oxlint/binding-darwin-x64': 1.85.0
-      '@oxlint/binding-freebsd-x64': 1.85.0
-      '@oxlint/binding-linux-arm-gnueabihf': 1.85.0
-      '@oxlint/binding-linux-arm-musleabihf': 1.85.0
-      '@oxlint/binding-linux-arm64-gnu': 1.85.0
-      '@oxlint/binding-linux-arm64-musl': 1.85.0
-      '@oxlint/binding-linux-ppc64-gnu': 1.85.0
-      '@oxlint/binding-linux-riscv64-gnu': 1.85.0
-      '@oxlint/binding-linux-riscv64-musl': 1.85.0
-      '@oxlint/binding-linux-s390x-gnu': 1.85.0
-      '@oxlint/binding-linux-x64-gnu': 1.85.0
-      '@oxlint/binding-linux-x64-musl': 1.85.0
-      '@oxlint/binding-openharmony-arm64': 1.85.0
-      '@oxlint/binding-win32-arm64-msvc': 1.85.0
-      '@oxlint/binding-win32-ia32-msvc': 1.85.0
-      '@oxlint/binding-win32-x64-msvc': 1.85.0
-      oxlint-tsgolint: 7.0.2003
-      vite-plus: 1.0.0(@types/node@25.9.5)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
-
-  oxlint@1.86.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)):
+  oxlint@1.86.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)):
     optionalDependencies:
       '@oxlint/binding-android-arm-eabi': 1.86.0
       '@oxlint/binding-android-arm64': 1.86.0
@@ -9123,7 +9048,7 @@ snapshots:
       '@oxlint/binding-win32-ia32-msvc': 1.86.0
       '@oxlint/binding-win32-x64-msvc': 1.86.0
       oxlint-tsgolint: 7.0.2003
-      vite-plus: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
+      vite-plus: 1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0)
 
   p-event@6.0.1:
     dependencies:
@@ -9766,7 +9691,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0):
+  vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0):
     dependencies:
       '@oxc-project/types': 0.151.0
       '@oxlint/plugins': 1.79.0
@@ -9777,11 +9702,11 @@ snapshots:
       '@vitest/snapshot': 5.0.1
       '@vitest/spy': 5.0.1
       '@vitest/utils': 5.0.1
-      oxfmt: 0.70.0(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0))
-      oxlint: 1.85.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0))
+      oxfmt: 0.70.0(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0))
+      oxlint: 1.85.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0))
       oxlint-tsgolint: 7.0.2003
       vite: '@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0)'
-      vitest: 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.0)
+      vitest: 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.0)
     optionalDependencies:
       '@voidzero-dev/vite-plus-darwin-arm64': 1.0.0
       '@voidzero-dev/vite-plus-darwin-x64': 1.0.0
@@ -9821,7 +9746,7 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1):
+  vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1):
     dependencies:
       '@oxc-project/types': 0.151.0
       '@oxlint/plugins': 1.79.0
@@ -9832,11 +9757,11 @@ snapshots:
       '@vitest/snapshot': 5.0.1
       '@vitest/spy': 5.0.1
       '@vitest/utils': 5.0.1
-      oxfmt: 0.70.0(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1))
-      oxlint: 1.85.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1))
+      oxfmt: 0.70.0(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1))
+      oxlint: 1.85.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.1))
       oxlint-tsgolint: 7.0.2003
       vite: '@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.1)'
-      vitest: 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.1)
+      vitest: 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/browser-preview@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.1)
     optionalDependencies:
       '@voidzero-dev/vite-plus-darwin-arm64': 1.0.0
       '@voidzero-dev/vite-plus-darwin-x64': 1.0.0
@@ -9876,62 +9801,7 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0):
-    dependencies:
-      '@oxc-project/types': 0.151.0
-      '@oxlint/plugins': 1.79.0
-      '@vitest/browser': 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(vitest@5.0.1)(yaml@2.9.0)
-      '@vitest/browser-preview': 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(vitest@5.0.1)(yaml@2.9.0)
-      '@vitest/mocker': 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0)
-      '@vitest/pretty-format': 5.0.1
-      '@vitest/snapshot': 5.0.1
-      '@vitest/spy': 5.0.1
-      '@vitest/utils': 5.0.1
-      oxfmt: 0.70.0(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0))
-      oxlint: 1.85.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(yaml@2.9.0))
-      oxlint-tsgolint: 7.0.2003
-      vite: '@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0)'
-      vitest: 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.0)
-    optionalDependencies:
-      '@voidzero-dev/vite-plus-darwin-arm64': 1.0.0
-      '@voidzero-dev/vite-plus-darwin-x64': 1.0.0
-      '@voidzero-dev/vite-plus-linux-arm64-gnu': 1.0.0
-      '@voidzero-dev/vite-plus-linux-arm64-musl': 1.0.0
-      '@voidzero-dev/vite-plus-linux-x64-gnu': 1.0.0
-      '@voidzero-dev/vite-plus-linux-x64-musl': 1.0.0
-      '@voidzero-dev/vite-plus-win32-arm64-msvc': 1.0.0
-      '@voidzero-dev/vite-plus-win32-x64-msvc': 1.0.0
-    transitivePeerDependencies:
-      - '@arethetypeswrong/core'
-      - '@edge-runtime/vm'
-      - '@opentelemetry/api'
-      - '@types/node'
-      - '@vitejs/devtools'
-      - '@vitest/coverage-istanbul'
-      - '@vitest/coverage-v8'
-      - '@vitest/ui'
-      - bufferutil
-      - esbuild
-      - happy-dom
-      - jiti
-      - jsdom
-      - less
-      - msw
-      - publint
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - svelte
-      - terser
-      - tsx
-      - typescript
-      - unplugin-unused
-      - unrun
-      - utf-8-validate
-      - yaml
-
-  vite-plus@1.0.0(@types/node@24.19.0)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0):
+  vite-plus@1.0.0(@types/node@24.19.0)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0):
     dependencies:
       '@oxc-project/types': 0.151.0
       '@oxlint/plugins': 1.79.0
@@ -9942,11 +9812,11 @@ snapshots:
       '@vitest/snapshot': 5.0.1
       '@vitest/spy': 5.0.1
       '@vitest/utils': 5.0.1
-      oxfmt: 0.70.0(vite-plus@1.0.0(@types/node@24.19.0)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))
-      oxlint: 1.85.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@24.19.0)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))
+      oxfmt: 0.70.0(vite-plus@1.0.0(@types/node@24.19.0)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))
+      oxlint: 1.85.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@24.19.0)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))
       oxlint-tsgolint: 7.0.2003
       vite: '@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)'
-      vitest: 5.0.1(@types/node@24.19.0)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
+      vitest: 5.0.1(@types/node@24.19.0)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
     optionalDependencies:
       '@voidzero-dev/vite-plus-darwin-arm64': 1.0.0
       '@voidzero-dev/vite-plus-darwin-x64': 1.0.0
@@ -9986,7 +9856,7 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  vite-plus@1.0.0(@types/node@25.9.5)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0):
+  vite-plus@1.0.0(@types/node@25.9.5)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0):
     dependencies:
       '@oxc-project/types': 0.151.0
       '@oxlint/plugins': 1.79.0
@@ -9997,11 +9867,11 @@ snapshots:
       '@vitest/snapshot': 5.0.1
       '@vitest/spy': 5.0.1
       '@vitest/utils': 5.0.1
-      oxfmt: 0.70.0(vite-plus@1.0.0(@types/node@25.9.5)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))
-      oxlint: 1.85.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@25.9.5)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))
+      oxfmt: 0.70.0(vite-plus@1.0.0(@types/node@25.9.5)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))
+      oxlint: 1.85.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.0.0(@types/node@25.9.5)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))
       oxlint-tsgolint: 7.0.2003
       vite: '@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)'
-      vitest: 5.0.1(@types/node@25.9.5)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
+      vitest: 5.0.1(@types/node@25.9.5)(@vitest/browser-preview@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
     optionalDependencies:
       '@voidzero-dev/vite-plus-darwin-arm64': 1.0.0
       '@voidzero-dev/vite-plus-darwin-x64': 1.0.0
@@ -10118,7 +9988,7 @@ snapshots:
       - unrun
       - yaml
 
-  vitest@5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.0):
+  vitest@5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.0):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/mocker': 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0)
@@ -10137,7 +10007,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.19.0
       '@vitest/browser-preview': 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(vitest@5.0.1)(yaml@2.9.0)
-      '@vitest/coverage-v8': 5.0.1(@vitest/browser@5.0.1)(vitest@5.0.1)
+      '@vitest/coverage-v8': 5.0.3(vitest@5.0.1)
       '@vitest/ui': 5.0.1(vitest@5.0.1)
     transitivePeerDependencies:
       - '@arethetypeswrong/core'
@@ -10158,7 +10028,7 @@ snapshots:
       - unrun
       - yaml
 
-  vitest@5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.0):
+  vitest@5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/browser-preview@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.0):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/mocker': 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0)
@@ -10172,12 +10042,11 @@ snapshots:
       tinybench: 6.1.4
       tinyexec: 1.3.0
       tinyglobby: 0.2.17
-      vite: '@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)'
+      vite: '@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0)'
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 24.19.0
-      '@vitest/browser-preview': 5.0.1(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(vitest@5.0.1)(yaml@2.9.0)
-      '@vitest/coverage-v8': 5.0.1(@vitest/browser@5.0.1)(vitest@5.0.1)
+      '@vitest/browser-preview': 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(vitest@5.0.1)(yaml@2.9.0)
       '@vitest/ui': 5.0.1(vitest@5.0.1)
     transitivePeerDependencies:
       - '@arethetypeswrong/core'
@@ -10198,7 +10067,7 @@ snapshots:
       - unrun
       - yaml
 
-  vitest@5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.1):
+  vitest@5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/browser-preview@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.1):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/mocker': 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.1)
@@ -10217,7 +10086,6 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.19.0
       '@vitest/browser-preview': 5.0.1(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(vitest@5.0.1)(yaml@2.9.0)
-      '@vitest/coverage-v8': 5.0.1(@vitest/browser@5.0.1)(vitest@5.0.1)
       '@vitest/ui': 5.0.1(vitest@5.0.1)
     transitivePeerDependencies:
       - '@arethetypeswrong/core'
@@ -10238,47 +10106,7 @@ snapshots:
       - unrun
       - yaml
 
-  vitest@5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0))(jiti@2.7.0)(yaml@2.9.0):
-    dependencies:
-      '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0)
-      chai: 6.2.2
-      es-module-lexer: 2.3.2
-      expect-type: 1.4.0
-      magic-string: 1.4.1
-      obug: 2.1.4
-      picomatch: 4.0.7
-      std-env: 4.2.0
-      tinybench: 6.1.4
-      tinyexec: 1.3.0
-      tinyglobby: 0.2.17
-      vite: '@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.0)'
-      why-is-node-running: 2.3.0
-    optionalDependencies:
-      '@types/node': 24.19.0
-      '@vitest/browser-preview': 5.0.1(@types/node@24.19.0)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(vitest@5.0.1)(yaml@2.9.0)
-      '@vitest/coverage-v8': 5.0.2(@vitest/browser@5.0.1)(vitest@5.0.1)
-      '@vitest/ui': 5.0.1(vitest@5.0.1)
-    transitivePeerDependencies:
-      - '@arethetypeswrong/core'
-      - '@vitejs/devtools'
-      - esbuild
-      - jiti
-      - less
-      - msw
-      - publint
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - terser
-      - tsx
-      - typescript
-      - unplugin-unused
-      - unrun
-      - yaml
-
-  vitest@5.0.1(@types/node@24.19.0)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0):
+  vitest@5.0.1(@types/node@24.19.0)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/mocker': 5.0.1(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
@@ -10297,7 +10125,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.19.0
       '@vitest/browser-preview': 5.0.1(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(vitest@5.0.1)(yaml@2.9.0)
-      '@vitest/coverage-v8': 5.0.2(@vitest/browser@5.0.1)(vitest@5.0.1)
+      '@vitest/coverage-v8': 5.0.3(vitest@5.0.1)
       '@vitest/ui': 5.0.1(vitest@5.0.1)
     transitivePeerDependencies:
       - '@arethetypeswrong/core'
@@ -10318,7 +10146,7 @@ snapshots:
       - unrun
       - yaml
 
-  vitest@5.0.1(@types/node@25.9.5)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0):
+  vitest@5.0.1(@types/node@25.9.5)(@vitest/browser-preview@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/mocker': 5.0.1(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
@@ -10337,7 +10165,6 @@ snapshots:
     optionalDependencies:
       '@types/node': 25.9.5
       '@vitest/browser-preview': 5.0.1(@types/node@25.9.5)(jiti@2.7.0)(typescript@6.0.3)(vitest@5.0.1)(yaml@2.9.0)
-      '@vitest/coverage-v8': 5.0.1(@vitest/browser@5.0.1)(vitest@5.0.1)
       '@vitest/ui': 5.0.1(vitest@5.0.1)
     transitivePeerDependencies:
       - '@arethetypeswrong/core'
