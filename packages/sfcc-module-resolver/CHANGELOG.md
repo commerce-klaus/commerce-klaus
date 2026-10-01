@@ -1,5 +1,11 @@
 # @commerce-klaus/sfcc-module-resolver
 
+## 1.9.1
+
+### Patch Changes
+
+- c40f03c: Prefer existing TypeScript language-service resolutions so the official Salesforce B2C Commerce extension can own Script API and cartridge module resolution while Commerce Klaus supplies generated project types, `module.superModule`, and CLI typechecking. Align cartridge-order discovery with Salesforce's `SFCC_CARTRIDGES` environment variable while retaining `SFCC_CARTRIDGE_PATH` compatibility.
+
 ## 1.9.0
 
 ### Minor Changes
