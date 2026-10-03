@@ -31,7 +31,7 @@ test("oclif commands are available to CLI adapters", () => {
     import: "./dist/commands.mjs",
     require: "./dist/commands.cjs",
   })
-  expect(packageManifest.dependencies["@oclif/core"]).toMatch(/^\^4\./u)
+  expect(packageManifest.dependencies["@oclif/core"]).toBe("catalog:")
 })
 
 test("supports TypeScript 5.5 through 6", () => {

@@ -14,12 +14,12 @@
     "@commerce-klaus/eslint-config-sfcc": "workspace:*",
     "@commerce-klaus/typescript-sfcc": "workspace:*",
     "@commerce-klaus/vite-plugin-sfcc-modules": "workspace:*",
-    "@salesforce/b2c-cli": "^2.0.0",
+    "@salesforce/b2c-cli": "catalog:",
     "@types/node": "catalog:",
-    "@typescript-eslint/parser": "^8.68.0",
-    "eslint": "^10.0.1",
-    "globals": "^17.4.0",
-    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "@typescript-eslint/parser": "catalog:",
+    "eslint": "catalog:",
+    "globals": "catalog:",
+    "typescript": "catalog:",
     "vite-plus": "catalog:"
   }
 }

@@ -51,16 +51,16 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@babel/runtime": "^8.0.0",
-    "@babel/types": "^8.0.0",
+    "@babel/runtime": "^7.28.0",
+    "@babel/types": "^7.28.0",
     "@commerce-klaus/sfcc-module-resolver": "workspace:^",
     "imports-visitor": "^2.1.0"
   },
   "devDependencies": {
-    "@babel/core": "^8.0.0",
-    "@babel/register": "^8.0.0",
+    "@babel/core": "^7.28.0",
+    "@babel/register": "^7.28.0",
     "@types/node": "catalog:",
-    "@vitest/coverage-v8": "^5.0.0",
+    "@vitest/coverage-v8": "catalog:",
     "typescript": "^7.0.0",
     "vite-plus": "catalog:"
   },
