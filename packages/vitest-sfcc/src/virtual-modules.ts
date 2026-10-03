@@ -1,4 +1,4 @@
-import { type ResolvedHookRegistration } from "@commerce-klaus/sfcc-module-resolver"
+import { type ResolvedHookRegistration } from "@commerce-klaus/sfcc-module-resolver/hooks"
 
 import { CARTRIDGE_MODULE_SUFFIX } from "./cartridge-transform.js"
 

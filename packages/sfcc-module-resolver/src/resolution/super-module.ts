@@ -1,7 +1,7 @@
 import path from "node:path"
 
 import { findContainingCartridgeRoot } from "./cartridge-order.ts"
-import { explainSfccModuleResolution, stripExt, toPosixPath } from "./module-resolution.ts"
+import { explainModuleResolution, stripExtension, toPosixPath } from "./module-resolution.ts"
 
 export const SUPER_MODULE_TOKEN = "__sfcc_superModule__"
 
@@ -23,7 +23,7 @@ export function resolveSuperModuleSpecifier(
     return undefined
   }
 
-  const relativeModulePath = stripExt(path.relative(containingCartridgeRoot, filePath))
+  const relativeModulePath = stripExtension(path.relative(containingCartridgeRoot, filePath))
   return `${path.basename(resolvedCartridgeRoot)}/${toPosixPath(relativeModulePath)}`
 }
 
@@ -31,7 +31,7 @@ export function resolveSuperModuleFilePath(
   filePath: string,
   cartridgeRoots: string[],
 ): string | undefined {
-  return explainSfccModuleResolution("module.superModule", filePath, cartridgeRoots).resolved
+  return explainModuleResolution("module.superModule", filePath, cartridgeRoots).resolved
 }
 
 export function injectTopLevelStatement(sourceCode: string, statement: string): string {

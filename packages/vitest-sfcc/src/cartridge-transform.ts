@@ -1,4 +1,4 @@
-import { resolveSuperModuleFilePath } from "@commerce-klaus/sfcc-module-resolver"
+import { resolveSuperModuleFilePath } from "@commerce-klaus/sfcc-module-resolver/resolution"
 import { parse, type Node } from "acorn"
 import { ancestor } from "acorn-walk"
 import path from "node:path"

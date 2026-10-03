@@ -1,6 +1,6 @@
 import type { Rule } from "eslint"
 
-import { getRequiredHookExportsForScriptFile } from "@commerce-klaus/sfcc-module-resolver"
+import { getRequiredHookExportsForScriptFile } from "@commerce-klaus/sfcc-module-resolver/hooks"
 import fs from "node:fs"
 import path from "node:path"
 

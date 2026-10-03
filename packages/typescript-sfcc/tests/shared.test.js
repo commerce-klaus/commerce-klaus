@@ -5,7 +5,7 @@ import { expect, test } from "vite-plus/test"
 
 import {
   SUPER_MODULE_TOKEN,
-  createSfccModuleResolver,
+  createModuleResolver,
   createSfccPaths,
   inferCartridgeOrder,
   transformSuperModuleSource,
@@ -89,7 +89,7 @@ test("preferExistingResolution preserves upstream results and only calls the fal
   expect(fallbackCalls).toBe(1)
 })
 
-test("createSfccModuleResolver resolves ~/, */ and cartridge alias imports", () => {
+test("createModuleResolver resolves ~/, */ and cartridge alias imports", () => {
   withTempDir((tempDir) => {
     const appCore = path.join(tempDir, "app_core")
     const appBrand = path.join(tempDir, "app_brand")
@@ -110,7 +110,7 @@ test("createSfccModuleResolver resolves ~/, */ and cartridge alias imports", () 
     fs.mkdirSync(path.dirname(coreModel), { recursive: true })
     fs.writeFileSync(coreModel, "module.exports = {}\n")
 
-    const resolveSfccModule = createSfccModuleResolver([appCore, appBrand])
+    const resolveSfccModule = createModuleResolver([appCore, appBrand])
 
     expect(resolveSfccModule("~/cartridge/scripts/helper", sourceFile)).toBe(localScript)
     expect(resolveSfccModule("*/cartridge/models/core", sourceFile)).toBe(coreModel)

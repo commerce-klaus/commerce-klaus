@@ -3,7 +3,7 @@ import os from "node:os"
 import path from "node:path"
 import { expect, test } from "vite-plus/test"
 
-import { validateSfccProject } from "../src/index.ts"
+import { validateProject } from "../src/project.ts"
 
 function withTempDir(run) {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-project-validation-test-"))
@@ -24,7 +24,7 @@ function writeJson(filePath, content) {
   writeFile(filePath, `${JSON.stringify(content, null, 2)}\n`)
 }
 
-test("validateSfccProject accepts valid project contracts", () => {
+test("validateProject accepts valid project contracts", () => {
   withTempDir((tempDir) => {
     const cartridgesDir = path.join(tempDir, "cartridges")
     const cartridgeRoot = path.join(cartridgesDir, "app_custom")
@@ -37,7 +37,7 @@ test("validateSfccProject accepts valid project contracts", () => {
       "exports.ready = () => {}\n",
     )
 
-    expect(validateSfccProject({ cartridgesDir, cartridgeRoots: [cartridgeRoot] })).toEqual({
+    expect(validateProject({ cartridgesDir, cartridgeRoots: [cartridgeRoot] })).toEqual({
       ok: true,
       errors: 0,
       warnings: 0,
@@ -46,7 +46,7 @@ test("validateSfccProject accepts valid project contracts", () => {
   })
 })
 
-test("validateSfccProject reports malformed and unresolved contracts", () => {
+test("validateProject reports malformed and unresolved contracts", () => {
   withTempDir((tempDir) => {
     const cartridgesDir = path.join(tempDir, "cartridges")
     const cartridgeRoot = path.join(cartridgesDir, "app_custom")
@@ -69,7 +69,7 @@ test("validateSfccProject reports malformed and unresolved contracts", () => {
       endpoints: [{ endpoint: "getSample", schema: "missing.yaml", implementation: "missing" }],
     })
 
-    const result = validateSfccProject({ cartridgesDir, cartridgeRoots: [cartridgeRoot] })
+    const result = validateProject({ cartridgesDir, cartridgeRoots: [cartridgeRoot] })
 
     expect(result.ok).toBe(false)
     expect(result.warnings).toBe(0)
@@ -82,7 +82,7 @@ test("validateSfccProject reports malformed and unresolved contracts", () => {
   })
 })
 
-test("validateSfccProject reports registrations hidden by cartridge precedence", () => {
+test("validateProject reports registrations hidden by cartridge precedence", () => {
   withTempDir((tempDir) => {
     const cartridgesDir = path.join(tempDir, "cartridges")
     const cartridgeRoots = ["app_custom", "app_base"].map((name) => path.join(cartridgesDir, name))
@@ -98,7 +98,7 @@ test("validateSfccProject reports registrations hidden by cartridge precedence",
       )
     }
 
-    const result = validateSfccProject({ cartridgesDir, cartridgeRoots })
+    const result = validateProject({ cartridgesDir, cartridgeRoots })
 
     expect(result.ok).toBe(true)
     expect(result.warnings).toBe(1)
@@ -110,7 +110,7 @@ test("validateSfccProject reports registrations hidden by cartridge precedence",
   })
 })
 
-test("validateSfccProject rejects empty and incorrectly typed metadata fields", () => {
+test("validateProject rejects empty and incorrectly typed metadata fields", () => {
   withTempDir((tempDir) => {
     const cartridgesDir = path.join(tempDir, "cartridges")
     const cartridgeRoot = path.join(cartridgesDir, "app_custom")
@@ -119,7 +119,7 @@ test("validateSfccProject rejects empty and incorrectly typed metadata fields", 
       endpoints: [{ endpoint: "getSample", schema: 42, implementation: "script" }],
     })
 
-    const result = validateSfccProject({ cartridgesDir, cartridgeRoots: [cartridgeRoot] })
+    const result = validateProject({ cartridgesDir, cartridgeRoots: [cartridgeRoot] })
 
     expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toEqual([
       "invalid-hooks-declaration",
@@ -128,7 +128,7 @@ test("validateSfccProject rejects empty and incorrectly typed metadata fields", 
   })
 })
 
-test("validateSfccProject identifies invalid job step definitions", () => {
+test("validateProject identifies invalid job step definitions", () => {
   withTempDir((tempDir) => {
     const cartridgesDir = path.join(tempDir, "cartridges")
     const cartridgeRoot = path.join(cartridgesDir, "app_custom")
@@ -138,7 +138,7 @@ test("validateSfccProject identifies invalid job step definitions", () => {
       },
     })
 
-    const result = validateSfccProject({ cartridgesDir, cartridgeRoots: [cartridgeRoot] })
+    const result = validateProject({ cartridgesDir, cartridgeRoots: [cartridgeRoot] })
 
     expect(result.diagnostics).toEqual([
       {

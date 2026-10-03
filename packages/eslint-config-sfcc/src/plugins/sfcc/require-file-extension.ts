@@ -2,10 +2,10 @@ import type { Rule } from "eslint"
 
 import {
   SUPPORTED_RUNTIME_EXTENSIONS,
-  createSfccModuleResolver,
+  createModuleResolver,
   inferCartridgeOrder,
   resolveCandidateFile,
-} from "@commerce-klaus/sfcc-module-resolver"
+} from "@commerce-klaus/sfcc-module-resolver/resolution"
 import path from "node:path"
 
 import { withSfccSettings } from "../_utils/sfcc-settings.js"
@@ -48,7 +48,7 @@ const requireFileExtension: Rule.RuleModule = {
       solutionConfigPath: sfccSettings.solutionConfigPath,
       envCartridgePath: sfccSettings.envCartridgePath,
     })
-    const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
+    const resolveSfccModule = createModuleResolver(cartridgeRoots)
     const filename = path.isAbsolute(context.filename)
       ? context.filename
       : path.resolve(cwd, context.filename)

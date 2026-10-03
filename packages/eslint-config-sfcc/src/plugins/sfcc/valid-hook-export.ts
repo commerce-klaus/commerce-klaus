@@ -1,6 +1,6 @@
 import type { Rule } from "eslint"
 
-import { getRequiredHookExportsForScriptFile } from "@commerce-klaus/sfcc-module-resolver"
+import { getRequiredHookExportsForScriptFile } from "@commerce-klaus/sfcc-module-resolver/hooks"
 
 import { hasStaticCommonJsExport, isJavaScriptTarget } from "../_utils/commonjs-exports.ts"
 

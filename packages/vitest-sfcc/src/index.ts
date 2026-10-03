@@ -2,7 +2,7 @@ import type {
   ResolvedStepTypeDefinition,
   StepTypeExecutionMetadata,
   StepTypeParameterDefinition,
-} from "@commerce-klaus/sfcc-module-resolver"
+} from "@commerce-klaus/sfcc-module-resolver/job-steps"
 
 export {
   loadSfccJobStep,

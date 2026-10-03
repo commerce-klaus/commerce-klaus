@@ -3,11 +3,7 @@ import os from "node:os"
 import path from "node:path"
 import { expect, test } from "vite-plus/test"
 
-import {
-  createSfccProjectGraph,
-  diffSfccProjectGraphs,
-  filterSfccProjectGraph,
-} from "../src/index.ts"
+import { createProjectGraph, diffProjectGraphs, filterProjectGraph } from "../src/project.ts"
 
 function withTempDir(run) {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-project-graph-test-"))
@@ -28,7 +24,7 @@ function writeJson(filePath, content) {
   writeFile(filePath, `${JSON.stringify(content, null, 2)}\n`)
 }
 
-test("createSfccProjectGraph maps cartridge precedence and transitive super modules", () => {
+test("createProjectGraph maps cartridge precedence and transitive super modules", () => {
   withTempDir((tempDir) => {
     const cartridgesDir = path.join(tempDir, "cartridges")
     const modulePath = path.join("cartridge", "models", "product.js")
@@ -39,7 +35,7 @@ test("createSfccProjectGraph maps cartridge precedence and transitive super modu
     writeFile(coreModule, "module.exports = module.superModule\n")
     writeFile(baseModule, "module.exports = {}\n")
 
-    const graph = createSfccProjectGraph({
+    const graph = createProjectGraph({
       cartridgesDir,
       cartridgePath: ["app_custom", "app_core", "app_base"],
     })
@@ -65,7 +61,7 @@ test("createSfccProjectGraph maps cartridge precedence and transitive super modu
   })
 })
 
-test("filterSfccProjectGraph traverses focused relationships by direction and depth", () => {
+test("filterProjectGraph traverses focused relationships by direction and depth", () => {
   const graph = {
     cartridgesDirectory: "/project/cartridges",
     cartridgeOrder: [],
@@ -84,7 +80,7 @@ test("filterSfccProjectGraph traverses focused relationships by direction and de
     ],
   }
 
-  expect(filterSfccProjectGraph(graph, { focus: "product-show" })).toMatchObject({
+  expect(filterProjectGraph(graph, { focus: "product-show" })).toMatchObject({
     nodes: [
       { id: "route:Product:Show" },
       { id: "middleware:authorize" },
@@ -96,20 +92,20 @@ test("filterSfccProjectGraph traverses focused relationships by direction and de
     ],
   })
   expect(
-    filterSfccProjectGraph(graph, {
+    filterProjectGraph(graph, {
       focus: "authorizecustomer",
       depth: 1,
       direction: "dependents",
     }).nodes.map((node) => node.id),
   ).toEqual(["route:Product:Show", "middleware:authorize"])
   expect(
-    filterSfccProjectGraph(graph, { focus: "/project/Product.js", depth: 1 }).nodes.map(
+    filterProjectGraph(graph, { focus: "/project/Product.js", depth: 1 }).nodes.map(
       (node) => node.id,
     ),
   ).toEqual(["route:Product:Show", "module:Product.js", "route:Product:Search"])
 })
 
-test("diffSfccProjectGraphs reports deterministic graph changes", () => {
+test("diffProjectGraphs reports deterministic graph changes", () => {
   const sharedNode = { id: "route:Product:Show", kind: "route", label: "GET Product-Show" }
   const baseline = {
     cartridgesDirectory: "/project/cartridges",
@@ -138,7 +134,7 @@ test("diffSfccProjectGraphs reports deterministic graph changes", () => {
     ],
   }
 
-  const result = diffSfccProjectGraphs(baseline, comparison)
+  const result = diffProjectGraphs(baseline, comparison)
 
   expect(result.nodes.added).toEqual([comparison.nodes[2]])
   expect(result.nodes.removed).toEqual([baseline.nodes[2]])
@@ -147,7 +143,7 @@ test("diffSfccProjectGraphs reports deterministic graph changes", () => {
   expect(result.edges.removed).toEqual(baseline.edges)
 })
 
-test("createSfccProjectGraph maps contracts and supports a focused module graph", () => {
+test("createProjectGraph maps contracts and supports a focused module graph", () => {
   withTempDir((tempDir) => {
     const cartridgesDir = path.join(tempDir, "cartridges")
     const cartridgeRoot = path.join(cartridgesDir, "app_custom")
@@ -195,7 +191,7 @@ test("createSfccProjectGraph maps contracts and supports a focused module graph"
       ].join("\n"),
     )
 
-    const graph = createSfccProjectGraph({ cartridgesDir })
+    const graph = createProjectGraph({ cartridgesDir })
 
     expect(graph.nodes.map((node) => node.kind)).toEqual(
       expect.arrayContaining(["cartridge", "custom-api", "hook", "job-step", "module", "schema"]),
@@ -214,7 +210,7 @@ test("createSfccProjectGraph maps contracts and supports a focused module graph"
       to: `custom-api:${path.join(apiDirectory, "api.json")}#getLoyaltyInfo`,
     })
 
-    const focused = createSfccProjectGraph({
+    const focused = createProjectGraph({
       cartridgesDir,
       module: "*/cartridge/scripts/jobs/feed",
     })
@@ -224,7 +220,7 @@ test("createSfccProjectGraph maps contracts and supports a focused module graph"
   })
 })
 
-test("createSfccProjectGraph maps SFRA controller route customization", () => {
+test("createProjectGraph maps SFRA controller route customization", () => {
   withTempDir((tempDir) => {
     const cartridgesDir = path.join(tempDir, "cartridges")
     const customController = path.join(
@@ -264,7 +260,7 @@ test("createSfccProjectGraph maps SFRA controller route customization", () => {
       ].join("\n"),
     )
 
-    const graph = createSfccProjectGraph({
+    const graph = createProjectGraph({
       cartridgesDir,
       cartridgePath: ["app_custom", "app_base"],
     })
@@ -326,7 +322,7 @@ test("a focused graph connects wildcard candidates in override order", () => {
     writeFile(customModule, "module.exports = 'custom'\n")
     writeFile(baseModule, "module.exports = 'base'\n")
 
-    const graph = createSfccProjectGraph({
+    const graph = createProjectGraph({
       cartridgesDir,
       cartridgePath: ["app_custom", "app_base"],
       module: "*/cartridge/scripts/example",
@@ -340,8 +336,8 @@ test("a focused graph connects wildcard candidates in override order", () => {
   })
 })
 
-test("createSfccProjectGraph rejects unsupported module forms", () => {
+test("createProjectGraph rejects unsupported module forms", () => {
   expect(() =>
-    createSfccProjectGraph({ cartridgesDir: "/missing", module: "~/cartridge/scripts/example" }),
+    createProjectGraph({ cartridgesDir: "/missing", module: "~/cartridge/scripts/example" }),
   ).toThrow("--module must use the */cartridge/... module form")
 })

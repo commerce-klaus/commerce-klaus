@@ -5,14 +5,14 @@ import { expect, test } from "vite-plus/test"
 
 import {
   SUPER_MODULE_TOKEN,
-  createSfccModuleResolver,
-  explainSfccModuleResolution,
+  createModuleResolver,
+  explainModuleResolution,
   getSiteTemplateCartridgePath,
   inferCartridgeOrder,
   resolveCartridgeRoots,
-  resolveCartridgesBasePath,
   transformSuperModuleSource,
-} from "../src/index.ts"
+} from "../src/resolution.ts"
+import { resolveCartridgesBasePath } from "../src/resolution/cartridge-order.ts"
 
 function withTempDir(run) {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-module-resolver-test-"))
@@ -196,7 +196,7 @@ test("resolveCartridgeRoots combines central config with adapter overrides", () 
   })
 })
 
-test("createSfccModuleResolver resolves ~/, */ and cartridge aliases", () => {
+test("createModuleResolver resolves ~/, */ and cartridge aliases", () => {
   withTempDir((tempDir) => {
     const appCore = path.join(tempDir, "app_core")
     const appBrand = path.join(tempDir, "app_brand")
@@ -217,7 +217,7 @@ test("createSfccModuleResolver resolves ~/, */ and cartridge aliases", () => {
     fs.mkdirSync(path.dirname(coreModel), { recursive: true })
     fs.writeFileSync(coreModel, "module.exports = {}\n")
 
-    const resolveSfccModule = createSfccModuleResolver([appCore, appBrand])
+    const resolveSfccModule = createModuleResolver([appCore, appBrand])
 
     expect(resolveSfccModule("~/cartridge/scripts/helper", sourceFile)).toBe(localScript)
     expect(resolveSfccModule("*/cartridge/models/core", sourceFile)).toBe(coreModel)
@@ -225,7 +225,7 @@ test("createSfccModuleResolver resolves ~/, */ and cartridge aliases", () => {
   })
 })
 
-test("explainSfccModuleResolution traces wildcard candidates until the first match", () => {
+test("explainModuleResolution traces wildcard candidates until the first match", () => {
   withTempDir((tempDir) => {
     const appCustom = path.join(tempDir, "app_custom")
     const appBase = path.join(tempDir, "app_base")
@@ -233,7 +233,7 @@ test("explainSfccModuleResolution traces wildcard candidates until the first mat
     fs.mkdirSync(path.dirname(baseModule), { recursive: true })
     fs.writeFileSync(baseModule, "module.exports = {}\n")
 
-    const trace = explainSfccModuleResolution(
+    const trace = explainModuleResolution(
       "*/cartridge/models/product",
       path.join(appCustom, "cartridge", "controllers", "Home.js"),
       [appCustom, appBase],
@@ -253,7 +253,7 @@ test("explainSfccModuleResolution traces wildcard candidates until the first mat
   })
 })
 
-test("explainSfccModuleResolution starts super-module lookup after the importing cartridge", () => {
+test("explainModuleResolution starts super-module lookup after the importing cartridge", () => {
   withTempDir((tempDir) => {
     const appCustom = path.join(tempDir, "app_custom")
     const appCore = path.join(tempDir, "app_core")
@@ -266,7 +266,7 @@ test("explainSfccModuleResolution starts super-module lookup after the importing
     fs.writeFileSync(customModule, "module.exports = module.superModule\n")
     fs.writeFileSync(baseModule, "module.exports = {}\n")
 
-    const trace = explainSfccModuleResolution("module.superModule", customModule, [
+    const trace = explainModuleResolution("module.superModule", customModule, [
       appCustom,
       appCore,
       appBase,

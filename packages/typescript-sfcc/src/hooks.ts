@@ -3,7 +3,7 @@ import {
   getHookRegistrationsFromDocument,
   getRequiredHookExportName,
   resolveHookScriptPath,
-} from "@commerce-klaus/sfcc-module-resolver"
+} from "@commerce-klaus/sfcc-module-resolver/hooks"
 import fs from "node:fs"
 import path from "node:path"
 import ts from "typescript"

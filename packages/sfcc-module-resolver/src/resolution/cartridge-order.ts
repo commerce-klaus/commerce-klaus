@@ -15,7 +15,7 @@ export type InferCartridgeOrderOptions = {
   envCartridgePath?: string
 }
 
-export type SfccModuleResolutionOptions = {
+export type ModuleResolutionOptions = {
   basePath?: string
   cwd?: string
   cartridgePath?: string[]
@@ -27,7 +27,7 @@ export type SfccModuleResolutionOptions = {
   configFile?: string | false
 }
 
-export type ResolveCartridgeRootsOptions = SfccModuleResolutionOptions & {
+export type ResolveCartridgeRootsOptions = ModuleResolutionOptions & {
   containingFile?: string
 }
 

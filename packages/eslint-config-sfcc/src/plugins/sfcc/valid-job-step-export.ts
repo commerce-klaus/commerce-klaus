@@ -1,6 +1,6 @@
 import type { Rule } from "eslint"
 
-import { getResolvedStepTypeDefinitionsForScriptFile } from "@commerce-klaus/sfcc-module-resolver"
+import { getStepTypeDefinitionsForScriptFile } from "@commerce-klaus/sfcc-module-resolver/job-steps"
 
 import { hasStaticCommonJsExport, isJavaScriptTarget } from "../_utils/commonjs-exports.ts"
 import { withSfccSettings } from "../_utils/sfcc-settings.js"
@@ -28,7 +28,7 @@ const validJobStepExport: Rule.RuleModule = {
     return {
       "Program:exit"(node) {
         const program = node as unknown as Rule.Node & { body: Rule.Node[] }
-        const definitions = getResolvedStepTypeDefinitionsForScriptFile(context.filename, {
+        const definitions = getStepTypeDefinitionsForScriptFile(context.filename, {
           cartridgesDir: options.cartridgesDir ?? "cartridges",
           cartridgePath: options.cartridgePath,
           siteTemplatePath: options.siteTemplatePath,

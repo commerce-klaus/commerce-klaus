@@ -1,11 +1,11 @@
+import { resolveHookRegistrations } from "@commerce-klaus/sfcc-module-resolver/hooks"
+import { resolveStepTypeDefinitions } from "@commerce-klaus/sfcc-module-resolver/job-steps"
 import {
-  createSfccModuleResolver,
-  findResolvedHookRegistrations,
-  findResolvedStepTypeDefinitions,
+  createModuleResolver,
   resolveCandidateFile,
   resolveCartridgeRoots,
-  type SfccModuleResolutionOptions,
-} from "@commerce-klaus/sfcc-module-resolver"
+  type ModuleResolutionOptions,
+} from "@commerce-klaus/sfcc-module-resolver/resolution"
 import {
   createSfccTestRuntime,
   setSfccTestRuntime,
@@ -27,7 +27,7 @@ export interface SfccHookDiscoveryOptions {
   cartridges: string[]
 }
 
-export interface SfccVitestOptions extends SfccModuleResolutionOptions {
+export interface SfccVitestOptions extends ModuleResolutionOptions {
   hookDiscovery?: false | SfccHookDiscoveryOptions
   runtime?: SfccTestRuntimeOptions
 }
@@ -59,11 +59,11 @@ function getHookCartridgeRoots(
 
 export default function sfccVitest(options: SfccVitestOptions = {}): SfccVitestPlugin {
   const cartridgeRoots = resolveCartridgeRoots(options)
-  const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
-  const hookRegistrations = findResolvedHookRegistrations(
+  const resolveSfccModule = createModuleResolver(cartridgeRoots)
+  const hookRegistrations = resolveHookRegistrations(
     getHookCartridgeRoots(cartridgeRoots, options.hookDiscovery),
   )
-  const stepTypeDefinitions = findResolvedStepTypeDefinitions(cartridgeRoots)
+  const stepTypeDefinitions = resolveStepTypeDefinitions(cartridgeRoots)
   setActiveStepTypes(stepTypeDefinitions)
   setSfccTestRuntime(createSfccTestRuntime(options.runtime))
 

@@ -1,14 +1,14 @@
 import {
-  explainSfccModuleResolution,
-  type SfccModuleResolutionTrace,
-} from "@commerce-klaus/sfcc-module-resolver"
+  explainModuleResolution,
+  type ModuleResolutionTrace,
+} from "@commerce-klaus/sfcc-module-resolver/resolution"
 import { Args, Command, Flags, ux } from "@oclif/core"
 import path from "node:path"
 
 import { renderResolutionTrace } from "../../output.js"
 import { resolveProjectOptions } from "../../project.js"
 
-export type ExplainResult = SfccModuleResolutionTrace & {
+export type ExplainResult = ModuleResolutionTrace & {
   cartridgeOrder: string[]
   containingFile: string
 }
@@ -35,7 +35,7 @@ export function explainProjectModule(options: {
   const cartridgeOrder = project.cartridgeRoots
 
   return {
-    ...explainSfccModuleResolution(options.moduleName, containingFile, cartridgeOrder),
+    ...explainModuleResolution(options.moduleName, containingFile, cartridgeOrder),
     cartridgeOrder,
     containingFile,
   }

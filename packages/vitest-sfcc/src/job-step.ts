@@ -1,7 +1,7 @@
 import {
   type ResolvedStepTypeDefinition,
   type StepTypeParameterDefinition,
-} from "@commerce-klaus/sfcc-module-resolver"
+} from "@commerce-klaus/sfcc-module-resolver/job-steps"
 import {
   getSfccTestRuntime,
   type SfccJobExecution,

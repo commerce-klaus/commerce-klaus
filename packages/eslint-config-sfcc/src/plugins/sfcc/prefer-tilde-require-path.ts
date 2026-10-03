@@ -3,7 +3,7 @@ import type { Rule } from "eslint"
 import {
   findContainingCartridgeRoot,
   inferCartridgeOrder,
-} from "@commerce-klaus/sfcc-module-resolver"
+} from "@commerce-klaus/sfcc-module-resolver/resolution"
 import path from "node:path"
 
 import { withSfccSettings } from "../_utils/sfcc-settings.js"

@@ -1,7 +1,7 @@
 import type { Rule } from "eslint"
 import type { AST } from "jsonc-eslint-parser"
 
-import { parseStepTypeDefinitionsFromDocument } from "@commerce-klaus/sfcc-module-resolver"
+import { parseStepTypeDefinitionsFromDocument } from "@commerce-klaus/sfcc-module-resolver/job-steps"
 import { getStaticJSONValue } from "jsonc-eslint-parser"
 
 function findDiagnosticNode(program: AST.JSONProgram, diagnosticPath: string): AST.JSONNode {

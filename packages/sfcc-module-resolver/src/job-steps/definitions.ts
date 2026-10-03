@@ -1,8 +1,11 @@
 import fs from "node:fs"
 import path from "node:path"
 
-import { type InferCartridgeOrderOptions, inferCartridgeOrder } from "./cartridge-order.ts"
-import { resolveCandidateFile } from "./module-resolution.ts"
+import {
+  type InferCartridgeOrderOptions,
+  inferCartridgeOrder,
+  resolveCandidateFile,
+} from "../resolution/index.ts"
 
 export interface StepTypeExecutionMetadata {
   description?: string

@@ -34,6 +34,31 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     },
+    "./resolution": {
+      "types": "./dist/resolution.d.mts",
+      "import": "./dist/resolution.mjs",
+      "require": "./dist/resolution.cjs"
+    },
+    "./hooks": {
+      "types": "./dist/hooks.d.mts",
+      "import": "./dist/hooks.mjs",
+      "require": "./dist/hooks.cjs"
+    },
+    "./job-steps": {
+      "types": "./dist/job-steps.d.mts",
+      "import": "./dist/job-steps.mjs",
+      "require": "./dist/job-steps.cjs"
+    },
+    "./custom-apis": {
+      "types": "./dist/custom-apis.d.mts",
+      "import": "./dist/custom-apis.mjs",
+      "require": "./dist/custom-apis.cjs"
+    },
+    "./project": {
+      "types": "./dist/project.d.mts",
+      "import": "./dist/project.mjs",
+      "require": "./dist/project.cjs"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {

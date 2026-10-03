@@ -45,7 +45,10 @@ Inside this workspace:
 
 ```ts{2,5-8,11,14} [resolver.ts]
 import path from "node:path"
-import { createSfccModuleResolver, inferCartridgeOrder } from "@commerce-klaus/sfcc-module-resolver"
+import {
+  createModuleResolver,
+  inferCartridgeOrder,
+} from "@commerce-klaus/sfcc-module-resolver/resolution"
 
 const cwd = process.cwd()
 const cartridgeRoots = inferCartridgeOrder({
@@ -53,7 +56,7 @@ const cartridgeRoots = inferCartridgeOrder({
   cwd,
 })
 
-const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
+const resolveSfccModule = createModuleResolver(cartridgeRoots)
 
 const importer = path.resolve("cartridges/app_custom/cartridge/controllers/Home.js")
 const resolved = resolveSfccModule("*/cartridge/scripts/util", importer)
@@ -65,6 +68,20 @@ const resolved = resolveSfccModule("*/cartridge/scripts/util", importer)
 
 ## API overview
 
+The public API is grouped by SFCC domain:
+
+| Entry point                                        | Responsibility                                      |
+| -------------------------------------------------- | --------------------------------------------------- |
+| `@commerce-klaus/sfcc-module-resolver`             | Resolution API, equivalent to `/resolution`         |
+| `@commerce-klaus/sfcc-module-resolver/resolution`  | Cartridge order, module resolution, and superModule |
+| `@commerce-klaus/sfcc-module-resolver/hooks`       | Hook registration discovery and contracts           |
+| `@commerce-klaus/sfcc-module-resolver/job-steps`   | Job step definitions and script contracts           |
+| `@commerce-klaus/sfcc-module-resolver/custom-apis` | Custom API and OAS discovery                        |
+| `@commerce-klaus/sfcc-module-resolver/project`     | Project validation and dependency graphs            |
+
+Import from the domain entry point that owns the required behavior. The package
+root intentionally exposes only the resolution API.
+
 ### Constants
 
 - `SUPPORTED_RUNTIME_EXTENSIONS`: `readonly ["js", "ds", "json"]`
@@ -73,12 +90,11 @@ const resolved = resolveSfccModule("*/cartridge/scripts/util", importer)
 
 ### Cartridge order and paths
 
-- `SfccModuleResolutionOptions`
+- `ModuleResolutionOptions`
   - Shared cartridge-resolution configuration used by the Vite and Vitest adapters.
 - `ResolveCartridgeRootsOptions`
-  - Extends `SfccModuleResolutionOptions` with the resolver-only `containingFile` option.
+  - Extends `ModuleResolutionOptions` with the resolver-only `containingFile` option.
 - `resolveCartridgesDir(cartridgesDir, cwd): string`
-- `resolveCartridgesBasePath(basePath, cwd, containingFile?): string`
 - `resolveCartridgeRoots(options): string[]`
 - `findCartridgesDir(startDirectory): string | undefined`
 - `readSolutionReferences(solutionConfigPath): string[]`
@@ -88,15 +104,13 @@ const resolved = resolveSfccModule("*/cartridge/scripts/util", importer)
 
 ### Module resolution
 
-- `createSfccModuleResolver(cartridgeRoots)`
+- `createModuleResolver(cartridgeRoots)`
   - Returns `resolveSfccModule(moduleName, containingFile): string | undefined`
   - Supports `server`, `server/*`, `~/`, `*/`, and cartridge aliases (`app_x/cartridge/...`)
-- `explainSfccModuleResolution(moduleName, containingFile, cartridgeRoots): SfccModuleResolutionTrace`
-  - Uses the same lookup path as `createSfccModuleResolver`
+- `explainModuleResolution(moduleName, containingFile, cartridgeRoots): ModuleResolutionTrace`
+  - Uses the same lookup path as `createModuleResolver`
   - Reports the resolution kind, containing cartridge, each attempted file path, and the selected match
   - Accepts `module.superModule` to trace lower-precedence fallback lookup
-- `getCandidateFilePaths(basePath, moduleName): string[]`
-  - Returns extension and directory index candidates in their actual lookup order
 - `resolveCandidateFile(basePath, moduleName): string | undefined`
 - `findContainingCartridgeRoot(filePath, cartridgeRoots): string | undefined`
 
@@ -110,13 +124,9 @@ const resolved = resolveSfccModule("*/cartridge/scripts/util", importer)
 
 ### Hook registrations
 
-- `findCartridgeRootForFile(filePath): string | undefined`
-  - Locates the cartridge root (the directory directly under `cartridges/`) that contains a file
-- `getCartridgeHooksJsonPath(cartridgeRoot): string | undefined`
-  - Reads the cartridge's `package.json` and resolves its declared `hooks` path, if any
 - `getHookRegistrationsFromDocument(document): HookRegistration[] | undefined`
   - Validates a parsed `hooks.json` document and returns its `{ name, script }` entries
-- `findResolvedHookRegistrations(cartridgeRoots): ResolvedHookRegistration[]`
+- `resolveHookRegistrations(cartridgeRoots): ResolvedHookRegistration[]`
   - Discovers resolvable hook scripts in cartridge-path order and keeps the first registration for each extension point
 - `resolveHookScriptPath(hooksDirectory, script): string | undefined`
   - Resolves a registration's `script` field to an existing file, trying `.js`, `.cjs`, `.mjs`, and `.ds`
@@ -129,17 +139,10 @@ const resolved = resolveSfccModule("*/cartridge/scripts/util", importer)
 
 ### Job step definitions
 
-- `getStepTypeDefinitionsFromDocument(document): StepTypeDefinition[] | undefined`
-  - Validates task-oriented `script-module-step` and `chunk-script-module-step` entries from a parsed `steptypes.json`
-  - Normalizes task function names, chunk sizes, and chunk lifecycle function names into discriminated definitions
-  - Preserves parameter names, types, required and trim flags, and default values from both SFCC parameter container forms
-  - Exposes declared status codes as a normalized string array
-  - Normalizes task `timeout-in-seconds` metadata into an optional positive `timeoutSeconds` number
-  - Preserves descriptions and normalizes site, organization, parallel-execution, and transactional flags from JSON booleans or SFCC string forms
 - `parseStepTypeDefinitionsFromDocument(document): StepTypeDocumentParseResult`
   - Returns valid definitions alongside structured diagnostics for invalid document sections and individual entries
   - Includes a stable JSON path and message for each diagnostic so CLI, lint, and editor integrations can share the same validation behavior
-- `findResolvedStepTypeDefinitions(cartridgeRoots): ResolvedStepTypeDefinition[]`
+- `resolveStepTypeDefinitions(cartridgeRoots): ResolvedStepTypeDefinition[]`
   - Reads `steptypes.json` from each cartridge root
   - Resolves module paths with the standard SFCC runtime extensions and index-module fallback
   - Keeps the first resolvable definition for each type ID in cartridge-path order
@@ -148,7 +151,7 @@ Capability fields remain optional so consumers can distinguish an omitted declar
 
 ### Project validation
 
-- `validateSfccProject({ cartridgesDir, cartridgeRoots }): SfccProjectValidationResult`
+- `validateProject({ cartridgesDir, cartridgeRoots }): ProjectValidationResult`
   - Validates cartridge `package.json` hook declarations and `hooks.json`
   - Resolves hook scripts and job step modules
   - Validates Custom API entries, OAS schemas, operation IDs, and implementation scripts
@@ -163,7 +166,7 @@ continue through module resolution and precedence validation.
 
 ### Project graph
 
-- `createSfccProjectGraph({ cartridgesDir, cwd?, cartridgePath?, module? }): SfccProjectGraph`
+- `createProjectGraph({ cartridgesDir, cwd?, cartridgePath?, module? }): ProjectGraph`
   - Adds cartridge nodes and `precedes` edges in effective path order
   - Discovers JavaScript and Demandware Script files that use `module.superModule`
   - Adds resolved hooks, job steps, Custom APIs, implementation modules, and schemas
@@ -175,7 +178,7 @@ are `precedes`, `overrides`, `super-module`, `implements`, and `uses-schema`.
 
 ### Utilities
 
-- `stripExt(filePath): string`
+- `stripExtension(filePath): string`
 - `toPosixPath(filePath): string`
 
 ## Examples
@@ -183,7 +186,7 @@ are `precedes`, `overrides`, `super-module`, `implements`, and `uses-schema`.
 ### 1) Resolve `*/` and `~/`
 
 ```ts
-const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
+const resolveSfccModule = createModuleResolver(cartridgeRoots)
 
 resolveSfccModule("*/cartridge/scripts/foo", importer)
 resolveSfccModule("~/cartridge/scripts/local", importer)
@@ -214,7 +217,7 @@ const order = getSiteTemplateCartridgePath(
 import {
   getHookRegistrationsForScriptFile,
   getRequiredHookExportsForScriptFile,
-} from "@commerce-klaus/sfcc-module-resolver"
+} from "@commerce-klaus/sfcc-module-resolver/hooks"
 
 const registrations = getHookRegistrationsForScriptFile(scriptPath)
 // [{ name: "dw.ocapi.shop.basket.afterPOST", script: "./hooks/basket" }]
@@ -228,9 +231,9 @@ const requiredExports = getRequiredHookExportsForScriptFile(
 ### 5) Discover job step definitions
 
 ```ts
-import { findResolvedStepTypeDefinitions } from "@commerce-klaus/sfcc-module-resolver"
+import { resolveStepTypeDefinitions } from "@commerce-klaus/sfcc-module-resolver/job-steps"
 
-const definitions = findResolvedStepTypeDefinitions(cartridgeRoots)
+const definitions = resolveStepTypeDefinitions(cartridgeRoots)
 const exportStep = definitions.find((definition) => definition.typeId === "custom.ExportProducts")
 
 if (exportStep?.kind === "chunk-script-module-step") {
@@ -247,9 +250,9 @@ Each definition exposes normalized `parameters` and `statusCodes` arrays. Empty 
 ### 6) Validate project contracts
 
 ```ts
-import { validateSfccProject } from "@commerce-klaus/sfcc-module-resolver"
+import { validateProject } from "@commerce-klaus/sfcc-module-resolver/project"
 
-const validation = validateSfccProject({
+const validation = validateProject({
   cartridgesDir: path.resolve("cartridges"),
   cartridgeRoots,
 })
@@ -262,9 +265,9 @@ for (const diagnostic of validation.diagnostics) {
 ### 7) Build a project graph
 
 ```ts
-import { createSfccProjectGraph } from "@commerce-klaus/sfcc-module-resolver"
+import { createProjectGraph } from "@commerce-klaus/sfcc-module-resolver/project"
 
-const graph = createSfccProjectGraph({
+const graph = createProjectGraph({
   cartridgesDir: path.resolve("cartridges"),
   cartridgePath: ["app_custom", "app_storefront_base"],
 })

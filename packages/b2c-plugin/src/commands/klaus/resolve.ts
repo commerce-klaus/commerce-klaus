@@ -1,7 +1,7 @@
 import {
-  createSfccModuleResolver,
+  createModuleResolver,
   resolveCandidateFile,
-} from "@commerce-klaus/sfcc-module-resolver"
+} from "@commerce-klaus/sfcc-module-resolver/resolution"
 import { Args, Command, Flags, ux } from "@oclif/core"
 import path from "node:path"
 
@@ -28,7 +28,7 @@ export function resolveProjectModule(options: {
     options.cwd,
     options.containingFile ?? path.join(project.cartridgesDirectory, ".klaus-entry.js"),
   )
-  const resolved = createSfccModuleResolver(cartridgeRoots)(options.moduleName, containingFile)
+  const resolved = createModuleResolver(cartridgeRoots)(options.moduleName, containingFile)
   const candidates = options.moduleName.startsWith("*/")
     ? cartridgeRoots
         .map((root) =>

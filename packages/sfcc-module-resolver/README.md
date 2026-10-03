@@ -17,7 +17,7 @@ Shared Node.js utilities for SFCC cartridge order, module resolution, super modu
 - Builds deterministic project graphs for cartridge precedence, super modules, SFRA controller
   routes, effective middleware pipelines, and metadata contracts
 
-`SfccModuleResolutionOptions` is the shared configuration type used by the Vite
+`ModuleResolutionOptions` is the shared configuration type used by the Vite
 and Vitest adapters. `ResolveCartridgeRootsOptions` extends it with the
 resolver-only `containingFile` option.
 
@@ -45,11 +45,18 @@ vp install @commerce-klaus/sfcc-module-resolver
 ```
 
 ```ts
-import { createSfccModuleResolver, inferCartridgeOrder } from "@commerce-klaus/sfcc-module-resolver"
+import {
+  createModuleResolver,
+  inferCartridgeOrder,
+} from "@commerce-klaus/sfcc-module-resolver/resolution"
 
 const cartridgeRoots = inferCartridgeOrder({ cartridgesDir: "cartridges" })
-const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
+const resolveSfccModule = createModuleResolver(cartridgeRoots)
 ```
+
+The package provides focused entry points for `resolution`, `hooks`, `job-steps`,
+`custom-apis`, and project-wide validation and graphs under `project`. The package
+root contains the resolution API only.
 
 ## Documentation
 

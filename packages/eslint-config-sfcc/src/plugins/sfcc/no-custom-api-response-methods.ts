@@ -1,6 +1,6 @@
 import type { Rule } from "eslint"
 
-import { getRequiredCustomApiExportsForScriptFile } from "@commerce-klaus/sfcc-module-resolver"
+import { getRequiredCustomApiExportsForScriptFile } from "@commerce-klaus/sfcc-module-resolver/custom-apis"
 
 import { isJavaScriptTarget } from "../_utils/commonjs-exports.ts"
 

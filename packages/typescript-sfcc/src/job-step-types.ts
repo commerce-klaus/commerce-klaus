@@ -1,8 +1,8 @@
 import {
   type ResolvedStepTypeDefinition,
   type StepTypeParameterDefinition,
-  findResolvedStepTypeDefinitions,
-} from "@commerce-klaus/sfcc-module-resolver"
+  resolveStepTypeDefinitions,
+} from "@commerce-klaus/sfcc-module-resolver/job-steps"
 import {
   existsSync as nodeExistsSync,
   mkdirSync as nodeMkdirSync,
@@ -41,7 +41,7 @@ export function generateJobStepTypes(
   }
 
   const cartridgeRoots = inferCartridgeOrder(cartridgesDir)
-  const definitions = findResolvedStepTypeDefinitions(cartridgeRoots)
+  const definitions = resolveStepTypeDefinitions(cartridgeRoots)
   const sourceFiles = cartridgeRoots
     .map((cartridgeRoot) => path.join(cartridgeRoot, "steptypes.json"))
     .filter((filePath) => existsSync(filePath))

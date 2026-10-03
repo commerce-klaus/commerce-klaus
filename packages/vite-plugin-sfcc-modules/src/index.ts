@@ -1,17 +1,17 @@
 import type { Plugin } from "vite-plus"
 
 import {
-  createSfccModuleResolver,
+  createModuleResolver,
   findContainingCartridgeRoot,
   resolveCartridgeRoots,
   resolveSuperModuleFilePath,
-  type SfccModuleResolutionOptions,
-} from "@commerce-klaus/sfcc-module-resolver"
+  type ModuleResolutionOptions,
+} from "@commerce-klaus/sfcc-module-resolver/resolution"
 
 /**
  * Configuration for SFCC module resolution.
  */
-export type SfccModulesOptions = SfccModuleResolutionOptions
+export type SfccModulesOptions = ModuleResolutionOptions
 
 /**
  * Vite plugin to resolve SFCC-specific module patterns.
@@ -44,7 +44,7 @@ export default function sfccModules({
     envCartridgePath,
     configFile,
   })
-  const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
+  const resolveSfccModule = createModuleResolver(cartridgeRoots)
 
   return {
     name: "vite-plugin-sfcc-modules",

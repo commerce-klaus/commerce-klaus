@@ -2,13 +2,13 @@ import {
   type CustomApiOperationMatch,
   type OasDocument,
   type OasSchema,
-  findCartridgesDir,
   findCustomApiDefinitions,
   findSuccessOasResponse,
   resolveOasParameter,
   resolveOasRef,
   resolveOasRequestBody,
-} from "@commerce-klaus/sfcc-module-resolver"
+} from "@commerce-klaus/sfcc-module-resolver/custom-apis"
+import { findCartridgesDir } from "@commerce-klaus/sfcc-module-resolver/resolution"
 import {
   existsSync as nodeExistsSync,
   mkdirSync as nodeMkdirSync,

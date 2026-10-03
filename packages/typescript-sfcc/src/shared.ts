@@ -3,7 +3,7 @@ import {
   DEFAULT_SITE_TEMPLATE_PATH,
   SUPER_MODULE_TOKEN,
   SUPPORTED_RUNTIME_EXTENSIONS,
-  createSfccModuleResolver,
+  createModuleResolver,
   findCartridgesDir,
   findContainingCartridgeRoot,
   injectTopLevelStatement,
@@ -13,10 +13,10 @@ import {
   resolveSiteTemplatePath as resolveSiteTemplatePathFromResolver,
   resolveSuperModuleFilePath,
   resolveSuperModuleSpecifier,
-  stripExt,
+  stripExtension,
   toPosixPath,
   transformSuperModuleSource,
-} from "@commerce-klaus/sfcc-module-resolver"
+} from "@commerce-klaus/sfcc-module-resolver/resolution"
 import { existsSync as nodeExistsSync } from "node:fs"
 import path from "node:path"
 
@@ -31,7 +31,7 @@ export {
   DEFAULT_SITE_TEMPLATE_PATH,
   SUPER_MODULE_TOKEN,
   SUPPORTED_RUNTIME_EXTENSIONS,
-  createSfccModuleResolver,
+  createModuleResolver,
   findCartridgesDir,
   findContainingCartridgeRoot,
   injectTopLevelStatement,
@@ -40,7 +40,7 @@ export {
   resolveCandidateFile,
   resolveSuperModuleFilePath,
   resolveSuperModuleSpecifier,
-  stripExt,
+  stripExtension,
   toPosixPath,
   transformSuperModuleSource,
 }

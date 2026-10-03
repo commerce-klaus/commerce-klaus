@@ -1,13 +1,17 @@
 import fs from "node:fs"
 import path from "node:path"
 
-import { resolveCartridgeRoots, resolveCartridgesDir } from "./cartridge-order.ts"
-import { findCustomApiDefinitions } from "./custom-api.ts"
-import { findResolvedHookRegistrations } from "./hooks.ts"
-import { resolveCandidateFile, toPosixPath } from "./module-resolution.ts"
+import { findCustomApiDefinitions } from "../custom-apis/index.ts"
+import { resolveHookRegistrations } from "../hooks/index.ts"
+import { resolveStepTypeDefinitions } from "../job-steps/index.ts"
+import {
+  resolveCandidateFile,
+  resolveCartridgeRoots,
+  resolveCartridgesDir,
+  resolveSuperModuleFilePath,
+  toPosixPath,
+} from "../resolution/index.ts"
 import { findSfraControllers } from "./sfra-controller.ts"
-import { findResolvedStepTypeDefinitions } from "./step-types.ts"
-import { resolveSuperModuleFilePath } from "./super-module.ts"
 
 export type SfccProjectGraphNodeKind =
   | "cartridge"
@@ -271,14 +275,14 @@ function addContractRelationships(
 ): void {
   addSfraControllerRelationships(nodes, edges, cartridgeRoots)
 
-  for (const hook of findResolvedHookRegistrations(cartridgeRoots)) {
+  for (const hook of resolveHookRegistrations(cartridgeRoots)) {
     const hookId = `hook:${hook.name}`
     addNode(nodes, { id: hookId, kind: "hook", label: hook.name })
     addModuleNode(nodes, hook.scriptPath, cartridgeRoots)
     edges.push({ from: hookId, kind: "implements", to: fileNodeId("module", hook.scriptPath) })
   }
 
-  for (const jobStep of findResolvedStepTypeDefinitions(cartridgeRoots)) {
+  for (const jobStep of resolveStepTypeDefinitions(cartridgeRoots)) {
     const jobStepId = `job-step:${jobStep.typeId}`
     addNode(nodes, { id: jobStepId, kind: "job-step", label: jobStep.typeId })
     addModuleNode(nodes, jobStep.modulePath, cartridgeRoots)

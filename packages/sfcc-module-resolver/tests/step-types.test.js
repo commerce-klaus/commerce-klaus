@@ -4,11 +4,11 @@ import path from "node:path"
 import { expect, test } from "vite-plus/test"
 
 import {
-  findResolvedStepTypeDefinitions,
-  getResolvedStepTypeDefinitionsForScriptFile,
-  getStepTypeDefinitionsFromDocument,
+  getStepTypeDefinitionsForScriptFile,
   parseStepTypeDefinitionsFromDocument,
-} from "../src/index.ts"
+  resolveStepTypeDefinitions,
+} from "../src/job-steps.ts"
+import { getStepTypeDefinitionsFromDocument } from "../src/job-steps/definitions.ts"
 
 function withTempDir(run) {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-step-types-test-"))
@@ -308,7 +308,7 @@ test("parseStepTypeDefinitionsFromDocument reports invalid definitions without h
   })
 })
 
-test("findResolvedStepTypeDefinitions resolves modules and honors cartridge priority", () => {
+test("resolveStepTypeDefinitions resolves modules and honors cartridge priority", () => {
   withTempDir((tempDir) => {
     const customRoot = path.join(tempDir, "cartridges", "app_custom")
     const baseRoot = path.join(tempDir, "cartridges", "app_base")
@@ -334,7 +334,7 @@ test("findResolvedStepTypeDefinitions resolves modules and honors cartridge prio
       fs.writeFileSync(scriptPath, "exports.Run = function () {}\n")
     }
 
-    expect(findResolvedStepTypeDefinitions([customRoot, baseRoot])).toEqual([
+    expect(resolveStepTypeDefinitions([customRoot, baseRoot])).toEqual([
       {
         functionName: "CustomRun",
         kind: "script-module-step",
@@ -348,7 +348,7 @@ test("findResolvedStepTypeDefinitions resolves modules and honors cartridge prio
   })
 })
 
-test("getResolvedStepTypeDefinitionsForScriptFile returns only effective registrations", () => {
+test("getStepTypeDefinitionsForScriptFile returns only effective registrations", () => {
   withTempDir((tempDir) => {
     const cartridgesDir = path.join(tempDir, "cartridges")
     const customRoot = path.join(cartridgesDir, "app_custom")
@@ -375,7 +375,7 @@ test("getResolvedStepTypeDefinitionsForScriptFile returns only effective registr
     }
 
     expect(
-      getResolvedStepTypeDefinitionsForScriptFile(
+      getStepTypeDefinitionsForScriptFile(
         path.join(customRoot, "cartridge", "scripts", "jobs", "feed.js"),
         { cartridgesDir, cartridgePath: ["app_custom", "app_base"] },
       ),
@@ -386,7 +386,7 @@ test("getResolvedStepTypeDefinitionsForScriptFile returns only effective registr
       }),
     ])
     expect(
-      getResolvedStepTypeDefinitionsForScriptFile(
+      getStepTypeDefinitionsForScriptFile(
         path.join(baseRoot, "cartridge", "scripts", "jobs", "feed.js"),
         { cartridgesDir, cartridgePath: ["app_custom", "app_base"] },
       ),
@@ -394,7 +394,7 @@ test("getResolvedStepTypeDefinitionsForScriptFile returns only effective registr
   })
 })
 
-test("findResolvedStepTypeDefinitions skips missing modules and malformed files", () => {
+test("resolveStepTypeDefinitions skips missing modules and malformed files", () => {
   withTempDir((tempDir) => {
     const malformedRoot = path.join(tempDir, "cartridges", "app_malformed")
     const missingRoot = path.join(tempDir, "cartridges", "app_missing")
@@ -412,6 +412,6 @@ test("findResolvedStepTypeDefinitions skips missing modules and malformed files"
       },
     })
 
-    expect(findResolvedStepTypeDefinitions([malformedRoot, missingRoot])).toEqual([])
+    expect(resolveStepTypeDefinitions([malformedRoot, missingRoot])).toEqual([])
   })
 })

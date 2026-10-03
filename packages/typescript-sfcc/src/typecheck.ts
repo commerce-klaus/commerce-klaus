@@ -5,7 +5,7 @@ import ts from "typescript"
 
 import { validateHookRegistrations } from "./hooks.ts"
 import {
-  createSfccModuleResolver,
+  createModuleResolver,
   createSfccPaths,
   getAdditionalTypeFiles,
   inferCartridgeOrder,
@@ -100,7 +100,7 @@ export function runProjectTypecheck(
     parsedConfig.options,
   )
   const host = typescript.createCompilerHost(parsedConfig.options, true)
-  const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
+  const resolveSfccModule = createModuleResolver(cartridgeRoots)
   const hostReadFile = host.readFile?.bind(host)
   const originalReadFile: ts.CompilerHost["readFile"] = hostReadFile
     ? (fileName) => hostReadFile(fileName)

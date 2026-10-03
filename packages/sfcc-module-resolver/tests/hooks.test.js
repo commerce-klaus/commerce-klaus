@@ -4,15 +4,14 @@ import path from "node:path"
 import { expect, test } from "vite-plus/test"
 
 import {
-  findCartridgeRootForFile,
-  findResolvedHookRegistrations,
-  getCartridgeHooksJsonPath,
+  resolveHookRegistrations,
   getHookRegistrationsForScriptFile,
   getHookRegistrationsFromDocument,
   getRequiredHookExportName,
   getRequiredHookExportsForScriptFile,
   resolveHookScriptPath,
-} from "../src/index.ts"
+} from "../src/hooks.ts"
+import { findCartridgeRootForFile, getCartridgeHooksJsonPath } from "../src/hooks/implementation.ts"
 
 function withTempDir(run) {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-module-resolver-hooks-test-"))
@@ -101,7 +100,7 @@ test("getCartridgeHooksJsonPath returns undefined without a hooks declaration", 
   })
 })
 
-test("findResolvedHookRegistrations uses the first resolvable hook in cartridge order", () => {
+test("resolveHookRegistrations uses the first resolvable hook in cartridge order", () => {
   withTempDir((tempDir) => {
     const customRoot = path.join(tempDir, "cartridges", "app_custom")
     const baseRoot = path.join(tempDir, "cartridges", "app_base")
@@ -124,7 +123,7 @@ test("findResolvedHookRegistrations uses the first resolvable hook in cartridge 
       fs.writeFileSync(scriptPath, 'exports.authorize = () => "authorized"\n')
     }
 
-    expect(findResolvedHookRegistrations([customRoot, baseRoot])).toEqual([
+    expect(resolveHookRegistrations([customRoot, baseRoot])).toEqual([
       {
         name: "app.payment.authorize",
         script: "./hooks/payment",

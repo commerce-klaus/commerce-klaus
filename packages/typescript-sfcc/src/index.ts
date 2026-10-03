@@ -1,7 +1,7 @@
 export {
   SUPER_MODULE_TOKEN,
   SUPPORTED_RUNTIME_EXTENSIONS,
-  createSfccModuleResolver,
+  createModuleResolver,
   createSfccPaths,
   findCartridgesDir,
   findContainingCartridgeRoot,
@@ -10,7 +10,7 @@ export {
   readSolutionReferences,
   resolveCandidateFile,
   resolveSuperModuleSpecifier,
-  stripExt,
+  stripExtension,
   toPosixPath,
   transformSuperModuleSource,
 } from "./shared.ts"

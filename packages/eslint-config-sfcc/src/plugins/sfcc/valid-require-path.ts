@@ -1,11 +1,11 @@
 import type { Rule } from "eslint"
 
 import {
-  createSfccModuleResolver,
+  createModuleResolver,
   inferCartridgeOrder,
   resolveCartridgesDir,
   resolveSuperModuleFilePath,
-} from "@commerce-klaus/sfcc-module-resolver"
+} from "@commerce-klaus/sfcc-module-resolver/resolution"
 import fs from "node:fs"
 import path from "node:path"
 
@@ -234,7 +234,7 @@ const validRequirePath: Rule.RuleModule = {
       solutionConfigPath: options.solutionConfigPath,
       envCartridgePath: options.envCartridgePath,
     })
-    const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
+    const resolveSfccModule = createModuleResolver(cartridgeRoots)
     const filename =
       (context as Rule.RuleContext & { filename?: string }).filename ??
       (context as Rule.RuleContext & { getFilename?: () => string }).getFilename?.() ??

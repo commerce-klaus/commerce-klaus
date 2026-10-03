@@ -2,8 +2,8 @@ import type { Rule } from "eslint"
 
 import {
   type ResolvedStepTypeDefinition,
-  getResolvedStepTypeDefinitionsForScriptFile,
-} from "@commerce-klaus/sfcc-module-resolver"
+  getStepTypeDefinitionsForScriptFile,
+} from "@commerce-klaus/sfcc-module-resolver/job-steps"
 
 import {
   type ProgramNode,
@@ -41,7 +41,7 @@ const preferGeneratedJobStepTypes: Rule.RuleModule = {
   create: withSfccSettings((context, settings) => ({
     "Program:exit"(node) {
       const program = node as unknown as ProgramNode
-      const definitions = getResolvedStepTypeDefinitionsForScriptFile(context.filename, {
+      const definitions = getStepTypeDefinitionsForScriptFile(context.filename, {
         cartridgePath: settings.cartridgePath,
         cartridgesDir: settings.cartridgesDir ?? "cartridges",
         site: settings.site,

@@ -1,19 +1,21 @@
 import { resolveCommerceKlausConfig } from "@commerce-klaus/config"
+import { findCustomApiDefinitions } from "@commerce-klaus/sfcc-module-resolver/custom-apis"
+import { resolveHookRegistrations } from "@commerce-klaus/sfcc-module-resolver/hooks"
+import { resolveStepTypeDefinitions } from "@commerce-klaus/sfcc-module-resolver/job-steps"
 import {
-  createSfccProjectGraph,
-  diffSfccProjectGraphs,
-  filterSfccProjectGraph,
-  findCustomApiDefinitions,
-  findResolvedHookRegistrations,
-  findResolvedStepTypeDefinitions,
+  createProjectGraph,
+  diffProjectGraphs,
+  filterProjectGraph,
+  validateProject as validateResolverProject,
+  type ProjectGraph as ResolverProjectGraph,
+  type ProjectGraphDiff as ResolverProjectGraphDiff,
+  type ProjectGraphDirection as ResolverProjectGraphDirection,
+  type ProjectValidationResult,
+} from "@commerce-klaus/sfcc-module-resolver/project"
+import {
   resolveCartridgeRoots,
   resolveCartridgesDir,
-  validateSfccProject,
-  type SfccProjectGraph,
-  type SfccProjectGraphDiff,
-  type SfccProjectGraphDirection,
-  type SfccProjectValidationResult,
-} from "@commerce-klaus/sfcc-module-resolver"
+} from "@commerce-klaus/sfcc-module-resolver/resolution"
 import fs from "node:fs"
 import path from "node:path"
 
@@ -40,14 +42,14 @@ export type ProjectInspection = {
   customApis: Array<{ endpoint: string; schemaPath: string }>
 }
 
-export type ProjectValidation = SfccProjectValidationResult & {
+export type ProjectValidation = ProjectValidationResult & {
   cartridgesDirectory: string
   cartridgeOrder: string[]
 }
 
-export type ProjectGraph = SfccProjectGraph
-export type ProjectGraphDiff = SfccProjectGraphDiff
-export type ProjectGraphDirection = SfccProjectGraphDirection
+export type ProjectGraph = ResolverProjectGraph
+export type ProjectGraphDiff = ResolverProjectGraphDiff
+export type ProjectGraphDirection = ResolverProjectGraphDirection
 export type ProjectImpact = ProjectGraph & { file: string }
 
 export function resolveProjectOptions(options: ProjectOptions): ResolvedProjectOptions {
@@ -94,12 +96,12 @@ export function getProjectGraphDiff(
     cwd: project.cwd,
   }
 
-  return diffSfccProjectGraphs(
-    createSfccProjectGraph({
+  return diffProjectGraphs(
+    createProjectGraph({
       ...sharedOptions,
       cartridgePath: project.cartridgeRoots.map((root) => path.basename(root)),
     }),
-    createSfccProjectGraph({
+    createProjectGraph({
       ...sharedOptions,
       cartridgePath: options.comparisonCartridgePath.split(":"),
     }),
@@ -115,7 +117,7 @@ export function getProjectImpact(
     throw new Error(`File does not exist: ${file}`)
   }
 
-  const graph = createSfccProjectGraph({
+  const graph = createProjectGraph({
     cartridgesDir: project.cartridgesDirectory,
     cwd: project.cwd,
     cartridgePath: project.cartridgeRoots.map((root) => path.basename(root)),
@@ -125,7 +127,7 @@ export function getProjectImpact(
   }
 
   return {
-    ...filterSfccProjectGraph(graph, {
+    ...filterProjectGraph(graph, {
       focus: file,
       depth: options.depth,
       direction: "both",
@@ -137,13 +139,13 @@ export function getProjectImpact(
 export function getProjectGraph(
   options: ProjectOptions & {
     depth?: number
-    direction?: SfccProjectGraphDirection
+    direction?: ResolverProjectGraphDirection
     focus?: string
     module?: string
   },
 ): ProjectGraph {
   const project = resolveProjectOptions(options)
-  const graph = createSfccProjectGraph({
+  const graph = createProjectGraph({
     cartridgesDir: project.cartridgesDirectory,
     cwd: project.cwd,
     cartridgePath: project.cartridgeRoots.map((root) => path.basename(root)),
@@ -153,7 +155,7 @@ export function getProjectGraph(
     return graph
   }
 
-  const focusedGraph = filterSfccProjectGraph(graph, {
+  const focusedGraph = filterProjectGraph(graph, {
     focus: options.focus,
     depth: options.depth,
     direction: options.direction,
@@ -171,11 +173,11 @@ export function getProjectInspection(options: ProjectOptions): ProjectInspection
   return {
     cartridgesDirectory,
     cartridgeOrder: cartridgeRoots,
-    hooks: findResolvedHookRegistrations(cartridgeRoots).map(({ name, scriptPath }) => ({
+    hooks: resolveHookRegistrations(cartridgeRoots).map(({ name, scriptPath }) => ({
       name,
       scriptPath,
     })),
-    jobSteps: findResolvedStepTypeDefinitions(cartridgeRoots).map(({ typeId, modulePath }) => ({
+    jobSteps: resolveStepTypeDefinitions(cartridgeRoots).map(({ typeId, modulePath }) => ({
       typeId,
       modulePath,
     })),
@@ -192,7 +194,10 @@ export function validateProject(options: ProjectOptions): ProjectValidation {
   return {
     cartridgesDirectory,
     cartridgeOrder,
-    ...validateSfccProject({ cartridgesDir: cartridgesDirectory, cartridgeRoots: cartridgeOrder }),
+    ...validateResolverProject({
+      cartridgesDir: cartridgesDirectory,
+      cartridgeRoots: cartridgeOrder,
+    }),
   }
 }
 

@@ -8,14 +8,14 @@ import {
   resolveCustomApiScriptPath,
   type ApiJsonEndpoint,
   type ApiJsonFile,
-} from "./custom-api.ts"
+} from "../custom-apis/discovery.ts"
 import {
   getCartridgeHooksJsonPath,
   getHookRegistrationsFromDocument,
   resolveHookScriptPath,
-} from "./hooks.ts"
-import { resolveCandidateFile } from "./module-resolution.ts"
-import { parseStepTypeDefinitionsFromDocument } from "./step-types.ts"
+} from "../hooks/implementation.ts"
+import { parseStepTypeDefinitionsFromDocument } from "../job-steps/index.ts"
+import { resolveCandidateFile } from "../resolution/index.ts"
 
 export type SfccProjectDiagnosticSeverity = "error" | "warning"
 

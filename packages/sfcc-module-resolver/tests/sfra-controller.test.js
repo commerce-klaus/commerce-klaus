@@ -1,6 +1,6 @@
 import { expect, test } from "vite-plus/test"
 
-import { parseSfraController } from "../src/sfra-controller.ts"
+import { parseSfraController } from "../src/project/sfra-controller.ts"
 
 test("parseSfraController captures inheritance and middleware labels", () => {
   const controller = parseSfraController(

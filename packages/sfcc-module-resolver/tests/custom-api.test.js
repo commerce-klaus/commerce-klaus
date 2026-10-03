@@ -4,14 +4,13 @@ import path from "node:path"
 import { expect, test } from "vite-plus/test"
 
 import {
-  findApiJsonFiles,
   findCustomApiDefinitions,
   findOperationByOperationId,
   getRequiredCustomApiExportsForScriptFile,
-  resolveCustomApiScriptPath,
   resolveOasRef,
   schemaContainsAdditionalProperties,
-} from "../src/index.ts"
+} from "../src/custom-apis.ts"
+import { findApiJsonFiles, resolveCustomApiScriptPath } from "../src/custom-apis/discovery.ts"
 
 function withTempDir(run) {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-module-resolver-custom-api-test-"))

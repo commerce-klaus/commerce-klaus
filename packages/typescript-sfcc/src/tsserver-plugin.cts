@@ -1,5 +1,5 @@
 const {
-  createSfccModuleResolver,
+  createModuleResolver,
   findCartridgesDir,
   getAdditionalTypeFiles,
   inferCartridgeOrder,
@@ -49,7 +49,7 @@ function init(modules: { typescript: typeof import("typescript") }) {
       { workspaceRoot, cartridgesDir: cartridgesDir ?? projectDir, cartridgeRoots },
       existsSync,
     )
-    const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
+    const resolveSfccModule = createModuleResolver(cartridgeRoots)
 
     const host = info.languageServiceHost
     const compilerOptions = info.project.getCompilationSettings()

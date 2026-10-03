@@ -6,7 +6,7 @@ import {
   loadOasDocument,
   resolveOasRequestBody,
   schemaContainsAdditionalProperties,
-} from "@commerce-klaus/sfcc-module-resolver"
+} from "@commerce-klaus/sfcc-module-resolver/custom-apis"
 
 import { isJavaScriptTarget } from "../_utils/commonjs-exports.ts"
 

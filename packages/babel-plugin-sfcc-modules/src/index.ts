@@ -1,12 +1,12 @@
 import { callExpression, identifier, stringLiteral } from "@babel/types"
 import {
-  createSfccModuleResolver,
+  createModuleResolver,
   resolveCartridgeRoots,
   resolveSuperModuleFilePath,
-  stripExt,
+  stripExtension,
   toPosixPath,
-  type SfccModuleResolutionOptions,
-} from "@commerce-klaus/sfcc-module-resolver"
+  type ModuleResolutionOptions,
+} from "@commerce-klaus/sfcc-module-resolver/resolution"
 import importsVisitor from "imports-visitor"
 import path from "node:path"
 
@@ -14,10 +14,12 @@ type ImportLike = {
   source: string
 }
 
-export type PluginOptions = SfccModuleResolutionOptions
+export type PluginOptions = ModuleResolutionOptions
 
 const getRelativeRequirePath = (moduleName: string, resolvedFile: string) => {
-  const relativePath = toPosixPath(path.relative(path.dirname(moduleName), stripExt(resolvedFile)))
+  const relativePath = toPosixPath(
+    path.relative(path.dirname(moduleName), stripExtension(resolvedFile)),
+  )
   return relativePath.startsWith(".") ? relativePath : `./${relativePath}`
 }
 
@@ -39,7 +41,7 @@ const plugin = (_babel: unknown, options: PluginOptions) => ({
   visitor: {
     Program(thePath: any, state: any) {
       const cartridgeRoots = getCartridgeRoots(options, state.file.opts.filename)
-      const resolveSfccModule = createSfccModuleResolver(cartridgeRoots)
+      const resolveSfccModule = createModuleResolver(cartridgeRoots)
       const imports: ImportLike[] = []
       thePath.traverse(importsVisitor, { imports })
       for (const imp of imports) {

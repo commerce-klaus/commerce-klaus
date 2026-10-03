@@ -5,7 +5,7 @@ import { findContainingCartridgeRoot } from "./cartridge-order.ts"
 
 export const SUPPORTED_RUNTIME_EXTENSIONS = ["js", "ds", "json"] as const
 
-export function stripExt(filePath: string): string {
+export function stripExtension(filePath: string): string {
   return filePath.replace(/\.[^.]+$/u, "")
 }
 
@@ -53,7 +53,7 @@ export function resolveCandidateFile(basePath: string, moduleName: string): stri
   return undefined
 }
 
-export type SfccModuleResolutionKind =
+export type ModuleResolutionKind =
   | "cartridge-alias"
   | "cartridge-relative"
   | "server"
@@ -61,36 +61,38 @@ export type SfccModuleResolutionKind =
   | "unsupported"
   | "wildcard"
 
-export interface SfccModuleResolutionAttempt {
+export interface ModuleResolutionAttempt {
   cartridge?: string
   candidates: string[]
   resolved?: string
 }
 
-export interface SfccModuleResolutionTrace {
+export interface ModuleResolutionTrace {
   moduleName: string
-  kind: SfccModuleResolutionKind
+  kind: ModuleResolutionKind
   containingCartridge?: string
   resolved?: string
-  attempts: SfccModuleResolutionAttempt[]
+  attempts: ModuleResolutionAttempt[]
 }
 
-export function explainSfccModuleResolution(
+export function explainModuleResolution(
   moduleName: string,
   containingFile: string,
   cartridgeRoots: string[],
-): SfccModuleResolutionTrace {
+): ModuleResolutionTrace {
   const byAlias = new Map(cartridgeRoots.map((rootPath) => [path.basename(rootPath), rootPath]))
   const modulesRoot = byAlias.get("modules")
   const containingCartridgeRoot = findContainingCartridgeRoot(containingFile, cartridgeRoots)
-  let kind: SfccModuleResolutionKind = "unsupported"
+  let kind: ModuleResolutionKind = "unsupported"
   const targets: Array<{ basePath: string; cartridge?: string }> = []
 
   if (moduleName === "module.superModule") {
     kind = "super-module"
     if (containingCartridgeRoot) {
       const ownIndex = cartridgeRoots.indexOf(containingCartridgeRoot)
-      const relativeModulePath = stripExt(path.relative(containingCartridgeRoot, containingFile))
+      const relativeModulePath = stripExtension(
+        path.relative(containingCartridgeRoot, containingFile),
+      )
       for (const cartridgeRoot of cartridgeRoots.slice(ownIndex + 1)) {
         targets.push({
           basePath: path.join(cartridgeRoot, relativeModulePath),
@@ -134,7 +136,7 @@ export function explainSfccModuleResolution(
     }
   }
 
-  const attempts: SfccModuleResolutionAttempt[] = []
+  const attempts: ModuleResolutionAttempt[] = []
   let resolved: string | undefined
   for (const target of targets) {
     const candidates = getCandidateFilePaths(target.basePath, moduleName)
@@ -161,11 +163,11 @@ export function explainSfccModuleResolution(
   }
 }
 
-export function createSfccModuleResolver(cartridgeRoots: string[]) {
+export function createModuleResolver(cartridgeRoots: string[]) {
   return function resolveSfccModule(
     moduleName: string,
     containingFile: string,
   ): string | undefined {
-    return explainSfccModuleResolution(moduleName, containingFile, cartridgeRoots).resolved
+    return explainModuleResolution(moduleName, containingFile, cartridgeRoots).resolved
   }
 }

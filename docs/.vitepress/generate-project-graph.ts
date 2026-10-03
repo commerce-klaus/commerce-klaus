@@ -1,9 +1,11 @@
+/// <reference types="node" />
+
 import fs from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
 import { renderProjectGraphMermaid } from "../../packages/b2c-plugin/src/output.ts"
-import { createSfccProjectGraph } from "../../packages/sfcc-module-resolver/src/project-graph.ts"
+import { createProjectGraph } from "../../packages/sfcc-module-resolver/src/project.ts"
 
 const repositoryRoot = fileURLToPath(new URL("../..", import.meta.url))
 const cartridgesDirectory = path.join(repositoryRoot, "examples/eslint-typescript-sfcc/cartridges")
@@ -11,7 +13,7 @@ const outputPath = path.join(repositoryRoot, "docs/_partials/project-graph.gener
 const generatorPath = fileURLToPath(import.meta.url)
 
 export function generateProjectGraphDocumentation(): void {
-  const graph = createSfccProjectGraph({
+  const graph = createProjectGraph({
     cartridgesDir: cartridgesDirectory,
     cartridgePath: ["app_custom", "app_example"],
   })
