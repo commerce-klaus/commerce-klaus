@@ -118,7 +118,8 @@ Custom attribute mapping reference:
 | `boolean`                                                | `boolean`                                 |
 | `date`, `datetime`                                       | `Date`                                    |
 | `double`, `int`, `integer`, `long`, `number`, `quantity` | `number`                                  |
-| `email`, `html`, `password`, `string`, `text`, `url`     | `string`                                  |
+| `email`, `password`, `string`, `text`, `url`             | `string`                                  |
+| `html`                                                   | `dw.content.MarkupText`                   |
 | `enum-of-string` (with value-definitions)                | `SfccEnumValue<"value1" \| "value2" ...>` |
 | `enum-of-int` (with value-definitions)                   | `SfccEnumValue<1 \| 2 ...>`               |
 | `enum-of-*` with `select-multiple-flag=true`             | `SfccEnumValue<...>[]`                    |

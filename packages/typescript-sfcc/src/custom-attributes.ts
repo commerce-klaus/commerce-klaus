@@ -93,7 +93,7 @@ const SFCC_TYPE_TO_TYPESCRIPT: Record<string, string> = {
   datetime: "Date",
   double: "number",
   email: "string",
-  html: "string",
+  html: "dw.content.MarkupText",
   int: "number",
   integer: "number",
   long: "number",
