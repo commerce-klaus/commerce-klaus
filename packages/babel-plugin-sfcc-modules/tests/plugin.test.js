@@ -42,6 +42,26 @@ const petstore = require("./cartridges/app_core/cartridge/scripts/petstore")
 const things = require("./cartridges/app_brand/cartridge/scripts/things")
 
 describe("babel-plugin-sfcc-modules", () => {
+  it("rewrites static import specifiers", () => {
+    const filename = path.resolve("tests/cartridges/app_core/cartridge/scripts/hello.js")
+    const result = transformSync('import world from "*/cartridge/scripts/world"', {
+      babelrc: false,
+      configFile: false,
+      filename,
+      plugins: [
+        [
+          plugin,
+          {
+            cartridgePath: ["app_brand", "app_core", "app_storefront_base"],
+            basePath: "./tests/cartridges",
+          },
+        ],
+      ],
+    })
+
+    expect(result?.code).toContain("../../../app_storefront_base/cartridge/scripts/world")
+  })
+
   it("can handle require('*') with a module in cartridge path behind.", () => {
     expect(hello).toBe("Hello World")
   })

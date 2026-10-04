@@ -44,6 +44,8 @@ This plugin rewrites SFCC module patterns to relative require paths that Node.js
 
 ## Installation
 
+This plugin supports Babel 7 and 8 and declares `@babel/core` and `@babel/types` as peer dependencies. Install matching compatible Babel packages in your project.
+
 ::: code-group
 
 ```sh [pnpm]

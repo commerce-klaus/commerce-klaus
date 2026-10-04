@@ -51,18 +51,20 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@babel/runtime": "^8.0.0",
-    "@babel/types": "^8.0.0",
-    "@commerce-klaus/sfcc-module-resolver": "workspace:^",
-    "imports-visitor": "^2.1.0"
+    "@commerce-klaus/sfcc-module-resolver": "workspace:^"
   },
   "devDependencies": {
     "@babel/core": "^8.0.0",
     "@babel/register": "^8.0.0",
+    "@babel/types": "^8.0.0",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "typescript": "^7.0.0",
     "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "@babel/core": "^7.0.0 || ^8.0.0",
+    "@babel/types": "^7.0.0 || ^8.0.0"
   },
   "packageManager": "pnpm@12.9.0"
 }

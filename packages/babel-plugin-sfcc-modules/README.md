@@ -4,6 +4,8 @@
 
 Babel plugin for resolving Salesforce Commerce Cloud server-side module patterns in Babel-based tests and tooling.
 
+The plugin supports Babel 7 and 8 and declares `@babel/core` and `@babel/types` as peer dependencies. Install matching compatible Babel packages in your project.
+
 ## Highlights
 
 - Rewrites `require("*/...")` by cartridge order
