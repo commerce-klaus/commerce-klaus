@@ -4,6 +4,7 @@ import type { Linter } from "eslint"
 // SFCC/Rhino or conflict with the SFCC compatibility rules.
 const unicorn: Linter.RulesRecord = {
   "unicorn/logical-assignment-operators": "off", // Logical assignment syntax is unsupported.
+  "unicorn/no-asterisk-prefix-in-documentation-comments": "off", // SFCC uses standard JSDoc annotations.
 
   "unicorn/no-array-sort": "off", // Array#toSorted is unavailable.
   "unicorn/no-array-reverse": "off", // Array#toReversed is unavailable.
