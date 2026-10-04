@@ -19,7 +19,7 @@ catalog:
   acorn-walk: ^8.3.5
   eslint: ^10.0.1
   eslint-plugin-sonarjs: ^4.2.0
-  eslint-plugin-unicorn: ^76.0.0
+  eslint-plugin-unicorn: ^77.0.0
   fast-xml-parser: ^5.8.0
   globals: ^17.4.0
   oxlint: ^1.79.0
