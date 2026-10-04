@@ -19,6 +19,23 @@ async function lint(code: string, filename = "fixture.js") {
 }
 
 describe("unicorn:recommended config", () => {
+  test("allows standard JSDoc comments used for SFCC type annotations", async () => {
+    const code = `/**
+ * @param {string} name
+ * @returns {string}
+ */
+function createGreeting(name) {
+  return name
+}`
+    const messages = await lint(code)
+
+    expect(
+      messages.some(
+        (message) => message.ruleId === "unicorn/no-asterisk-prefix-in-documentation-comments",
+      ),
+    ).toBe(false)
+  })
+
   test.each([
     ["array reversal", "const reversed = [...values].reverse()", "unicorn/no-array-reverse"],
     ["array splicing", "const shortened = values.splice(0, 1)", "unicorn/no-array-splice"],
