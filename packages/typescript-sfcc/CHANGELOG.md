@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.7.4
+
+### Patch Changes
+
+- 5a4ae46: Type `html` custom attributes as `dw.content.MarkupText` instead of `string`, matching what the Script API returns at runtime. Code that reads such an attribute can call `getMarkup()` and `getSource()` without a cast.
+- Updated dependencies [2d4b50c]
+  - @commerce-klaus/sfcc-module-resolver@2.0.0
+
 ## 1.7.3
 
 ### Patch Changes

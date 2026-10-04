@@ -1,5 +1,13 @@
 # @commerce-klaus/vitest-sfcc
 
+## 1.0.4
+
+### Patch Changes
+
+- 2347a1f: Keep Babel dependencies compatible with the import visitor and publish Vitest integration dependencies with compatible semver ranges.
+- Updated dependencies [2d4b50c]
+  - @commerce-klaus/sfcc-module-resolver@2.0.0
+
 ## 1.0.3
 
 ### Patch Changes

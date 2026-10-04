@@ -1,5 +1,14 @@
 # @commerce-klaus/b2c-plugin
 
+## 1.0.4
+
+### Patch Changes
+
+- Updated dependencies [2d4b50c]
+- Updated dependencies [5a4ae46]
+  - @commerce-klaus/sfcc-module-resolver@2.0.0
+  - @commerce-klaus/typescript-sfcc@1.7.4
+
 ## 1.0.3
 
 ### Patch Changes

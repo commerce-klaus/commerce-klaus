@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.1
+
+### Patch Changes
+
+- Updated dependencies [2d4b50c]
+  - @commerce-klaus/sfcc-module-resolver@2.0.0
+
 ## 1.2.0
 
 ### Minor Changes

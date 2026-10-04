@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.3.0
+
+### Minor Changes
+
+- 84b166e: Support Babel 7 and 8 through the plugin's peer dependency contract.
+
+### Patch Changes
+
+- 2347a1f: Keep Babel dependencies compatible with the import visitor and publish Vitest integration dependencies with compatible semver ranges.
+- Updated dependencies [2d4b50c]
+  - @commerce-klaus/sfcc-module-resolver@2.0.0
+
 ## 1.2.0
 
 ### Minor Changes
