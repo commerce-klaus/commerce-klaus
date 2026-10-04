@@ -7,12 +7,7 @@ import {
   toPosixPath,
   type ModuleResolutionOptions,
 } from "@commerce-klaus/sfcc-module-resolver/resolution"
-import importsVisitor from "imports-visitor"
 import path from "node:path"
-
-type ImportLike = {
-  source: string
-}
 
 export type PluginOptions = ModuleResolutionOptions
 
@@ -37,40 +32,51 @@ const getCartridgeRoots = (options: PluginOptions, filename: string): string[] =
   })
 }
 
+const getResolvedSource = (
+  source: string,
+  resolveSfccModule: ReturnType<typeof createModuleResolver>,
+  filename: string,
+): string | undefined => {
+  if (!source.startsWith("*/") && !source.startsWith("~/")) return
+
+  const resolved = resolveSfccModule(source, filename)
+  return resolved ? getRelativeRequirePath(filename, resolved) : undefined
+}
+
 const plugin = (_babel: unknown, options: PluginOptions) => ({
   visitor: {
     Program(thePath: any, state: any) {
       const cartridgeRoots = getCartridgeRoots(options, state.file.opts.filename)
       const resolveSfccModule = createModuleResolver(cartridgeRoots)
-      const imports: ImportLike[] = []
-      thePath.traverse(importsVisitor, { imports })
-      for (const imp of imports) {
-        // Handle
-        //
-        // require("*/cartridge/scripts/foo")
-        //
-        // Find the first cartridge that matches the requested module name
-        //
-        if (imp.source.indexOf("*/") === 0) {
-          const resolved = resolveSfccModule(imp.source, state.file.opts.filename)
-          if (resolved) {
-            imp.source = getRelativeRequirePath(state.file.opts.filename, resolved)
-          }
-        }
+      const filename = state.file.opts.filename
+      const rewriteSource = (source: any) => {
+        if (source?.type !== "StringLiteral") return source
 
-        // Handle
-        //
-        // require("~/cartridge/scripts/foo")
-        //
-        // Own cartridge - rewrites the module path to a relative URL.
-        //
-        if (imp.source.indexOf("~/") === 0) {
-          const resolved = resolveSfccModule(imp.source, state.file.opts.filename)
-          if (resolved) {
-            imp.source = getRelativeRequirePath(state.file.opts.filename, resolved)
-          }
-        }
+        const resolvedSource = getResolvedSource(source.value, resolveSfccModule, filename)
+        return resolvedSource ? stringLiteral(resolvedSource) : source
       }
+
+      thePath.traverse({
+        enter(path: any) {
+          const node = path.node
+
+          if (
+            node.type === "ImportDeclaration" ||
+            node.type === "ExportNamedDeclaration" ||
+            node.type === "ExportAllDeclaration"
+          ) {
+            node.source = rewriteSource(node.source)
+          } else if (node.type === "ImportExpression") {
+            node.source = rewriteSource(node.source)
+          } else if (
+            node.type === "CallExpression" &&
+            ((node.callee.type === "Identifier" && node.callee.name === "require") ||
+              node.callee.type === "Import")
+          ) {
+            node.arguments[0] = rewriteSource(node.arguments[0])
+          }
+        },
+      })
     },
 
     MemberExpression(thePath: any, state: any) {
