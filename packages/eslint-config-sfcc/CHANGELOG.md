@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.14.0
+
+### Minor Changes
+
+- 9e18659: Allow standard asterisk-prefixed JSDoc comments for SFCC type annotations by disabling `unicorn/no-asterisk-prefix-in-documentation-comments`.
+
+### Patch Changes
+
+- Updated dependencies [2d4b50c]
+  - @commerce-klaus/sfcc-module-resolver@2.0.0
+
 ## 1.13.0
 
 ### Minor Changes

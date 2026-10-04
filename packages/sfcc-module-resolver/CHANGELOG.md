@@ -1,5 +1,11 @@
 # @commerce-klaus/sfcc-module-resolver
 
+## 2.0.0
+
+### Major Changes
+
+- 2d4b50c: Split the public API into `resolution`, `hooks`, `job-steps`, `custom-apis`, and `project` entry points. The package root now exposes only the resolution API, low-level helpers used only within the package are no longer exported, and redundant `Sfcc` and resolved-state wording has been removed from public names.
+
 ## 1.9.1
 
 ### Patch Changes
