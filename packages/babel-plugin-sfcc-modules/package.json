@@ -66,5 +66,5 @@
     "@babel/core": "^7.0.0 || ^8.0.0",
     "@babel/types": "^7.0.0 || ^8.0.0"
   },
-  "packageManager": "pnpm@12.9.1"
+  "packageManager": "pnpm@12.10.1"
 }
