@@ -38,10 +38,10 @@
   "dependencies": {
     "@commerce-klaus/config": "workspace:^",
     "@commerce-klaus/sfcc-module-resolver": "workspace:^",
+    "@commerce-klaus/typescript-sfcc": "workspace:^",
     "chokidar": "^5.0.0"
   },
   "devDependencies": {
-    "@commerce-klaus/typescript-sfcc": "workspace:^",
     "@oclif/core": "catalog:",
     "@salesforce/b2c-cli": "catalog:",
     "@types/node": "catalog:",
@@ -49,7 +49,6 @@
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
-    "@commerce-klaus/typescript-sfcc": "^1.7.4",
     "@oclif/core": "^4 || ^5.0.0",
     "@salesforce/b2c-cli": ">=1.23.0 <3",
     "typescript": ">=5.5.0"

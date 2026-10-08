@@ -29,6 +29,18 @@ test("type commands support B2C CLI JSON output", () => {
   expect(TypesStatus.enableJsonFlag).toBe(true)
 })
 
+test("installs the type command implementation as a runtime dependency", () => {
+  const manifest = JSON.parse(
+    fs.readFileSync(path.join(packageDirectory, "package.json"), "utf8"),
+  ) as {
+    dependencies?: Record<string, string>
+    peerDependencies?: Record<string, string>
+  }
+
+  expect(manifest.dependencies?.["@commerce-klaus/typescript-sfcc"]).toBe("workspace:^")
+  expect(manifest.peerDependencies?.["@commerce-klaus/typescript-sfcc"]).toBeUndefined()
+})
+
 test("types clean emits structured JSON and removes only generated types", async () => {
   const projectDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "b2c-types-clean-"))
   temporaryDirectories.push(projectDirectory)

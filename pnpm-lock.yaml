@@ -347,13 +347,13 @@ importers:
       '@commerce-klaus/sfcc-module-resolver':
         specifier: workspace:^
         version: link:../sfcc-module-resolver
+      '@commerce-klaus/typescript-sfcc':
+        specifier: workspace:^
+        version: link:../typescript-sfcc
       chokidar:
         specifier: ^5.0.0
         version: 5.0.0
     devDependencies:
-      '@commerce-klaus/typescript-sfcc':
-        specifier: workspace:^
-        version: link:../typescript-sfcc
       '@oclif/core':
         specifier: 'catalog:'
         version: 5.1.2
