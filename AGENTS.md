@@ -272,7 +272,7 @@ vp run ready
 - Use `vp run docs:dev` for the documentation site and `vp run docs:build` for a
   production documentation check.
 - Use Conventional Commits for commit messages: `type(scope): imperative
-summary`, with the scope omitted when the change spans the workspace. Common
+  summary`, with the scope omitted when the change spans the workspace. Common
   types are `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, and `ci`.
 - Use `vp run changeset` for release-relevant changes. A Changeset names every
   affected publishable package, selects the correct semantic version bump, and

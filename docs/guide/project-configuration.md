@@ -67,8 +67,8 @@ values from the central file, so a test configuration can replace only its
 cartridge path:
 
 ```ts [vitest.config.ts]
-import { defineConfig } from "vitest/config"
 import sfccVitest from "@commerce-klaus/vitest-sfcc"
+import { defineConfig } from "vitest/config"
 
 export default defineConfig({
   plugins: [
