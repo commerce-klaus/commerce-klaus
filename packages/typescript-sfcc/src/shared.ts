@@ -73,27 +73,24 @@ export function createSfccPaths(
   configPath: string,
   cartridgeRoots: string[],
 ): Record<string, string[]> {
-  const configDir = path.dirname(configPath)
+  const configDir = path.dirname(path.resolve(configPath))
   const workspaceRoot = resolveWorkspaceRootFromConfig(configPath, cartridgeRoots)
   const dwTypesDir = path.join(workspaceRoot, ".b2c-script-types", "types", "dw")
-  const relativeDwTypesDir = path.relative(configDir, dwTypesDir).replaceAll("\\", "/")
   const paths: Record<string, string[]> = {
-    "dw/*": [relativeDwTypesDir ? `${relativeDwTypesDir}/*` : "./*"],
-    "~/*": ["./*"],
+    "dw/*": [`${toPosixPath(path.resolve(dwTypesDir))}/*`],
+    "~/*": [`${toPosixPath(configDir)}/*`],
   }
 
   for (const cartridgeRoot of cartridgeRoots) {
     const alias = path.basename(cartridgeRoot)
-    const relative = path.relative(configDir, cartridgeRoot).replaceAll("\\", "/")
-    paths[`${alias}/*`] = [relative ? `${relative}/*` : "./*"]
+    paths[`${alias}/*`] = [`${toPosixPath(path.resolve(cartridgeRoot))}/*`]
   }
 
   const modulesRoot = cartridgeRoots.find(
     (cartridgeRoot) => path.basename(cartridgeRoot) === "modules",
   )
   if (modulesRoot) {
-    const relative = path.relative(configDir, modulesRoot).replaceAll("\\", "/")
-    const base = relative || "."
+    const base = toPosixPath(path.resolve(modulesRoot))
     paths.server = [`${base}/server`]
     paths["server/*"] = [`${base}/server/*`]
   }

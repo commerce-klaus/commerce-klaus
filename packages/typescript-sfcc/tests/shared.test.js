@@ -57,11 +57,11 @@ test("createSfccPaths creates aliases for cartridges plus server mappings", () =
 
   const paths = createSfccPaths(configPath, cartridgeRoots)
 
-  expect(paths["dw/*"]).toEqual(["../.b2c-script-types/types/dw/*"])
-  expect(paths["app_storefront_base/*"]).toEqual(["app_storefront_base/*"])
-  expect(paths["modules/*"]).toEqual(["modules/*"])
-  expect(paths.server).toEqual(["modules/server"])
-  expect(paths["server/*"]).toEqual(["modules/server/*"])
+  expect(paths["dw/*"]).toEqual(["/workspace/.b2c-script-types/types/dw/*"])
+  expect(paths["app_storefront_base/*"]).toEqual(["/workspace/cartridges/app_storefront_base/*"])
+  expect(paths["modules/*"]).toEqual(["/workspace/cartridges/modules/*"])
+  expect(paths.server).toEqual(["/workspace/cartridges/modules/server"])
+  expect(paths["server/*"]).toEqual(["/workspace/cartridges/modules/server/*"])
 })
 
 test("createSfccPaths resolves dw mapping for per-cartridge configs", () => {
@@ -70,7 +70,7 @@ test("createSfccPaths resolves dw mapping for per-cartridge configs", () => {
 
   const paths = createSfccPaths(configPath, cartridgeRoots)
 
-  expect(paths["dw/*"]).toEqual(["../../.b2c-script-types/types/dw/*"])
+  expect(paths["dw/*"]).toEqual(["/workspace/.b2c-script-types/types/dw/*"])
 })
 
 test("preferExistingResolution preserves upstream results and only calls the fallback when needed", () => {
