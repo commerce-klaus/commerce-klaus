@@ -83,8 +83,8 @@ Do not install `@commerce-klaus/sfcc-test-runtime` separately when using the Vit
 ## Configuration
 
 ```ts
-import { defineConfig } from "vite-plus"
 import sfccVitest from "@commerce-klaus/vitest-sfcc"
+import { defineConfig } from "vite-plus"
 
 export default defineConfig({
   plugins: [
@@ -149,8 +149,8 @@ Both entry points address the same active runtime. `resetSfccRuntime()` creates 
 Register replacements before dynamically importing the module under test:
 
 ```ts
-import { beforeEach, expect, it, vi } from "vitest"
 import { getSfccRuntime } from "@commerce-klaus/vitest-sfcc"
+import { beforeEach, expect, it, vi } from "vitest"
 
 beforeEach(() => {
   vi.resetModules()

@@ -34,8 +34,8 @@ vp install -D eslint @commerce-klaus/eslint-config-sfcc
 ```
 
 ```js
-import { defineConfig } from "eslint/config"
 import sfcc from "@commerce-klaus/eslint-config-sfcc"
+import { defineConfig } from "eslint/config"
 
 export default defineConfig(sfcc.configs.recommended)
 ```

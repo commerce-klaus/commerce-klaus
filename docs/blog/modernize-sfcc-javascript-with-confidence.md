@@ -67,10 +67,10 @@ Commerce Klaus is not a replacement for the wider ESLint ecosystem. General-purp
 Start with ESLint Recommended for fundamental correctness checks. Add `eslint-plugin-unicorn` for a broader set of modern JavaScript practices and autofixable improvements. Then apply the Commerce Klaus recommended config as the SFCC-aware compatibility layer:
 
 ```js [eslint.config.js]
-import js from "@eslint/js"
 import sfcc from "@commerce-klaus/eslint-config-sfcc"
-import { defineConfig } from "eslint/config"
+import js from "@eslint/js"
 import unicorn from "eslint-plugin-unicorn"
+import { defineConfig } from "eslint/config"
 
 export default defineConfig(
   js.configs.recommended,
@@ -290,8 +290,8 @@ export default defineConfig({
 Tests can then load real cartridge modules while replacing only the platform or integration dependencies relevant to the scenario:
 
 ```ts [payment.test.ts]
-import { expect, it } from "vitest"
 import { resetSfccRuntime } from "@commerce-klaus/vitest-sfcc"
+import { expect, it } from "vitest"
 
 it("rejects a declined authorization", async () => {
   const runtime = resetSfccRuntime()

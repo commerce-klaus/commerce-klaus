@@ -42,8 +42,8 @@ vp install -D @commerce-klaus/vite-plugin-sfcc-modules
 ```
 
 ```ts
-import { defineConfig } from "vite"
 import sfccModules from "@commerce-klaus/vite-plugin-sfcc-modules"
+import { defineConfig } from "vite"
 
 export default defineConfig({
   plugins: [

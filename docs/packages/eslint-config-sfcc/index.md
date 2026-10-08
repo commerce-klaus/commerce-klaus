@@ -85,8 +85,8 @@ The Unicorn rule that discourages asterisk prefixes in documentation comments is
 The recommended config follows the current SFCC Script API. Add a compatibility preset after `recommended` when a code version targets an older compatibility mode:
 
 ```js [eslint.config.js]
-import { defineConfig } from "eslint/config"
 import sfcc from "@commerce-klaus/eslint-config-sfcc"
+import { defineConfig } from "eslint/config"
 
 export default defineConfig(sfcc.configs.recommended, sfcc.configs["compatibility-21.2"])
 ```
@@ -152,8 +152,8 @@ Generated custom attribute declarations are not enforced by this preset. Access 
 Use `createGeneratedTypesConfig()` when the metadata resolver needs an explicit cartridge path or a non-default cartridges directory:
 
 ```js [eslint.config.js]
-import { defineConfig } from "eslint/config"
 import sfcc, { createGeneratedTypesConfig } from "@commerce-klaus/eslint-config-sfcc"
+import { defineConfig } from "eslint/config"
 
 export default defineConfig(
   sfcc.configs.recommended,

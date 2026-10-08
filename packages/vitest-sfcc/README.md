@@ -45,8 +45,8 @@ vp install -D @commerce-klaus/vitest-sfcc vitest
 ## Usage
 
 ```ts
-import { defineConfig } from "vite-plus"
 import sfccVitest from "@commerce-klaus/vitest-sfcc"
+import { defineConfig } from "vite-plus"
 
 export default defineConfig({
   plugins: [
