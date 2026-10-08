@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.5
+
+### Patch Changes
+
+- 4602aff: Resolve generated SFCC TypeScript path aliases without requiring the removed `baseUrl` compiler option.
+
 ## 1.7.4
 
 ### Patch Changes
