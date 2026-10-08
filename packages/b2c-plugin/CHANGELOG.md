@@ -1,5 +1,11 @@
 # @commerce-klaus/b2c-plugin
 
+## 1.0.5
+
+### Patch Changes
+
+- cac99f8: Install `@commerce-klaus/typescript-sfcc` as a runtime dependency so user-installed B2C plugins use the package version shipped with the plugin instead of retaining a stale peer dependency.
+
 ## 1.0.4
 
 ### Patch Changes
