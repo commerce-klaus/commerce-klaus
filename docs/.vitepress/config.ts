@@ -4,7 +4,9 @@ import { defineBlogConfig } from "vitepress-plugin-blog/config"
 import llmstxt from "vitepress-plugin-llms"
 
 const repository = "https://github.com/commerce-klaus/commerce-klaus"
+const siteUrl = "https://commerce-klaus.github.io"
 const base = "/commerce-klaus/"
+const socialImage = `${siteUrl}${base}brand/commerce-klaus-social.png`
 const blog = defineBlogConfig({
   docsDir: fileURLToPath(new URL("..", import.meta.url)),
   postsDir: "blog",
@@ -32,7 +34,7 @@ export default defineConfig({
   },
   lastUpdated: true,
   sitemap: {
-    hostname: "https://commerce-klaus.github.io/commerce-klaus/",
+    hostname: `${siteUrl}${base}`,
     transformItems: (items) => items.filter((item) => !item.url.includes("npm-statistics")),
   },
   head: [
@@ -40,6 +42,19 @@ export default defineConfig({
     ["meta", { name: "theme-color", content: "#146b4a" }],
     ["meta", { property: "og:type", content: "website" }],
     ["meta", { property: "og:site_name", content: noWrap("Commerce Klaus") }],
+    ["meta", { property: "og:image", content: socialImage }],
+    ["meta", { property: "og:image:width", content: "1200" }],
+    ["meta", { property: "og:image:height", content: "630" }],
+    [
+      "meta",
+      { property: "og:image:alt", content: noWrap("Commerce Klaus — Tame the SFCC Rhino.") },
+    ],
+    ["meta", { name: "twitter:card", content: "summary_large_image" }],
+    ["meta", { name: "twitter:image", content: socialImage }],
+    [
+      "meta",
+      { name: "twitter:image:alt", content: noWrap("Commerce Klaus — Tame the SFCC Rhino.") },
+    ],
   ],
   markdown: {
     config(markdown) {
