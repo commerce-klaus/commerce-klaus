@@ -427,7 +427,7 @@ importers:
         version: 10.12.0(jiti@2.7.0)(supports-color@8.1.1)
       eslint-plugin-es-x:
         specifier: ^10.0.0
-        version: 10.0.1(eslint@10.12.0(jiti@2.7.0)(supports-color@8.1.1))
+        version: 10.1.0(eslint@10.12.0(jiti@2.7.0)(supports-color@8.1.1))
       globals:
         specifier: '>=13.24.0'
         version: 17.13.0
@@ -2970,8 +2970,8 @@ packages:
     resolution: {integrity: sha512-/veY75JbMK4j1yjvuUxuVsiS/hr/4iHs9FTT6cgTexxdE0Ly/glccBAkloH/DofkjRbZU3bnoj38mOmhkZ0lHw==}
     engines: {node: '>=12'}
 
-  eslint-plugin-es-x@10.0.1:
-    resolution: {integrity: sha512-HfShsMg5LKr9Cpz8VTBOLlrExvnHiXG0hf+nZT3MfsskWbttUSC/9jpO5Y//nyZ9Aik8sRvInf2Pe3kSUcQhYQ==}
+  eslint-plugin-es-x@10.1.0:
+    resolution: {integrity: sha512-wsY8ys3XlOYzLCn5mBl6r99PaF8XdVm6+BPeqg2gA88EsHthcUgqEwoXdYS0JBEgYEq99R3acW09fUscDaNHZA==}
     engines: {node: ^22.23.0 || ^24.18.0 || >=26.4.0}
     peerDependencies:
       eslint: '>=10.6.0'
@@ -7371,7 +7371,7 @@ snapshots:
 
   escape-string-regexp@5.0.0: {}
 
-  eslint-plugin-es-x@10.0.1(eslint@10.12.0(jiti@2.7.0)(supports-color@8.1.1)):
+  eslint-plugin-es-x@10.1.0(eslint@10.12.0(jiti@2.7.0)(supports-color@8.1.1)):
     dependencies:
       '@eslint-community/eslint-utils': 4.10.1(eslint@10.12.0(jiti@2.7.0)(supports-color@8.1.1))
       '@eslint-community/regexpp': 4.12.2
