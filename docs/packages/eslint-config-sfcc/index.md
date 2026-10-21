@@ -198,6 +198,37 @@ cross-cartridge dependencies. The presets continue to allow `module.superModule`
 
 The `sitegenesis-pipelines` preset applies to JavaScript only. It is the only preset that permits access to `dw/system/Pipeline`; all other presets reject pipeline execution. ESLint cannot validate pipeline XML files.
 
+#### Configure mixed architectures centrally
+
+Assign each cartridge to an architecture in the shared project configuration:
+
+```js [commerce-klaus.config.js]
+import { defineConfig } from "@commerce-klaus/config"
+
+export default defineConfig({
+  cartridgesDir: "cartridges",
+  architectures: {
+    "storefront-next": ["app_headless", "bc_custom_api"],
+    sfra: ["app_storefront_base", "modules"],
+    "sitegenesis-controllers": ["bm_tools"],
+  },
+})
+```
+
+Then compose the generated cartridge-scoped overlays after the recommended config:
+
+```js{2,6} [eslint.config.js]
+import sfcc, { createCartridgeArchitectureConfig } from "@commerce-klaus/eslint-config-sfcc"
+import { defineConfig } from "eslint/config"
+
+export default defineConfig(
+  sfcc.configs.recommended,
+  createCartridgeArchitectureConfig(),
+)
+```
+
+The builder discovers `commerce-klaus.config.ts` or `.js`, respects its `cartridgesDir`, and rejects unknown architectures or cartridges assigned to more than one architecture. Explicit `architectures`, `cartridgesDir`, `cwd`, and `configFile` options remain available for isolated tooling.
+
 #### Restrict a preset to selected cartridges
 
 Use `createStorefrontConfig()` when a repository contains multiple storefront architectures:
@@ -243,6 +274,33 @@ export default sfcc
 ```
 
 The preset loads both plugins and enables the supported SFCC and SiteGenesis rules. `sfcc/no-ds-files` is excluded because Oxlint ignores `.ds` files. `sfcc/no-e4x-syntax` and `sfcc/no-type-annotations` are excluded because their invalid JavaScript syntax causes Oxlint parser errors before JavaScript plugins can run.
+
+For mixed architectures, reuse the assignments from the central project configuration:
+
+```js{1,6} [oxlint.config.mjs]
+import sfcc, {
+  createOxlintArchitectureOverrides,
+} from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
+
+export default {
+  lint: {
+    ...sfcc.lint,
+    overrides: createOxlintArchitectureOverrides(),
+  },
+}
+```
+
+The generated overrides use the same exported `cartridgeArchitectureRules` records as ESLint. When the project already has Oxlint overrides, compose both arrays:
+
+```js
+overrides: [
+  ...createOxlintArchitectureOverrides(),
+  {
+    files: ["cartridges/modules/server/**"],
+    rules: { "sfcc/no-forms": "off" },
+  },
+]
+```
 
 For custom rule severities, import the rule record directly:
 

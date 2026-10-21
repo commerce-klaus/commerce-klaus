@@ -1,4 +1,6 @@
-import sfccOxlint from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
+import sfccOxlint, {
+  createOxlintArchitectureOverrides,
+} from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
 import sfccModules from "@commerce-klaus/vite-plugin-sfcc-modules"
 import { defineConfig } from "vite-plus"
 
@@ -6,6 +8,7 @@ export default defineConfig({
   plugins: [sfccModules()],
   lint: {
     ...sfccOxlint.lint,
+    overrides: createOxlintArchitectureOverrides(),
   },
   run: {
     tasks: {

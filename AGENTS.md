@@ -186,6 +186,10 @@ and process globals between tests because Vitest workers are reused.
   Shared resolution options use `cwd`, `basePath`/`cartridgesDir`,
   `cartridgePath`, `envCartridgePath`, `solutionConfigPath`,
   `siteTemplatePath`, and `site` as appropriate.
+- Define mixed-project cartridge roles through the shared `architectures`
+  setting. ESLint and Oxlint architecture adapters must consume the same
+  cartridge assignments and rule records rather than maintaining separate
+  policy maps.
 - Use absolute paths internally for filesystem resolution and normalize emitted
   module paths to POSIX separators. Never make results depend accidentally on
   the command's working directory.

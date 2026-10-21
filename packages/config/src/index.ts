@@ -7,11 +7,27 @@ export const COMMERCE_KLAUS_CONFIG_FILES = [
   "commerce-klaus.config.js",
 ] as const
 
+export const CARTRIDGE_ARCHITECTURES = [
+  "storefront-next",
+  "pwa",
+  "sfra",
+  "sitegenesis-controllers",
+  "sitegenesis-pipelines",
+] as const
+
+export type CartridgeArchitecture = (typeof CARTRIDGE_ARCHITECTURES)[number]
+
+export type CartridgeArchitectureAssignments = Partial<
+  Record<CartridgeArchitecture, readonly string[]>
+>
+
 export interface CommerceKlausConfig {
   /** Directory containing the project's cartridges. */
   cartridgesDir?: string
   /** Explicit cartridge order. The first matching cartridge wins. */
   cartridgePath?: string[]
+  /** Architecture policy assignments by cartridge name. */
+  architectures?: CartridgeArchitectureAssignments
   /** Site-template root containing sites/<site>/site.xml. */
   siteTemplatePath?: string
   /** Site identifier used to infer the cartridge path from site.xml. */

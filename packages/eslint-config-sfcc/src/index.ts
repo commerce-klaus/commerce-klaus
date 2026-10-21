@@ -6,10 +6,12 @@ import {
   createCompatibilityConfig,
 } from "./configs/compatibility.js"
 import generatedTypes, { createGeneratedTypesConfig } from "./configs/generated-types.js"
-import oxlint, { oxlintRules } from "./configs/oxlint.js"
+import oxlint, { createOxlintArchitectureOverrides, oxlintRules } from "./configs/oxlint.js"
 import recommended, { createRecommendedConfig } from "./configs/recommended.js"
 import {
   createStorefrontConfig,
+  createCartridgeArchitectureConfig,
+  cartridgeArchitectureRules,
   pwa,
   sfra,
   sitegenesisControllers,
@@ -60,6 +62,7 @@ export {
   generatedTypes,
   oxlint,
   oxlintRules,
+  cartridgeArchitectureRules,
   plugins,
   recommended,
   sfccPlugin as sfcc,
@@ -72,11 +75,18 @@ export {
 }
 export {
   createCompatibilityConfig,
+  createCartridgeArchitectureConfig,
   createGeneratedTypesConfig,
+  createOxlintArchitectureOverrides,
   createRecommendedConfig,
   createStorefrontConfig,
 }
 export type { CompatibilityConfigOptions, CompatibilityVersion } from "./configs/compatibility.js"
 export type { GeneratedTypesConfigOptions } from "./configs/generated-types.js"
-export type { StorefrontConfigOptions, StorefrontPreset } from "./configs/storefront.js"
+export type { OxlintArchitectureOverride } from "./configs/oxlint.js"
+export type {
+  CartridgeArchitectureConfigOptions,
+  StorefrontConfigOptions,
+  StorefrontPreset,
+} from "./configs/storefront.js"
 export default eslintConfigSfcc

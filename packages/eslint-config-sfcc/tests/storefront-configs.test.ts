@@ -1,8 +1,14 @@
 import { ESLint } from "eslint"
+import fs from "node:fs"
+import os from "node:os"
+import path from "node:path"
 import { expect, test } from "vite-plus/test"
 
 import {
+  cartridgeArchitectureRules,
   configs,
+  createCartridgeArchitectureConfig,
+  createOxlintArchitectureOverrides,
   createStorefrontConfig,
   pwa,
   recommended,
@@ -122,6 +128,106 @@ test("supports explicit file globs", () => {
   })
 
   expect(config[0]?.files).toEqual(["commerce/**/*.js"])
+})
+
+test("exports reusable architecture rule records", () => {
+  expect(cartridgeArchitectureRules["storefront-next"]).toMatchObject({
+    "sfcc/no-controllers": "error",
+    "sfcc/no-storefront-isml-rendering": "error",
+    "sfcc/no-sfra-server": "error",
+  })
+  expect(cartridgeArchitectureRules.sfra).toMatchObject({
+    "sfcc/no-controllers": "off",
+    "sfcc/no-pipeline-api": "error",
+    "sfcc/no-sfra-server": "off",
+  })
+})
+
+test("creates cartridge-scoped ESLint architecture overlays", () => {
+  const config = createCartridgeArchitectureConfig({
+    configFile: false,
+    cartridgesDir: "commerce/cartridges",
+    architectures: {
+      "storefront-next": ["app_headless"],
+      sfra: ["app_sfra", "int_payments"],
+    },
+  })
+
+  expect(config.map(({ name, files }) => ({ name, files }))).toEqual([
+    {
+      name: "@commerce-klaus/eslint-config-sfcc/storefront-next",
+      files: ["commerce/cartridges/app_headless/**/*.{js,ds}"],
+    },
+    {
+      name: "@commerce-klaus/eslint-config-sfcc/sfra",
+      files: [
+        "commerce/cartridges/app_sfra/**/*.{js,ds}",
+        "commerce/cartridges/int_payments/**/*.{js,ds}",
+      ],
+    },
+  ])
+})
+
+test("creates Oxlint overrides from the same architecture rules", () => {
+  const overrides = createOxlintArchitectureOverrides({
+    configFile: false,
+    architectures: { pwa: ["app_pwa"] },
+  })
+
+  expect(overrides).toEqual([
+    {
+      files: ["cartridges/app_pwa/**/*.{js,ds}"],
+      rules: cartridgeArchitectureRules.pwa,
+    },
+  ])
+})
+
+test("loads architecture assignments from the central project config", () => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-architectures-"))
+  const nestedCwd = path.join(tempRoot, "packages", "example")
+  fs.mkdirSync(nestedCwd, { recursive: true })
+  fs.writeFileSync(
+    path.join(tempRoot, "commerce-klaus.config.js"),
+    `export default {
+        cartridgesDir: "commerce/cartridges",
+        architectures: {
+          "storefront-next": ["app_headless"],
+          "sitegenesis-controllers": ["bm_tools"],
+        },
+      }\n`,
+  )
+
+  try {
+    const config = createCartridgeArchitectureConfig({ cwd: nestedCwd })
+
+    expect(config.map(({ files }) => files)).toEqual([
+      ["../../commerce/cartridges/app_headless/**/*.{js,ds}"],
+      ["../../commerce/cartridges/bm_tools/**/*.{js,ds}"],
+    ])
+  } finally {
+    fs.rmSync(tempRoot, { recursive: true, force: true })
+  }
+})
+
+test("rejects ambiguous or unknown architecture assignments", () => {
+  expect(() =>
+    createCartridgeArchitectureConfig({
+      configFile: false,
+      architectures: {
+        "storefront-next": ["app_shared"],
+        sfra: ["app_shared"],
+      },
+    }),
+  ).toThrow(/assigned to both "storefront-next" and "sfra"/u)
+
+  expect(() =>
+    createCartridgeArchitectureConfig({
+      configFile: false,
+      architectures: {
+        legacy: ["app_legacy"],
+      } as never,
+    }),
+  ).toThrow('Unknown cartridge architecture "legacy".')
 })
 
 test.each([

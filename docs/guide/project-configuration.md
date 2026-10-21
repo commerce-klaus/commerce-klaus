@@ -32,6 +32,11 @@ import { defineConfig } from "@commerce-klaus/config"
 
 export default defineConfig({
   cartridgesDir: "cartridges",
+  architectures: {
+    "storefront-next": ["app_headless", "bc_custom_api"],
+    sfra: ["app_storefront_base", "modules"],
+    "sitegenesis-controllers": ["bm_tools"],
+  },
   siteTemplatePath: "sites/site_template",
   site: "RefArch",
 })
@@ -51,14 +56,29 @@ configuration stable when a tool runs from a package or cartridge directory.
 
 ## Options
 
-| Option               | Type       | Description                                                                       |
-| -------------------- | ---------- | --------------------------------------------------------------------------------- |
-| `cartridgesDir`      | `string`   | Directory containing the project cartridges.                                      |
-| `cartridgePath`      | `string[]` | Explicit cartridge order. The first matching cartridge wins.                      |
-| `siteTemplatePath`   | `string`   | Site-template root containing `sites/<site>/site.xml`.                            |
-| `site`               | `string`   | Site identifier used to read `custom-cartridges` from `site.xml`.                 |
-| `solutionConfigPath` | `string`   | Solution `jsconfig.json` or `tsconfig.json` used to infer cartridge order.        |
-| `envCartridgePath`   | `string`   | Colon- or comma-separated cartridge order, matching Salesforce `SFCC_CARTRIDGES`. |
+| Option               | Type                                               | Description                                                                       |
+| -------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `cartridgesDir`      | `string`                                           | Directory containing the project cartridges.                                      |
+| `cartridgePath`      | `string[]`                                         | Explicit cartridge order. The first matching cartridge wins.                      |
+| `architectures`      | `Partial<Record<CartridgeArchitecture, string[]>>` | Architecture policy assignments by cartridge name.                                |
+| `siteTemplatePath`   | `string`                                           | Site-template root containing `sites/<site>/site.xml`.                            |
+| `site`               | `string`                                           | Site identifier used to read `custom-cartridges` from `site.xml`.                 |
+| `solutionConfigPath` | `string`                                           | Solution `jsconfig.json` or `tsconfig.json` used to infer cartridge order.        |
+| `envCartridgePath`   | `string`                                           | Colon- or comma-separated cartridge order, matching Salesforce `SFCC_CARTRIDGES`. |
+
+## Cartridge architectures
+
+The optional `architectures` map assigns lint policies to selected cartridges in mixed-architecture repositories. Supported keys are:
+
+- `storefront-next`
+- `pwa`
+- `sfra`
+- `sitegenesis-controllers`
+- `sitegenesis-pipelines`
+
+Assign each cartridge to at most one architecture. Commerce Klaus rejects ambiguous assignments instead of making the result depend on override order. Tools that do not enforce architecture policies ignore this option.
+
+The ESLint package consumes these assignments through `createCartridgeArchitectureConfig()`. Its Oxlint integration exposes the same policies through `createOxlintArchitectureOverrides()`.
 
 ## Overrides
 
@@ -94,6 +114,7 @@ None of the existing configuration mechanisms are deprecated.
 ## Programmatic API
 
 `@commerce-klaus/config` exports `defineConfig()`, `findCommerceKlausConfig()`,
-`loadCommerceKlausConfig()`, and `resolveCommerceKlausConfig()` for custom
+`loadCommerceKlausConfig()`, `resolveCommerceKlausConfig()`,
+`CARTRIDGE_ARCHITECTURES`, and the corresponding architecture types for custom
 tooling. This keeps project configuration independent from the internal module
 resolution implementation.

@@ -4,6 +4,7 @@ import path from "node:path"
 import { expect, test } from "vite-plus/test"
 
 import {
+  CARTRIDGE_ARCHITECTURES,
   defineConfig,
   findCommerceKlausConfig,
   loadCommerceKlausConfig,
@@ -28,10 +29,11 @@ test("loads central TypeScript config and applies local overrides", () => {
     fs.mkdirSync(nestedDir, { recursive: true })
     fs.writeFileSync(
       configFile,
-      `interface Config { cartridgesDir: string; cartridgePath: string[]; siteTemplatePath: string; site: string }
+      `interface Config { cartridgesDir: string; cartridgePath: string[]; architectures: Record<string, string[]>; siteTemplatePath: string; site: string }
       export default {
         cartridgesDir: "commerce/cartridges",
         cartridgePath: ["app_base"],
+        architectures: { "storefront-next": ["app_base"] },
         siteTemplatePath: "metadata",
         site: "RefArch",
       } satisfies Config\n`,
@@ -46,6 +48,7 @@ test("loads central TypeScript config and applies local overrides", () => {
     ).toEqual({
       cartridgesDir: path.join(projectDir, "commerce", "cartridges"),
       cartridgePath: ["app_test", "app_base"],
+      architectures: { "storefront-next": ["app_base"] },
       siteTemplatePath: path.join(projectDir, "metadata"),
       site: "RefArch",
     })
@@ -57,4 +60,14 @@ test("defineConfig preserves config and config discovery can be disabled", () =>
 
   expect(config).toEqual({ cartridgesDir: "cartridges" })
   expect(loadCommerceKlausConfig({ configFile: false })).toEqual({ config: {} })
+})
+
+test("exports the supported cartridge architectures", () => {
+  expect(CARTRIDGE_ARCHITECTURES).toEqual([
+    "storefront-next",
+    "pwa",
+    "sfra",
+    "sitegenesis-controllers",
+    "sitegenesis-pipelines",
+  ])
 })

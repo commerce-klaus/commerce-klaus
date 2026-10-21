@@ -195,6 +195,30 @@ describe("ESLint and Oxlint rule compatibility", () => {
     expect(output).toContain("sitegenesis(no-global-require)")
   })
 
+  test("runs central architecture overrides through the Oxlint subpath", () => {
+    const output = lintWithOxlint(
+      'const server = require("server")\nmodule.exports = server\n',
+      "cartridges/app_headless/cartridge/scripts/example.js",
+      (temporaryDir) => {
+        fs.writeFileSync(
+          path.join(temporaryDir, "oxlint.config.mjs"),
+          `import sfcc, { createOxlintArchitectureOverrides } from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
+          export default {
+            lint: {
+              ...sfcc.lint,
+              overrides: createOxlintArchitectureOverrides({
+                configFile: false,
+                architectures: { "storefront-next": ["app_headless"] },
+              }),
+            },
+          }\n`,
+        )
+      },
+    )
+
+    expect(output).toContain("sfcc(no-sfra-server)")
+  })
+
   test("runs sfcc/valid-hook-export", async () => {
     const relativeFilePath = "cartridges/app_custom/cartridge/scripts/hooks/basket.js"
     const code = "exports.afterPATCH = function () {}\n"

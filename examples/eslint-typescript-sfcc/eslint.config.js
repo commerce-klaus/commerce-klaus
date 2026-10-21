@@ -1,4 +1,7 @@
-import { createRecommendedConfig } from "@commerce-klaus/eslint-config-sfcc"
+import {
+  createCartridgeArchitectureConfig,
+  createRecommendedConfig,
+} from "@commerce-klaus/eslint-config-sfcc"
 import js from "@eslint/js"
 import tseslint from "@typescript-eslint/eslint-plugin"
 import sonarjs from "eslint-plugin-sonarjs"
@@ -23,6 +26,7 @@ export default defineConfig(
     },
   },
   createRecommendedConfig(),
+  createCartridgeArchitectureConfig(),
   {
     files: ["cartridges/*/cartridge/controllers/*.js"],
     rules: {
