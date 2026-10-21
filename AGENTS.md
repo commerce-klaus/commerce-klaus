@@ -134,6 +134,14 @@ code unless the target SFCC runtime supports it. Platform globals such as
 `request`, `session`, `customer`, and `empty` need explicit lint, type, or test
 runtime treatment.
 
+Prefer `const` for bindings that are never reassigned, including code examples
+and runnable cartridge fixtures. Use `let` only for reassigned bindings or where
+the configured SFCC Rhino compatibility rules require it, such as loop-critical
+or conflicting nested-block declarations. Use `var` only in targeted legacy
+fixtures and documentation that intentionally demonstrate `var` behavior; do
+not use it as the default for cartridge code merely because the runtime is
+Rhino-based.
+
 Use the official [B2C Commerce Script API reference](https://salesforcecommercecloud.github.io/b2c-dev-doc/docs/current/scriptapi/html/index.html)
 to verify `dw/*` classes, methods, globals, API versions, and deprecations. The
 `current` documentation tracks the latest platform release; respect a consumer

@@ -18,6 +18,7 @@ test.each([
     storefrontNext,
     "error",
     "error",
+    "off",
     "error",
     "error",
     ["error", { allow: ["tilde", "superModule"] }],
@@ -30,6 +31,7 @@ test.each([
     pwa,
     "error",
     "error",
+    "off",
     "error",
     "error",
     ["error", { allow: ["tilde", "superModule"] }],
@@ -37,10 +39,11 @@ test.each([
     "error",
     "error",
   ],
-  ["sfra", sfra, "off", "off", "off", "error", "off", "off", "off", "error"],
+  ["sfra", sfra, "off", "off", "off", "off", "error", "off", "off", "off", "error"],
   [
     "sitegenesis-controllers",
     sitegenesisControllers,
+    "off",
     "off",
     "off",
     "off",
@@ -58,6 +61,7 @@ test.each([
     "off",
     "off",
     "off",
+    "off",
     "error",
     "off",
     "error",
@@ -70,6 +74,7 @@ test.each([
     noControllers,
     noForms,
     noIsmlRendering,
+    noStorefrontIsmlRendering,
     noPipelineApi,
     noProprietaryModuleSyntax,
     noSfraServer,
@@ -82,6 +87,7 @@ test.each([
       "sfcc/no-controllers": noControllers,
       "sfcc/no-forms": noForms,
       "sfcc/no-isml-rendering": noIsmlRendering,
+      "sfcc/no-storefront-isml-rendering": noStorefrontIsmlRendering,
       "sfcc/no-pipeline-api": noPipelineApi,
       "sfcc/no-proprietary-module-syntax": noProprietaryModuleSyntax,
       "sfcc/no-sfra-server": noSfraServer,
@@ -116,6 +122,17 @@ test("supports explicit file globs", () => {
   })
 
   expect(config[0]?.files).toEqual(["commerce/**/*.js"])
+})
+
+test.each([
+  ["storefront-next", storefrontNext],
+  ["pwa", pwa],
+] as const)("%s separates storefront and general template policies", (_preset, config) => {
+  expect(config[0]?.rules).toMatchObject({
+    "sfcc/no-isml-rendering": "off",
+    "sfcc/no-storefront-isml-rendering": "error",
+    "sfcc/no-template-rendering": "off",
+  })
 })
 
 test("enforces a headless policy only in selected cartridges", async () => {

@@ -2,7 +2,11 @@
 
 Disallows server-side ISML and template rendering.
 
-This rule is opt-in and is not part of the recommended config. It is enabled by the PWA and Storefront Next architecture presets.
+This backward-compatible umbrella rule combines
+[`sfcc/no-storefront-isml-rendering`](./no-storefront-isml-rendering.md) and
+[`sfcc/no-template-rendering`](./no-template-rendering.md). Prefer the focused rules when storefront responses and non-storefront templates need different policies.
+
+This rule is opt-in and is not part of the recommended config or an architecture preset.
 
 ## What it checks
 

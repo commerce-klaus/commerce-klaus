@@ -36,11 +36,11 @@ test.each([
   "const template = require('dw/template/ISML')",
   "require('dw/util/Template')",
   "import('dw/template/ISML')",
-])("no-isml-rendering reports template access through %s", (code) => {
-  expect(lint(code, "sfcc/no-isml-rendering")).toHaveLength(1)
+])("no-template-rendering reports template access through %s", (code) => {
+  expect(lint(code, "sfcc/no-template-rendering")).toHaveLength(1)
 })
 
-test("no-isml-rendering reports SFRA response rendering", () => {
+test("no-storefront-isml-rendering reports SFRA response rendering", () => {
   const messages = lint(
     `
       const server = require("server")
@@ -49,13 +49,13 @@ test("no-isml-rendering reports SFRA response rendering", () => {
         next()
       })
     `,
-    "sfcc/no-isml-rendering",
+    "sfcc/no-storefront-isml-rendering",
   )
 
   expect(messages.map((message) => message.messageId)).toEqual(["responseRender"])
 })
 
-test("no-isml-rendering supports aliased server and response bindings", () => {
+test("no-storefront-isml-rendering supports aliased server and response bindings", () => {
   const messages = lint(
     `
       const router = require("server")
@@ -64,13 +64,13 @@ test("no-isml-rendering supports aliased server and response bindings", () => {
         next()
       })
     `,
-    "sfcc/no-isml-rendering",
+    "sfcc/no-storefront-isml-rendering",
   )
 
   expect(messages.map((message) => message.messageId)).toEqual(["responseRender"])
 })
 
-test("no-isml-rendering ignores unrelated render methods", () => {
+test("no-storefront-isml-rendering ignores unrelated render methods", () => {
   const messages = lint(
     `
       const server = { get: function () {} }
@@ -78,13 +78,13 @@ test("no-isml-rendering ignores unrelated render methods", () => {
       const view = { render: function () {} }
       view.render()
     `,
-    "sfcc/no-isml-rendering",
+    "sfcc/no-storefront-isml-rendering",
   )
 
   expect(messages).toHaveLength(0)
 })
 
-test("no-isml-rendering ignores a shadowed server binding", () => {
+test("no-storefront-isml-rendering ignores a shadowed server binding", () => {
   const messages = lint(
     `
       const server = require("server")
@@ -94,16 +94,48 @@ test("no-isml-rendering ignores a shadowed server binding", () => {
       }
       module.exports = register
     `,
-    "sfcc/no-isml-rendering",
+    "sfcc/no-storefront-isml-rendering",
   )
 
   expect(messages).toHaveLength(0)
+})
+
+test("specialized rendering rules have independent scopes", () => {
+  const templateCode = `require("dw/util/Template")`
+  const responseCode = `
+    const server = require("server")
+    server.get("Home", function (req, res, next) {
+      res.render("home/homepage")
+      next()
+    })
+  `
+
+  expect(lint(templateCode, "sfcc/no-storefront-isml-rendering")).toHaveLength(0)
+  expect(lint(responseCode, "sfcc/no-template-rendering")).toHaveLength(0)
+})
+
+test("no-isml-rendering remains a backward-compatible umbrella rule", () => {
+  expect(lint(`require("dw/util/Template")`, "sfcc/no-isml-rendering")).toHaveLength(1)
+  expect(
+    lint(
+      `
+        const server = require("server")
+        server.get("Home", function (req, res, next) {
+          res.render("home/homepage")
+          next()
+        })
+      `,
+      "sfcc/no-isml-rendering",
+    ),
+  ).toHaveLength(1)
 })
 
 test("storefront boundary rules are not enabled in recommended", () => {
   const ruleIds = recommended.flatMap((config) => Object.keys(config.rules ?? {}))
 
   expect(ruleIds).not.toContain("sfcc/no-isml-rendering")
+  expect(ruleIds).not.toContain("sfcc/no-storefront-isml-rendering")
+  expect(ruleIds).not.toContain("sfcc/no-template-rendering")
   expect(ruleIds).not.toContain("sfcc/no-pipeline-api")
   expect(ruleIds).not.toContain("sfcc/no-sfra-server")
 })

@@ -161,6 +161,10 @@ export default defineConfig({
                   link: "/packages/eslint-config-sfcc/rules/sfcc/no-empty-global",
                 },
                 {
+                  text: "no-isml-rendering",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc/no-isml-rendering",
+                },
+                {
                   text: "no-platform-globals",
                   link: "/packages/eslint-config-sfcc/rules/sfcc/no-platform-globals",
                 },
@@ -183,6 +187,14 @@ export default defineConfig({
                 {
                   text: "no-string-raw",
                   link: "/packages/eslint-config-sfcc/rules/sfcc/no-string-raw",
+                },
+                {
+                  text: "no-storefront-isml-rendering",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc/no-storefront-isml-rendering",
+                },
+                {
+                  text: "no-template-rendering",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc/no-template-rendering",
                 },
                 {
                   text: "no-type-annotations",

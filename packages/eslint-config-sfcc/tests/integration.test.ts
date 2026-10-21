@@ -181,6 +181,8 @@ describe("ESLint and Oxlint rule compatibility", () => {
       'const URLUtils = require("dw/web/URLUtils")',
       'function routeA() { return URLUtils.url("Home-Show") }',
       'function routeB() { return "ok" }',
+      "exports.RouteA = routeA",
+      "exports.RouteB = routeB",
       "",
     ].join("\n")
     const filename = "cartridges/app_sfra/cartridge/controllers/Home.js"

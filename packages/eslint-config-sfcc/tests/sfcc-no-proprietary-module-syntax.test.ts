@@ -11,7 +11,7 @@ type ProprietaryModuleSyntax = "star" | "superModule" | "tilde"
 
 function lint(
   code: string,
-  options?: { allow?: ProprietaryModuleSyntax[] },
+  options?: { allow?: ProprietaryModuleSyntax[]; allowRequirePaths?: string[] },
   settings?: Record<string, unknown>,
   filename = "cartridges/app_custom/cartridge/scripts/example.js",
   cwd = process.cwd(),
@@ -59,6 +59,38 @@ test("allows configured proprietary module syntax", () => {
 
   expect(messages).toHaveLength(1)
   expect(messages[0]?.message).toContain('"tilde"')
+})
+
+test("allows only explicitly configured require paths", () => {
+  const messages = lint(
+    `
+      const app = require("*/cartridge/scripts/app.js")
+      const guard = require(\`*/cartridge/scripts/guard.js\`)
+      const helper = require("*/cartridge/scripts/helper.js")
+      const local = require("~/cartridge/scripts/app.js")
+      module.exports = { app, guard, helper, local }
+    `,
+    {
+      allowRequirePaths: ["*/cartridge/scripts/app.js", "*/cartridge/scripts/guard.js"],
+    },
+  )
+
+  expect(messages.map((message) => message.messageId)).toEqual([
+    "proprietaryRequirePath",
+    "proprietaryRequirePath",
+  ])
+  expect(messages.map((message) => message.message)).toEqual([
+    expect.stringContaining("*/cartridge/scripts/helper.js"),
+    expect.stringContaining("~/cartridge/scripts/app.js"),
+  ])
+})
+
+test("path allowances do not affect module.superModule", () => {
+  const messages = lint("module.exports = module.superModule", {
+    allowRequirePaths: ["*/cartridge/scripts/app.js"],
+  })
+
+  expect(messages.map((message) => message.messageId)).toEqual(["proprietarySuperModule"])
 })
 
 test("reports computed superModule access", () => {

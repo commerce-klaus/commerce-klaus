@@ -1,12 +1,15 @@
 # sitegenesis/no-global-require
 
-Disallows top-level `require()` calls in SiteGenesis controller files when not every route function uses the same dependency.
+Disallows top-level `require()` calls in SiteGenesis controller files when not every exported route uses the same dependency.
 
 ## What it checks
 
 - Applies only to files under `cartridge/controllers/`
-- Counts top-level route functions, not nested helpers or callbacks
-- Reports global `require` bindings that are used in fewer route functions than the file contains
+- Recognizes routes exported as `exports.Name = route`, `module.exports.Name = route`, and guard-wrapped forms such as `exports.Name = guard.ensure(["get"], route)`
+- Distinguishes exported routes from top-level helper functions
+- Reports global `require` bindings that are not needed by every exported route
+- Names single and shared consumers precisely instead of referring to every top-level function as a route
+- Suggests moving a declaration into its only consuming function when that move is structurally safe
 
 ## Why this rule exists
 
@@ -16,25 +19,46 @@ SiteGenesis controllers are easier to reason about when route-specific dependenc
 
 - Severity: `error`
 - Auto-fix: none
+- Editor suggestion: move a single-declarator `require` into its only consuming function
+
+## Options
+
+Set `allowShared` to `true` when dependencies intentionally shared by multiple top-level helpers or routes should remain at module scope. Dependencies used by only one function are still reported.
+
+```js [eslint.config.js]
+export default {
+  rules: {
+    "sitegenesis/no-global-require": ["error", { allowShared: true }],
+  },
+}
+```
 
 ## Example
 
 ```js [Invalid: controller]
-var server = require("server")
-var someHelper = require("*/cartridge/scripts/helper") // [!code error]
+const guard = require("*/cartridge/scripts/guard")
+const ProductMgr = require("dw/catalog/ProductMgr") // [!code error]
 
-server.get("Show", function (req, res, next) {
-  someHelper.doSomething()
-  next()
-})
+function start() {
+  return ProductMgr.getProduct("example")
+}
+
+function submit() {}
+
+exports.Start = guard.ensure(["get"], start)
+exports.Submit = guard.ensure(["post"], submit)
 ```
 
-```js{4} [Valid: controller]
-var server = require("server")
+```js{3} [Valid: controller]
+const guard = require("*/cartridge/scripts/guard")
 
-server.get("Show", function (req, res, next) {
-  var someHelper = require("*/cartridge/scripts/helper")
-  someHelper.doSomething()
-  next()
-})
+function start() {
+  const ProductMgr = require("dw/catalog/ProductMgr")
+  return ProductMgr.getProduct("example")
+}
+
+function submit() {}
+
+exports.Start = guard.ensure(["get"], start)
+exports.Submit = guard.ensure(["post"], submit)
 ```

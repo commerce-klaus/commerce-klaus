@@ -12,6 +12,11 @@ import { getStaticModulePath } from "../_utils/static-module.js"
 
 type ProprietaryModuleSyntax = "star" | "superModule" | "tilde"
 
+interface RuleOptions {
+  allow?: ProprietaryModuleSyntax[]
+  allowRequirePaths?: string[]
+}
+
 function getProprietaryRequireSyntax(requirePath: string): ProprietaryModuleSyntax | undefined {
   if (requirePath.startsWith("*/")) {
     return "star"
@@ -97,6 +102,11 @@ const noProprietaryModuleSyntax: Rule.RuleModule = {
             items: { enum: ["star", "superModule", "tilde"] },
             uniqueItems: true,
           },
+          allowRequirePaths: {
+            type: "array",
+            items: { type: "string", minLength: 1 },
+            uniqueItems: true,
+          },
         },
         additionalProperties: false,
       },
@@ -111,8 +121,9 @@ const noProprietaryModuleSyntax: Rule.RuleModule = {
     },
   },
   create: withSfccSettings((context, sfccSettings) => {
-    const options = context.options[0] as { allow?: ProprietaryModuleSyntax[] } | undefined
+    const options = context.options[0] as RuleOptions | undefined
     const allowedSyntax = new Set(options?.allow ?? [])
+    const allowedRequirePaths = new Set(options?.allowRequirePaths ?? [])
     const cwd =
       (context as Rule.RuleContext & { cwd?: string }).cwd ??
       (context as Rule.RuleContext & { getCwd?: () => string }).getCwd?.() ??
@@ -145,7 +156,7 @@ const noProprietaryModuleSyntax: Rule.RuleModule = {
         }
 
         const requirePath = getStaticModulePath(callNode.arguments?.[0])
-        if (requirePath === undefined) {
+        if (requirePath === undefined || allowedRequirePaths.has(requirePath)) {
           return
         }
 

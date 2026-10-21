@@ -181,13 +181,13 @@ export default defineConfig(
 )
 ```
 
-| Preset                    | Enabled architecture rules                                                                                                                                      |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `storefront-next`         | `no-controllers`, `no-forms`, `no-isml-rendering`, `no-pipeline-api`, `no-proprietary-module-syntax` (`*/` only), `no-sfra-server`, `prefer-tilde-require-path` |
-| `pwa`                     | `no-controllers`, `no-forms`, `no-isml-rendering`, `no-pipeline-api`, `no-proprietary-module-syntax` (`*/` only), `no-sfra-server`, `prefer-tilde-require-path` |
-| `sfra`                    | `no-pipeline-api`                                                                                                                                               |
-| `sitegenesis-controllers` | `no-pipeline-api`, `no-sfra-server`                                                                                                                             |
-| `sitegenesis-pipelines`   | `no-sfra-server`                                                                                                                                                |
+| Preset                    | Enabled architecture rules                                                                                                                                                 |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `storefront-next`         | `no-controllers`, `no-forms`, `no-storefront-isml-rendering`, `no-pipeline-api`, `no-proprietary-module-syntax` (`*/` only), `no-sfra-server`, `prefer-tilde-require-path` |
+| `pwa`                     | `no-controllers`, `no-forms`, `no-storefront-isml-rendering`, `no-pipeline-api`, `no-proprietary-module-syntax` (`*/` only), `no-sfra-server`, `prefer-tilde-require-path` |
+| `sfra`                    | `no-pipeline-api`                                                                                                                                                          |
+| `sitegenesis-controllers` | `no-pipeline-api`, `no-sfra-server`                                                                                                                                        |
+| `sitegenesis-pipelines`   | `no-sfra-server`                                                                                                                                                           |
 
 `pwa` and `storefront-next` currently enforce the same headless boundaries. They have separate semantic names so their policies can evolve independently as their platform contracts diverge.
 
@@ -479,7 +479,7 @@ Every rule in this plugin addresses an intentional compatibility or project-poli
 | [sfcc/no-empty-global](rules/sfcc/no-empty-global.md)                                         | Strictly disallows every use of the SFCC-specific `empty(...)` global.                                                                                                                                       | Off     |
 | [sfcc/no-forms](rules/sfcc/no-forms.md)                                                       | Disallows SFCC `dw/web/Form*` modules and the SFRA `server.forms` API in headless cartridges.                                                                                                                | Off     |
 | [sfcc/no-hooks](rules/sfcc/no-hooks.md)                                                       | Disallows scripts registered by a cartridge's `hooks.json`, including Salesforce and project-specific hooks.                                                                                                 | Off     |
-| [sfcc/no-isml-rendering](rules/sfcc/no-isml-rendering.md)                                     | Disallows ISML/template modules and SFRA response rendering in headless cartridges.                                                                                                                          | Off     |
+| [sfcc/no-isml-rendering](rules/sfcc/no-isml-rendering.md)                                     | Backward-compatible umbrella that disallows both template modules and SFRA response rendering.                                                                                                               | Off     |
 | [sfcc/no-page-designer](rules/sfcc/no-page-designer.md)                                       | Disallows `dw/experience/*` APIs in cartridges that must remain independent of Page Designer.                                                                                                                | Off     |
 | [sfcc/no-pipeline-api](rules/sfcc/no-pipeline-api.md)                                         | Disallows JavaScript access to the legacy `dw/system/Pipeline` API.                                                                                                                                          | Off     |
 | [sfcc/no-platform-globals](rules/sfcc/no-platform-globals.md)                                 | Disallows stateful SFCC globals (`customer`, `request`, `response`, and `session`) in favor of explicit dependencies.                                                                                        | Off     |
@@ -493,6 +493,8 @@ Every rule in this plugin addresses an intentional compatibility or project-poli
 | [sfcc/no-rhino-extensions](rules/sfcc/no-rhino-extensions.md)                                 | Disallows Rhino and LiveConnect runtime globals such as `Iterator`, `Packages`, `java`, and `javax`.                                                                                                         | Off     |
 | [sfcc/no-service-framework](rules/sfcc/no-service-framework.md)                               | Disallows `dw/svc/*` APIs in cartridges that must delegate external communication to an integration layer.                                                                                                   | Off     |
 | [sfcc/no-sfra-server](rules/sfcc/no-sfra-server.md)                                           | Disallows the SFRA `server` module in headless and SiteGenesis cartridges.                                                                                                                                   | Off     |
+| [sfcc/no-storefront-isml-rendering](rules/sfcc/no-storefront-isml-rendering.md)               | Disallows SFRA storefront response rendering while permitting non-storefront templates such as email and XML.                                                                                                | Off     |
+| [sfcc/no-template-rendering](rules/sfcc/no-template-rendering.md)                             | Disallows access to `dw/template/ISML` and `dw/util/Template` where all server-side template rendering is prohibited.                                                                                        | Off     |
 | [sfcc/prefer-native-collections](rules/sfcc/prefer-native-collections.md)                     | Prefers native `Array`, `Map`, and `Set` collections over explicit imports of concrete `dw/util` collection implementations.                                                                                 | Off     |
 | [sfcc/prefer-const](rules/sfcc/prefer-const.md)                                               | Requires `const` for `let` declarations that are never reassigned, excluding Rhino-sensitive nested/loop contexts.                                                                                           | `error` |
 | [sfcc/prefer-explicit-empty-check](rules/sfcc/prefer-explicit-empty-check.md)                 | Suggests a behavior-preserving explicit JavaScript replacement when the `empty(...)` argument type is known.                                                                                                 | `warn`  |
@@ -514,9 +516,9 @@ The recommended config intentionally combines these `sfcc/*` rules so `--fix` do
 
 That rule is enabled in the recommended config by default, because it is still useful protection for repositories that contain SiteGenesis-style controller code. In non-SiteGenesis projects it is effectively dormant, because it only applies to files under `cartridge/controllers/`.
 
-| Rule                                                                    | Description                                                                                                                                              | Default |
-| ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| [sitegenesis/no-global-require](rules/sitegenesis/no-global-require.md) | Disallows top-level `require()` calls in controller files when not every route function uses them. Only applies to files under `cartridge/controllers/`. | `error` |
+| Rule                                                                    | Description                                                                                                                                                 | Default |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| [sitegenesis/no-global-require](rules/sitegenesis/no-global-require.md) | Disallows top-level `require()` calls in controller files when not every exported SiteGenesis route uses them. Only applies below `cartridge/controllers/`. | `error` |
 
 ---
 

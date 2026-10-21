@@ -33,6 +33,23 @@ export default {
 
 Use an empty array, or omit the options object, to prohibit all proprietary forms. Include every value to permit all forms while retaining the rule for an explicit project convention.
 
+The optional `allowRequirePaths` array allows exact static `require()` paths without enabling their syntax globally. This is useful for isolated legacy framework entry points such as SiteGenesis `app.js` or `guard.js`.
+
+```js [eslint.config.js]
+export default {
+  rules: {
+    "sfcc/no-proprietary-module-syntax": [
+      "error",
+      {
+        allowRequirePaths: ["*/cartridge/scripts/app.js", "*/cartridge/scripts/guard.js"],
+      },
+    ],
+  },
+}
+```
+
+Matching is exact. Allowing `*/cartridge/scripts/app.js` does not allow other `*/` paths, a `~/` path with the same suffix, or `module.superModule`.
+
 ## Why this rule exists
 
 The `*/` and `~/` prefixes and `module.superModule` are SFCC runtime extensions rather than standard CommonJS behavior. Projects can enable this rule to favor explicit relative or named cartridge paths and prevent new code from depending on proprietary module resolution.
@@ -41,6 +58,7 @@ The `*/` and `~/` prefixes and `module.superModule` are SFCC runtime extensions 
 
 - Severity: off by default; error for `*/` paths in the `pwa` and `storefront-next` presets
 - Allowed proprietary syntax: none
+- Allowed require paths: none
 - Auto-fix: none
 - Editor suggestions: replace an unambiguous `*/` path with `~/` for a local module or with its named cartridge path
 

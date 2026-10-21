@@ -1,132 +1,183 @@
 import { Linter } from "eslint"
 import { expect, test } from "vite-plus/test"
 
-import { recommended } from "../src/index.js"
+import rule from "../src/plugins/sitegenesis/no-global-require.js"
 
-function lint(code: string, filename: string): Linter.LintMessage[] {
+const controllerFilename = "cartridges/app/cartridge/controllers/Example.js"
+const scriptFilename = "cartridges/app/cartridge/scripts/Example.js"
+
+function lint(code: string, filename = controllerFilename, options?: { allowShared?: boolean }) {
   const linter = new Linter()
-  return linter.verify(code, recommended, { filename })
+  return linter.verify(
+    code,
+    {
+      files: ["**/*.js"],
+      languageOptions: { ecmaVersion: 2022, sourceType: "commonjs" },
+      plugins: { sitegenesis: { rules: { "no-global-require": rule } } },
+      rules: {
+        "sitegenesis/no-global-require": ["error", ...(options ? [options] : [])],
+      },
+    },
+    { filename },
+  )
 }
 
-test("global require used in only one of two functions is reported", () => {
-  const messages = lint(
-    `
-      const URLUtils = require("dw/web/URLUtils")
-      function routeA() {
-        return URLUtils.url("Home-Show")
-      }
-      function routeB() {
-        return "ok"
-      }
-    `,
-    "cartridges/app_sfra/cartridge/controllers/Home.js",
-  )
+test("reports a require used by only one exported route", () => {
+  const messages = lint(`
+    var ProductMgr = require("dw/catalog/ProductMgr")
+    function start() { return ProductMgr.getProduct("1") }
+    function submit() {}
+    exports.Start = start
+    exports.Submit = submit
+  `)
 
-  expect(messages.some((m) => m.ruleId === "sitegenesis/no-global-require")).toBe(true)
+  expect(messages.map((message) => message.messageId)).toEqual(["routeSpecificRequire"])
 })
 
-test("global require used in every function is allowed", () => {
-  const messages = lint(
-    `
-      const URLUtils = require("dw/web/URLUtils")
-      function routeA() {
-        return URLUtils.url("Home-Show")
-      }
-      function routeB() {
-        return URLUtils.url("Search-Show")
-      }
-    `,
-    "cartridges/app_sfra/cartridge/controllers/Home.js",
-  )
+test("recognizes guard-wrapped and module.exports routes", () => {
+  const guardedMessages = lint(`
+    var ProductMgr = require("dw/catalog/ProductMgr")
+    function start() { return ProductMgr.getProduct("1") }
+    function submit() {}
+    exports.Start = guard.ensure(["get"], start)
+    exports.Submit = guard.ensure(["post"], submit)
+  `)
+  const directMessages = lint(`
+    var ProductMgr = require("dw/catalog/ProductMgr")
+    module.exports.Start = function () { return ProductMgr.getProduct("1") }
+    module.exports.Submit = function () {}
+  `)
 
-  expect(messages.filter((m) => m.severity > 0)).toHaveLength(0)
+  expect(guardedMessages.map((message) => message.messageId)).toEqual(["routeSpecificRequire"])
+  expect(directMessages.map((message) => message.messageId)).toEqual(["routeSpecificRequire"])
 })
 
-test("global require with global usage is allowed", () => {
-  const messages = lint(
-    `
-      const URLUtils = require("dw/web/URLUtils")
-      const homeUrl = URLUtils.url("Home-Show")
-      function routeA() {
-        return homeUrl
-      }
-      function routeB() {
-        return "ok"
-      }
-    `,
-    "cartridges/app_sfra/cartridge/controllers/Home.js",
-  )
+test("allows a require used by every exported route", () => {
+  const messages = lint(`
+    var URLUtils = require("dw/web/URLUtils")
+    function start() { return URLUtils.url("Home-Show") }
+    function submit() { return URLUtils.url("Home-Show") }
+    exports.Start = start
+    exports.Submit = submit
+  `)
 
-  expect(messages.filter((m) => m.severity > 0)).toHaveLength(0)
+  expect(messages).toHaveLength(0)
 })
 
-test("global require is not reported when no functions exist in scripts", () => {
-  const messages = lint(
-    `const URLUtils = require("dw/web/URLUtils")`,
-    "cartridges/app_sfra/cartridge/scripts/helpers/url.js",
-  )
+test("does not count unexported helpers as routes", () => {
+  const messages = lint(`
+    var ProductMgr = require("dw/catalog/ProductMgr")
+    function findProduct() { return ProductMgr.getProduct("1") }
+    function start() { return findProduct() }
+    exports.Start = start
+  `)
 
-  expect(messages.some((m) => m.ruleId === "sitegenesis/no-global-require")).toBe(false)
+  expect(messages.map((message) => message.messageId)).toEqual(["routeSpecificRequire"])
 })
 
-test("top-level helper functions using global requires do not crash with inline require calls in routes", () => {
-  // Regression test: v5.2.2 crashed with TypeError ("Cannot read properties of undefined
-  // (reading 'add')") when inline require() calls appeared inside route functions.
-  const messages = lint(
-    `
-      function start() {
-        var result = require('dw/system/System').getPreferences()
-        return result
-      }
-    `,
-    "cartridges/app_sfra/cartridge/controllers/MyController.js",
-  )
+test("reports dependencies shared by helpers with a precise message", () => {
+  const code = `
+    var ProductMgr = require("dw/catalog/ProductMgr")
+    function findProduct() { return ProductMgr.getProduct("1") }
+    function findVariation() { return ProductMgr.getProduct("2") }
+    function start() { return findProduct() || findVariation() }
+    function submit() {}
+    exports.Start = start
+    exports.Submit = submit
+  `
 
-  // Must not throw and must not report inline requires
+  expect(lint(code).map((message) => message.messageId)).toEqual(["sharedRequire"])
+  expect(lint(code, controllerFilename, { allowShared: true })).toHaveLength(0)
+})
+
+test("suggests moving a single-consumer declaration", () => {
+  const code = `var ProductMgr = require("dw/catalog/ProductMgr")
+function start() {
+  return ProductMgr.getProduct("1")
+}
+function submit() {}
+exports.Start = start
+exports.Submit = submit`
+  const [message] = lint(code)
+  const suggestion = message?.suggestions?.[0]
+
+  expect(suggestion?.messageId).toBe("moveRequire")
   expect(
-    messages.filter((m) => m.ruleId === "sitegenesis/no-global-require" && m.severity > 0),
+    suggestion?.fix
+      ? code.slice(0, suggestion.fix.range[0]) +
+          suggestion.fix.text +
+          code.slice(suggestion.fix.range[1])
+      : undefined,
+  ).toBe(`
+function start() {
+  var ProductMgr = require("dw/catalog/ProductMgr")
+  return ProductMgr.getProduct("1")
+}
+function submit() {}
+exports.Start = start
+exports.Submit = submit`)
+})
+
+test.each([
+  `
+    /** @type {typeof dw.catalog.ProductMgr} */
+    var ProductMgr = require("dw/catalog/ProductMgr")
+    function start() { return ProductMgr.getProduct("1") }
+    function submit() {}
+    exports.Start = start
+    exports.Submit = submit
+  `,
+  `
+    var ProductMgr = require("dw/catalog/ProductMgr")
+    function start() {
+      "use strict"
+      return ProductMgr.getProduct("1")
+    }
+    function submit() {}
+    exports.Start = start
+    exports.Submit = submit
+  `,
+])("does not suggest a move that could change comments or directive placement", (code) => {
+  const [message] = lint(code)
+
+  expect(message?.messageId).toBe("routeSpecificRequire")
+  expect(message?.suggestions).toBeUndefined()
+})
+
+test("allows global usage, inline requires, and files outside controllers", () => {
+  expect(
+    lint(`
+      var Logger = require("dw/system/Logger")
+      Logger.info("loaded")
+      function start() {}
+      exports.Start = start
+    `),
+  ).toHaveLength(0)
+  expect(
+    lint(`
+      function start() {
+        return require("dw/catalog/ProductMgr").getProduct("1")
+      }
+      exports.Start = start
+    `),
+  ).toHaveLength(0)
+  expect(
+    lint(
+      `
+        var ProductMgr = require("dw/catalog/ProductMgr")
+        function start() {}
+        exports.Start = start
+      `,
+      scriptFilename,
+    ),
   ).toHaveLength(0)
 })
 
-test("global require is not reported when no functions exist in models", () => {
-  const messages = lint(
-    `const URLUtils = require("dw/web/URLUtils")`,
-    "cartridges/app_sfra/cartridge/models/product.js",
-  )
+test("does not report when no exported route can be identified", () => {
+  const messages = lint(`
+    var ProductMgr = require("dw/catalog/ProductMgr")
+    function helper() { return ProductMgr.getProduct("1") }
+  `)
 
-  expect(messages.some((m) => m.ruleId === "sitegenesis/no-global-require")).toBe(false)
-})
-
-test("require declared inside a route function is allowed", () => {
-  const messages = lint(
-    `
-      function routeA() {
-        const URLUtils = require("dw/web/URLUtils")
-        return URLUtils.url("Home-Show")
-      }
-      function routeB() {
-        return "ok"
-      }
-    `,
-    "cartridges/app_sfra/cartridge/controllers/Home.js",
-  )
-
-  expect(messages.some((m) => m.ruleId === "sitegenesis/no-global-require")).toBe(false)
-})
-
-test("top-level middleware argument usage is allowed like the original rule", () => {
-  const messages = lint(
-    `
-      const csrfProtection = require("*/cartridge/scripts/middleware/csrf")
-      server.replace("Show", csrfProtection.generateToken, function routeA() {
-        return "ok"
-      })
-      function routeB() {
-        return "ok"
-      }
-    `,
-    "cartridges/app_sfra/cartridge/controllers/Account.js",
-  )
-
-  expect(messages.some((m) => m.ruleId === "sitegenesis/no-global-require")).toBe(false)
+  expect(messages).toHaveLength(0)
 })
