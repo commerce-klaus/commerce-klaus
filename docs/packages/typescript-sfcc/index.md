@@ -168,9 +168,9 @@ Named Custom Object attribute types can be referenced directly from JavaScript J
 // @ts-check
 
 /**
- * @param {CustomObjectExampleNotificationCustomAttributes} custom
- * @returns {string | undefined}
- */
+@param {CustomObjectExampleNotificationCustomAttributes} custom
+@returns {string | undefined}
+*/
 function readNotification(custom) {
   return custom.eventCode
 }
@@ -182,9 +182,9 @@ System Object attributes use the same pattern:
 // @ts-check
 
 /**
- * @param {ProductCustomAttributes} custom
- * @returns {string | undefined}
- */
+@param {ProductCustomAttributes} custom
+@returns {string | undefined}
+*/
 function readProductOrigin(custom) {
   return custom.origin
 }

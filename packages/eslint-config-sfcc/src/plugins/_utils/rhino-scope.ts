@@ -36,16 +36,16 @@ function hasLoopAncestor(node: NodeWithParent): boolean {
 }
 
 /**
- * Returns true when a VariableDeclaration node sits in a block-scoped context
- * where Rhino's const implementation is broken due to loop re-execution —
- * i.e. the same const binding would be re-declared on each iteration.
- *
- * Affected contexts (see https://github.com/mozilla/rhino/issues/326):
- *  - The left-hand side of for-in / for-of statements
- *  - The init position of a standard for-loop
- *  - Any BlockStatement that has a loop ancestor within the same function
- *  - SwitchCase (iterated via fall-through semantics in Rhino)
- */
+Returns true when a VariableDeclaration node sits in a block-scoped context
+where Rhino's const implementation is broken due to loop re-execution —
+i.e. the same const binding would be re-declared on each iteration.
+
+Affected contexts (see https://github.com/mozilla/rhino/issues/326):
+  - The left-hand side of for-in / for-of statements
+  - The init position of a standard for-loop
+  - Any BlockStatement that has a loop ancestor within the same function
+  - SwitchCase (iterated via fall-through semantics in Rhino)
+*/
 export function isRhinoCriticalScope(node: Rule.Node): boolean {
   const parent = (node as NodeWithParent).parent
   if (!parent) {
@@ -70,10 +70,10 @@ export function isRhinoCriticalScope(node: Rule.Node): boolean {
 }
 
 /**
- * Returns true when a VariableDeclaration node is inside a nested block
- * (any BlockStatement that is NOT the direct body of a function).
- * Used to detect potential same-name const conflicts across sibling blocks.
- */
+Returns true when a VariableDeclaration node is inside a nested block
+(any BlockStatement that is NOT the direct body of a function).
+Used to detect potential same-name const conflicts across sibling blocks.
+*/
 export function isInNestedBlock(node: Rule.Node): boolean {
   const parent = (node as NodeWithParent).parent
   if (!parent || parent.type !== "BlockStatement") {

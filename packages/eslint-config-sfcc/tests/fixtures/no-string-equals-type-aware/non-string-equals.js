@@ -1,9 +1,9 @@
 export {}
 
 /**
- * @typedef {object} HasEquals
- * @property {(value: string) => boolean} equals
- */
+@typedef {object} HasEquals
+@property {(value: string) => boolean} equals
+*/
 
 /** @type {HasEquals} */
 const value = {

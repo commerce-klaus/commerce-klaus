@@ -4,9 +4,9 @@
 const base = module.superModule
 
 /**
- * @param {string} name
- * @returns {string}
- */
+@param {string} name
+@returns {string}
+*/
 function createMessage(name) {
   return `${base.createMessage(name)} Welcome back.`
 }

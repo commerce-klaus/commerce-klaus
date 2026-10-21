@@ -9,21 +9,21 @@ import {
 } from "@commerce-klaus/sfcc-module-resolver/resolution"
 
 /**
- * Configuration for SFCC module resolution.
- */
+Configuration for SFCC module resolution.
+*/
 export type SfccModulesOptions = ModuleResolutionOptions
 
 /**
- * Vite plugin to resolve SFCC-specific module patterns.
- *
- * Supported patterns:
- * - `require("<asterisk>/cartridge/...")` resolves against cartridgePath in order.
- * - `require("~/cartridge/...")` resolves in the importer's own cartridge.
- * - `module.superModule` resolves to the next matching module in cartridgePath.
- *
- * module.superModule is rewritten to a static import so Vite can transform
- * transitive super modules as part of the normal module graph.
- */
+Vite plugin to resolve SFCC-specific module patterns.
+
+Supported patterns:
+- `require("<asterisk>/cartridge/...")` resolves against cartridgePath in order.
+- `require("~/cartridge/...")` resolves in the importer's own cartridge.
+- `module.superModule` resolves to the next matching module in cartridgePath.
+
+module.superModule is rewritten to a static import so Vite can transform
+transitive super modules as part of the normal module graph.
+*/
 export default function sfccModules({
   cartridgePath,
   basePath,

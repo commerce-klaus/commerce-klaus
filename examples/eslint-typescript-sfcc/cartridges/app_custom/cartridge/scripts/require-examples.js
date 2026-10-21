@@ -5,9 +5,9 @@ const highestPriority = require("*/cartridge/scripts/greeting")
 const namedCartridge = require("app_example/cartridge/scripts/greeting")
 
 /**
- * @param {string} name
- * @returns {{ current: string, highestPriority: string, base: string }}
- */
+@param {string} name
+@returns {{ current: string, highestPriority: string, base: string }}
+*/
 function createRequireExamples(name) {
   return {
     current: currentCartridge.createGreeting(name),

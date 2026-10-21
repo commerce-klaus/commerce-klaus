@@ -13,8 +13,8 @@ describe("@typescript-eslint:recommended config", () => {
     const code = `
       const Logger = require("dw/system/Logger")
       /**
-       * @param {{ productID: string }} body
-       */
+      @param {{ productID: string }} body
+      */
       function buildContext(body) {
         const locale = "de_DE"
         return { locale }
@@ -29,8 +29,8 @@ describe("@typescript-eslint:recommended config", () => {
     const code = `
       const Logger = require("dw/system/Logger")
       /**
-       * @param {{ productID: string }} body
-       */
+      @param {{ productID: string }} body
+      */
       function buildContext(body) {
         const locale = "de_DE"
         return { locale, productID: body.productID }

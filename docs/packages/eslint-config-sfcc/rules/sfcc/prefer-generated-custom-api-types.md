@@ -40,9 +40,9 @@ The response variable can combine the generated type with local control-flow sta
 
 ```js
 /**
- * @type {(SfccCustomApis.Operations["getLoyaltyInfo"]["Response"] &
- *   { unavailable?: false }) | { unavailable: true } | null}
- */
+@type {(SfccCustomApis.Operations["getLoyaltyInfo"]["Response"] &
+  { unavailable?: false }) | { unavailable: true } | null}
+*/
 const result = getLoyaltyInfo()
 ```
 

@@ -5,9 +5,9 @@
 const basePriceLabel = module.superModule
 
 /**
- * @param {number} price
- * @returns {string}
- */
+@param {number} price
+@returns {string}
+*/
 function createPriceLabel(price) {
   return `${basePriceLabel.createPriceLabel(price)} incl. VAT`
 }

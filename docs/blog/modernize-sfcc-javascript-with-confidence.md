@@ -134,9 +134,9 @@ JavaScript with JSDoc provides the useful parts of TypeScript without that disco
 
 ```js
 /**
- * @param {dw.order.Order} order
- * @returns {string}
- */
+@param {dw.order.Order} order
+@returns {string}
+*/
 function getOrderReference(order) {
   return order.orderNo
 }
@@ -193,9 +193,9 @@ A Job Step implementation traditionally repeats its metadata contract in JSDoc, 
 
 ```js
 /**
- * @param {Object} parameters
- * @returns {dw.system.Status}
- */
+@param {Object} parameters
+@returns {dw.system.Status}
+*/
 function execute(parameters) {
   // Which fields exist? Which are numbers? Which are optional?
 }

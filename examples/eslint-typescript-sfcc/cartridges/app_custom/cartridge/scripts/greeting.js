@@ -5,9 +5,9 @@
 const baseGreeting = module.superModule
 
 /**
- * @param {string} name
- * @returns {string}
- */
+@param {string} name
+@returns {string}
+*/
 function createGreeting(name) {
   return `${baseGreeting.createGreeting(name)} This message comes from app_custom.`
 }

@@ -28,8 +28,8 @@ Add the actual contract instead of choosing a replacement by inspection:
 
 ```js [Valid]
 /**
- * @param {string | null | undefined} value
- */
+@param {string | null | undefined} value
+*/
 function handle(value) {
   return empty(value)
 }

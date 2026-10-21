@@ -1,9 +1,9 @@
 "use strict"
 
 /**
- * @param {string} name
- * @returns {string}
- */
+@param {string} name
+@returns {string}
+*/
 function createMessage(name) {
   return `Hello, ${name}!`
 }

@@ -21,9 +21,9 @@ async function lint(code: string, filename = "fixture.js") {
 describe("unicorn:recommended config", () => {
   test("allows standard JSDoc comments used for SFCC type annotations", async () => {
     const code = `/**
- * @param {string} name
- * @returns {string}
- */
+@param {string} name
+@returns {string}
+*/
 function createGreeting(name) {
   return name
 }`
