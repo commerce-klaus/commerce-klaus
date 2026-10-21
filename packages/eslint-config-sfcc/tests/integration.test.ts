@@ -79,6 +79,7 @@ function lintWithOxlint(
   code: string,
   relativeFilePath = "sample.js",
   setup?: (temporaryDir: string) => void,
+  expectedStatus = 1,
 ): string {
   const temporaryDir = fs.mkdtempSync(path.join(os.tmpdir(), "commerce-klaus-oxlint-"))
 
@@ -102,7 +103,7 @@ function lintWithOxlint(
       encoding: "utf8",
     })
 
-    expect(result.status).toBe(1)
+    expect(result.status).toBe(expectedStatus)
     return `${result.stdout}${result.stderr}`
   } finally {
     fs.rmSync(temporaryDir, { recursive: true, force: true })
@@ -115,29 +116,62 @@ describe("ESLint and Oxlint rule compatibility", () => {
   }, INTEGRATION_TEST_TIMEOUT)
 
   test.each([
-    ["no-empty-global", "empty(customer)\n", "sfcc(no-empty-global)"],
-    ["no-rhino-import-globals", 'importScript("legacy.js")\n', "sfcc(no-rhino-import-globals)"],
-    ["no-string-equals", 'name.equals("customer")\n', "sfcc(no-string-equals)"],
-    ["prefer-const", "function route() { let value = 1; return value }\n", "sfcc(prefer-const)"],
+    ["no-ambiguous-empty", "empty(customer)\n", "sfcc(no-ambiguous-empty)", 1, 0],
+    [
+      "no-rhino-import-globals",
+      'importScript("legacy.js")\n',
+      "sfcc(no-rhino-import-globals)",
+      2,
+      1,
+    ],
+    ["no-string-equals", 'name.equals("customer")\n', "sfcc(no-string-equals)", 2, 1],
+    [
+      "prefer-const",
+      "function route() { let value = 1; return value }\n",
+      "sfcc(prefer-const)",
+      2,
+      1,
+    ],
+    [
+      "prefer-explicit-empty-check",
+      "/** @param {string} value */\nfunction check(value) { return empty(value) }\n",
+      "sfcc(prefer-explicit-empty-check)",
+      1,
+      0,
+    ],
     [
       "rhino-const-compat",
       "for (let index = 0; index < 1; index += 1) { const value = index }\n",
       "sfcc(rhino-const-compat)",
+      2,
+      1,
     ],
     [
       "rhino-const-conflict",
       "function route() { if (first) { const value = 1 } if (second) { const value = 2 } }\n",
       "sfcc(rhino-const-conflict)",
+      2,
+      1,
     ],
-    ["valid-require-path", 'require("unsupported")\n', "sfcc(valid-require-path)"],
+    ["valid-require-path", 'require("unsupported")\n', "sfcc(valid-require-path)", 2, 1],
   ])(
     "runs %s",
-    async (_ruleName, code, oxlintRuleId, relativeFilePath = "fixture.js") => {
+    async (
+      _ruleName,
+      code,
+      oxlintRuleId,
+      expectedEslintSeverity,
+      expectedOxlintStatus,
+      relativeFilePath = "fixture.js",
+    ) => {
       const eslintRuleId = oxlintRuleId.replace(/^([^(]+)\((.+)\)$/u, "$1/$2")
       const messages = await lint(code, `cartridges/app_sfra/cartridge/scripts/${relativeFilePath}`)
+      const message = messages.find((item) => item.ruleId === eslintRuleId)
 
-      expect(messages.some((message) => message.ruleId === eslintRuleId)).toBe(true)
-      expect(lintWithOxlint(code, relativeFilePath)).toContain(oxlintRuleId)
+      expect(message?.severity).toBe(expectedEslintSeverity)
+      expect(lintWithOxlint(code, relativeFilePath, undefined, expectedOxlintStatus)).toContain(
+        oxlintRuleId,
+      )
     },
     INTEGRATION_TEST_TIMEOUT,
   )
@@ -207,7 +241,8 @@ describe("ESLint and Oxlint rule compatibility", () => {
 
     expect(ruleIds).toContain("sfcc/no-e4x-syntax")
     expect(ruleIds).toContain("sfcc/no-type-annotations")
-    expect(ruleIds).not.toContain("sfcc/no-empty-global")
+    expect(ruleIds).not.toContain("sfcc/no-ambiguous-empty")
+    expect(ruleIds).not.toContain("sfcc/prefer-explicit-empty-check")
     expect(lintWithOxlint(code)).not.toContain("sfcc(no-e4x-syntax)")
     expect(lintWithOxlint(code)).not.toContain("sfcc(no-type-annotations)")
   })

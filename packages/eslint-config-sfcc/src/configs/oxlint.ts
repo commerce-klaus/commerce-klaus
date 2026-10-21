@@ -8,10 +8,10 @@ const {
   ...oxlintSfccRules
 } = sfccRules
 
-export const oxlintRules: Record<string, "error"> = {
+export const oxlintRules: Record<string, "error" | "warn"> = {
   ...oxlintSfccRules,
   ...sitegenesisRules,
-} as Record<string, "error">
+} as Record<string, "error" | "warn">
 
 const oxlint: { jsPlugins: string[]; rules: typeof oxlintRules } = {
   jsPlugins: [

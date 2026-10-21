@@ -153,6 +153,10 @@ export default defineConfig({
                   link: "/packages/eslint-config-sfcc/rules/sfcc/no-e4x-syntax",
                 },
                 {
+                  text: "no-ambiguous-empty",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc/no-ambiguous-empty",
+                },
+                {
                   text: "no-empty-global",
                   link: "/packages/eslint-config-sfcc/rules/sfcc/no-empty-global",
                 },
@@ -195,6 +199,10 @@ export default defineConfig({
                 {
                   text: "prefer-const",
                   link: "/packages/eslint-config-sfcc/rules/sfcc/prefer-const",
+                },
+                {
+                  text: "prefer-explicit-empty-check",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc/prefer-explicit-empty-check",
                 },
                 {
                   text: "prefer-generated-custom-api-types",

@@ -1,5 +1,6 @@
 import tsParser from "@typescript-eslint/parser"
 import { ESLint } from "eslint"
+import fs from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { describe, expect, test } from "vite-plus/test"
@@ -8,6 +9,26 @@ import sfcc from "../src/plugins/sfcc/index.js"
 import { applySuggestion, createTypeScriptRecommendedConfig } from "./test-utils.js"
 
 const config = createTypeScriptRecommendedConfig(["**/*.js"])
+const fixtureDir = fileURLToPath(new URL("./fixtures/no-empty-global-type-aware", import.meta.url))
+const typeAwareEslint = new ESLint({
+  overrideConfigFile: true,
+  overrideConfig: [
+    {
+      files: ["**/*.js"],
+      languageOptions: {
+        parser: tsParser,
+        parserOptions: {
+          project: [path.join(fixtureDir, "tsconfig.json")],
+        },
+      },
+      plugins: { sfcc },
+      rules: {
+        "sfcc/no-ambiguous-empty": "warn",
+        "sfcc/prefer-explicit-empty-check": "warn",
+      },
+    },
+  ],
+})
 
 async function lint(code: string, filename = "cartridges/app_sfra/cartridge/scripts/fixture.js") {
   const eslint = new ESLint({
@@ -19,23 +40,13 @@ async function lint(code: string, filename = "cartridges/app_sfra/cartridge/scri
   return results[0]
 }
 
-const fixtureDir = fileURLToPath(new URL("./fixtures/no-empty-global-type-aware", import.meta.url))
-
-async function lintTypeAwareFixture(filename: string) {
+async function lintStrict(code: string) {
   const eslint = new ESLint({
     overrideConfigFile: true,
     overrideConfig: [
       {
         files: ["**/*.js"],
-        languageOptions: {
-          parser: tsParser,
-          parserOptions: {
-            project: [path.join(fixtureDir, "tsconfig.json")],
-          },
-        },
-        plugins: {
-          sfcc,
-        },
+        plugins: { sfcc },
         rules: {
           "sfcc/no-empty-global": "error",
         },
@@ -43,176 +54,252 @@ async function lintTypeAwareFixture(filename: string) {
     ],
   })
 
-  const results = await eslint.lintFiles([path.join(fixtureDir, filename)])
+  const results = await eslint.lintText(code, { filePath: "fixture.js" })
   return results[0]
 }
 
-describe("sfcc/no-empty-global", () => {
-  test("reports empty() usage", async () => {
-    const result = await lint("empty(customer)")
-    const messages = result?.messages ?? []
+async function lintTypeAwareFixture(filename: string) {
+  const results = await typeAwareEslint.lintFiles([path.join(fixtureDir, filename)])
+  return results[0]
+}
 
-    expect(messages.some((m) => m.ruleId === "sfcc/no-empty-global")).toBe(true)
-  })
+function findMessage(result: Awaited<ReturnType<typeof lint>> | undefined, ruleId: string) {
+  return result?.messages.find((message) => message.ruleId === ruleId)
+}
 
-  test("suggests a length check for strings", async () => {
+function applyFirstSuggestion(code: string, message: ReturnType<typeof findMessage>): string {
+  return applySuggestion(code, message?.suggestions?.[0] as { fix?: any })
+}
+
+describe("SFCC empty() migration rules", () => {
+  test("offers one behavior-preserving replacement for a string", async () => {
     const code = 'empty("foo")'
     const result = await lint(code)
-    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
-    const suggestion = hit?.suggestions?.[0]
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
-    expect(suggestion?.desc).toContain("length")
-    expect(applySuggestion(code, suggestion as { fix?: any })).toBe('"foo".length === 0')
+    expect(hit?.severity).toBe(1)
+    expect(hit?.suggestions).toHaveLength(1)
+    expect(applyFirstSuggestion(code, hit)).toBe('"foo".length === 0')
+    expect(findMessage(result, "sfcc/no-ambiguous-empty")).toBeUndefined()
   })
 
-  test("suggests a length check for arrays", async () => {
+  test("offers one behavior-preserving replacement for an array", async () => {
     const code = "empty([])"
     const result = await lint(code)
-    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
-    const suggestion = hit?.suggestions?.[0]
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
-    expect(suggestion?.desc).toContain("length")
-    expect(applySuggestion(code, suggestion as { fix?: any })).toBe("[].length === 0")
+    expect(applyFirstSuggestion(code, hit)).toBe("[].length === 0")
   })
 
-  test("suggests Object.keys for plain objects", async () => {
-    const code = "empty({ foo: 1 })"
+  test("infers a constant string initializer without type services", async () => {
+    const code = 'const value = ""\nempty(value)'
     const result = await lint(code)
-    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
-    const suggestion = hit?.suggestions?.[0]
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
-    expect(suggestion?.desc).toContain("plain objects")
-    expect(applySuggestion(code, suggestion as { fix?: any })).toBe(
-      "Object.keys({ foo: 1 }).length === 0",
+    expect(applyFirstSuggestion(code, hit)).toContain("value.length === 0")
+  })
+
+  test("does not infer a mutable string binding after reassignment", async () => {
+    const code = 'let value = ""\nvalue = customer\nempty(value)'
+    const result = await lint(code)
+
+    expect(findMessage(result, "sfcc/no-ambiguous-empty")).toBeDefined()
+    expect(findMessage(result, "sfcc/prefer-explicit-empty-check")).toBeUndefined()
+  })
+
+  test("uses a parameter JSDoc type without parser services", async () => {
+    const code = [
+      "/**",
+      " * @param {string|null|undefined} value",
+      " */",
+      "function check(value) { return empty(value) }",
+    ].join("\n")
+    const result = await lint(code)
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
+
+    expect(applyFirstSuggestion(code, hit)).toContain(
+      "value === null || value === undefined || value.length === 0",
     )
   })
 
-  test("suggests isEmpty for SFCC collections", async () => {
+  test("uses a variable JSDoc collection type without parser services", async () => {
+    const code = [
+      "/** @type {dw.util.Collection|null} */",
+      "const values = getValues()",
+      "empty(values)",
+    ].join("\n")
+    const result = await lint(code)
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
+
+    expect(applyFirstSuggestion(code, hit)).toContain(
+      "values === null || values === undefined || values.isEmpty()",
+    )
+  })
+
+  test("keeps wildcard JSDoc parameters ambiguous", async () => {
+    const code = ["/** @param {*} value */", "function check(value) { return empty(value) }"].join(
+      "\n",
+    )
+    const result = await lint(code)
+
+    expect(findMessage(result, "sfcc/no-ambiguous-empty")).toBeDefined()
+    expect(findMessage(result, "sfcc/prefer-explicit-empty-check")).toBeUndefined()
+  })
+
+  test("does not treat an empty plain object as SFCC-empty", async () => {
+    const code = "empty({})"
+    const result = await lint(code)
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
+
+    expect(applyFirstSuggestion(code, hit)).toBe("false")
+  })
+
+  test("recognizes null as always SFCC-empty", async () => {
+    const code = "empty(null)"
+    const result = await lint(code)
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
+
+    expect(applyFirstSuggestion(code, hit)).toBe("true")
+  })
+
+  test("offers isEmpty for a non-null SFCC collection", async () => {
     const code = "empty(new ArrayList())"
     const result = await lint(code)
-    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
-    const suggestion = hit?.suggestions?.[0]
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
-    expect(suggestion?.desc).toContain("collections")
-    expect(applySuggestion(code, suggestion as { fix?: any })).toBe("new ArrayList().isEmpty()")
+    expect(applyFirstSuggestion(code, hit)).toBe("new ArrayList().isEmpty()")
   })
 
-  test("offers suggestions for identifier arguments", async () => {
-    const code = "empty(customer)"
-    const result = await lint(code)
-    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
-    const suggestions = hit?.suggestions ?? []
+  test("does not confuse a native Set with an SFCC collection", async () => {
+    const result = await lint("empty(new Set())")
 
-    expect(suggestions.length).toBeGreaterThanOrEqual(4)
-    expect(suggestions.some((s) => s.desc?.includes("!customer"))).toBe(true)
-    expect(suggestions.some((s) => s.desc?.includes("customer.length === 0"))).toBe(true)
-    expect(suggestions.some((s) => s.desc?.includes("Object.keys(customer).length === 0"))).toBe(
-      true,
-    )
-    expect(suggestions.some((s) => s.desc?.includes("customer.isEmpty()"))).toBe(true)
-
-    const nullableSuggestion = suggestions.find((s) => s.desc?.includes("!customer"))
-    expect(applySuggestion(code, nullableSuggestion as { fix?: any })).toBe("!customer")
+    expect(findMessage(result, "sfcc/no-ambiguous-empty")).toBeDefined()
+    expect(findMessage(result, "sfcc/prefer-explicit-empty-check")).toBeUndefined()
   })
 
-  test("offers suggestions for member expression arguments", async () => {
-    const code = "empty(customer.profile.email)"
-    const result = await lint(code)
-    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
-    const suggestions = hit?.suggestions ?? []
+  test("asks for type information instead of speculating", async () => {
+    const result = await lint("empty(customer)")
+    const hit = findMessage(result, "sfcc/no-ambiguous-empty")
 
-    expect(suggestions.length).toBeGreaterThanOrEqual(4)
-    expect(suggestions.some((s) => s.desc?.includes("!customer.profile.email"))).toBe(true)
-    expect(suggestions.some((s) => s.desc?.includes("customer.profile.email.length === 0"))).toBe(
-      true,
-    )
-    expect(
-      suggestions.some((s) => s.desc?.includes("Object.keys(customer.profile.email).length === 0")),
-    ).toBe(true)
-    expect(suggestions.some((s) => s.desc?.includes("customer.profile.email.isEmpty()"))).toBe(true)
-
-    const nullableSuggestion = suggestions.find((s) => s.desc?.includes("!customer.profile.email"))
-    expect(applySuggestion(code, nullableSuggestion as { fix?: any })).toBe(
-      "!customer.profile.email",
-    )
-
-    const lengthSuggestion = suggestions.find((s) =>
-      s.desc?.includes("customer.profile.email.length === 0"),
-    )
-    expect(applySuggestion(code, lengthSuggestion as { fix?: any })).toBe(
-      "customer.profile.email.length === 0",
-    )
+    expect(hit?.severity).toBe(1)
+    expect(hit?.message).toContain("Add or narrow its JSDoc type")
+    expect(hit?.suggestions).toBeUndefined()
+    expect(findMessage(result, "sfcc/prefer-explicit-empty-check")).toBeUndefined()
   })
 
-  test("does not report for locally shadowed empty function", async () => {
+  test("reports empty calls without an argument as ambiguous", async () => {
+    const result = await lint("empty()")
+    const hit = findMessage(result, "sfcc/no-ambiguous-empty")
+
+    expect(hit?.message).toContain("value type is unknown")
+  })
+
+  test("does not report locally shadowed empty functions", async () => {
     const result = await lint("function empty(value) { return !value }\nempty(customer)")
-    const messages = result?.messages ?? []
+    const ruleIds = result?.messages.map((message) => message.ruleId)
 
-    expect(messages.some((m) => m.ruleId === "sfcc/no-empty-global")).toBe(false)
+    expect(ruleIds).not.toContain("sfcc/no-ambiguous-empty")
+    expect(ruleIds).not.toContain("sfcc/prefer-explicit-empty-check")
   })
 
-  test("does not report for parameter shadowing", async () => {
-    const result = await lint("function check(empty) { return empty(customer) }")
-    const messages = result?.messages ?? []
+  test("keeps a strict opt-in rule for banning every global empty call", async () => {
+    const result = await lintStrict("empty(customer)")
+    const hit = findMessage(result, "sfcc/no-empty-global")
 
-    expect(messages.some((m) => m.ruleId === "sfcc/no-empty-global")).toBe(false)
+    expect(hit?.severity).toBe(2)
+    expect(hit?.message).toContain("SFCC-specific global")
   })
 
-  test("uses type info fixture to suggest only Object.keys for Record values", async () => {
-    const result = await lintTypeAwareFixture("record.js")
-    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
-    const suggestions = hit?.suggestions ?? []
+  test("strict rule still offers a safe replacement for a known type", async () => {
+    const code = 'empty("sample")'
+    const result = await lintStrict(code)
+    const hit = findMessage(result, "sfcc/no-empty-global")
 
-    expect(suggestions).toHaveLength(1)
-    expect(suggestions[0]?.desc).toContain("Object.keys(customer).length === 0")
+    expect(applyFirstSuggestion(code, hit)).toBe('"sample".length === 0')
   })
 
-  test("uses type info fixture to suggest only length for string values", async () => {
+  test("strict rule ignores locally shadowed empty functions", async () => {
+    const result = await lintStrict("function empty(value) { return !value }\nempty(customer)")
+
+    expect(findMessage(result, "sfcc/no-empty-global")).toBeUndefined()
+  })
+
+  test("replaces a typed string with a length check", async () => {
     const result = await lintTypeAwareFixture("string.js")
-    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
-    const suggestions = hit?.suggestions ?? []
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
-    expect(suggestions).toHaveLength(1)
-    expect(suggestions[0]?.desc).toContain("customer.length === 0")
+    expect(hit?.suggestions).toHaveLength(1)
+    expect(hit?.suggestions?.[0]?.desc).toContain("customer.length === 0")
   })
 
-  test("uses broad fallback suggestions for mixed union types", async () => {
-    const result = await lintTypeAwareFixture("union-string-object.js")
-    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
-    const suggestions = hit?.suggestions ?? []
+  test("preserves null and undefined semantics for nullable strings", async () => {
+    const code = await fs.readFile(path.join(fixtureDir, "nullable-string.js"), "utf8")
+    const result = await lintTypeAwareFixture("nullable-string.js")
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
-    expect(suggestions.length).toBeGreaterThanOrEqual(4)
-    expect(suggestions.some((s) => s.desc?.includes("customer.length === 0"))).toBe(true)
-    expect(suggestions.some((s) => s.desc?.includes("Object.keys(customer).length === 0"))).toBe(
-      true,
+    expect(applyFirstSuggestion(code, hit)).toContain(
+      "customer === null || customer === undefined || customer.length === 0",
     )
-    expect(suggestions.some((s) => s.desc?.includes("!customer"))).toBe(true)
   })
 
-  test("uses type info fixture to suggest only length for alias-based string literal unions", async () => {
-    const result = await lintTypeAwareFixture("string-literal-union-alias.js")
-    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
-    const suggestions = hit?.suggestions ?? []
+  test("preserves null and undefined semantics for nullable arrays", async () => {
+    const result = await lintTypeAwareFixture("nullable-array.js")
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
-    expect(suggestions).toHaveLength(1)
-    expect(suggestions[0]?.desc).toContain("customer.length === 0")
+    expect(hit?.suggestions?.[0]?.desc).toContain(
+      "customer === null || customer === undefined || customer.length === 0",
+    )
   })
 
-  test("uses type info fixture to suggest only Object.keys for alias-based object unions", async () => {
+  test("preserves null and undefined semantics for nullable collections", async () => {
+    const result = await lintTypeAwareFixture("nullable-collection.js")
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
+
+    expect(hit?.suggestions?.[0]?.desc).toContain(
+      "customer === null || customer === undefined || customer.isEmpty()",
+    )
+  })
+
+  test("replaces a non-null Record check with false", async () => {
+    const result = await lintTypeAwareFixture("record.js")
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
+
+    expect(hit?.suggestions?.[0]?.desc).toContain("false")
+  })
+
+  test("replaces a nullable object reference with an explicit nullish check", async () => {
+    const result = await lintTypeAwareFixture("nullable-product.js")
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
+
+    expect(hit?.suggestions?.[0]?.desc).toContain("customer === null || customer === undefined")
+  })
+
+  test("recognizes unions of plain object shapes as nullish-only checks", async () => {
     const result = await lintTypeAwareFixture("object-record-union-alias.js")
-    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
-    const suggestions = hit?.suggestions ?? []
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
-    expect(suggestions).toHaveLength(1)
-    expect(suggestions[0]?.desc).toContain("Object.keys(customer).length === 0")
+    expect(hit?.suggestions?.[0]?.desc).toContain("false")
   })
 
-  test("uses type info fixture to suggest only nullable check for alias-based nullable unions", async () => {
-    const result = await lintTypeAwareFixture("nullable-union-alias.js")
-    const hit = result?.messages.find((m) => m.ruleId === "sfcc/no-empty-global")
-    const suggestions = hit?.suggestions ?? []
+  test("reports mixed string and object unions as ambiguous", async () => {
+    const result = await lintTypeAwareFixture("union-string-object.js")
+    const hit = findMessage(result, "sfcc/no-ambiguous-empty")
 
-    expect(suggestions).toHaveLength(1)
-    expect(suggestions[0]?.desc).toContain("!customer")
+    expect(hit?.message).toContain("different SFCC empty semantics")
+    expect(findMessage(result, "sfcc/prefer-explicit-empty-check")).toBeUndefined()
+  })
+
+  test("recognizes alias-based string literal unions", async () => {
+    const result = await lintTypeAwareFixture("string-literal-union-alias.js")
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
+
+    expect(hit?.suggestions?.[0]?.desc).toContain("customer.length === 0")
+  })
+
+  test("recognizes null and undefined unions as always empty", async () => {
+    const result = await lintTypeAwareFixture("nullable-union-alias.js")
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
+
+    expect(hit?.suggestions?.[0]?.desc).toContain("true")
   })
 })

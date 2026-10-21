@@ -1,3 +1,4 @@
+import noAmbiguousEmpty from "./no-ambiguous-empty.js"
 import noControllers from "./no-controllers.js"
 import noCustomApiAdditionalProperties from "./no-custom-api-additional-properties.js"
 import noCustomApiResponseMethods from "./no-custom-api-response-methods.js"
@@ -21,6 +22,7 @@ import noStringEquals from "./no-string-equals.js"
 import noStringRaw from "./no-string-raw.js"
 import noTypeAnnotations from "./no-type-annotations.js"
 import preferConst from "./prefer-const.js"
+import preferExplicitEmptyCheck from "./prefer-explicit-empty-check.js"
 import preferGeneratedCustomApiTypes from "./prefer-generated-custom-api-types.js"
 import preferGeneratedHookTypes from "./prefer-generated-hook-types.js"
 import preferGeneratedJobStepTypes from "./prefer-generated-job-step-types.js"
@@ -44,6 +46,7 @@ const sfcc = {
     "no-custom-api": noCustomApi,
     "no-custom-api-additional-properties": noCustomApiAdditionalProperties,
     "no-custom-api-response-methods": noCustomApiResponseMethods,
+    "no-ambiguous-empty": noAmbiguousEmpty,
     "no-controllers": noControllers,
     "no-ds-files": noDsFiles,
     "no-dw-api": noDwApi,
@@ -66,6 +69,7 @@ const sfcc = {
     "prefer-generated-custom-api-types": preferGeneratedCustomApiTypes,
     "prefer-generated-hook-types": preferGeneratedHookTypes,
     "prefer-generated-job-step-types": preferGeneratedJobStepTypes,
+    "prefer-explicit-empty-check": preferExplicitEmptyCheck,
     "prefer-native-collections": preferNativeCollections,
     "prefer-tilde-require-path": preferTildeRequirePath,
     "require-file-extension": requireFileExtension,

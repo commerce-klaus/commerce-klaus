@@ -1,67 +1,53 @@
 # sfcc/no-empty-global
 
-Disallows the SFCC-specific `empty(...)` global in JavaScript files. Use explicit checks instead, such as `.length === 0`, `Object.keys(...).length === 0`, or `.isEmpty()`.
-
-## What it checks
-
-- Flags calls to the global `empty(...)`
-- Applies only to JavaScript-like inputs: `.js`, `.mjs`, `.cjs`, `.ds`, and `<input>`
-- When TypeScript parser services with type information are available, suggestions are narrowed to the most likely replacement for the value type
+Disallows every call to the SFCC-specific global `empty(...)`.
 
 ## Why this rule exists
 
-`empty()` is an SFCC-specific global, not standard JavaScript. It can be confusing when code is meant to read like normal JavaScript, and explicit checks are easier to understand for the underlying type.
+`empty()` is an SFCC extension rather than standard JavaScript. It combines checks for `null`, `undefined`, empty strings, empty arrays, and empty SFCC collections in one operation. That broad behavior can hide the condition a caller actually intends.
+
+Use this rule when a project wants to remove `empty()` completely and require explicit JavaScript checks.
 
 ## Default behavior
 
-- Severity: `error`
+- Severity: Off
 - Auto-fix: none
-- Suggestions: yes
+- Suggestions: one behavior-preserving replacement when the argument type is known
 
-## Nullable references
+The recommended config instead enables:
 
-When you know a value is only a nullable object reference, for example `dw.catalog.Product | null`, a null check can be the clearest replacement.
+- [`sfcc/prefer-explicit-empty-check`](./prefer-explicit-empty-check.md) for values that can be migrated safely
+- [`sfcc/no-ambiguous-empty`](./no-ambiguous-empty.md) for values that need better type information first
 
-```js [Invalid]
-// [!code error:1]
-if (empty(product)) {
-  return
-}
+## Strict project policy
+
+Apply this configuration after the recommended config to ban `empty()` without duplicate migration diagnostics:
+
+```js
+import sfcc from "@commerce-klaus/eslint-config-sfcc"
+
+export default [
+  ...sfcc.configs.recommended,
+  {
+    rules: {
+      "sfcc/no-ambiguous-empty": "off",
+      "sfcc/prefer-explicit-empty-check": "off",
+      "sfcc/no-empty-global": "error",
+    },
+  },
+]
 ```
 
-```js{1} [Valid: nullable references]
-if (!product) {
-  return
-}
-```
-
-The rule may offer this as an additional suggestion for identifiers and member expressions, but it is intentionally not the only recommendation because `empty(...)` is also used for strings, arrays, plain objects, and SFCC collections.
-
-With type information enabled, the rule narrows suggestions for identifier/member-expression arguments to reduce noisy alternatives.
-
-## Examples
+## Example
 
 ```js [Invalid]
-// [!code error:1]
 if (empty(productIds)) {
   return
 }
 ```
 
-```js{1} [Valid: arrays and strings]
-if (productIds.length === 0) {
-  return
-}
-```
-
-```js{1} [Valid: plain objects]
-if (Object.keys(product).length === 0) {
-  return
-}
-```
-
-```js{1} [Valid: SFCC collections]
-if (collection.isEmpty()) {
+```js [Valid]
+if (productIds === null || productIds === undefined || productIds.length === 0) {
   return
 }
 ```

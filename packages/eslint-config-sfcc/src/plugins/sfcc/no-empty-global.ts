@@ -1,311 +1,28 @@
 import type { Rule } from "eslint"
 
-import { withSfccSettings } from "../_utils/sfcc-settings.js"
 import {
-  getExactStringLiteralValuesForNode,
-  getTypeTextForNode,
-  getTypeWordsForNode,
-  isArrayTypeWord,
-  isNullableTypeWord,
-  isObjectLikeTypeWord,
-  isStringLikeTypeWord,
-  parseTypeWordsFromTypeText,
-} from "../_utils/type-aware.js"
-
-const COLLECTION_CONSTRUCTORS = new Set([
-  "ArrayList",
-  "Collection",
-  "FilteringCollection",
-  "HashSet",
-  "LinkedHashSet",
-  "List",
-  "Set",
-  "SortedSet",
-])
-
-type ReferenceSuggestionKind = "length" | "object-keys" | "collection" | "nullable" | "unknown"
-
-function isJavaScriptTarget(filename: string): boolean {
-  if (filename === "<input>") {
-    return true
-  }
-
-  return /\.(?:[cm]?(?:js|ts)|ds)$/iu.test(filename)
-}
-
-function parseTypeWords(typeText: string): string[] {
-  return parseTypeWordsFromTypeText(typeText)
-}
-
-function inferSuggestionKindFromTypeText(typeText: string): ReferenceSuggestionKind {
-  const words = parseTypeWords(typeText)
-  const hasNullable = words.some((word) => isNullableTypeWord(word))
-  const isObjectLike = /^\{|\bobject\b|\bObject\b|\bRecord</u.test(typeText)
-  const isStringLike = words.some((word) => isStringLikeTypeWord(word))
-  const isArrayLike = /\[\]|\bArray<|\bReadonlyArray</u.test(typeText)
-  const isCollectionLike =
-    /\b(?:ArrayList|Collection|FilteringCollection|HashSet|LinkedHashSet|List|Set|SortedSet)\b/u.test(
-      typeText,
-    )
-
-  const categories = [isCollectionLike, isStringLike || isArrayLike, isObjectLike, hasNullable]
-  const matchedCategories = categories.filter(Boolean).length
-
-  if (matchedCategories > 1) {
-    return "unknown"
-  }
-
-  if (isCollectionLike) {
-    return "collection"
-  }
-
-  if (isStringLike || isArrayLike) {
-    return "length"
-  }
-
-  if (isObjectLike) {
-    return "object-keys"
-  }
-
-  if (hasNullable) {
-    return "nullable"
-  }
-
-  return "unknown"
-}
-
-function getTypeAwareSuggestionKindFromShape(
-  context: Rule.RuleContext,
-  argument: Rule.Node,
-): ReferenceSuggestionKind | undefined {
-  const exactStringLiterals = getExactStringLiteralValuesForNode(context, argument)
-  if (exactStringLiterals && exactStringLiterals.length > 0) {
-    return "length"
-  }
-
-  const words = getTypeWordsForNode(context, argument)
-
-  if (words.length === 0) {
-    return undefined
-  }
-
-  const hasNullable = words.some((word) => isNullableTypeWord(word))
-  const hasObjectLiteral = words.some((word) => isObjectLikeTypeWord(word))
-  const hasStringLike = words.some((word) => isStringLikeTypeWord(word))
-  const hasArrayLike = words.some((word) => isArrayTypeWord(word))
-  const categories = [hasObjectLiteral, hasNullable, hasStringLike || hasArrayLike]
-  const matchedCategories = categories.filter(Boolean).length
-
-  if (matchedCategories > 1) {
-    return "unknown"
-  }
-
-  if (hasObjectLiteral) {
-    return "object-keys"
-  }
-
-  if (hasStringLike || hasArrayLike) {
-    return "length"
-  }
-
-  if (hasNullable) {
-    return "nullable"
-  }
-
-  return undefined
-}
-
-function getTypeAwareSuggestionKind(
-  context: Rule.RuleContext,
-  argument: Rule.Node,
-): ReferenceSuggestionKind {
-  const shapeAwareKind = getTypeAwareSuggestionKindFromShape(context, argument)
-  if (shapeAwareKind) {
-    return shapeAwareKind
-  }
-
-  const typeText = getTypeTextForNode(context, argument)
-  if (!typeText) {
-    return "unknown"
-  }
-
-  return inferSuggestionKindFromTypeText(typeText)
-}
-
-function getPropertyName(node: Rule.Node): string | undefined {
-  if (node.type === "Identifier") {
-    return node.name
-  }
-
-  if (node.type === "MemberExpression" && !node.computed && node.property.type === "Identifier") {
-    return node.property.name
-  }
-
-  return undefined
-}
-
-function isIdentifierOrMemberExpression(node: Rule.Node): boolean {
-  if (node.type === "Identifier") {
-    return true
-  }
-
-  if (node.type === "MemberExpression") {
-    return true
-  }
-
-  return false
-}
-
-function isStringInitializedIdentifier(context: Rule.RuleContext, node: Rule.Node): boolean {
-  if (node.type !== "Identifier") {
-    return false
-  }
-
-  const scope = context.sourceCode.getScope(node)
-  const reference = scope.references.find((item) => item.identifier === node)
-  const resolved = reference?.resolved
-  const definitionNode = resolved?.defs?.[0]?.node as
-    | ({
-        type?: string
-        init?: Rule.Node
-      } & Rule.Node)
-    | undefined
-
-  if (definitionNode?.type !== "VariableDeclarator") {
-    return false
-  }
-
-  const initializer = definitionNode.init
-  if (!initializer) {
-    return false
-  }
-
-  if (initializer.type === "Literal" && typeof initializer.value === "string") {
-    return true
-  }
-
-  if (initializer.type === "TemplateLiteral" && initializer.expressions.length === 0) {
-    return true
-  }
-
-  return false
-}
-
-function isGlobalReference(
-  context: Rule.RuleContext,
-  node: Rule.Node & { type: "Identifier"; name: string },
-): boolean {
-  const scope = context.sourceCode.getScope(node)
-  const reference = scope.references.find((item) => item.identifier === node)
-  const resolved = reference?.resolved
-
-  if (!resolved) {
-    return true
-  }
-
-  if (resolved.scope.type !== "global") {
-    return false
-  }
-
-  if (resolved.defs.length === 0) {
-    return true
-  }
-
-  return resolved.defs.every((definition) => {
-    const definitionWithNode = definition as { node?: unknown }
-    return definitionWithNode.node == null
-  })
-}
-
-function getEmptySuggestions(
-  context: Rule.RuleContext,
-  argument: Rule.Node,
-  callExpression: Rule.Node,
-  sourceCode: { getText(node: Rule.Node): string },
-) {
-  const text = sourceCode.getText(argument)
-
-  const buildSuggestion = (messageId: string, replacement: string) => ({
-    messageId,
-    data: { replacement },
-    fix: (fixer: Rule.RuleFixer) => fixer.replaceText(callExpression, replacement),
-  })
-
-  if (argument.type === "Literal" && typeof argument.value === "string") {
-    return [buildSuggestion("suggestLengthCheck", `${text}.length === 0`)]
-  }
-
-  if (argument.type === "TemplateLiteral" && argument.expressions.length === 0) {
-    return [buildSuggestion("suggestLengthCheck", `${text}.length === 0`)]
-  }
-
-  if (argument.type === "ArrayExpression") {
-    return [buildSuggestion("suggestLengthCheck", `${text}.length === 0`)]
-  }
-
-  if (argument.type === "ObjectExpression") {
-    return [buildSuggestion("suggestObjectKeysCheck", `Object.keys(${text}).length === 0`)]
-  }
-
-  if (argument.type === "NewExpression") {
-    const calleeName = getPropertyName(argument.callee as Rule.Node)
-    if (calleeName && COLLECTION_CONSTRUCTORS.has(calleeName)) {
-      return [buildSuggestion("suggestCollectionCheck", `${text}.isEmpty()`)]
-    }
-  }
-
-  if (isIdentifierOrMemberExpression(argument)) {
-    if (isStringInitializedIdentifier(context, argument)) {
-      return [buildSuggestion("suggestLengthCheck", `${text}.length === 0`)]
-    }
-
-    const typeAwareSuggestionKind = getTypeAwareSuggestionKind(context, argument)
-
-    if (typeAwareSuggestionKind === "nullable") {
-      return [buildSuggestion("suggestNullableReferenceCheck", `!${text}`)]
-    }
-
-    if (typeAwareSuggestionKind === "length") {
-      return [buildSuggestion("suggestLengthCheck", `${text}.length === 0`)]
-    }
-
-    if (typeAwareSuggestionKind === "object-keys") {
-      return [buildSuggestion("suggestObjectKeysCheck", `Object.keys(${text}).length === 0`)]
-    }
-
-    if (typeAwareSuggestionKind === "collection") {
-      return [buildSuggestion("suggestCollectionCheck", `${text}.isEmpty()`)]
-    }
-
-    return [
-      buildSuggestion("suggestNullableReferenceCheck", `!${text}`),
-      buildSuggestion("suggestLengthCheck", `${text}.length === 0`),
-      buildSuggestion("suggestObjectKeysCheck", `Object.keys(${text}).length === 0`),
-      buildSuggestion("suggestCollectionCheck", `${text}.isEmpty()`),
-    ]
-  }
-
-  return []
-}
+  analyzeEmptyArgument,
+  asGlobalEmptyCall,
+  buildExplicitEmptyReplacement,
+  isJavaScriptTarget,
+} from "../_utils/empty-global.js"
+import { withSfccSettings } from "../_utils/sfcc-settings.js"
 
 const noEmptyGlobal: Rule.RuleModule = {
   meta: {
     type: "problem",
     docs: {
       description:
-        "Disallow the SFCC-specific empty() global in JavaScript files. Use explicit checks such as .length, Object.keys(), or .isEmpty() instead.",
+        "Disallow the SFCC-specific empty() global in favor of explicit standard JavaScript checks.",
       url: "https://commerce-klaus.github.io/commerce-klaus/packages/eslint-config-sfcc/rules/sfcc/no-empty-global",
-      recommended: true,
+      recommended: false,
     },
     hasSuggestions: true,
     schema: [],
     messages: {
-      forbiddenEmptyGlobal: "empty() is an SFCC-specific global and is not standard JavaScript.",
-      suggestNullableReferenceCheck:
-        "Use {{replacement}} instead for a null or nullable object reference.",
-      suggestLengthCheck: "Use {{replacement}} instead.",
-      suggestObjectKeysCheck: "Use {{replacement}} for plain objects instead.",
-      suggestCollectionCheck: "Use {{replacement}} for SFCC collections instead.",
+      forbiddenEmptyGlobal:
+        "empty() is an SFCC-specific global with type-dependent semantics. Replace it with an explicit check.",
+      suggestExplicitCheck: "Replace with {{replacement}}.",
     },
   },
   create: withSfccSettings((context) => {
@@ -315,32 +32,35 @@ const noEmptyGlobal: Rule.RuleModule = {
 
     return {
       CallExpression(node: Rule.Node) {
-        const callExpression = node as Rule.Node & {
-          arguments?: Rule.Node[]
-          callee?: Rule.Node & { type?: string; name?: string }
-        }
-
-        if (
-          callExpression.callee?.type !== "Identifier" ||
-          callExpression.callee.name !== "empty"
-        ) {
-          return
-        }
-
-        if (!isGlobalReference(context, callExpression.callee)) {
+        const callExpression = asGlobalEmptyCall(context, node)
+        if (!callExpression) {
           return
         }
 
         const argument = callExpression.arguments?.[0]
-        if (!argument) {
-          context.report({ node: callExpression.callee, messageId: "forbiddenEmptyGlobal" })
-          return
+        let replacement: string | undefined
+        if (argument) {
+          const analysis = analyzeEmptyArgument(context, argument)
+          if (analysis.kind !== "ambiguous") {
+            replacement = buildExplicitEmptyReplacement(
+              analysis,
+              context.sourceCode.getText(argument),
+            )
+          }
         }
 
         context.report({
           node: callExpression,
           messageId: "forbiddenEmptyGlobal",
-          suggest: getEmptySuggestions(context, argument, callExpression, context.sourceCode),
+          suggest: replacement
+            ? [
+                {
+                  messageId: "suggestExplicitCheck",
+                  data: { replacement },
+                  fix: (fixer) => fixer.replaceText(callExpression, replacement),
+                },
+              ]
+            : [],
         })
       },
     }

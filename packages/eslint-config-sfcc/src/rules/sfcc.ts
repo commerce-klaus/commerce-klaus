@@ -2,7 +2,8 @@ import type { Linter } from "eslint"
 
 const sfcc: Linter.RulesRecord = {
   "sfcc/no-ds-files": "error",
-  "sfcc/no-empty-global": "error",
+  "sfcc/no-ambiguous-empty": "warn",
+  "sfcc/no-empty-global": "off",
   "sfcc/no-e4x-syntax": "error",
   "sfcc/no-custom-api-additional-properties": "error",
   "sfcc/no-custom-api-response-methods": "error",
@@ -11,6 +12,7 @@ const sfcc: Linter.RulesRecord = {
   "sfcc/no-string-equals": "error",
   "sfcc/no-string-raw": "error",
   "sfcc/prefer-const": "error",
+  "sfcc/prefer-explicit-empty-check": "warn",
   "sfcc/rhino-const-compat": "error",
   "sfcc/rhino-const-conflict": "error",
   "sfcc/valid-custom-api-dir-name": "error",
