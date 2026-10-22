@@ -7,6 +7,7 @@ import {
   findCustomApiDefinitions,
   findOperationByOperationId,
   getRequiredCustomApiExportsForScriptFile,
+  resolveCustomApiDefinitions,
   resolveOasRef,
   schemaContainsAdditionalProperties,
 } from "../src/custom-apis.ts"
@@ -86,6 +87,7 @@ test("findCustomApiDefinitions resolves schemas and matches the operationId", ()
     const definitions = findCustomApiDefinitions(tempDir)
 
     expect(definitions).toHaveLength(1)
+    expect(definitions[0].apiId).toBe("loyalty-info")
     expect(definitions[0].endpoint).toBe("getLoyaltyInfo")
     expect(definitions[0].operation).toMatchObject({ method: "get", path: "/customers" })
     expect(definitions[0].implementationPath).toBe(
@@ -93,6 +95,25 @@ test("findCustomApiDefinitions resolves schemas and matches the operationId", ()
     )
     expect(definitions[0].operation?.operation.operationId).toBe("getLoyaltyInfo")
     expect(definitions[0].document.components?.schemas?.LoyaltyInfo).toBeDefined()
+  })
+})
+
+test("resolveCustomApiDefinitions keeps the first operation in cartridge order", () => {
+  withTempDir((tempDir) => {
+    const appCustom = path.join(tempDir, "app_custom")
+    const appBase = path.join(tempDir, "app_base")
+    const customApiDirectory = writeLoyaltyApi(appCustom)
+    writeLoyaltyApi(appBase)
+
+    const definitions = resolveCustomApiDefinitions([appCustom, appBase])
+
+    expect(definitions).toHaveLength(1)
+    expect(definitions[0]).toMatchObject({
+      apiId: "loyalty-info",
+      cartridgeRoot: appCustom,
+      endpoint: "getLoyaltyInfo",
+      implementationPath: path.join(customApiDirectory, "script.js"),
+    })
   })
 })
 

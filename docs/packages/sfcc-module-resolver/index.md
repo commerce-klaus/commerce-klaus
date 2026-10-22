@@ -159,6 +159,19 @@ filesystem order remains the final fallback.
 
 Capability fields remain optional so consumers can distinguish an omitted declaration from an explicit `false`. The resolver exposes this metadata without inferring or enforcing a job context.
 
+### Custom API definitions
+
+- `findCustomApiDefinitions(cartridgesDir): CustomApiDefinition[]`
+  - Discovers `rest-apis/**/api.json` entries below one directory
+  - Derives the API ID from the containing `rest-apis/<api-id>` directory
+  - Resolves the OAS document, operation ID, and optional implementation script
+- `resolveCustomApiDefinitions(cartridgeRoots): ResolvedCustomApiDefinition[]`
+  - Resolves effective definitions in cartridge-path order
+  - Keeps the first definition for each API ID and operation ID pair
+  - Adds the owning `cartridgeRoot` to each result
+
+Use raw discovery when validating every registration in a project. Use effective resolution when a consumer must reproduce SFCC cartridge precedence, such as metadata-aware test loading.
+
 ### Project validation
 
 - `validateProject({ cartridgesDir, cartridgeRoots }): ProjectValidationResult`

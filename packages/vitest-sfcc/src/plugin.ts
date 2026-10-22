@@ -4,6 +4,7 @@ import {
   type CartridgeArchitectureAssignments,
   type CartridgeArchitectureSelection,
 } from "@commerce-klaus/config"
+import { resolveCustomApiDefinitions } from "@commerce-klaus/sfcc-module-resolver/custom-apis"
 import { resolveHookRegistrations } from "@commerce-klaus/sfcc-module-resolver/hooks"
 import { resolveStepTypeDefinitions } from "@commerce-klaus/sfcc-module-resolver/job-steps"
 import {
@@ -26,6 +27,7 @@ import {
   markCartridgeImports,
   transformCartridgeCommonJs,
 } from "./cartridge-transform.js"
+import { CUSTOM_API_DEFINITIONS_DEFINE, setActiveCustomApis } from "./custom-api.js"
 import { setActiveStepTypes } from "./job-step.js"
 import { encodeVirtualModule, loadVirtualModule, VIRTUAL_PREFIX } from "./virtual-modules.js"
 
@@ -98,6 +100,8 @@ function getSelectedCartridgeRoots(options: SfccVitestOptions): string[] {
 export default function sfccVitest(options: SfccVitestOptions = {}): SfccVitestPlugin {
   const cartridgeRoots = getSelectedCartridgeRoots(options)
   const resolveSfccModule = createModuleResolver(cartridgeRoots)
+  const customApiDefinitions = resolveCustomApiDefinitions(cartridgeRoots)
+  setActiveCustomApis(customApiDefinitions)
   const hookRegistrations = resolveHookRegistrations(
     getHookCartridgeRoots(cartridgeRoots, options.hookDiscovery),
   )
@@ -111,6 +115,9 @@ export default function sfccVitest(options: SfccVitestOptions = {}): SfccVitestP
 
     config() {
       return {
+        define: {
+          [CUSTOM_API_DEFINITIONS_DEFINE]: JSON.stringify(customApiDefinitions),
+        },
         test: {
           server: {
             deps: {

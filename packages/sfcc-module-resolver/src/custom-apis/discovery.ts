@@ -85,12 +85,17 @@ export interface CustomApiOperationMatch {
 export type OasHttpMethod = "delete" | "get" | "head" | "options" | "patch" | "post" | "put"
 
 export interface CustomApiDefinition {
+  apiId: string
   apiJsonPath: string
   endpoint: string
   implementationPath?: string
   schemaPath: string
   document: OasDocument
   operation?: CustomApiOperationMatch
+}
+
+export interface ResolvedCustomApiDefinition extends CustomApiDefinition {
+  cartridgeRoot: string
 }
 
 export interface RequiredCustomApiExport {
@@ -350,6 +355,7 @@ export function findCustomApiDefinitions(cartridgesDir: string): CustomApiDefini
       }
 
       definitions.push({
+        apiId: path.basename(directory),
         apiJsonPath,
         endpoint: entry.endpoint,
         ...(entry.implementation
@@ -363,4 +369,21 @@ export function findCustomApiDefinitions(cartridgesDir: string): CustomApiDefini
   }
 
   return definitions
+}
+
+export function resolveCustomApiDefinitions(
+  cartridgeRoots: string[],
+): ResolvedCustomApiDefinition[] {
+  const resolved = new Map<string, ResolvedCustomApiDefinition>()
+
+  for (const cartridgeRoot of cartridgeRoots) {
+    for (const definition of findCustomApiDefinitions(cartridgeRoot)) {
+      const key = `${definition.apiId}\0${definition.endpoint}`
+      if (!resolved.has(key)) {
+        resolved.set(key, { ...definition, cartridgeRoot })
+      }
+    }
+  }
+
+  return [...resolved.values()]
 }

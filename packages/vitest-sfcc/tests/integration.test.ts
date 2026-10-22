@@ -4,7 +4,7 @@ import path from "node:path"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import { transformCartridgeCommonJs } from "../src/cartridge-transform.js"
-import sfccVitest, { getSfccRuntime, loadSfccJobStep } from "../src/index.js"
+import sfccVitest, { getSfccRuntime, loadSfccCustomApi, loadSfccJobStep } from "../src/index.js"
 import { encodeVirtualModule, loadVirtualModule } from "../src/virtual-modules.js"
 
 describe("vitest-sfcc", () => {
@@ -64,6 +64,38 @@ describe("vitest-sfcc", () => {
       kind: "success",
       statusCode: 202,
     })
+  })
+
+  it("loads and invokes a Custom API operation from project metadata", async () => {
+    const customApi = await loadSfccCustomApi("sample", "getSample")
+
+    expect(customApi.definition).toMatchObject({
+      apiId: "sample",
+      endpoint: "getSample",
+      operation: {
+        method: "get",
+        path: "/samples/{sampleId}",
+      },
+    })
+
+    const result = await customApi.invoke({
+      pathParameters: { sampleId: "sample-2" },
+      queryParameters: { locale: "en-US" },
+    })
+
+    expect(result.response).toMatchObject({
+      body: { locale: "en-US", sampleId: "sample-2" },
+      statusCode: 202,
+    })
+  })
+
+  it("reports available Custom APIs and operations for missing metadata", async () => {
+    await expect(loadSfccCustomApi("missing", "getSample")).rejects.toThrow(
+      "Available APIs: sample.",
+    )
+    await expect(loadSfccCustomApi("sample", "missing")).rejects.toThrow(
+      "Available operations: getSample.",
+    )
   })
 
   it("registers and executes an SFRA controller route", async () => {

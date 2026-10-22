@@ -4,6 +4,7 @@ export {
   findSuccessOasResponse,
   getRequiredCustomApiExportsForScriptFile,
   loadOasDocument,
+  resolveCustomApiDefinitions,
   resolveOasParameter,
   resolveOasRef,
   resolveOasRequestBody,
@@ -24,4 +25,5 @@ export type {
   OasResponse,
   OasSchema,
   RequiredCustomApiExport,
+  ResolvedCustomApiDefinition,
 } from "./discovery.ts"

@@ -229,6 +229,35 @@ Rendered success results expose `kind`, `statusCode`, `body`, headers, and expir
 
 The harness executes an already imported operation module. Cartridge discovery and CommonJS loading remain the responsibility of `vitest-sfcc`; the framework-independent runtime does not inspect `rest-apis` directories. It also does not enforce OAS authentication, request schemas, or response schemas. Those contracts remain available to generated types and project validation instead of being approximated at runtime.
 
+### Load from project metadata
+
+Use `loadSfccCustomApi()` when a test should follow the effective cartridge path and the checked-in `api.json` registration instead of repeating an implementation path:
+
+```ts
+import { loadSfccCustomApi } from "@commerce-klaus/vitest-sfcc"
+import { expect, it } from "vitest"
+
+it("returns one product", async () => {
+  const api = await loadSfccCustomApi("products", "getProduct")
+  const result = await api.invoke({
+    pathParameters: { productId: "sample-product" },
+    queryParameters: { locale: "de-DE" },
+  })
+
+  expect(api.definition.operation).toMatchObject({
+    method: "get",
+    path: "/products/{productId}",
+  })
+  expect(result.response.statusCode).toBe(200)
+})
+```
+
+The plugin resolves Custom API definitions during configuration using the selected cartridge path. For duplicate API and operation IDs, the first cartridge wins. Loading remains lazy: only the selected implementation module is evaluated. Missing APIs, operations, OAS operation declarations, and implementation scripts produce explicit diagnostics with the available IDs where applicable.
+
+Run `sfcc-ts-sync-types` from `@commerce-klaus/typescript-sfcc` to generate the project-specific `SfccCustomApis.Operations` registry. When it is present, `loadSfccCustomApi()` completes and validates operation IDs, and `invoke()` uses the generated request body, path, query, and header parameter types. Projects without generated declarations retain the general string and parameter-record API.
+
+Use `runtime.customApi(importedModule)` when the implementation module itself is the subject of the test or must be supplied directly. Use `loadSfccCustomApi(apiId, operationId)` when the metadata registration, cartridge precedence, OAS operation, and implementation should be tested together.
+
 ## Dependency mocking
 
 Register replacements before dynamically importing the module under test:

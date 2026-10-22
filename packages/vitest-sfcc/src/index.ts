@@ -10,6 +10,12 @@ export type {
   CartridgeArchitectureSelection,
 } from "@commerce-klaus/config"
 export {
+  loadSfccCustomApi,
+  type SfccCustomApiOperationId,
+  type SfccCustomApiOperationInput,
+  type SfccLoadedCustomApi,
+} from "./custom-api.js"
+export {
   loadSfccJobStep,
   type SfccJobStepInput,
   type SfccJobStepTypeId,
