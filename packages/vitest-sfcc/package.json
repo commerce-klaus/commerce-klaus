@@ -53,6 +53,7 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
+    "@commerce-klaus/config": "workspace:^",
     "@commerce-klaus/sfcc-module-resolver": "workspace:^",
     "@commerce-klaus/sfcc-test-runtime": "workspace:^",
     "acorn": "catalog:",

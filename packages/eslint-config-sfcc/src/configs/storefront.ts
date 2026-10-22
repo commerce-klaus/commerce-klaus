@@ -2,6 +2,7 @@ import type { Linter } from "eslint"
 
 import {
   CARTRIDGE_ARCHITECTURES,
+  normalizeCartridgeArchitectureAssignments,
   resolveCommerceKlausConfig,
   type CartridgeArchitecture,
   type CartridgeArchitectureAssignments,
@@ -105,47 +106,6 @@ export function createStorefrontConfig(
   ]
 }
 
-function normalizeArchitectureAssignments(
-  assignments: CartridgeArchitectureAssignments,
-): Map<StorefrontPreset, string[]> {
-  const supportedArchitectures = new Set<string>(CARTRIDGE_ARCHITECTURES)
-  const unknownArchitecture = Object.keys(assignments).find(
-    (architecture) => !supportedArchitectures.has(architecture),
-  )
-  if (unknownArchitecture) {
-    throw new TypeError(`Unknown cartridge architecture "${unknownArchitecture}".`)
-  }
-
-  const assignedArchitecture = new Map<string, StorefrontPreset>()
-  const normalized = new Map<StorefrontPreset, string[]>()
-
-  for (const architecture of CARTRIDGE_ARCHITECTURES) {
-    const cartridges = [
-      ...new Set(
-        (assignments[architecture] ?? [])
-          .map((cartridge) => cartridge.trim())
-          .filter((cartridge) => cartridge.length > 0),
-      ),
-    ]
-
-    for (const cartridge of cartridges) {
-      const existingArchitecture = assignedArchitecture.get(cartridge)
-      if (existingArchitecture) {
-        throw new TypeError(
-          `Cartridge "${cartridge}" is assigned to both "${existingArchitecture}" and "${architecture}".`,
-        )
-      }
-      assignedArchitecture.set(cartridge, architecture)
-    }
-
-    if (cartridges.length > 0) {
-      normalized.set(architecture, cartridges)
-    }
-  }
-
-  return normalized
-}
-
 function getGlobCartridgesDir(cartridgesDir: string, cwd: string): string {
   if (!path.isAbsolute(cartridgesDir)) {
     return cartridgesDir
@@ -163,7 +123,7 @@ export function createCartridgeArchitectureConfig(
     cwd,
     configFile: options.configFile,
   })
-  const assignments = normalizeArchitectureAssignments(
+  const assignments = normalizeCartridgeArchitectureAssignments(
     options.architectures ?? centralConfig.architectures ?? {},
   )
   const cartridgesDir = getGlobCartridgesDir(

@@ -2,7 +2,13 @@ import sfccVitest from "@commerce-klaus/vitest-sfcc"
 import { defineConfig } from "vite-plus"
 
 export default defineConfig({
-  plugins: [sfccVitest()],
+  plugins: [
+    sfccVitest({
+      cartridgeSelection: {
+        architectures: ["sfra"],
+      },
+    }),
+  ],
   run: {
     tasks: {
       "setup:b2c-plugin": {

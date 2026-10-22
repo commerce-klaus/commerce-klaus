@@ -45,6 +45,9 @@ export default defineConfig({
 Paths are resolved relative to the configuration file. Explicit package options
 and CLI flags override matching central values.
 
+Custom tooling can use `filterCartridgePathByArchitecture()` to derive focused
+paths from the same assignments without changing cartridge precedence.
+
 ## Documentation
 
 See the [complete project configuration reference](https://commerce-klaus.github.io/commerce-klaus/packages/config/).

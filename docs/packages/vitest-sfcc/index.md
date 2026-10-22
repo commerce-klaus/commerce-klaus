@@ -51,6 +51,7 @@ Use [`@commerce-klaus/vite-plugin-sfcc-modules`](../vite-plugin-sfcc-modules/) o
 
 - Resolves `dw/*`, `*/`, `~/`, cartridge aliases, relative modules, and `module.superModule`.
 - Infers cartridge order from explicit configuration, environment, `jsconfig`, or `site.xml`.
+- Derives focused test cartridge paths from central architecture assignments.
 - Provides focused SFCC runtime modules, globals, SFRA controller execution, hooks, and job steps.
 - Supports specifier mocks and exact resolved-file mocks without `proxyquire`.
 - Loads CommonJS cartridge modules through the normal Vite and Vitest pipeline.
@@ -117,6 +118,8 @@ This reads `sites/<site>/site.xml` below `siteTemplatePath` and uses its `custom
 | -------------------- | ----------------------------------- | -------- | ------------------------------------------------------------------------------ |
 | `basePath`           | `string`                            | no       | Cartridge directory override. Defaults to central config, then `cartridges`.   |
 | `cartridgePath`      | `string[]`                          | no       | Explicit cartridge order. First match wins.                                    |
+| `architectures`      | `CartridgeArchitectureAssignments`  | no       | Architecture assignments overriding the central configuration.                 |
+| `cartridgeSelection` | `CartridgeArchitectureSelection`    | no       | Filter the effective path by architecture roles and shared cartridges.         |
 | `cwd`                | `string`                            | no       | Working directory used to resolve relative paths. Defaults to `process.cwd()`. |
 | `siteTemplatePath`   | `string`                            | no       | Site-template root containing `sites/<site>/site.xml`.                         |
 | `site`               | `string`                            | no       | Site identifier used to read `custom-cartridges` from `site.xml`.              |
@@ -129,6 +132,46 @@ This reads `sites/<site>/site.xml` below `siteTemplatePath` and uses its `custom
 <!--@include: ../../_partials/cartridge-order-inference.md-->
 
 The same inference rules are shared by the other Commerce Klaus packages through [`@commerce-klaus/sfcc-module-resolver`](../sfcc-module-resolver/).
+
+### Focused cartridge paths
+
+Architecture assignments in `commerce-klaus.config.ts` can define the project
+once:
+
+```ts [commerce-klaus.config.ts]
+import { defineConfig } from "@commerce-klaus/config"
+
+export default defineConfig({
+  cartridgePath: ["app_headless", "bc_custom_api", "app_storefront_base", "modules"],
+  architectures: {
+    "storefront-next": ["app_headless", "bc_custom_api"],
+    sfra: ["app_storefront_base"],
+  },
+})
+```
+
+A Vitest project can then select only the relevant role and explicitly retain
+shared infrastructure:
+
+```ts [vitest.config.ts]
+sfccVitest({
+  cartridgeSelection: {
+    architectures: ["storefront-next"],
+    cartridges: ["modules"],
+  },
+})
+```
+
+Filtering happens after normal cartridge-path inference and never reorders the
+result. By default, cartridges without an architecture assignment are excluded.
+Set `includeUnassigned: true` when unassigned integration cartridges should
+remain available.
+
+The selected path controls wildcard and alias resolution, `module.superModule`,
+hook discovery, and job step definitions together. An empty selection fails
+during configuration instead of silently running tests against the wrong
+module graph. Use separate Vitest projects when suites require different
+architecture selections.
 
 ## Runtime API
 

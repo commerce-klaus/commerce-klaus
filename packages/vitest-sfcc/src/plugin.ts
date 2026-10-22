@@ -1,3 +1,9 @@
+import {
+  filterCartridgePathByArchitecture,
+  resolveCommerceKlausConfig,
+  type CartridgeArchitectureAssignments,
+  type CartridgeArchitectureSelection,
+} from "@commerce-klaus/config"
 import { resolveHookRegistrations } from "@commerce-klaus/sfcc-module-resolver/hooks"
 import { resolveStepTypeDefinitions } from "@commerce-klaus/sfcc-module-resolver/job-steps"
 import {
@@ -28,6 +34,10 @@ export interface SfccHookDiscoveryOptions {
 }
 
 export interface SfccVitestOptions extends ModuleResolutionOptions {
+  /** Architecture assignments that override the central project configuration. */
+  architectures?: CartridgeArchitectureAssignments
+  /** Limit the effective cartridge path to selected architecture roles and shared cartridges. */
+  cartridgeSelection?: CartridgeArchitectureSelection
   hookDiscovery?: false | SfccHookDiscoveryOptions
   runtime?: SfccTestRuntimeOptions
 }
@@ -57,8 +67,36 @@ function getHookCartridgeRoots(
   return cartridgeRoots.filter((root) => selectedCartridges.has(path.basename(root)))
 }
 
-export default function sfccVitest(options: SfccVitestOptions = {}): SfccVitestPlugin {
+function getSelectedCartridgeRoots(options: SfccVitestOptions): string[] {
   const cartridgeRoots = resolveCartridgeRoots(options)
+  if (!options.cartridgeSelection) {
+    return cartridgeRoots
+  }
+
+  const config = resolveCommerceKlausConfig({
+    cwd: options.cwd,
+    configFile: options.configFile,
+    overrides: { architectures: options.architectures },
+  })
+  const selectedNames = new Set(
+    filterCartridgePathByArchitecture(
+      cartridgeRoots.map((root) => path.basename(root)),
+      config.architectures ?? {},
+      options.cartridgeSelection,
+    ),
+  )
+  const selectedRoots = cartridgeRoots.filter((root) => selectedNames.has(path.basename(root)))
+  if (selectedRoots.length === 0) {
+    throw new Error(
+      "The vitest-sfcc cartridge selection did not match any cartridge in the effective path.",
+    )
+  }
+
+  return selectedRoots
+}
+
+export default function sfccVitest(options: SfccVitestOptions = {}): SfccVitestPlugin {
+  const cartridgeRoots = getSelectedCartridgeRoots(options)
   const resolveSfccModule = createModuleResolver(cartridgeRoots)
   const hookRegistrations = resolveHookRegistrations(
     getHookCartridgeRoots(cartridgeRoots, options.hookDiscovery),

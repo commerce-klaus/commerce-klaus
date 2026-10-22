@@ -564,6 +564,9 @@ importers:
 
   packages/vitest-sfcc:
     dependencies:
+      '@commerce-klaus/config':
+        specifier: workspace:^
+        version: link:../config
       '@commerce-klaus/sfcc-module-resolver':
         specifier: workspace:^
         version: link:../sfcc-module-resolver

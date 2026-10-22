@@ -48,6 +48,11 @@ precedence and all supported fields.
 - `findCommerceKlausConfig(startDirectory?): string | undefined`
 - `loadCommerceKlausConfig(options?): LoadedCommerceKlausConfig`
 - `resolveCommerceKlausConfig(options?): CommerceKlausConfig`
+- `normalizeCartridgeArchitectureAssignments(assignments)`
+  - Normalizes names and rejects unknown roles or cartridges assigned to multiple roles.
+- `filterCartridgePathByArchitecture(cartridgePath, assignments, selection): string[]`
+  - Selects architecture-assigned, explicitly included, or optionally unassigned cartridges.
+  - Preserves the original cartridge-path order exactly.
 
 [npm-url]: https://www.npmjs.com/package/@commerce-klaus/config
 [npm-image]: https://badgen.net/npm/v/@commerce-klaus/config

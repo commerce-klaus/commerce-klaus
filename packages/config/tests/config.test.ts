@@ -6,6 +6,7 @@ import { expect, test } from "vite-plus/test"
 import {
   CARTRIDGE_ARCHITECTURES,
   defineConfig,
+  filterCartridgePathByArchitecture,
   findCommerceKlausConfig,
   loadCommerceKlausConfig,
   resolveCommerceKlausConfig,
@@ -70,4 +71,43 @@ test("exports the supported cartridge architectures", () => {
     "sitegenesis-controllers",
     "sitegenesis-pipelines",
   ])
+})
+
+test("filters cartridge paths by architecture without changing precedence", () => {
+  const cartridgePath = ["app_custom", "int_payment", "modules", "app_base"]
+  const assignments = {
+    "storefront-next": ["app_custom"],
+    sfra: ["app_base"],
+  } as const
+
+  expect(
+    filterCartridgePathByArchitecture(cartridgePath, assignments, {
+      architectures: ["sfra"],
+      cartridges: ["modules"],
+    }),
+  ).toEqual(["modules", "app_base"])
+
+  expect(
+    filterCartridgePathByArchitecture(cartridgePath, assignments, {
+      architectures: ["storefront-next"],
+      includeUnassigned: true,
+    }),
+  ).toEqual(["app_custom", "int_payment", "modules"])
+})
+
+test("rejects ambiguous assignments and unknown selected architectures", () => {
+  expect(() =>
+    filterCartridgePathByArchitecture(
+      ["app_shared"],
+      {
+        "storefront-next": ["app_shared"],
+        sfra: ["app_shared"],
+      },
+      { architectures: ["sfra"] },
+    ),
+  ).toThrow(/assigned to both "storefront-next" and "sfra"/u)
+
+  expect(() =>
+    filterCartridgePathByArchitecture(["app_legacy"], {}, { architectures: ["legacy"] } as never),
+  ).toThrow('Unknown cartridge architecture "legacy".')
 })

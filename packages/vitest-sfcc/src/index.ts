@@ -4,6 +4,11 @@ import type {
   StepTypeParameterDefinition,
 } from "@commerce-klaus/sfcc-module-resolver/job-steps"
 
+export type {
+  CartridgeArchitecture,
+  CartridgeArchitectureAssignments,
+  CartridgeArchitectureSelection,
+} from "@commerce-klaus/config"
 export {
   loadSfccJobStep,
   type SfccJobStepInput,

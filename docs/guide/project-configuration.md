@@ -76,9 +76,13 @@ The optional `architectures` map assigns lint policies to selected cartridges in
 - `sitegenesis-controllers`
 - `sitegenesis-pipelines`
 
-Assign each cartridge to at most one architecture. Commerce Klaus rejects ambiguous assignments instead of making the result depend on override order. Tools that do not enforce architecture policies ignore this option.
+Assign each cartridge to at most one architecture. Commerce Klaus rejects ambiguous assignments instead of making the result depend on override order.
 
-The ESLint package consumes these assignments through `createCartridgeArchitectureConfig()`. Its Oxlint integration exposes the same policies through `createOxlintArchitectureOverrides()`.
+The ESLint package consumes these assignments through
+`createCartridgeArchitectureConfig()`. Its Oxlint integration exposes the same
+policies through `createOxlintArchitectureOverrides()`. `vitest-sfcc` can use
+them to derive a focused cartridge path for one test project through
+`cartridgeSelection`.
 
 ## Overrides
 
@@ -115,6 +119,7 @@ None of the existing configuration mechanisms are deprecated.
 
 `@commerce-klaus/config` exports `defineConfig()`, `findCommerceKlausConfig()`,
 `loadCommerceKlausConfig()`, `resolveCommerceKlausConfig()`,
-`CARTRIDGE_ARCHITECTURES`, and the corresponding architecture types for custom
-tooling. This keeps project configuration independent from the internal module
-resolution implementation.
+`normalizeCartridgeArchitectureAssignments()`,
+`filterCartridgePathByArchitecture()`, `CARTRIDGE_ARCHITECTURES`, and the
+corresponding architecture types for custom tooling. This keeps project
+configuration independent from the internal module resolution implementation.

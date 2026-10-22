@@ -21,6 +21,15 @@ export type CartridgeArchitectureAssignments = Partial<
   Record<CartridgeArchitecture, readonly string[]>
 >
 
+export interface CartridgeArchitectureSelection {
+  /** Architecture roles whose assigned cartridges should be included. */
+  architectures?: readonly CartridgeArchitecture[]
+  /** Additional shared or infrastructure cartridges to include by name. */
+  cartridges?: readonly string[]
+  /** Include cartridges that have no architecture assignment. Defaults to false. */
+  includeUnassigned?: boolean
+}
+
 export interface CommerceKlausConfig {
   /** Directory containing the project's cartridges. */
   cartridgesDir?: string
@@ -54,6 +63,83 @@ export interface ResolveCommerceKlausConfigOptions extends LoadCommerceKlausConf
 
 export function defineConfig(config: CommerceKlausConfig): CommerceKlausConfig {
   return config
+}
+
+function normalizeCartridgeNames(cartridges: readonly string[] | undefined): string[] {
+  return [
+    ...new Set(
+      (cartridges ?? []).map((cartridge) => cartridge.trim()).filter((cartridge) => cartridge),
+    ),
+  ]
+}
+
+export function normalizeCartridgeArchitectureAssignments(
+  assignments: CartridgeArchitectureAssignments,
+): ReadonlyMap<CartridgeArchitecture, readonly string[]> {
+  const supportedArchitectures = new Set<string>(CARTRIDGE_ARCHITECTURES)
+  const unknownArchitecture = Object.keys(assignments).find(
+    (architecture) => !supportedArchitectures.has(architecture),
+  )
+  if (unknownArchitecture) {
+    throw new TypeError(`Unknown cartridge architecture "${unknownArchitecture}".`)
+  }
+
+  const assignedArchitecture = new Map<string, CartridgeArchitecture>()
+  const normalized = new Map<CartridgeArchitecture, readonly string[]>()
+
+  for (const architecture of CARTRIDGE_ARCHITECTURES) {
+    const cartridges = normalizeCartridgeNames(assignments[architecture])
+    for (const cartridge of cartridges) {
+      const existingArchitecture = assignedArchitecture.get(cartridge)
+      if (existingArchitecture) {
+        throw new TypeError(
+          `Cartridge "${cartridge}" is assigned to both "${existingArchitecture}" and "${architecture}".`,
+        )
+      }
+      assignedArchitecture.set(cartridge, architecture)
+    }
+
+    if (cartridges.length > 0) {
+      normalized.set(architecture, cartridges)
+    }
+  }
+
+  return normalized
+}
+
+export function filterCartridgePathByArchitecture(
+  cartridgePath: readonly string[],
+  assignments: CartridgeArchitectureAssignments,
+  selection: CartridgeArchitectureSelection,
+): string[] {
+  const normalizedAssignments = normalizeCartridgeArchitectureAssignments(assignments)
+  const supportedArchitectures = new Set<string>(CARTRIDGE_ARCHITECTURES)
+  const selectedArchitectures = [
+    ...new Set(selection.architectures ?? []),
+  ] as CartridgeArchitecture[]
+  const unknownArchitecture = selectedArchitectures.find(
+    (architecture) => !supportedArchitectures.has(architecture),
+  )
+  if (unknownArchitecture) {
+    throw new TypeError(`Unknown cartridge architecture "${unknownArchitecture}".`)
+  }
+
+  const selectedCartridges = new Set(normalizeCartridgeNames(selection.cartridges))
+  const assignedCartridges = new Set<string>()
+  for (const [architecture, cartridges] of normalizedAssignments) {
+    for (const cartridge of cartridges) {
+      assignedCartridges.add(cartridge)
+      if (selectedArchitectures.includes(architecture)) {
+        selectedCartridges.add(cartridge)
+      }
+    }
+  }
+
+  return cartridgePath.filter(
+    (cartridge) =>
+      selectedCartridges.has(cartridge) ||
+      (selection.includeUnassigned === true && !assignedCartridges.has(cartridge)),
+  )
 }
 
 export function findCommerceKlausConfig(

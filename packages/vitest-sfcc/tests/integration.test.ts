@@ -1,3 +1,5 @@
+import fs from "node:fs"
+import os from "node:os"
 import path from "node:path"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
@@ -123,6 +125,57 @@ describe("vitest-sfcc", () => {
 
     expect(resolvedId).toContain("vitest-sfcc:")
     expect(plugin.load(resolvedId!)).toContain("relative-helper.js?vitest-sfcc-cjs")
+  })
+
+  it("filters the effective cartridge path by central architecture roles", () => {
+    const cartridgesDir = path.resolve(import.meta.dirname, "cartridges")
+    const projectDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "vitest-sfcc-selection-"))
+    fs.writeFileSync(
+      path.join(projectDirectory, "commerce-klaus.config.js"),
+      `export default ${JSON.stringify({
+        architectures: {
+          "storefront-next": ["app_custom"],
+          sfra: ["app_base"],
+        },
+        cartridgePath: ["app_custom", "app_base"],
+        cartridgesDir,
+      })}`,
+    )
+
+    try {
+      const plugin = sfccVitest({
+        cartridgeSelection: {
+          architectures: ["sfra"],
+        },
+        cwd: projectDirectory,
+      })
+      const importer = path.join(cartridgesDir, "app_base", "cartridge", "scripts", "subject.js")
+
+      const resolvedId = plugin.resolveId("*/cartridge/scripts/provider", importer)
+
+      expect(resolvedId).toBeDefined()
+      expect(plugin.load(resolvedId!)).toContain(
+        path.join("app_base", "cartridge", "scripts", "provider.js"),
+      )
+      expect(
+        plugin.resolveId("app_custom/cartridge/scripts/direct-exports", importer),
+      ).toBeUndefined()
+    } finally {
+      fs.rmSync(projectDirectory, { force: true, recursive: true })
+    }
+  })
+
+  it("rejects a cartridge selection that matches no effective cartridge", () => {
+    expect(() =>
+      sfccVitest({
+        architectures: { sfra: ["app_base"] },
+        basePath: path.resolve(import.meta.dirname, "cartridges"),
+        cartridgePath: ["app_custom", "app_base"],
+        cartridgeSelection: {
+          architectures: ["storefront-next"],
+        },
+      }),
+    ).toThrow("did not match any cartridge in the effective path")
   })
 
   it("leaves TypeScript files inside cartridge roots to Vite", () => {
