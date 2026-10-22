@@ -1,4 +1,5 @@
 export {
+  explainCustomApiResolution,
   findCustomApiDefinitions,
   findOperationByOperationId,
   findSuccessOasResponse,
@@ -14,7 +15,12 @@ export type {
   ApiJsonEndpoint,
   ApiJsonFile,
   CustomApiDefinition,
+  CustomApiNotFoundAttempt,
   CustomApiOperationMatch,
+  CustomApiRegistrationAttempt,
+  CustomApiResolutionAttempt,
+  CustomApiResolutionOutcome,
+  CustomApiResolutionTrace,
   OasDocument,
   OasHttpMethod,
   OasMediaType,

@@ -7,6 +7,7 @@ import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 
 import Doctor from "../src/commands/klaus/doctor.ts"
 import Explain from "../src/commands/klaus/explain.ts"
+import ExplainCustomApi from "../src/commands/klaus/explain/custom-api.ts"
 import Graph from "../src/commands/klaus/graph.ts"
 import Impact from "../src/commands/klaus/impact.ts"
 import Inspect from "../src/commands/klaus/inspect.ts"
@@ -58,11 +59,17 @@ test("registers source files for every new pattern command", () => {
       fs.existsSync(path.join(packageDirectory, "src", "commands", "klaus", `${command}.ts`)),
     ).toBe(true)
   }
+  expect(
+    fs.existsSync(
+      path.join(packageDirectory, "src", "commands", "klaus", "explain", "custom-api.ts"),
+    ),
+  ).toBe(true)
 })
 
 test("all project commands support B2C CLI JSON output", () => {
   expect(Doctor.enableJsonFlag).toBe(true)
   expect(Explain.enableJsonFlag).toBe(true)
+  expect(ExplainCustomApi.enableJsonFlag).toBe(true)
   expect(Graph.enableJsonFlag).toBe(true)
   expect(Impact.enableJsonFlag).toBe(true)
   expect(Inspect.enableJsonFlag).toBe(true)
@@ -71,7 +78,16 @@ test("all project commands support B2C CLI JSON output", () => {
 })
 
 test("project commands leave cartridges-dir unset for central config discovery", () => {
-  for (const command of [Doctor, Explain, Graph, Impact, Inspect, Resolve, Validate]) {
+  for (const command of [
+    Doctor,
+    Explain,
+    ExplainCustomApi,
+    Graph,
+    Impact,
+    Inspect,
+    Resolve,
+    Validate,
+  ]) {
     expect(command.flags["cartridges-dir"].default).toBeUndefined()
   }
 })
@@ -103,6 +119,66 @@ describe("command execution", () => {
     )
 
     expect(result).toMatchObject({ kind: "wildcard", resolved: modulePath })
+    expect(output).toHaveLength(1)
+    expect(JSON.parse(output[0] ?? "")).toEqual(result)
+  })
+
+  test("explain custom-api emits the structured registration trace in JSON mode", async () => {
+    const projectDirectory = createProjectDirectory()
+    const apiDirectory = path.join(
+      projectDirectory,
+      "cartridges",
+      "app_custom",
+      "cartridge",
+      "rest-apis",
+      "loyalty",
+    )
+    fs.mkdirSync(apiDirectory, { recursive: true })
+    fs.writeFileSync(
+      path.join(apiDirectory, "api.json"),
+      JSON.stringify({
+        endpoints: [
+          {
+            endpoint: "getLoyalty",
+            implementation: "loyalty",
+            schema: "schema.yaml",
+          },
+        ],
+      }),
+    )
+    fs.writeFileSync(path.join(apiDirectory, "loyalty.js"), "exports.getLoyalty = function () {}")
+    fs.writeFileSync(
+      path.join(apiDirectory, "schema.yaml"),
+      [
+        "openapi: 3.0.0",
+        "paths:",
+        "  /loyalty:",
+        "    get:",
+        "      operationId: getLoyalty",
+        "      responses:",
+        "        '200':",
+        "          description: OK",
+      ].join("\n"),
+    )
+    const output = captureStdout()
+    vi.spyOn(ux, "colorizeJson").mockImplementation((value) => JSON.stringify(value))
+
+    const result = await ExplainCustomApi.run(
+      [
+        "loyalty",
+        "getLoyalty",
+        "--cartridges-dir",
+        path.join(projectDirectory, "cartridges"),
+        "--json",
+      ],
+      { root: packageDirectory },
+    )
+
+    expect(result.resolved).toMatchObject({
+      method: "get",
+      outcome: "selected",
+      path: "/loyalty",
+    })
     expect(output).toHaveLength(1)
     expect(JSON.parse(output[0] ?? "")).toEqual(result)
   })

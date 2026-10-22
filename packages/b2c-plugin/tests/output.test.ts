@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vite-plus/test"
 
 import {
+  renderCustomApiResolutionTrace,
   renderDoctor,
   renderInspection,
   renderProjectImpact,
@@ -281,6 +282,90 @@ describe("renderResolutionTrace", () => {
     expect(output).toContain("<dim>MISS </dim>")
     expect(output).toContain("<green>MATCH</green>")
     expect(output).toContain("<green>DONE</green>: Resolution trace completed.")
+  })
+})
+
+describe("renderCustomApiResolutionTrace", () => {
+  test("renders selected, missing, and shadowed Custom API registrations", () => {
+    const output = renderCustomApiResolutionTrace(
+      {
+        apiId: "loyalty",
+        operationId: "getLoyalty",
+        cartridgeRoots: [
+          "/project/cartridges/app_custom",
+          "/project/cartridges/app_empty",
+          "/project/cartridges/app_base",
+        ],
+        cartridgeOrderTrace: {
+          cartridgesDir: "/project/cartridges",
+          source: "configured",
+          cartridgeRoots: [
+            "/project/cartridges/app_custom",
+            "/project/cartridges/app_empty",
+            "/project/cartridges/app_base",
+          ],
+          attempts: [
+            {
+              source: "configured",
+              outcome: "selected",
+              origin: "cartridgePath",
+              requestedCartridges: ["app_custom", "app_empty", "app_base"],
+              cartridgeRoots: [
+                "/project/cartridges/app_custom",
+                "/project/cartridges/app_empty",
+                "/project/cartridges/app_base",
+              ],
+              missingCartridges: [],
+            },
+          ],
+        },
+        attempts: [
+          {
+            apiJsonPath: "/project/cartridges/app_custom/cartridge/rest-apis/loyalty/api.json",
+            cartridgeRoot: "/project/cartridges/app_custom",
+            implementationPath:
+              "/project/cartridges/app_custom/cartridge/rest-apis/loyalty/loyalty.js",
+            method: "get",
+            outcome: "selected",
+            path: "/loyalty",
+            schemaPath: "/project/cartridges/app_custom/cartridge/rest-apis/loyalty/schema.yaml",
+          },
+          {
+            cartridgeRoot: "/project/cartridges/app_empty",
+            outcome: "not-found",
+          },
+          {
+            apiJsonPath: "/project/cartridges/app_base/cartridge/rest-apis/loyalty/api.json",
+            cartridgeRoot: "/project/cartridges/app_base",
+            implementationPath:
+              "/project/cartridges/app_base/cartridge/rest-apis/loyalty/loyalty.js",
+            method: "get",
+            outcome: "shadowed",
+            path: "/loyalty",
+            schemaPath: "/project/cartridges/app_base/cartridge/rest-apis/loyalty/schema.yaml",
+          },
+        ],
+        resolved: {
+          apiJsonPath: "/project/cartridges/app_custom/cartridge/rest-apis/loyalty/api.json",
+          cartridgeRoot: "/project/cartridges/app_custom",
+          implementationPath:
+            "/project/cartridges/app_custom/cartridge/rest-apis/loyalty/loyalty.js",
+          method: "get",
+          outcome: "selected",
+          path: "/loyalty",
+          schemaPath: "/project/cartridges/app_custom/cartridge/rest-apis/loyalty/schema.yaml",
+        },
+      },
+      "/project",
+      colorize,
+    )
+
+    expect(output).toContain("Cartridge order source: configured (cartridgePath)")
+    expect(output).toContain("<green>SELECT</green> app_custom")
+    expect(output).toContain("<dim>MISS</dim> app_empty")
+    expect(output).toContain("<yellow>SHADOWED</yellow> app_base")
+    expect(output).toContain("Operation: GET /loyalty")
+    expect(output).toContain("<green>DONE</green>: Custom API resolution trace completed.")
   })
 })
 

@@ -4,6 +4,7 @@ import path from "node:path"
 import { afterEach, describe, expect, test } from "vite-plus/test"
 
 import { explainProjectModule } from "../src/commands/klaus/explain.ts"
+import { explainProjectCustomApi } from "../src/commands/klaus/explain/custom-api.ts"
 import { resolveProjectModule } from "../src/commands/klaus/resolve.ts"
 import {
   diagnoseProject,
@@ -25,6 +26,36 @@ function createProjectDirectory(): string {
 function writeFile(filePath: string, contents: string): void {
   fs.mkdirSync(path.dirname(filePath), { recursive: true })
   fs.writeFileSync(filePath, contents)
+}
+
+function writeCustomApi(cartridgeRoot: string): void {
+  const directory = path.join(cartridgeRoot, "cartridge", "rest-apis", "loyalty")
+  writeFile(
+    path.join(directory, "api.json"),
+    JSON.stringify({
+      endpoints: [
+        {
+          endpoint: "getLoyalty",
+          implementation: "loyalty",
+          schema: "schema.yaml",
+        },
+      ],
+    }),
+  )
+  writeFile(path.join(directory, "loyalty.js"), "exports.getLoyalty = function () {}")
+  writeFile(
+    path.join(directory, "schema.yaml"),
+    [
+      "openapi: 3.0.0",
+      "paths:",
+      "  /loyalty:",
+      "    get:",
+      "      operationId: getLoyalty",
+      "      responses:",
+      "        '200':",
+      "          description: OK",
+    ].join("\n"),
+  )
 }
 
 afterEach(() => {
@@ -138,6 +169,32 @@ describe("explainProjectModule", () => {
         cartridgesDir: "cartridges",
       }),
     ).toThrow("--from is required for module.superModule")
+  })
+})
+
+describe("explainProjectCustomApi", () => {
+  test("reports the selected and shadowed registrations in cartridge order", () => {
+    const projectDirectory = createProjectDirectory()
+    const cartridgesDirectory = path.join(projectDirectory, "cartridges")
+    writeCustomApi(path.join(cartridgesDirectory, "app_custom"))
+    writeCustomApi(path.join(cartridgesDirectory, "app_base"))
+
+    const result = explainProjectCustomApi({
+      apiId: "loyalty",
+      operationId: "getLoyalty",
+      cwd: projectDirectory,
+      cartridgesDir: "cartridges",
+      cartridgePath: "app_custom:app_base",
+    })
+
+    expect(result.resolved).toMatchObject({
+      cartridgeRoot: path.join(cartridgesDirectory, "app_custom"),
+      method: "get",
+      outcome: "selected",
+      path: "/loyalty",
+    })
+    expect(result.attempts.map((attempt) => attempt.outcome)).toEqual(["selected", "shadowed"])
+    expect(result.cartridgeOrderTrace.source).toBe("configured")
   })
 })
 

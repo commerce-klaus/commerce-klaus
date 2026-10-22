@@ -530,7 +530,7 @@ vp exec b2c klaus resolve '*/cartridge/scripts/example'
 
 :::
 
-For a `~/` module, provide the importing file with `--from`. All seven project
+For a `~/` module, provide the importing file with `--from`. All project
 commands accept `--cartridges-dir`, `--cartridge-path`, and the standard
 `--json` flag where applicable.
 
@@ -575,6 +575,42 @@ declaration files, and directory index candidates in their actual order. `~/`
 and `module.superModule` require `--from`; the latter starts searching only
 after the importing cartridge. Use `--json` for the complete structured module
 and cartridge-order traces.
+
+## Explain Custom API resolution
+
+Show which `api.json` registration wins for one Custom API operation:
+
+::: code-group
+
+```bash [pnpm]
+pnpm exec b2c klaus explain custom-api basket-preparation prepareBasket
+```
+
+```bash [yarn]
+yarn exec b2c klaus explain custom-api basket-preparation prepareBasket
+```
+
+```bash [npm]
+npm exec -- b2c klaus explain custom-api basket-preparation prepareBasket
+```
+
+```bash [Vite+]
+vp exec b2c klaus explain custom-api basket-preparation prepareBasket
+```
+
+:::
+
+The trace uses the effective project cartridge path and marks every cartridge as
+`SELECT`, `SHADOWED`, or `MISS`. Matching registrations include their
+`api.json`, OAS schema, HTTP method and path, and resolved implementation script.
+The cartridge-order source is shown as well, so configuration, environment,
+solution, site-template, and filesystem fallbacks remain visible. A selected
+registration with a missing OAS operation or implementation is reported as
+incomplete instead of looking successful.
+
+Use `--cartridges-dir` or `--cartridge-path` to inspect a different project
+layout or precedence order. Use `--json` for the complete structured trace,
+including all attempted cartridges and shadowed registrations.
 
 ## Standalone commands
 

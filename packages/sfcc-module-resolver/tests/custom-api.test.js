@@ -4,6 +4,7 @@ import path from "node:path"
 import { expect, test } from "vite-plus/test"
 
 import {
+  explainCustomApiResolution,
   findCustomApiDefinitions,
   findOperationByOperationId,
   getRequiredCustomApiExportsForScriptFile,
@@ -113,6 +114,51 @@ test("resolveCustomApiDefinitions keeps the first operation in cartridge order",
       cartridgeRoot: appCustom,
       endpoint: "getLoyaltyInfo",
       implementationPath: path.join(customApiDirectory, "script.js"),
+    })
+  })
+})
+
+test("explainCustomApiResolution reports selected, shadowed, and missing cartridges", () => {
+  withTempDir((tempDir) => {
+    const appCustom = path.join(tempDir, "app_custom")
+    const appBase = path.join(tempDir, "app_base")
+    const appEmpty = path.join(tempDir, "app_empty")
+    const customApiDirectory = writeLoyaltyApi(appCustom)
+    writeLoyaltyApi(appBase)
+    fs.mkdirSync(appEmpty)
+
+    const trace = explainCustomApiResolution("loyalty-info", "getLoyaltyInfo", [
+      appCustom,
+      appEmpty,
+      appBase,
+    ])
+
+    expect(trace.resolved).toMatchObject({
+      apiJsonPath: path.join(customApiDirectory, "api.json"),
+      cartridgeRoot: appCustom,
+      implementationPath: path.join(customApiDirectory, "script.js"),
+      method: "get",
+      outcome: "selected",
+      path: "/customers",
+    })
+    expect(trace.attempts).toEqual([
+      expect.objectContaining({ cartridgeRoot: appCustom, outcome: "selected" }),
+      { cartridgeRoot: appEmpty, outcome: "not-found" },
+      expect.objectContaining({ cartridgeRoot: appBase, outcome: "shadowed" }),
+    ])
+  })
+})
+
+test("explainCustomApiResolution returns a miss for an unknown operation", () => {
+  withTempDir((tempDir) => {
+    const cartridgeRoot = path.join(tempDir, "app_custom")
+    writeLoyaltyApi(cartridgeRoot)
+
+    expect(explainCustomApiResolution("loyalty-info", "missing", [cartridgeRoot])).toMatchObject({
+      apiId: "loyalty-info",
+      attempts: [{ cartridgeRoot, outcome: "not-found" }],
+      operationId: "missing",
+      resolved: null,
     })
   })
 })

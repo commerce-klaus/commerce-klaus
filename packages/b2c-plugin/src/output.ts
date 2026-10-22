@@ -1,6 +1,7 @@
 import path from "node:path"
 
 import type { ExplainResult } from "./commands/klaus/explain.js"
+import type { ExplainCustomApiResult } from "./commands/klaus/explain/custom-api.js"
 import type { ResolveResult } from "./commands/klaus/resolve.js"
 import type {
   DoctorResult,
@@ -328,6 +329,71 @@ export function renderResolutionTrace(
     result.resolved
       ? `${colorize("green", "DONE")}: Resolution trace completed.`
       : `${colorize("yellow", "MISS")}: Resolution trace completed without a match.`,
+  )
+
+  return lines.join("\n")
+}
+
+export function renderCustomApiResolutionTrace(
+  result: ExplainCustomApiResult,
+  currentDirectory: string,
+  colorize: Colorize,
+): string {
+  const lines = [
+    `Explaining SFCC Custom API ${colorize("dim", `${result.apiId} / ${result.operationId}`)}`,
+  ]
+  const selectedOrderAttempt = result.cartridgeOrderTrace.attempts.find(
+    (attempt) => attempt.outcome === "selected",
+  )
+  const orderOrigin = selectedOrderAttempt?.origin
+  lines.push(
+    `Cartridge order source: ${result.cartridgeOrderTrace.source}${
+      orderOrigin
+        ? ` (${path.isAbsolute(orderOrigin) ? displayPath(orderOrigin, currentDirectory) : orderOrigin})`
+        : ""
+    }`,
+    `Cartridge path: ${formatResultCount(result.cartridgeRoots.length, "cartridge", "none found", colorize)}`,
+  )
+
+  for (const attempt of result.attempts) {
+    const cartridge = path.basename(attempt.cartridgeRoot)
+    if (attempt.outcome === "not-found") {
+      lines.push(`  ${colorize("dim", "MISS")} ${cartridge}`)
+      continue
+    }
+
+    const label =
+      attempt.outcome === "selected" ? colorize("green", "SELECT") : colorize("yellow", "SHADOWED")
+    lines.push(`  ${label} ${cartridge}`)
+    lines.push(
+      `    api.json: ${colorize("dim", displayPath(attempt.apiJsonPath, currentDirectory))}`,
+    )
+    lines.push(`    Schema: ${colorize("dim", displayPath(attempt.schemaPath, currentDirectory))}`)
+    lines.push(
+      attempt.method && attempt.path
+        ? `    Operation: ${attempt.method.toUpperCase()} ${attempt.path}`
+        : `    Operation: ${colorize("yellow", "not declared in OAS")}`,
+    )
+    lines.push(
+      attempt.implementationPath
+        ? `    Implementation: ${colorize("dim", displayPath(attempt.implementationPath, currentDirectory))}`
+        : `    Implementation: ${colorize("yellow", "not resolved")}`,
+    )
+  }
+
+  lines.push(
+    result.resolved
+      ? `Resolved: ${colorize("green", path.basename(result.resolved.cartridgeRoot))}`
+      : `Resolved: ${colorize("yellow", "no matching registration found")}`,
+  )
+  const complete =
+    result.resolved?.method !== undefined && result.resolved.implementationPath !== undefined
+  lines.push(
+    !result.resolved
+      ? `${colorize("yellow", "MISS")}: Custom API operation could not be resolved.`
+      : complete
+        ? `${colorize("green", "DONE")}: Custom API resolution trace completed.`
+        : `${colorize("yellow", "WARN")}: Registration resolved with incomplete metadata.`,
   )
 
   return lines.join("\n")

@@ -98,6 +98,33 @@ export interface ResolvedCustomApiDefinition extends CustomApiDefinition {
   cartridgeRoot: string
 }
 
+export type CustomApiResolutionOutcome = "not-found" | "selected" | "shadowed"
+
+export interface CustomApiNotFoundAttempt {
+  cartridgeRoot: string
+  outcome: "not-found"
+}
+
+export interface CustomApiRegistrationAttempt {
+  apiJsonPath: string
+  cartridgeRoot: string
+  implementationPath?: string
+  method?: OasHttpMethod
+  outcome: "selected" | "shadowed"
+  path?: string
+  schemaPath: string
+}
+
+export type CustomApiResolutionAttempt = CustomApiNotFoundAttempt | CustomApiRegistrationAttempt
+
+export interface CustomApiResolutionTrace {
+  apiId: string
+  attempts: CustomApiResolutionAttempt[]
+  cartridgeRoots: string[]
+  operationId: string
+  resolved: CustomApiRegistrationAttempt | null
+}
+
 export interface RequiredCustomApiExport {
   operationId: string
   schemaPath: string
@@ -386,4 +413,42 @@ export function resolveCustomApiDefinitions(
   }
 
   return [...resolved.values()]
+}
+
+export function explainCustomApiResolution(
+  apiId: string,
+  operationId: string,
+  cartridgeRoots: string[],
+): CustomApiResolutionTrace {
+  const attempts: CustomApiResolutionAttempt[] = []
+  let resolved: CustomApiRegistrationAttempt | null = null
+
+  for (const cartridgeRoot of cartridgeRoots) {
+    const definitions = findCustomApiDefinitions(cartridgeRoot).filter(
+      (definition) => definition.apiId === apiId && definition.endpoint === operationId,
+    )
+    if (definitions.length === 0) {
+      attempts.push({ cartridgeRoot, outcome: "not-found" })
+      continue
+    }
+
+    for (const definition of definitions) {
+      const attempt: CustomApiResolutionAttempt = {
+        apiJsonPath: definition.apiJsonPath,
+        cartridgeRoot,
+        ...(definition.implementationPath
+          ? { implementationPath: definition.implementationPath }
+          : {}),
+        ...(definition.operation
+          ? { method: definition.operation.method, path: definition.operation.path }
+          : {}),
+        outcome: resolved ? "shadowed" : "selected",
+        schemaPath: definition.schemaPath,
+      }
+      attempts.push(attempt)
+      resolved ??= attempt
+    }
+  }
+
+  return { apiId, attempts, cartridgeRoots, operationId, resolved }
 }

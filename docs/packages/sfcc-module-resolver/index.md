@@ -169,6 +169,10 @@ Capability fields remain optional so consumers can distinguish an omitted declar
   - Resolves effective definitions in cartridge-path order
   - Keeps the first definition for each API ID and operation ID pair
   - Adds the owning `cartridgeRoot` to each result
+- `explainCustomApiResolution(apiId, operationId, cartridgeRoots): CustomApiResolutionTrace`
+  - Reports a `selected`, `shadowed`, or `not-found` attempt for every cartridge
+  - Includes the registration, schema, OAS method and path, and implementation when available
+  - Returns the effective registration separately as `resolved`
 
 Use raw discovery when validating every registration in a project. Use effective resolution when a consumer must reproduce SFCC cartridge precedence, such as metadata-aware test loading.
 
