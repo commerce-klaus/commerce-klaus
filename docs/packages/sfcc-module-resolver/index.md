@@ -101,6 +101,16 @@ root intentionally exposes only the resolution API.
 - `resolveSiteTemplatePath(siteTemplatePath, cwd, fallbackPath?): string | undefined`
 - `getSiteTemplateCartridgePath(siteTemplatePath, site, cwd): string[]`
 - `inferCartridgeOrder(options): string[]`
+- `explainCartridgeOrder(options): CartridgeOrderTrace`
+  - Uses the same precedence and lookup path as `inferCartridgeOrder`
+  - Reports whether configuration, environment, solution `jsconfig`, site template, or the filesystem selected the effective order
+  - Records each considered source, its origin and outcome, requested and resolved cartridges, missing entries, and parse errors
+
+`CartridgeOrderTrace.attempts` uses `selected`, `empty`, `unavailable`, and
+`invalid` outcomes. This makes fallback behavior visible without changing it:
+explicit and environment paths still win when configured, solution references
+still append unreferenced filesystem cartridges, and the deterministic
+filesystem order remains the final fallback.
 
 ### Module resolution
 

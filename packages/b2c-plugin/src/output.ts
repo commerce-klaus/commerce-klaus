@@ -272,6 +272,30 @@ export function renderResolutionTrace(
     lines.push(`Containing cartridge: ${path.basename(result.containingCartridge)}`)
   }
 
+  const selectedOrderAttempt = result.cartridgeOrderTrace.attempts.find(
+    (attempt) => attempt.outcome === "selected",
+  )
+  const orderOrigin = selectedOrderAttempt?.origin
+  lines.push(
+    `Cartridge order source: ${result.cartridgeOrderTrace.source}${
+      orderOrigin
+        ? ` (${path.isAbsolute(orderOrigin) ? displayPath(orderOrigin, currentDirectory) : orderOrigin})`
+        : ""
+    }`,
+  )
+  for (const attempt of result.cartridgeOrderTrace.attempts) {
+    if (attempt.outcome === "invalid") {
+      lines.push(
+        `  ${colorize("yellow", "WARN")} ${attempt.source}: ${attempt.error ?? "invalid source"}`,
+      )
+    }
+    if (attempt.missingCartridges.length > 0) {
+      lines.push(
+        `  ${colorize("yellow", "MISSING")} ${attempt.source}: ${attempt.missingCartridges.join(", ")}`,
+      )
+    }
+  }
+
   lines.push(
     `Cartridge path: ${formatResultCount(result.cartridgeOrder.length, "cartridge", "none found", colorize)}`,
   )

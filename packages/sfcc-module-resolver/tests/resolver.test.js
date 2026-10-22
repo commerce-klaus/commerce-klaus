@@ -6,6 +6,7 @@ import { expect, test } from "vite-plus/test"
 import {
   SUPER_MODULE_TOKEN,
   createModuleResolver,
+  explainCartridgeOrder,
   explainModuleResolution,
   getSiteTemplateCartridgePath,
   inferCartridgeOrder,
@@ -40,6 +41,62 @@ test("inferCartridgeOrder uses configured cartridgePath before other sources", (
     })
 
     expect(result).toEqual([appBase, appCore])
+  })
+})
+
+test("explainCartridgeOrder reports the selected source and missing cartridges", () => {
+  withTempDir((tempDir) => {
+    const cartridgesDir = path.join(tempDir, "cartridges")
+    const appBase = path.join(cartridgesDir, "app_storefront_base")
+    fs.mkdirSync(appBase, { recursive: true })
+
+    const result = explainCartridgeOrder({
+      cartridgesDir,
+      cartridgePath: ["app_storefront_base", "missing"],
+      envCartridgePath: "ignored",
+    })
+
+    expect(result).toEqual({
+      cartridgesDir,
+      source: "configured",
+      cartridgeRoots: [appBase],
+      attempts: [
+        {
+          source: "configured",
+          outcome: "selected",
+          origin: "cartridgePath",
+          requestedCartridges: ["app_storefront_base", "missing"],
+          cartridgeRoots: [appBase],
+          missingCartridges: ["missing"],
+        },
+      ],
+    })
+  })
+})
+
+test("explainCartridgeOrder records invalid solution configuration before fallback", () => {
+  withTempDir((tempDir) => {
+    const cartridgesDir = path.join(tempDir, "cartridges")
+    const appBase = path.join(cartridgesDir, "app_storefront_base")
+    const solutionConfigPath = path.join(cartridgesDir, "jsconfig.json")
+    fs.mkdirSync(appBase, { recursive: true })
+    fs.writeFileSync(solutionConfigPath, "{")
+
+    const result = explainCartridgeOrder({ cartridgesDir })
+
+    expect(result.source).toBe("filesystem")
+    expect(result.cartridgeRoots).toEqual([appBase])
+    expect(result.attempts).toMatchObject([
+      {
+        source: "solution-config",
+        outcome: "invalid",
+        origin: solutionConfigPath,
+      },
+      {
+        source: "filesystem",
+        outcome: "selected",
+      },
+    ])
   })
 })
 

@@ -1,5 +1,6 @@
 export {
   DEFAULT_SITE_TEMPLATE_PATH,
+  explainCartridgeOrder,
   findCartridgesDir,
   findContainingCartridgeRoot,
   getSiteTemplateCartridgePath,
@@ -10,6 +11,10 @@ export {
   resolveSiteTemplatePath,
 } from "./cartridge-order.ts"
 export type {
+  CartridgeOrderAttempt,
+  CartridgeOrderAttemptOutcome,
+  CartridgeOrderSource,
+  CartridgeOrderTrace,
   InferCartridgeOrderOptions,
   ResolveCartridgeRootsOptions,
   ModuleResolutionOptions,

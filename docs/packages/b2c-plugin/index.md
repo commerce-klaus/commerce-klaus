@@ -563,11 +563,18 @@ vp exec b2c klaus explain module.superModule --from cartridges/app_custom/cartri
 :::
 
 The trace reports the resolution mode, importer and containing cartridge,
-effective cartridge order, and each exact file candidate as `MISS` or `MATCH`.
-This includes extensionless files, `.js`, `.ds`, `.json`, declaration files,
-and directory index candidates in their actual lookup order. `~/` and
-`module.superModule` require `--from`; the latter starts searching only after
-the importing cartridge. Use `--json` for the structured trace.
+effective cartridge order, the source that selected that order, and each exact
+file candidate as `MISS` or `MATCH`. Order sources include explicit
+configuration, environment variables, solution `jsconfig` references, site
+templates, and the deterministic filesystem fallback. Missing configured
+cartridges and invalid solution configurations are shown before module lookup,
+so an unexpected fallback is visible immediately.
+
+Candidate lookup includes extensionless files, `.js`, `.ds`, `.json`,
+declaration files, and directory index candidates in their actual order. `~/`
+and `module.superModule` require `--from`; the latter starts searching only
+after the importing cartridge. Use `--json` for the complete structured module
+and cartridge-order traces.
 
 ## Standalone commands
 

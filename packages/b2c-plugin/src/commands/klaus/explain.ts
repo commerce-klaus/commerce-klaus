@@ -1,5 +1,6 @@
 import {
   explainModuleResolution,
+  type CartridgeOrderTrace,
   type ModuleResolutionTrace,
 } from "@commerce-klaus/sfcc-module-resolver/resolution"
 import { Args, Command, Flags, ux } from "@oclif/core"
@@ -10,6 +11,7 @@ import { resolveProjectOptions } from "../../project.js"
 
 export type ExplainResult = ModuleResolutionTrace & {
   cartridgeOrder: string[]
+  cartridgeOrderTrace: CartridgeOrderTrace
   containingFile: string
 }
 
@@ -37,6 +39,7 @@ export function explainProjectModule(options: {
   return {
     ...explainModuleResolution(options.moduleName, containingFile, cartridgeOrder),
     cartridgeOrder,
+    cartridgeOrderTrace: project.cartridgeOrderTrace,
     containingFile,
   }
 }

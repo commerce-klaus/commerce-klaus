@@ -244,6 +244,21 @@ describe("renderResolutionTrace", () => {
         kind: "wildcard",
         containingFile: "/project/cartridges/.klaus-entry.js",
         cartridgeOrder: ["/project/cartridges/app_custom"],
+        cartridgeOrderTrace: {
+          cartridgesDir: "/project/cartridges",
+          source: "configured",
+          cartridgeRoots: ["/project/cartridges/app_custom"],
+          attempts: [
+            {
+              source: "configured",
+              outcome: "selected",
+              origin: "cartridgePath",
+              requestedCartridges: ["app_custom", "missing"],
+              cartridgeRoots: ["/project/cartridges/app_custom"],
+              missingCartridges: ["missing"],
+            },
+          ],
+        },
         attempts: [
           {
             cartridge: "/project/cartridges/app_custom",
@@ -261,6 +276,8 @@ describe("renderResolutionTrace", () => {
     )
 
     expect(output).toContain("Mode: wildcard")
+    expect(output).toContain("Cartridge order source: configured (cartridgePath)")
+    expect(output).toContain("<yellow>MISSING</yellow> configured: missing")
     expect(output).toContain("<dim>MISS </dim>")
     expect(output).toContain("<green>MATCH</green>")
     expect(output).toContain("<green>DONE</green>: Resolution trace completed.")

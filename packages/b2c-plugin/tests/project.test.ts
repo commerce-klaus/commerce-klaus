@@ -118,6 +118,16 @@ describe("explainProjectModule", () => {
     expect(result.attempts[0].candidates).toContain(
       path.join(appCustom, "cartridge", "models", "product.js"),
     )
+    expect(result.cartridgeOrderTrace).toMatchObject({
+      source: "configured",
+      attempts: [
+        {
+          source: "configured",
+          outcome: "selected",
+          missingCartridges: [],
+        },
+      ],
+    })
   })
 
   test("requires an importer for contextual module forms", () => {

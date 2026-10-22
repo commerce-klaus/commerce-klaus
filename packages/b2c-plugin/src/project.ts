@@ -13,8 +13,9 @@ import {
   type ProjectValidationResult,
 } from "@commerce-klaus/sfcc-module-resolver/project"
 import {
-  resolveCartridgeRoots,
+  explainCartridgeOrder,
   resolveCartridgesDir,
+  type CartridgeOrderTrace,
 } from "@commerce-klaus/sfcc-module-resolver/resolution"
 import fs from "node:fs"
 import path from "node:path"
@@ -31,6 +32,7 @@ export type ResolvedProjectOptions = {
   cwd: string
   cartridgesDirectory: string
   cartridgeRoots: string[]
+  cartridgeOrderTrace: CartridgeOrderTrace
   configuredCartridgePath?: string[]
 }
 
@@ -65,24 +67,22 @@ export function resolveProjectOptions(options: ProjectOptions): ResolvedProjectO
     config.cartridgesDir ?? "cartridges",
     options.cwd,
   )
-  const cartridgeRoots = resolveCartridgeRoots({
-    basePath: cartridgesDirectory,
+  const cartridgeOrderTrace = explainCartridgeOrder({
+    cartridgesDir: cartridgesDirectory,
     cwd: options.cwd,
     cartridgePath: config.cartridgePath,
     siteTemplatePath: config.siteTemplatePath,
     site: config.site,
     solutionConfigPath: config.solutionConfigPath,
     envCartridgePath: config.envCartridgePath,
-    configFile: false,
-    containingFile: options.containingFile
-      ? path.resolve(options.cwd, options.containingFile)
-      : undefined,
   })
+  const cartridgeRoots = cartridgeOrderTrace.cartridgeRoots
 
   return {
     cwd: options.cwd,
     cartridgesDirectory,
     cartridgeRoots,
+    cartridgeOrderTrace,
     configuredCartridgePath: config.cartridgePath,
   }
 }

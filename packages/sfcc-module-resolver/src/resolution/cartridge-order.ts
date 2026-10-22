@@ -15,6 +15,32 @@ export type InferCartridgeOrderOptions = {
   envCartridgePath?: string
 }
 
+export type CartridgeOrderSource =
+  | "configured"
+  | "environment"
+  | "filesystem"
+  | "site-template"
+  | "solution-config"
+
+export type CartridgeOrderAttemptOutcome = "empty" | "invalid" | "selected" | "unavailable"
+
+export interface CartridgeOrderAttempt {
+  source: CartridgeOrderSource
+  outcome: CartridgeOrderAttemptOutcome
+  origin?: string
+  requestedCartridges: string[]
+  cartridgeRoots: string[]
+  missingCartridges: string[]
+  error?: string
+}
+
+export interface CartridgeOrderTrace {
+  cartridgesDir: string
+  source: CartridgeOrderSource
+  cartridgeRoots: string[]
+  attempts: CartridgeOrderAttempt[]
+}
+
 export type ModuleResolutionOptions = {
   basePath?: string
   cwd?: string
@@ -244,6 +270,26 @@ function toExistingCartridgeRoots(baseDir: string, cartridgeNames: string[]): st
     .filter((entry) => fs.existsSync(entry))
 }
 
+function createCartridgeOrderAttempt(
+  baseDir: string,
+  source: CartridgeOrderSource,
+  requestedCartridges: string[],
+  outcome: CartridgeOrderAttemptOutcome,
+  origin?: string,
+): CartridgeOrderAttempt {
+  const cartridgeRoots = toExistingCartridgeRoots(baseDir, requestedCartridges)
+  const existingNames = new Set(cartridgeRoots.map((root) => path.basename(root)))
+
+  return {
+    source,
+    outcome,
+    ...(origin ? { origin } : {}),
+    requestedCartridges,
+    cartridgeRoots,
+    missingCartridges: requestedCartridges.filter((name) => !existingNames.has(name)),
+  }
+}
+
 function getFilesystemCartridgeRoots(baseDir: string): string[] {
   try {
     return fs
@@ -256,56 +302,168 @@ function getFilesystemCartridgeRoots(baseDir: string): string[] {
   }
 }
 
-export function inferCartridgeOrder(options: InferCartridgeOrderOptions): string[] {
+export function explainCartridgeOrder(options: InferCartridgeOrderOptions): CartridgeOrderTrace {
   const cwd = options.cwd ?? process.cwd()
   const baseDir = resolveCartridgesDir(options.cartridgesDir, cwd)
+  const attempts: CartridgeOrderAttempt[] = []
 
   const configured = cleanCartridgePathEntries(options.cartridgePath)
   if (configured.length > 0) {
-    return toExistingCartridgeRoots(baseDir, configured)
+    const attempt = createCartridgeOrderAttempt(
+      baseDir,
+      "configured",
+      configured,
+      "selected",
+      "cartridgePath",
+    )
+    attempts.push(attempt)
+    return {
+      cartridgesDir: baseDir,
+      source: attempt.source,
+      cartridgeRoots: attempt.cartridgeRoots,
+      attempts,
+    }
   }
 
-  const configuredEnv = cleanCartridgePathEntries(
-    options.envCartridgePath
-      ? options.envCartridgePath.split(/[:,]/)
-      : (process.env.SFCC_CARTRIDGES ?? process.env.SFCC_CARTRIDGE_PATH)?.split(/[:,]/),
-  )
+  const environmentValue =
+    options.envCartridgePath ?? process.env.SFCC_CARTRIDGES ?? process.env.SFCC_CARTRIDGE_PATH
+  const environmentOrigin = options.envCartridgePath
+    ? "envCartridgePath"
+    : process.env.SFCC_CARTRIDGES
+      ? "SFCC_CARTRIDGES"
+      : "SFCC_CARTRIDGE_PATH"
+  const configuredEnv = cleanCartridgePathEntries(environmentValue?.split(/[:,]/))
   if (configuredEnv.length > 0) {
-    return toExistingCartridgeRoots(baseDir, configuredEnv)
+    const attempt = createCartridgeOrderAttempt(
+      baseDir,
+      "environment",
+      configuredEnv,
+      "selected",
+      environmentOrigin,
+    )
+    attempts.push(attempt)
+    return {
+      cartridgesDir: baseDir,
+      source: attempt.source,
+      cartridgeRoots: attempt.cartridgeRoots,
+      attempts,
+    }
   }
 
   const solutionConfigPath =
     options.solutionConfigPath ??
     path.join(resolveCartridgesDir(options.cartridgesDir, cwd), "jsconfig.json")
 
-  try {
-    const fromReferences = readSolutionReferences(solutionConfigPath)
-      .map((configPath) => path.basename(path.dirname(configPath)))
-      .map((name) => path.join(baseDir, name))
-      .filter((cartridgeRoot) => fs.existsSync(cartridgeRoot))
+  if (fs.existsSync(solutionConfigPath)) {
+    try {
+      const referenceNames = readSolutionReferences(solutionConfigPath).map((configPath) =>
+        path.basename(path.dirname(configPath)),
+      )
+      const solutionAttempt = createCartridgeOrderAttempt(
+        baseDir,
+        "solution-config",
+        referenceNames,
+        "empty",
+        solutionConfigPath,
+      )
 
-    if (fromReferences.length > 0) {
-      const fromFilesystem = getFilesystemCartridgeRoots(baseDir)
-      const seen = new Set(fromReferences)
-      for (const cartridgeRoot of fromFilesystem) {
-        if (!seen.has(cartridgeRoot)) {
-          fromReferences.push(cartridgeRoot)
-          seen.add(cartridgeRoot)
+      if (solutionAttempt.cartridgeRoots.length > 0) {
+        solutionAttempt.outcome = "selected"
+        const fromReferences = solutionAttempt.cartridgeRoots
+        const fromFilesystem = getFilesystemCartridgeRoots(baseDir)
+        const seen = new Set(fromReferences)
+        for (const cartridgeRoot of fromFilesystem) {
+          if (!seen.has(cartridgeRoot)) {
+            fromReferences.push(cartridgeRoot)
+            seen.add(cartridgeRoot)
+          }
+        }
+
+        attempts.push(solutionAttempt)
+        return {
+          cartridgesDir: baseDir,
+          source: solutionAttempt.source,
+          cartridgeRoots: fromReferences,
+          attempts,
         }
       }
 
-      return fromReferences
+      attempts.push(solutionAttempt)
+    } catch (error) {
+      attempts.push({
+        source: "solution-config",
+        outcome: "invalid",
+        origin: solutionConfigPath,
+        requestedCartridges: [],
+        cartridgeRoots: [],
+        missingCartridges: [],
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
-  } catch {
-    // Fall through to site-template and filesystem fallback.
+  } else {
+    attempts.push({
+      source: "solution-config",
+      outcome: "unavailable",
+      origin: solutionConfigPath,
+      requestedCartridges: [],
+      cartridgeRoots: [],
+      missingCartridges: [],
+    })
   }
 
+  const siteTemplateXmlPath = resolveSiteTemplateXmlPath(
+    options.siteTemplatePath,
+    options.site,
+    cwd,
+  )
   const fromSiteTemplate = getSiteTemplateCartridgePath(options.siteTemplatePath, options.site, cwd)
   if (fromSiteTemplate.length > 0) {
-    return toExistingCartridgeRoots(baseDir, fromSiteTemplate)
+    const attempt = createCartridgeOrderAttempt(
+      baseDir,
+      "site-template",
+      fromSiteTemplate,
+      "selected",
+      siteTemplateXmlPath,
+    )
+    attempts.push(attempt)
+    return {
+      cartridgesDir: baseDir,
+      source: attempt.source,
+      cartridgeRoots: attempt.cartridgeRoots,
+      attempts,
+    }
+  }
+  if (siteTemplateXmlPath) {
+    attempts.push({
+      source: "site-template",
+      outcome: fs.existsSync(siteTemplateXmlPath) ? "empty" : "unavailable",
+      origin: siteTemplateXmlPath,
+      requestedCartridges: [],
+      cartridgeRoots: [],
+      missingCartridges: [],
+    })
   }
 
-  return getFilesystemCartridgeRoots(baseDir)
+  const cartridgeRoots = getFilesystemCartridgeRoots(baseDir)
+  const filesystemAttempt: CartridgeOrderAttempt = {
+    source: "filesystem",
+    outcome: "selected",
+    origin: baseDir,
+    requestedCartridges: cartridgeRoots.map((root) => path.basename(root)),
+    cartridgeRoots,
+    missingCartridges: [],
+  }
+  attempts.push(filesystemAttempt)
+  return {
+    cartridgesDir: baseDir,
+    source: filesystemAttempt.source,
+    cartridgeRoots,
+    attempts,
+  }
+}
+
+export function inferCartridgeOrder(options: InferCartridgeOrderOptions): string[] {
+  return explainCartridgeOrder(options).cartridgeRoots
 }
 
 export function findContainingCartridgeRoot(
