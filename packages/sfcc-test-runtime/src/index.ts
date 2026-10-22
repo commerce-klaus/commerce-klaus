@@ -9,6 +9,20 @@ export type {
   SfccControllerRoute,
 } from "./harness/controller.js"
 export type {
+  SfccCustomApiErrorResponse,
+  SfccCustomApiHarness,
+  SfccCustomApiHttpParameter,
+  SfccCustomApiHttpParameterMap,
+  SfccCustomApiInvocation,
+  SfccCustomApiInvokeOptions,
+  SfccCustomApiModule,
+  SfccCustomApiParameters,
+  SfccCustomApiRequest,
+  SfccCustomApiResponse,
+  SfccCustomApiResponseContext,
+  SfccCustomApiSuccessResponse,
+} from "./harness/custom-api.js"
+export type {
   SfccChunkItems,
   SfccChunkStepFunctions,
   SfccChunkStepResult,

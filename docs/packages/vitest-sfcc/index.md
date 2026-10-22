@@ -144,6 +144,48 @@ import {
 
 Both entry points address the same active runtime. `resetSfccRuntime()` creates and activates a fresh instance; `getSfccRuntime()` returns the active instance.
 
+## Custom APIs
+
+The runtime provides `dw/system/RESTResponseMgr` and a Custom API harness, so tests do not need to recreate request globals and response spies for every operation:
+
+```ts
+import { resetSfccRuntime } from "@commerce-klaus/vitest-sfcc"
+import { beforeEach, expect, it, vi } from "vitest"
+
+beforeEach(() => {
+  vi.resetModules()
+})
+
+it("returns one product", async () => {
+  const runtime = resetSfccRuntime()
+  const imported = await import("../cartridge/rest-apis/products/getProduct.js")
+  const api = imported.default ?? imported
+
+  const result = await runtime.customApi(api).invoke("getProduct", {
+    customer: {
+      authenticated: true,
+      registered: true,
+      profile: { customerNo: "00001" },
+    },
+    headers: { authorization: "Bearer test-token" },
+    pathParameters: { productId: "sample-product" },
+    queryParameters: { locale: "de-DE" },
+  })
+
+  expect(result.response).toMatchObject({
+    kind: "success",
+    statusCode: 200,
+    body: { id: "sample-product" },
+  })
+})
+```
+
+`invoke()` installs `request`, `response`, and `customer` for the operation. The request supports SCAPI path parameters, query parameters through both `httpParameterMap.get()` and named properties, request bodies, and headers. Objects passed through `request`, `response`, or `globals` extend the defaults for project-specific behavior.
+
+Rendered success results expose `kind`, `statusCode`, `body`, headers, and expiration. Rendered RFC 9457 errors additionally expose `type`, `title`, `detail`, and custom attributes. `createSuccess()`, `createEmptySuccess()`, and the supported `createError()` overloads validate their HTTP status ranges. Missing operations, operations that render no response, concurrent invocations, and multiple rendered responses fail explicitly.
+
+The harness executes an already imported operation module. Cartridge discovery and CommonJS loading remain the responsibility of `vitest-sfcc`; the framework-independent runtime does not inspect `rest-apis` directories. It also does not enforce OAS authentication, request schemas, or response schemas. Those contracts remain available to generated types and project validation instead of being approximated at runtime.
+
 ## Dependency mocking
 
 Register replacements before dynamically importing the module under test:

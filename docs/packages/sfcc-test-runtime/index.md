@@ -33,7 +33,7 @@ It intentionally does not emulate the complete SFCC platform. Unknown modules fa
 - Replaces module identifiers globally or one exact resolved file.
 - Installs and restores controlled SFCC process globals.
 - Implements focused `dw/system` and `dw/util` modules used by local tests.
-- Executes SFRA controller routes, hooks, script-module job steps, and chunk jobs.
+- Executes Custom API operations, SFRA controller routes, hooks, script-module job steps, and chunk jobs.
 - Records logger, transaction, and hook calls for assertions.
 - Remains independent of Vite, Vitest, cartridge paths, and site-template files.
 
@@ -86,6 +86,7 @@ runtime.reset()
 
 The initial runtime provides focused implementations of:
 
+- `dw/system/RESTResponseMgr`
 - `dw/system/Status`
 - `dw/system/Transaction`
 - `dw/system/Logger`
@@ -131,6 +132,30 @@ runtime.setGlobals({
 The runtime provides `empty()` by default. Matching the Script API, it returns `true` for `null`, `undefined`, empty strings and arrays, and SFCC collections whose `isEmpty()` method returns `true`. Values such as `false`, `0`, whitespace, and plain objects are not empty. Tests can override it through `setGlobals()` when application-specific behavior is required.
 
 `reset()` removes globals added by the runtime, restores the complete property descriptor of values that existed before the test, and reinstalls the default `empty()`. Call it after each test so the worker does not retain request state. Because globals are process-wide within a worker, do not run tests that install different global contexts concurrently in the same worker.
+
+## Custom APIs
+
+Pass an imported Custom API module to `customApi()` and invoke one of its exported operations:
+
+```ts
+const api = await import("../cartridge/rest-apis/products/getProduct.js")
+const result = await runtime.customApi(api.default ?? api).invoke("getProduct", {
+  body: { includeOffline: false },
+  customer: { authenticated: true, registered: true, profile: {} },
+  headers: { authorization: "Bearer test-token" },
+  pathParameters: { productId: "sample-product" },
+  queryParameters: { locale: "de-DE" },
+})
+
+expect(result.response).toMatchObject({
+  kind: "success",
+  statusCode: 200,
+})
+```
+
+The harness installs deterministic `request`, `response`, and `customer` globals and supplies `dw/system/RESTResponseMgr`. It records rendered success, empty-success, and RFC 9457 error responses, including response headers, expiration, and custom error attributes.
+
+Use the `request`, `response`, and `globals` options to extend the standard context when an operation relies on additional project-specific fields. The runtime deliberately does not discover files or validate OAS schemas; test-runner integrations own module loading, while generated types and project validation own metadata contracts.
 
 ## SFRA controllers
 

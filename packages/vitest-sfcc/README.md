@@ -8,7 +8,7 @@ Cartridge-aware SFCC runtime and dependency mocking for Vitest.
 
 - Resolves `dw/*`, `*/`, `~/`, cartridge aliases, relative modules, and `module.superModule`
 - Infers cartridge order from configuration, environment, `jsconfig`, or `site.xml`
-- Provides focused SFCC runtime modules, globals, controllers, hooks, and job steps
+- Provides focused SFCC runtime modules, globals, Custom APIs, controllers, hooks, and job steps
 - Replaces module dependencies without `proxyquire`
 - Exposes runtime APIs and types through `@commerce-klaus/vitest-sfcc/runtime`
 

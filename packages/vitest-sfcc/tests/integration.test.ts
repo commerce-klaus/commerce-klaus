@@ -43,6 +43,27 @@ describe("vitest-sfcc", () => {
     })
   })
 
+  it("invokes a Custom API operation with request and response infrastructure", async () => {
+    const api = await import("./cartridges/app_custom/cartridge/rest-apis/sample/sample.js")
+
+    expect(api.getSample.public).toBe(true)
+
+    const result = await getSfccRuntime()
+      .customApi(api)
+      .invoke("getSample", {
+        pathParameters: { sampleId: "sample-1" },
+        queryParameters: { locale: "de-DE" },
+      })
+
+    expect(result.response).toEqual({
+      body: { locale: "de-DE", sampleId: "sample-1" },
+      expires: null,
+      headers: { "x-sample": "sample-1" },
+      kind: "success",
+      statusCode: 202,
+    })
+  })
+
   it("registers and executes an SFRA controller route", async () => {
     const controller = await import("./cartridges/app_custom/cartridge/controllers/Test.js")
     const trace: string[] = []

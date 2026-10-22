@@ -9,7 +9,7 @@ Framework-independent SFCC runtime modules and dependency mocking for local test
 - Replaces module identifiers globally or one exact resolved file
 - Installs and restores controlled SFCC globals
 - Provides focused `dw/system` and `dw/util` test implementations
-- Executes SFRA controllers, hooks, script-module job steps, and chunk jobs
+- Executes Custom APIs, SFRA controllers, hooks, script-module job steps, and chunk jobs
 - Remains independent of Vite, Vitest, cartridge paths, and site-template files
 
 ## Install

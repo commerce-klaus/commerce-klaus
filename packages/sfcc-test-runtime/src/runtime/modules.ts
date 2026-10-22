@@ -21,6 +21,7 @@ export interface SfccTestRuntimeOptions {
 
 interface ModuleRegistryOptions extends SfccTestRuntimeOptions {
   hookModule: SfccModule
+  restResponseModule: SfccModule
   serverModule: SfccModule
 }
 
@@ -52,6 +53,7 @@ export class ModuleRegistry {
   constructor(options: ModuleRegistryOptions) {
     this.defaults.set("server", options.serverModule)
     this.defaults.set("dw/system/HookMgr", options.hookModule)
+    this.defaults.set("dw/system/RESTResponseMgr", options.restResponseModule)
     this.defaults.set("dw/system/Status", Status)
     this.defaults.set("dw/system/StatusItem", StatusItem)
     this.defaults.set("dw/util/ArrayList", ArrayList)

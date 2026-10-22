@@ -4,6 +4,11 @@ import {
   type SfccControllerHarness,
 } from "../harness/controller.js"
 import {
+  CustomApiRuntime,
+  type SfccCustomApiHarness,
+  type SfccCustomApiModule,
+} from "../harness/custom-api.js"
+import {
   createJobStepHarness,
   type SfccJobStepHarness,
   type SfccJobStepHarnessOptions,
@@ -24,6 +29,7 @@ export class SfccTestRuntime {
   readonly transactionCalls: ModuleRegistry["transactionCalls"]
 
   private readonly controllerRuntime = new ControllerRuntime()
+  private readonly customApiRuntime = new CustomApiRuntime()
   private readonly globalsRuntime = new GlobalsRuntime()
   private readonly hooksRuntime = new HooksRuntime()
   private readonly moduleRegistry: ModuleRegistry
@@ -32,6 +38,7 @@ export class SfccTestRuntime {
     this.moduleRegistry = new ModuleRegistry({
       ...options,
       hookModule: this.hooksRuntime.createModule(),
+      restResponseModule: this.customApiRuntime.createResponseModule(),
       serverModule: this.controllerRuntime.createServerModule(),
     })
     this.hookCalls = this.hooksRuntime.calls
@@ -68,6 +75,12 @@ export class SfccTestRuntime {
     return this.controllerRuntime.controller(controller)
   }
 
+  customApi(customApiModule: SfccCustomApiModule): SfccCustomApiHarness {
+    return this.customApiRuntime.harness(customApiModule, (globals) => {
+      this.globalsRuntime.set(globals)
+    })
+  }
+
   jobStep(
     jobStepModule: SfccJobStepModule,
     options: SfccJobStepHarnessOptions = {},
@@ -81,6 +94,7 @@ export class SfccTestRuntime {
 
   reset(): void {
     this.controllerRuntime.reset()
+    this.customApiRuntime.reset()
     this.globalsRuntime.reset()
     this.hooksRuntime.reset()
     this.moduleRegistry.reset()
