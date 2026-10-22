@@ -14,6 +14,9 @@ import {
 import { CARTRIDGE_MODULE_SUFFIX } from "./cartridge-transform.js"
 
 const ACTIVE_STEP_TYPES = Symbol.for("@commerce-klaus/vitest-sfcc.step-types")
+export const STEP_TYPE_DEFINITIONS_DEFINE = "__COMMERCE_KLAUS_STEP_TYPE_DEFINITIONS__"
+
+declare const __COMMERCE_KLAUS_STEP_TYPE_DEFINITIONS__: ResolvedStepTypeDefinition[] | undefined
 
 type StepTypeGlobal = typeof globalThis & {
   [ACTIVE_STEP_TYPES]?: Map<string, ResolvedStepTypeDefinition>
@@ -55,6 +58,19 @@ export function setActiveStepTypes(definitions: ResolvedStepTypeDefinition[]): v
   ;(globalThis as StepTypeGlobal)[ACTIVE_STEP_TYPES] = new Map(
     definitions.map((definition) => [definition.typeId, definition]),
   )
+}
+
+function getActiveStepTypes(): Map<string, ResolvedStepTypeDefinition> {
+  const activeDefinitions = (globalThis as StepTypeGlobal)[ACTIVE_STEP_TYPES]
+  if (activeDefinitions) {
+    return activeDefinitions
+  }
+
+  const configuredDefinitions =
+    typeof __COMMERCE_KLAUS_STEP_TYPE_DEFINITIONS__ === "undefined"
+      ? []
+      : __COMMERCE_KLAUS_STEP_TYPE_DEFINITIONS__
+  return new Map(configuredDefinitions.map((definition) => [definition.typeId, definition]))
 }
 
 function normalizeParameterValue(
@@ -209,7 +225,7 @@ export async function loadSfccJobStep<TypeId extends SfccJobStepTypeId>(
   typeId: TypeId,
   options?: SfccJobStepHarnessOptions,
 ): Promise<SfccLoadedJobStep<SfccJobStepInput<TypeId>>> {
-  const definition = (globalThis as StepTypeGlobal)[ACTIVE_STEP_TYPES]?.get(typeId)
+  const definition = getActiveStepTypes().get(typeId)
   if (!definition) {
     throw new Error(`vitest-sfcc could not find an SFCC job step with type ID ${typeId}.`)
   }

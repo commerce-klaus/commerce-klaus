@@ -98,6 +98,27 @@ describe("vitest-sfcc", () => {
     )
   })
 
+  it("loads job step metadata in the Vitest worker", async () => {
+    const jobStep = await loadSfccJobStep("custom.TestTask", {
+      context: { executions: 1 },
+    })
+
+    await expect(jobStep.run({ Prefix: "  feed  " })).resolves.toEqual({
+      DryRun: true,
+      Prefix: "feed",
+      RetryCount: 3,
+    })
+    expect(jobStep.definition).toMatchObject({
+      functionName: "Parameters",
+      kind: "script-module-step",
+    })
+    expect(jobStep.stepExecution.getStepTypeID()).toBe("custom.TestTask")
+    expect(jobStep.jobExecution.context).toEqual({
+      executions: 1,
+      parameters: { DryRun: true, Prefix: "feed", RetryCount: 3 },
+    })
+  })
+
   it("registers and executes an SFRA controller route", async () => {
     const controller = await import("./cartridges/app_custom/cartridge/controllers/Test.js")
     const trace: string[] = []
@@ -413,27 +434,6 @@ describe("vitest-sfcc", () => {
       batches: [[3, 6], [9]],
       chunks: 2,
       startedChunks: 2,
-    })
-  })
-
-  it("loads and runs a script-module job step by type ID", async () => {
-    const jobStep = await loadSfccJobStep("custom.TestTask", {
-      context: { executions: 1 },
-    })
-
-    await expect(jobStep.run({ Prefix: "  feed  " })).resolves.toEqual({
-      DryRun: true,
-      Prefix: "feed",
-      RetryCount: 3,
-    })
-    expect(jobStep.definition).toMatchObject({
-      functionName: "Parameters",
-      kind: "script-module-step",
-    })
-    expect(jobStep.stepExecution.getStepTypeID()).toBe("custom.TestTask")
-    expect(jobStep.jobExecution.context).toEqual({
-      executions: 1,
-      parameters: { DryRun: true, Prefix: "feed", RetryCount: 3 },
     })
   })
 

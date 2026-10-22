@@ -28,7 +28,7 @@ import {
   transformCartridgeCommonJs,
 } from "./cartridge-transform.js"
 import { CUSTOM_API_DEFINITIONS_DEFINE, setActiveCustomApis } from "./custom-api.js"
-import { setActiveStepTypes } from "./job-step.js"
+import { setActiveStepTypes, STEP_TYPE_DEFINITIONS_DEFINE } from "./job-step.js"
 import { encodeVirtualModule, loadVirtualModule, VIRTUAL_PREFIX } from "./virtual-modules.js"
 
 export interface SfccHookDiscoveryOptions {
@@ -117,6 +117,7 @@ export default function sfccVitest(options: SfccVitestOptions = {}): SfccVitestP
       return {
         define: {
           [CUSTOM_API_DEFINITIONS_DEFINE]: JSON.stringify(customApiDefinitions),
+          [STEP_TYPE_DEFINITIONS_DEFINE]: JSON.stringify(stepTypeDefinitions),
         },
         test: {
           server: {
