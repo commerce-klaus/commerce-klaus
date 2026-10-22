@@ -11,6 +11,8 @@ export type {
 } from "@commerce-klaus/config"
 export {
   loadSfccCustomApi,
+  type SfccCustomApiContractValidation,
+  type SfccCustomApiLoadOptions,
   type SfccCustomApiOperationId,
   type SfccCustomApiOperationInput,
   type SfccLoadedCustomApi,

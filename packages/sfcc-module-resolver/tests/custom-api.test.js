@@ -11,6 +11,9 @@ import {
   resolveCustomApiDefinitions,
   resolveOasRef,
   schemaContainsAdditionalProperties,
+  validateOasRequest,
+  validateOasResponse,
+  validateOasValue,
 } from "../src/custom-apis.ts"
 import { findApiJsonFiles, resolveCustomApiScriptPath } from "../src/custom-apis/discovery.ts"
 
@@ -235,4 +238,157 @@ test("schemaContainsAdditionalProperties detects nested additionalProperties", (
       document,
     ),
   ).toBe(true)
+})
+
+test("validateOasValue validates nested local refs and supported schema constraints", () => {
+  const document = {
+    components: {
+      schemas: {
+        Entry: {
+          type: "object",
+          additionalProperties: false,
+          required: ["kind", "values"],
+          properties: {
+            kind: { type: "string", enum: ["primary", "secondary"] },
+            note: { type: "string", nullable: true },
+            values: { type: "array", items: { type: "integer" } },
+          },
+        },
+      },
+    },
+  }
+  const schema = { $ref: "#/components/schemas/Entry" }
+
+  expect(
+    validateOasValue({ kind: "primary", note: null, values: [1, 2] }, schema, document, "body"),
+  ).toEqual([])
+  expect(
+    validateOasValue({ extra: true, kind: "unknown", values: [1, "2"] }, schema, document, "body"),
+  ).toEqual([
+    { message: "is not allowed.", path: "body.extra" },
+    { message: "must be one of primary, secondary.", path: "body.kind" },
+    { message: "must be an integer.", path: "body.values[1]" },
+  ])
+})
+
+test("validateOasValue reports missing properties and unresolved local refs", () => {
+  expect(validateOasValue({}, { type: "object", required: ["id"] }, {}, "body")).toEqual([
+    { message: "is required.", path: "body.id" },
+  ])
+  expect(validateOasValue("value", { $ref: "#/components/schemas/Missing" }, {}, "body")).toEqual([
+    {
+      message: "references unknown schema #/components/schemas/Missing.",
+      path: "body",
+    },
+  ])
+})
+
+test("validateOasRequest validates parameters and a required JSON body", () => {
+  const document = {
+    components: {
+      parameters: {
+        Tenant: {
+          in: "header",
+          name: "x-tenant",
+          required: true,
+          schema: { type: "string" },
+        },
+      },
+      schemas: {
+        Input: {
+          type: "object",
+          required: ["name"],
+          properties: { name: { type: "string" } },
+        },
+      },
+    },
+  }
+  const operation = {
+    method: "post",
+    path: "/samples/{sampleId}",
+    pathItem: {
+      parameters: [
+        {
+          in: "query",
+          name: "limit",
+          schema: { type: "string" },
+        },
+      ],
+    },
+    operation: {
+      parameters: [
+        { in: "path", name: "sampleId", required: true, schema: { type: "string" } },
+        { $ref: "#/components/parameters/Tenant" },
+        { in: "query", name: "limit", schema: { type: "integer" } },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": { schema: { $ref: "#/components/schemas/Input" } },
+        },
+      },
+    },
+  }
+
+  expect(validateOasRequest(operation, document, {})).toEqual([
+    { message: "is required.", path: "request.path.sampleId" },
+    { message: "is required.", path: "request.header.x-tenant" },
+    { message: "is required.", path: "request.body" },
+  ])
+  expect(
+    validateOasRequest(operation, document, {
+      body: { name: "Sample" },
+      headers: { "X-Tenant": "site-a" },
+      pathParameters: { sampleId: "sample-1" },
+      queryParameters: { limit: 2 },
+    }),
+  ).toEqual([])
+})
+
+test("validateOasResponse validates status, JSON bodies, and empty responses", () => {
+  const operation = {
+    method: "get",
+    path: "/samples",
+    pathItem: {},
+    operation: {
+      responses: {
+        "2XX": {
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["id"],
+                properties: { id: { type: "string" } },
+              },
+            },
+          },
+        },
+        204: {},
+      },
+    },
+  }
+
+  expect(validateOasResponse(operation, {}, { body: { id: "sample-1" }, statusCode: 202 })).toEqual(
+    [],
+  )
+  expect(validateOasResponse(operation, {}, { body: {}, statusCode: 202 })).toEqual([
+    { message: "is required.", path: "response.body.id" },
+  ])
+  expect(validateOasResponse(operation, {}, { body: undefined, statusCode: 204 })).toEqual([])
+  expect(validateOasResponse(operation, {}, { body: {}, statusCode: 204 })).toEqual([
+    { message: "must be empty.", path: "response.body" },
+  ])
+  expect(validateOasResponse(operation, {}, { body: undefined, statusCode: 404 })).toEqual([
+    {
+      message: "status 404 is not declared by the operation.",
+      path: "response.statusCode",
+    },
+  ])
+  expect(
+    validateOasResponse(
+      { ...operation, operation: { responses: { default: {} } } },
+      {},
+      { body: undefined, statusCode: 404 },
+    ),
+  ).toEqual([])
 })

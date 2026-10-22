@@ -181,8 +181,19 @@ Capability fields remain optional so consumers can distinguish an omitted declar
   - Reports a `selected`, `shadowed`, or `not-found` attempt for every cartridge
   - Includes the registration, schema, OAS method and path, and implementation when available
   - Returns the effective registration separately as `resolved`
+- `validateOasValue(value, schema, document, path?): OasValidationIssue[]`
+  - Validates the focused OAS schema subset used by local Custom API tests
+  - Supports local references, primitives, objects, arrays, required properties, enums, nullable values, and additional properties
+- `validateOasRequest(operation, document, input): OasValidationIssue[]`
+  - Validates path, query, and case-insensitive header parameters plus JSON request bodies
+  - Applies operation-level parameter overrides over path-level declarations
+- `validateOasResponse(operation, document, input): OasValidationIssue[]`
+  - Resolves exact, status-range, and default response declarations
+  - Validates JSON response bodies and responses that declare no body
 
 Use raw discovery when validating every registration in a project. Use effective resolution when a consumer must reproduce SFCC cartridge precedence, such as metadata-aware test loading.
+
+The validation APIs return structured `{ path, message }` issues and never throw for ordinary contract mismatches. They intentionally do not approximate the complete OpenAPI specification: authentication, non-JSON media types, headers, formats, composition, and advanced constraints remain the responsibility of a full OAS validator. Unknown local references are reported explicitly.
 
 ### Project validation
 

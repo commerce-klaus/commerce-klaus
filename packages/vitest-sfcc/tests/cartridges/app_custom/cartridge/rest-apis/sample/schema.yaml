@@ -16,6 +16,14 @@ paths:
           name: locale
           schema:
             type: string
+        - in: query
+          name: invalidResponse
+          schema:
+            type: boolean
+        - in: query
+          name: responseStatus
+          schema:
+            type: integer
       responses:
         "202":
           description: Accepted
@@ -23,6 +31,9 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - locale
+                  - sampleId
                 properties:
                   locale:
                     type: string

@@ -33,3 +33,9 @@ export type {
   RequiredCustomApiExport,
   ResolvedCustomApiDefinition,
 } from "./discovery.ts"
+export { validateOasRequest, validateOasResponse, validateOasValue } from "./validation.ts"
+export type {
+  OasRequestValidationInput,
+  OasResponseValidationInput,
+  OasValidationIssue,
+} from "./validation.ts"

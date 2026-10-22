@@ -102,6 +102,53 @@ describe("vitest-sfcc", () => {
     })
   })
 
+  it("optionally validates metadata-loaded Custom API requests and responses", async () => {
+    const customApi = await loadSfccCustomApi("sample", "getSample", { validate: true })
+
+    await expect(
+      customApi.invoke({
+        pathParameters: { sampleId: "sample-valid" },
+        queryParameters: { locale: "en-US" },
+      }),
+    ).resolves.toMatchObject({
+      response: {
+        body: { locale: "en-US", sampleId: "sample-valid" },
+        statusCode: 202,
+      },
+    })
+
+    await expect(customApi.invoke({ queryParameters: { locale: "en-US" } })).rejects.toThrow(
+      "request.path.sampleId: is required.",
+    )
+
+    await expect(
+      customApi.invoke({
+        pathParameters: { sampleId: "sample-invalid" },
+        queryParameters: { invalidResponse: true, locale: "en-US" },
+      }),
+    ).rejects.toThrow("response.body.sampleId: must be a string.")
+
+    await expect(
+      customApi.invoke({
+        pathParameters: { sampleId: "sample-status" },
+        queryParameters: { locale: "en-US", responseStatus: 203 },
+      }),
+    ).rejects.toThrow("response.statusCode: status 203 is not declared by the operation.")
+  })
+
+  it("keeps metadata-loaded Custom API validation disabled by default", async () => {
+    const customApi = await loadSfccCustomApi("sample", "getSample")
+    const result = await customApi.invoke({
+      pathParameters: { sampleId: "sample-unvalidated" },
+      queryParameters: { invalidResponse: true, locale: "en-US" },
+    })
+
+    expect(result.response).toMatchObject({
+      body: { locale: "en-US", sampleId: 42 },
+      statusCode: 202,
+    })
+  })
+
   it("reports available Custom APIs and operations for missing metadata", async () => {
     await expect(loadSfccCustomApi("missing", "getSample")).rejects.toThrow(
       "Available APIs: sample.",

@@ -227,7 +227,7 @@ it("returns one product", async () => {
 
 Rendered success results expose `kind`, `statusCode`, `body`, headers, and expiration. Rendered RFC 9457 errors additionally expose `type`, `title`, `detail`, and custom attributes. `createSuccess()`, `createEmptySuccess()`, and the supported `createError()` overloads validate their HTTP status ranges. Missing operations, operations that render no response, concurrent invocations, and multiple rendered responses fail explicitly.
 
-The harness executes an already imported operation module. Cartridge discovery and CommonJS loading remain the responsibility of `vitest-sfcc`; the framework-independent runtime does not inspect `rest-apis` directories. It also does not enforce OAS authentication, request schemas, or response schemas. Those contracts remain available to generated types and project validation instead of being approximated at runtime.
+The harness executes an already imported operation module. Cartridge discovery and CommonJS loading remain the responsibility of `vitest-sfcc`; the framework-independent runtime does not inspect `rest-apis` directories or enforce OAS contracts. Metadata-loaded operations can opt into focused contract validation as described below.
 
 ### Load from project metadata
 
@@ -257,6 +257,33 @@ The plugin resolves Custom API definitions during configuration using the select
 Run `sfcc-ts-sync-types` from `@commerce-klaus/typescript-sfcc` to generate the project-specific `SfccCustomApis.Operations` registry. When it is present, `loadSfccCustomApi()` completes and validates operation IDs, and `invoke()` uses the generated request body, path, query, and header parameter types. Projects without generated declarations retain the general string and parameter-record API.
 
 Use `runtime.customApi(importedModule)` when the implementation module itself is the subject of the test or must be supplied directly. Use `loadSfccCustomApi(apiId, operationId)` when the metadata registration, cartridge precedence, OAS operation, and implementation should be tested together.
+
+### Validate the OAS contract
+
+Contract validation is disabled by default so existing tests and direct `runtime.customApi()` calls remain permissive. Enable it for a metadata-loaded operation when the test should also verify its checked-in OAS contract:
+
+```ts
+const api = await loadSfccCustomApi("products", "getProduct", {
+  validate: true,
+})
+
+await api.invoke({
+  pathParameters: { productId: "sample-product" },
+  queryParameters: { locale: "de-DE" },
+})
+```
+
+With `validate: true`, `invoke()` validates the request before calling the cartridge module and validates the rendered response afterward. A failure lists every supported contract mismatch with a path such as `request.path.productId` or `response.body.id`. Use `{ validate: { request: true } }` or `{ validate: { response: true } }` to enable only one phase.
+
+The validator covers:
+
+- required path, query, and case-insensitive header parameters and their schemas
+- required JSON request bodies and their schemas
+- exact, `2XX`-style, and `default` response declarations
+- JSON response schemas and responses that declare no body
+- local `$ref`, objects, arrays, strings, finite numbers, integers, booleans, `required`, `enum`, `nullable`, properties, items, and `additionalProperties`
+
+Authentication and authorization declarations, non-JSON media types, response headers, formats, composition keywords, and further numeric or string constraints are not evaluated. Unknown local references fail explicitly; unsupported keywords are left to full OAS validation tools rather than approximated.
 
 ## Dependency mocking
 

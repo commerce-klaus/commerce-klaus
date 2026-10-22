@@ -1,4 +1,10 @@
-import { type ResolvedCustomApiDefinition } from "@commerce-klaus/sfcc-module-resolver/custom-apis"
+import {
+  type CustomApiOperationMatch,
+  type OasValidationIssue,
+  type ResolvedCustomApiDefinition,
+  validateOasRequest,
+  validateOasResponse,
+} from "@commerce-klaus/sfcc-module-resolver/custom-apis"
 import {
   getSfccTestRuntime,
   type SfccCustomApiInvocation,
@@ -15,6 +21,11 @@ declare const __COMMERCE_KLAUS_CUSTOM_API_DEFINITIONS__: ResolvedCustomApiDefini
 
 type CustomApiGlobal = typeof globalThis & {
   [ACTIVE_CUSTOM_APIS]?: ResolvedCustomApiDefinition[]
+}
+
+type LoadableCustomApiDefinition = ResolvedCustomApiDefinition & {
+  implementationPath: string
+  operation: CustomApiOperationMatch
 }
 
 declare global {
@@ -61,11 +72,20 @@ export interface SfccLoadedCustomApi<OperationId extends string = string> {
   invoke(options?: SfccCustomApiOperationInput<OperationId>): Promise<SfccCustomApiInvocation>
 }
 
+export interface SfccCustomApiContractValidation {
+  request?: boolean
+  response?: boolean
+}
+
+export interface SfccCustomApiLoadOptions {
+  validate?: boolean | SfccCustomApiContractValidation
+}
+
 export function setActiveCustomApis(definitions: ResolvedCustomApiDefinition[]): void {
   ;(globalThis as CustomApiGlobal)[ACTIVE_CUSTOM_APIS] = definitions
 }
 
-function findCustomApiDefinition(apiId: string, operationId: string): ResolvedCustomApiDefinition {
+function findCustomApiDefinition(apiId: string, operationId: string): LoadableCustomApiDefinition {
   const configuredDefinitions =
     typeof __COMMERCE_KLAUS_CUSTOM_API_DEFINITIONS__ === "undefined"
       ? undefined
@@ -102,12 +122,17 @@ function findCustomApiDefinition(apiId: string, operationId: string): ResolvedCu
     )
   }
 
-  return definition
+  return {
+    ...definition,
+    implementationPath: definition.implementationPath,
+    operation: definition.operation,
+  }
 }
 
 export async function loadSfccCustomApi<OperationId extends SfccCustomApiOperationId>(
   apiId: string,
   operationId: OperationId,
+  loadOptions: SfccCustomApiLoadOptions = {},
 ): Promise<SfccLoadedCustomApi<OperationId>> {
   const definition = findCustomApiDefinition(apiId, operationId)
   const importedModule = (await import(
@@ -118,11 +143,57 @@ export async function loadSfccCustomApi<OperationId extends SfccCustomApiOperati
     typeof defaultExport === "object" && defaultExport !== null
       ? { ...defaultExport, ...importedModule }
       : importedModule
+  const validateRequest =
+    loadOptions.validate === true ||
+    (typeof loadOptions.validate === "object" && loadOptions.validate.request === true)
+  const validateResponse =
+    loadOptions.validate === true ||
+    (typeof loadOptions.validate === "object" && loadOptions.validate.response === true)
+
+  function assertValidContract(phase: "request" | "response", issues: OasValidationIssue[]): void {
+    if (issues.length === 0) {
+      return
+    }
+    throw new Error(
+      `Custom API ${apiId} operation ${operationId} ${phase} does not match its OAS contract:\n${issues
+        .map((issue) => `- ${issue.path}: ${issue.message}`)
+        .join("\n")}`,
+    )
+  }
 
   return {
     definition,
     operationId,
-    invoke: (options) =>
-      getSfccTestRuntime().customApi(customApiModule).invoke(operationId, options),
+    invoke: async (options = {}) => {
+      if (validateRequest) {
+        assertValidContract(
+          "request",
+          validateOasRequest(definition.operation, definition.document, options),
+        )
+      }
+
+      const invocation = await getSfccTestRuntime()
+        .customApi(customApiModule)
+        .invoke(operationId, options)
+      if (validateResponse) {
+        const responseBody =
+          invocation.response.kind === "success"
+            ? invocation.response.body
+            : {
+                ...invocation.response.custom,
+                detail: invocation.response.detail,
+                title: invocation.response.title,
+                type: invocation.response.type,
+              }
+        assertValidContract(
+          "response",
+          validateOasResponse(definition.operation, definition.document, {
+            body: responseBody,
+            statusCode: invocation.response.statusCode,
+          }),
+        )
+      }
+      return invocation
+    },
   }
 }
