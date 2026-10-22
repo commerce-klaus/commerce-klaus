@@ -1,3 +1,5 @@
+import type { SfccGlobals } from "./globals.js"
+
 import { Calendar } from "../platform/calendar.js"
 import { ArrayList, HashMap } from "../platform/collections.js"
 import { Status, StatusItem } from "../platform/status.js"
@@ -13,6 +15,7 @@ export interface LoggerEntry {
 }
 
 export interface SfccTestRuntimeOptions {
+  globals?: SfccGlobals
   site?: {
     id?: string
     preferences?: Record<string, unknown>

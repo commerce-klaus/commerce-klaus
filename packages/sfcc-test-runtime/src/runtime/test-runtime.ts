@@ -14,7 +14,7 @@ import {
   type SfccJobStepHarnessOptions,
   type SfccJobStepModule,
 } from "../harness/job-step.js"
-import { GlobalsRuntime, type SfccGlobals } from "./globals.js"
+import { GlobalsRuntime, type SfccGlobals, type SfccKnownGlobals } from "./globals.js"
 import { HooksRuntime, type SfccHookImplementation } from "./hooks.js"
 import {
   ModuleRegistry,
@@ -30,11 +30,12 @@ export class SfccTestRuntime {
 
   private readonly controllerRuntime = new ControllerRuntime()
   private readonly customApiRuntime = new CustomApiRuntime()
-  private readonly globalsRuntime = new GlobalsRuntime()
+  private readonly globalsRuntime: GlobalsRuntime
   private readonly hooksRuntime = new HooksRuntime()
   private readonly moduleRegistry: ModuleRegistry
 
   constructor(options: SfccTestRuntimeOptions = {}) {
+    this.globalsRuntime = new GlobalsRuntime(options.globals)
     this.moduleRegistry = new ModuleRegistry({
       ...options,
       hookModule: this.hooksRuntime.createModule(),
@@ -57,6 +58,24 @@ export class SfccTestRuntime {
 
   setGlobals(globals: SfccGlobals): void {
     this.globalsRuntime.set(globals)
+  }
+
+  getGlobal<Name extends keyof SfccKnownGlobals>(name: Name): SfccKnownGlobals[Name] | undefined
+  getGlobal<Value = unknown>(name: string): Value | undefined
+  getGlobal<Value = unknown>(name: string): Value | undefined {
+    return this.globalsRuntime.get<Value>(name)
+  }
+
+  getGlobals(): Readonly<SfccGlobals> {
+    return this.globalsRuntime.getAll()
+  }
+
+  hasGlobal(name: string): boolean {
+    return this.globalsRuntime.has(name)
+  }
+
+  unsetGlobals(...names: string[]): void {
+    this.globalsRuntime.unset(names)
   }
 
   registerHook(extensionPoint: string, implementation: SfccHookImplementation): void {

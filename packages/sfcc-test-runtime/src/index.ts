@@ -45,7 +45,14 @@ export type {
 } from "./platform/collections.js"
 export type { SfccStatus, SfccStatusItem } from "./platform/status.js"
 export type { SfccStringUtils } from "./platform/string-utils.js"
-export type { SfccGlobals } from "./runtime/globals.js"
+export type {
+  SfccCustomerGlobal,
+  SfccGlobals,
+  SfccKnownGlobals,
+  SfccRequestGlobal,
+  SfccResponseGlobal,
+  SfccSessionGlobal,
+} from "./runtime/globals.js"
 export type { HookCall, SfccHookImplementation } from "./runtime/hooks.js"
 export type {
   LoggerEntry,

@@ -129,9 +129,56 @@ runtime.setGlobals({
 })
 ```
 
+Known globals use focused, extensible contracts:
+
+- `SfccCustomerGlobal`
+- `SfccRequestGlobal`
+- `SfccResponseGlobal`
+- `SfccSessionGlobal`
+- `SfccKnownGlobals`
+
+Each object contract permits additional project fields while making common
+properties such as `customer.authenticated`, `request.locale`,
+`session.custom`, and response setters discoverable in the editor.
+
+Installed values can be inspected without casting `globalThis`:
+
+```ts
+const request = runtime.getGlobal("request")
+expect(request?.locale).toBe("de_DE")
+
+const organization = runtime.getGlobal<{ ID: string }>("organization")
+expect(organization?.ID).toBe("org")
+
+expect(runtime.hasGlobal("session")).toBe(true)
+expect(runtime.getGlobals()).toMatchObject({
+  customer: { authenticated: true },
+  session: { custom: {} },
+})
+
+runtime.unsetGlobals("request", "response")
+```
+
+`getGlobals()` returns a snapshot of globals controlled by this runtime. It
+does not expose unrelated process globals. `unsetGlobals()` restores the value
+and complete property descriptor that existed before the runtime first changed
+that name.
+
+Stable project context can be installed through runtime options. These defaults
+are reinstated by every `reset()`:
+
+```ts
+const runtime = createSfccTestRuntime({
+  globals: {
+    organization: { ID: "org" },
+    session: { custom: { channel: "storefront" } },
+  },
+})
+```
+
 The runtime provides `empty()` by default. Matching the Script API, it returns `true` for `null`, `undefined`, empty strings and arrays, and SFCC collections whose `isEmpty()` method returns `true`. Values such as `false`, `0`, whitespace, and plain objects are not empty. Tests can override it through `setGlobals()` when application-specific behavior is required.
 
-`reset()` removes globals added by the runtime, restores the complete property descriptor of values that existed before the test, and reinstalls the default `empty()`. Call it after each test so the worker does not retain request state. Because globals are process-wide within a worker, do not run tests that install different global contexts concurrently in the same worker.
+`reset()` removes per-test globals, restores the complete property descriptor of values that existed before the test, and reinstalls `empty()` plus configured defaults. Call it after each test so the worker does not retain request state. Because globals are process-wide within a worker, do not run tests that install different global contexts concurrently in the same worker.
 
 ## Custom APIs
 

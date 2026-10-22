@@ -284,9 +284,51 @@ getSfccRuntime().setGlobals({
 })
 ```
 
+The runtime exposes focused `SfccCustomerGlobal`, `SfccRequestGlobal`,
+`SfccResponseGlobal`, and `SfccSessionGlobal` contracts. Common properties are
+discoverable while project-specific fields remain supported.
+
+Use the inspection API instead of reading or deleting `globalThis` manually:
+
+```ts
+const runtime = getSfccRuntime()
+
+expect(runtime.getGlobal("request")?.locale).toBe("de_DE")
+expect(runtime.hasGlobal("session")).toBe(true)
+expect(runtime.getGlobals()).toMatchObject({
+  customer: { authenticated: true },
+})
+
+runtime.unsetGlobals("request")
+```
+
+Project-specific values can provide their expected type at the call site:
+
+```ts
+const organization = runtime.getGlobal<{ ID: string }>("organization")
+```
+
+Defaults shared by every test in a Vitest project belong in the plugin's
+runtime options:
+
+```ts [vitest.config.ts]
+sfccVitest({
+  runtime: {
+    globals: {
+      organization: { ID: "org" },
+      session: { custom: { channel: "storefront" } },
+    },
+  },
+})
+```
+
+`reset()` restores these configured defaults after removing per-test changes.
+`getGlobals()` only includes values managed by the active SFCC runtime;
+unrelated Node.js and Vitest globals are intentionally omitted.
+
 The SFCC `empty()` global is installed automatically and covers nullish values, empty strings and arrays, and SFCC collections through `isEmpty()`. It can still be replaced through `setGlobals()` for a specific test.
 
-`runtime.reset()` removes added globals, restores values that existed before the test, and reinstalls the default `empty()`. Use it in `afterEach` as well as test setup to prevent the final test in a worker from leaking context.
+`runtime.reset()` removes added globals, restores values that existed before the test, and reinstalls the default `empty()` and configured project globals. Use it in `afterEach` as well as test setup to prevent the final test in a worker from leaking context.
 
 ## SFRA controllers
 

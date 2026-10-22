@@ -7,7 +7,7 @@ Framework-independent SFCC runtime modules and dependency mocking for local test
 ## Highlights
 
 - Replaces module identifiers globally or one exact resolved file
-- Installs and restores controlled SFCC globals
+- Installs, inspects, types, and restores controlled SFCC globals
 - Provides focused `dw/system` and `dw/util` test implementations
 - Executes Custom APIs, SFRA controllers, hooks, script-module job steps, and chunk jobs
 - Remains independent of Vite, Vitest, cartridge paths, and site-template files
@@ -43,6 +43,7 @@ const runtime = createSfccTestRuntime({
 
 runtime.mock("dw/system/Logger", loggerMock)
 runtime.setGlobals({ request, session, customer })
+runtime.getGlobal("request")?.locale
 ```
 
 Use `@commerce-klaus/vitest-sfcc` to connect the runtime to cartridge modules

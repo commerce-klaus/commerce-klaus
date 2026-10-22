@@ -48,6 +48,57 @@ describe("SFCC globals runtime", () => {
     expect("__sfccRequest" in testGlobal).toBe(false)
   })
 
+  it("inspects and selectively removes controlled globals", () => {
+    runtime.setGlobals({
+      customer: { authenticated: true },
+      organization: { ID: "org" },
+      request: { locale: "de_DE" },
+    })
+
+    expect(runtime.hasGlobal("request")).toBe(true)
+    expect(runtime.hasGlobal("location")).toBe(false)
+    expect(runtime.getGlobal("request")?.locale).toBe("de_DE")
+    expect(runtime.getGlobal<{ ID: string }>("organization")?.ID).toBe("org")
+    expect(runtime.getGlobals()).toMatchObject({
+      customer: { authenticated: true },
+      empty: expect.any(Function),
+      organization: { ID: "org" },
+      request: { locale: "de_DE" },
+    })
+
+    runtime.unsetGlobals("request", "organization", "missing")
+
+    expect(runtime.hasGlobal("request")).toBe(false)
+    expect(runtime.getGlobal("request")).toBeUndefined()
+    expect(Reflect.has(globalThis, "request")).toBe(false)
+    expect(runtime.hasGlobal("customer")).toBe(true)
+  })
+
+  it("reinstalls configured default globals on reset", () => {
+    runtime.unsetGlobals("empty")
+    const configuredRuntime = createSfccTestRuntime({
+      globals: {
+        organization: { ID: "default" },
+        session: { custom: { source: "runtime-options" } },
+      },
+    })
+
+    try {
+      configuredRuntime.setGlobals({ organization: { ID: "override" } })
+      expect(configuredRuntime.getGlobal<{ ID: string }>("organization")?.ID).toBe("override")
+
+      configuredRuntime.reset()
+
+      expect(configuredRuntime.getGlobal<{ ID: string }>("organization")?.ID).toBe("default")
+      expect(configuredRuntime.getGlobal("session")?.custom).toEqual({
+        source: "runtime-options",
+      })
+    } finally {
+      configuredRuntime.unsetGlobals("empty", "organization", "session")
+      runtime.reset()
+    }
+  })
+
   it.each([
     [undefined, true],
     [null, true],

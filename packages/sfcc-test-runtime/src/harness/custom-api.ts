@@ -1,4 +1,9 @@
-import type { SfccGlobals } from "../runtime/globals.js"
+import type {
+  SfccCustomerGlobal,
+  SfccGlobals,
+  SfccRequestGlobal,
+  SfccResponseGlobal,
+} from "../runtime/globals.js"
 
 export type SfccCustomApiModule = Record<string, unknown>
 export type SfccCustomApiParameters = Record<string, unknown>
@@ -18,7 +23,7 @@ export interface SfccCustomApiHttpParameterMap {
   readonly requestBodyAsString: string | null
 }
 
-export interface SfccCustomApiRequest {
+export interface SfccCustomApiRequest extends SfccRequestGlobal {
   getSCAPIPathParameters(): {
     get(name: string): unknown
   }
@@ -28,7 +33,7 @@ export interface SfccCustomApiRequest {
   httpParameterMap: SfccCustomApiHttpParameterMap
 }
 
-export interface SfccCustomApiResponseContext {
+export interface SfccCustomApiResponseContext extends SfccResponseGlobal {
   expires: number | null
   readonly headers: Record<string, string>
   setExpires(value: number): void
@@ -64,7 +69,7 @@ export interface SfccCustomApiInvocation {
 
 export interface SfccCustomApiInvokeOptions {
   body?: unknown
-  customer?: unknown
+  customer?: SfccCustomerGlobal
   globals?: SfccGlobals
   headers?: SfccCustomApiParameters
   pathParameters?: SfccCustomApiParameters
