@@ -15,6 +15,7 @@ export {
   type SfccCustomApiOperationInput,
   type SfccLoadedCustomApi,
 } from "./custom-api.js"
+export { loadSfccHook, type SfccHookMethodName, type SfccLoadedHook } from "./hook.js"
 export {
   loadSfccJobStep,
   type SfccJobStepInput,

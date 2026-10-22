@@ -4,8 +4,21 @@ import path from "node:path"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import { transformCartridgeCommonJs } from "../src/cartridge-transform.js"
-import sfccVitest, { getSfccRuntime, loadSfccCustomApi, loadSfccJobStep } from "../src/index.js"
+import sfccVitest, {
+  getSfccRuntime,
+  loadSfccCustomApi,
+  loadSfccHook,
+  loadSfccJobStep,
+} from "../src/index.js"
 import { encodeVirtualModule, loadVirtualModule } from "../src/virtual-modules.js"
+
+declare global {
+  namespace SfccHooks {
+    interface Definitions {
+      "app.payment.authorize": (paymentId: string) => string
+    }
+  }
+}
 
 describe("vitest-sfcc", () => {
   beforeEach(() => {
@@ -117,6 +130,43 @@ describe("vitest-sfcc", () => {
       executions: 1,
       parameters: { DryRun: true, Prefix: "feed", RetryCount: 3 },
     })
+  })
+
+  it("loads and invokes the effective hook from project metadata", async () => {
+    const hook = await loadSfccHook("app.payment.authorize")
+    const result: string = hook.call("authorize", "payment-2")
+
+    expect(result).toBe("custom:payment-2")
+    expect(hook.definition).toMatchObject({
+      cartridgeRoot: path.resolve(import.meta.dirname, "cartridges/app_custom"),
+      hooksJsonPath: path.resolve(
+        import.meta.dirname,
+        "cartridges/app_custom/cartridge/scripts/hooks.json",
+      ),
+      script: "./hooks/payment",
+    })
+    expect(getSfccRuntime().hookCalls).toEqual([
+      {
+        args: ["payment-2"],
+        extensionPoint: "app.payment.authorize",
+        functionName: "authorize",
+      },
+    ])
+  })
+
+  it("reports available hooks for missing metadata", async () => {
+    await expect(loadSfccHook("app.payment.missing")).rejects.toThrow(
+      "Available hooks: app.payment.authorize.",
+    )
+  })
+
+  it("rejects a function not exported by the selected hook", async () => {
+    const hookName: string = "app.payment.authorize"
+    const hook = await loadSfccHook(hookName)
+
+    expect(() => hook.call("missing")).toThrow(
+      "SFCC hook app.payment.authorize does not export function missing.",
+    )
   })
 
   it("registers and executes an SFRA controller route", async () => {

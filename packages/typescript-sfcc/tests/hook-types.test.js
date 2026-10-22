@@ -39,6 +39,7 @@ test("generateHookTypes creates aliases for Salesforce hook interface methods", 
       'import HookInterface0 = require("dw/order/hooks/CalculateHooks")',
     )
     expect(generatedContent).toContain('type OrderCalculate = HookInterface0["calculate"]')
+    expect(generatedContent).toContain('"dw.order.calculate": OrderCalculate')
   } finally {
     fs.rmSync(workspaceRoot, { recursive: true, force: true })
   }

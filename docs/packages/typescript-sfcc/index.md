@@ -206,7 +206,7 @@ Schema-driven assumptions:
 
 ## Hook Handling
 
-`sfcc-ts-sync-types` generates `.b2c-script-types/types/sfcc-hooks.generated.d.ts` with `SfccHooks` aliases for Salesforce system hook interfaces available in the vendored Script API types. For example, `SfccHooks.OrderCalculate` refers to the `dw.order.calculate` signature.
+`sfcc-ts-sync-types` generates `.b2c-script-types/types/sfcc-hooks.generated.d.ts` with `SfccHooks` aliases for Salesforce system hook interfaces available in the vendored Script API types. For example, `SfccHooks.OrderCalculate` refers to the `dw.order.calculate` signature. The generated `SfccHooks.Definitions` interface also maps `"dw.order.calculate"` to that alias so metadata-aware consumers such as `loadSfccHook()` can infer its method arguments and result.
 
 Existing Salesforce system hook signatures can be used from JavaScript JSDoc without duplicating their parameters or return type:
 

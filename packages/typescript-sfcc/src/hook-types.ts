@@ -51,6 +51,7 @@ export function generateHookTypes({
 
 interface HookDeclaration {
   alias: string
+  extensionPoint: string
   interfaceName: string
   methodName: string
   moduleSpecifier: string
@@ -94,6 +95,7 @@ function readHookDeclarations(
     return [
       {
         alias: toAliasName(literal.text),
+        extensionPoint: literal.text,
         interfaceName: interfaceDeclaration.name.text,
         methodName,
         moduleSpecifier,
@@ -145,6 +147,9 @@ function renderHookTypes(declarations: HookDeclaration[]): string {
   const aliases = uniqueDeclarations.map(
     (entry, index) => `    type ${entry.alias} = HookInterface${index}["${entry.methodName}"]`,
   )
+  const definitions = uniqueDeclarations.map(
+    (entry) => `      "${entry.extensionPoint}": ${entry.alias}`,
+  )
 
   return [
     ...imports,
@@ -152,6 +157,9 @@ function renderHookTypes(declarations: HookDeclaration[]): string {
     "declare global {",
     "  namespace SfccHooks {",
     ...aliases,
+    "    interface Definitions {",
+    ...definitions,
+    "    }",
     "  }",
     "}",
     "",

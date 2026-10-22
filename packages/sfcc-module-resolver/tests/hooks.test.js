@@ -125,6 +125,8 @@ test("resolveHookRegistrations uses the first resolvable hook in cartridge order
 
     expect(resolveHookRegistrations([customRoot, baseRoot])).toEqual([
       {
+        cartridgeRoot: customRoot,
+        hooksJsonPath: path.join(customRoot, "cartridge", "scripts", "hooks.json"),
         name: "app.payment.authorize",
         script: "./hooks/payment",
         scriptPath: path.join(customRoot, "cartridge", "scripts", "hooks", "payment.js"),

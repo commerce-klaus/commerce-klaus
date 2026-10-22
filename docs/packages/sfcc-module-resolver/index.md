@@ -138,6 +138,7 @@ filesystem order remains the final fallback.
   - Validates a parsed `hooks.json` document and returns its `{ name, script }` entries
 - `resolveHookRegistrations(cartridgeRoots): ResolvedHookRegistration[]`
   - Discovers resolvable hook scripts in cartridge-path order and keeps the first registration for each extension point
+  - Includes the owning `cartridgeRoot`, declared `hooksJsonPath`, and resolved `scriptPath`
 - `resolveHookScriptPath(hooksDirectory, script): string | undefined`
   - Resolves a registration's `script` field to an existing file, trying `.js`, `.cjs`, `.mjs`, and `.ds`
 - `getHookRegistrationsForScriptFile(filePath): HookRegistration[]`

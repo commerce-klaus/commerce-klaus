@@ -494,6 +494,28 @@ if (HookMgr.hasHook("app.payment.authorize")) {
 
 Hook scripts run through the same cartridge transformer and can use `dw/*`, `*/`, `~/`, aliases, and `module.superModule`. `getSfccRuntime().hookCalls` exposes calls for test assertions.
 
+Use `loadSfccHook()` when the hook registration itself is part of the test and the implementation path should come from project metadata:
+
+```ts
+import { loadSfccHook } from "@commerce-klaus/vitest-sfcc"
+import { expect, it } from "vitest"
+
+it("authorizes the payment through the effective hook", async () => {
+  const hook = await loadSfccHook("app.payment.authorize")
+  const result = hook.call("authorize", "payment-1")
+
+  expect(result).toBe("authorized")
+  expect(hook.definition.cartridgeRoot).toContain("int_payment")
+  expect(hook.definition.hooksJsonPath).toContain("hooks.json")
+})
+```
+
+The plugin resolves hooks during configuration, provides the effective registrations to every Vitest worker, and loads only the requested implementation. The returned definition includes the owning cartridge, `hooks.json`, registered script, and resolved implementation path. Unknown hooks list the available extension points, and calling a function not exported by the selected script fails explicitly.
+
+Generated Salesforce hook declarations include an `SfccHooks.Definitions` registry. After `sfcc-ts-sync-types`, known extension points narrow the method name, arguments, and result of `call()`. Project-specific hooks remain open by default and can augment that registry in a project declaration when a typed contract is useful.
+
+Use `dw/system/HookMgr` when testing cartridge code that calls the platform API itself. Use `loadSfccHook(hookName)` when a test should select and invoke the implementation registered by project metadata. Both paths preserve first-cartridge-wins behavior and record invocations in `getSfccRuntime().hookCalls`.
+
 Automatic discovery can be disabled when a focused test does not need the
 project's registered hooks:
 
@@ -516,11 +538,11 @@ sfccVitest({
 })
 ```
 
-This setting only controls automatic `hooks.json` loading. The runtime's
-`HookMgr` and hooks registered directly with `getSfccRuntime().registerHook()`
-remain available. Plugin options are evaluated per Vitest project; use a
-dedicated project configuration when only a subset of test files needs a
-different discovery scope.
+This setting controls both automatic `HookMgr` registration and metadata-aware
+loading through `loadSfccHook()`. The runtime's `HookMgr` and hooks registered
+directly with `getSfccRuntime().registerHook()` remain available. Plugin options
+are evaluated per Vitest project; use a dedicated project configuration when
+only a subset of test files needs a different discovery scope.
 
 ## CommonJS scope
 

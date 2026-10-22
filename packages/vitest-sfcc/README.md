@@ -11,6 +11,7 @@ Cartridge-aware SFCC runtime and dependency mocking for Vitest.
 - Filters test cartridge paths through central architecture assignments
 - Provides typed, inspectable SFCC globals and focused runtime modules and harnesses
 - Loads effective Custom API operations from `api.json` and OAS metadata
+- Loads effective hooks from project metadata with typed invocation for known Salesforce hooks
 - Replaces module dependencies without `proxyquire`
 - Exposes runtime APIs and types through `@commerce-klaus/vitest-sfcc/runtime`
 
@@ -84,6 +85,15 @@ const api = await loadSfccCustomApi("products", "getProduct")
 const result = await api.invoke({
   pathParameters: { productId: "sample-product" },
 })
+```
+
+Load and invoke the implementation selected by `hooks.json` and cartridge precedence:
+
+```ts
+import { loadSfccHook } from "@commerce-klaus/vitest-sfcc"
+
+const hook = await loadSfccHook("app.payment.authorize")
+const result = hook.call("authorize", "payment-1")
 ```
 
 Consumer projects only need to install `@commerce-klaus/vitest-sfcc`; its

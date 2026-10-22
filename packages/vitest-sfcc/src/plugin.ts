@@ -28,6 +28,7 @@ import {
   transformCartridgeCommonJs,
 } from "./cartridge-transform.js"
 import { CUSTOM_API_DEFINITIONS_DEFINE, setActiveCustomApis } from "./custom-api.js"
+import { HOOK_REGISTRATIONS_DEFINE, setActiveHooks } from "./hook.js"
 import { setActiveStepTypes, STEP_TYPE_DEFINITIONS_DEFINE } from "./job-step.js"
 import { encodeVirtualModule, loadVirtualModule, VIRTUAL_PREFIX } from "./virtual-modules.js"
 
@@ -105,6 +106,7 @@ export default function sfccVitest(options: SfccVitestOptions = {}): SfccVitestP
   const hookRegistrations = resolveHookRegistrations(
     getHookCartridgeRoots(cartridgeRoots, options.hookDiscovery),
   )
+  setActiveHooks(hookRegistrations)
   const stepTypeDefinitions = resolveStepTypeDefinitions(cartridgeRoots)
   setActiveStepTypes(stepTypeDefinitions)
   setSfccTestRuntime(createSfccTestRuntime(options.runtime))
@@ -117,6 +119,7 @@ export default function sfccVitest(options: SfccVitestOptions = {}): SfccVitestP
       return {
         define: {
           [CUSTOM_API_DEFINITIONS_DEFINE]: JSON.stringify(customApiDefinitions),
+          [HOOK_REGISTRATIONS_DEFINE]: JSON.stringify(hookRegistrations),
           [STEP_TYPE_DEFINITIONS_DEFINE]: JSON.stringify(stepTypeDefinitions),
         },
         test: {

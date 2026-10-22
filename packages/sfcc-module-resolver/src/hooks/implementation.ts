@@ -7,6 +7,8 @@ export interface HookRegistration {
 }
 
 export interface ResolvedHookRegistration extends HookRegistration {
+  cartridgeRoot: string
+  hooksJsonPath: string
   scriptPath: string
 }
 
@@ -128,7 +130,7 @@ export function findResolvedHookRegistrations(
       }
 
       registeredExtensionPoints.add(registration.name)
-      registrations.push({ ...registration, scriptPath })
+      registrations.push({ ...registration, cartridgeRoot, hooksJsonPath, scriptPath })
     }
   }
 
