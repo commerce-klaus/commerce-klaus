@@ -1,4 +1,5 @@
 export {
+  explainStepTypeResolution,
   findResolvedStepTypeDefinitions as resolveStepTypeDefinitions,
   getResolvedStepTypeDefinitionsForScriptFile as getStepTypeDefinitionsForScriptFile,
   parseStepTypeDefinitionsFromDocument,
@@ -13,4 +14,9 @@ export type {
   StepTypeDocumentParseResult,
   StepTypeExecutionMetadata,
   StepTypeParameterDefinition,
+  StepTypeResolutionAttempt,
+  StepTypeResolutionDefinitionAttempt,
+  StepTypeResolutionInvalidAttempt,
+  StepTypeResolutionNotFoundAttempt,
+  StepTypeResolutionTrace,
 } from "./definitions.ts"

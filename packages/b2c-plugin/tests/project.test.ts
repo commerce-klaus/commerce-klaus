@@ -5,6 +5,8 @@ import { afterEach, describe, expect, test } from "vite-plus/test"
 
 import { explainProjectModule } from "../src/commands/klaus/explain.ts"
 import { explainProjectCustomApi } from "../src/commands/klaus/explain/custom-api.ts"
+import { explainProjectHook } from "../src/commands/klaus/explain/hook.ts"
+import { explainProjectJobStep } from "../src/commands/klaus/explain/job-step.ts"
 import { resolveProjectModule } from "../src/commands/klaus/resolve.ts"
 import {
   diagnoseProject,
@@ -55,6 +57,45 @@ function writeCustomApi(cartridgeRoot: string): void {
       "        '200':",
       "          description: OK",
     ].join("\n"),
+  )
+}
+
+function writeHook(cartridgeRoot: string): void {
+  writeFile(
+    path.join(cartridgeRoot, "package.json"),
+    JSON.stringify({ hooks: "./cartridge/scripts/hooks.json" }),
+  )
+  writeFile(
+    path.join(cartridgeRoot, "cartridge", "scripts", "hooks.json"),
+    JSON.stringify({
+      hooks: [{ name: "app.payment.authorize", script: "./hooks/payment" }],
+    }),
+  )
+  writeFile(
+    path.join(cartridgeRoot, "cartridge", "scripts", "hooks", "payment.js"),
+    "exports.authorize = function () {}",
+  )
+}
+
+function writeJobStep(cartridgeRoot: string): void {
+  const cartridgeName = path.basename(cartridgeRoot)
+  writeFile(
+    path.join(cartridgeRoot, "steptypes.json"),
+    JSON.stringify({
+      "step-types": {
+        "script-module-step": [
+          {
+            "@type-id": "custom.ExportProducts",
+            function: "Run",
+            module: `${cartridgeName}/cartridge/scripts/jobs/export`,
+          },
+        ],
+      },
+    }),
+  )
+  writeFile(
+    path.join(cartridgeRoot, "cartridge", "scripts", "jobs", "export.js"),
+    "exports.Run = function () {}",
   )
 }
 
@@ -195,6 +236,54 @@ describe("explainProjectCustomApi", () => {
     })
     expect(result.attempts.map((attempt) => attempt.outcome)).toEqual(["selected", "shadowed"])
     expect(result.cartridgeOrderTrace.source).toBe("configured")
+  })
+})
+
+describe("explainProjectHook", () => {
+  test("reports the selected and shadowed registrations in cartridge order", () => {
+    const projectDirectory = createProjectDirectory()
+    const cartridgesDirectory = path.join(projectDirectory, "cartridges")
+    writeHook(path.join(cartridgesDirectory, "app_custom"))
+    writeHook(path.join(cartridgesDirectory, "app_base"))
+
+    const result = explainProjectHook({
+      hookName: "app.payment.authorize",
+      cwd: projectDirectory,
+      cartridgesDir: "cartridges",
+      cartridgePath: "app_custom:app_base",
+    })
+
+    expect(result.resolved).toMatchObject({
+      cartridgeRoot: path.join(cartridgesDirectory, "app_custom"),
+      outcome: "selected",
+    })
+    expect(result.attempts.map((attempt) => attempt.outcome)).toEqual(["selected", "shadowed"])
+  })
+})
+
+describe("explainProjectJobStep", () => {
+  test("reports the selected and shadowed definitions in cartridge order", () => {
+    const projectDirectory = createProjectDirectory()
+    const cartridgesDirectory = path.join(projectDirectory, "cartridges")
+    writeJobStep(path.join(cartridgesDirectory, "app_custom"))
+    writeJobStep(path.join(cartridgesDirectory, "app_base"))
+
+    const result = explainProjectJobStep({
+      typeId: "custom.ExportProducts",
+      cwd: projectDirectory,
+      cartridgesDir: "cartridges",
+      cartridgePath: "app_custom:app_base",
+    })
+
+    expect(result.resolved).toMatchObject({
+      cartridgeRoot: path.join(cartridgesDirectory, "app_custom"),
+      definition: {
+        kind: "script-module-step",
+        typeId: "custom.ExportProducts",
+      },
+      outcome: "selected",
+    })
+    expect(result.attempts.map((attempt) => attempt.outcome)).toEqual(["selected", "shadowed"])
   })
 })
 

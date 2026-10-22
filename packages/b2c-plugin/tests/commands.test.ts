@@ -8,6 +8,8 @@ import { afterEach, describe, expect, test, vi } from "vite-plus/test"
 import Doctor from "../src/commands/klaus/doctor.ts"
 import Explain from "../src/commands/klaus/explain.ts"
 import ExplainCustomApi from "../src/commands/klaus/explain/custom-api.ts"
+import ExplainHook from "../src/commands/klaus/explain/hook.ts"
+import ExplainJobStep from "../src/commands/klaus/explain/job-step.ts"
 import Graph from "../src/commands/klaus/graph.ts"
 import Impact from "../src/commands/klaus/impact.ts"
 import Inspect from "../src/commands/klaus/inspect.ts"
@@ -22,6 +24,11 @@ function createProjectDirectory(): string {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "commerce-klaus-b2c-command-"))
   temporaryDirectories.push(directory)
   return directory
+}
+
+function writeFile(filePath: string, contents: string): void {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true })
+  fs.writeFileSync(filePath, contents)
 }
 
 function captureStdout(): string[] {
@@ -59,17 +66,21 @@ test("registers source files for every new pattern command", () => {
       fs.existsSync(path.join(packageDirectory, "src", "commands", "klaus", `${command}.ts`)),
     ).toBe(true)
   }
-  expect(
-    fs.existsSync(
-      path.join(packageDirectory, "src", "commands", "klaus", "explain", "custom-api.ts"),
-    ),
-  ).toBe(true)
+  for (const command of ["custom-api", "hook", "job-step"]) {
+    expect(
+      fs.existsSync(
+        path.join(packageDirectory, "src", "commands", "klaus", "explain", `${command}.ts`),
+      ),
+    ).toBe(true)
+  }
 })
 
 test("all project commands support B2C CLI JSON output", () => {
   expect(Doctor.enableJsonFlag).toBe(true)
   expect(Explain.enableJsonFlag).toBe(true)
   expect(ExplainCustomApi.enableJsonFlag).toBe(true)
+  expect(ExplainHook.enableJsonFlag).toBe(true)
+  expect(ExplainJobStep.enableJsonFlag).toBe(true)
   expect(Graph.enableJsonFlag).toBe(true)
   expect(Impact.enableJsonFlag).toBe(true)
   expect(Inspect.enableJsonFlag).toBe(true)
@@ -82,6 +93,8 @@ test("project commands leave cartridges-dir unset for central config discovery",
     Doctor,
     Explain,
     ExplainCustomApi,
+    ExplainHook,
+    ExplainJobStep,
     Graph,
     Impact,
     Inspect,
@@ -178,6 +191,83 @@ describe("command execution", () => {
       method: "get",
       outcome: "selected",
       path: "/loyalty",
+    })
+    expect(output).toHaveLength(1)
+    expect(JSON.parse(output[0] ?? "")).toEqual(result)
+  })
+
+  test("explain hook emits the structured registration trace in JSON mode", async () => {
+    const projectDirectory = createProjectDirectory()
+    const cartridgeRoot = path.join(projectDirectory, "cartridges", "app_custom")
+    writeFile(
+      path.join(cartridgeRoot, "package.json"),
+      JSON.stringify({ hooks: "./cartridge/scripts/hooks.json" }),
+    )
+    writeFile(
+      path.join(cartridgeRoot, "cartridge", "scripts", "hooks.json"),
+      JSON.stringify({
+        hooks: [{ name: "app.payment.authorize", script: "./hooks/payment" }],
+      }),
+    )
+    writeFile(
+      path.join(cartridgeRoot, "cartridge", "scripts", "hooks", "payment.js"),
+      "exports.authorize = function () {}",
+    )
+    const output = captureStdout()
+    vi.spyOn(ux, "colorizeJson").mockImplementation((value) => JSON.stringify(value))
+
+    const result = await ExplainHook.run(
+      [
+        "app.payment.authorize",
+        "--cartridges-dir",
+        path.join(projectDirectory, "cartridges"),
+        "--json",
+      ],
+      { root: packageDirectory },
+    )
+
+    expect(result.resolved).toMatchObject({ outcome: "selected", script: "./hooks/payment" })
+    expect(output).toHaveLength(1)
+    expect(JSON.parse(output[0] ?? "")).toEqual(result)
+  })
+
+  test("explain job-step emits the structured definition trace in JSON mode", async () => {
+    const projectDirectory = createProjectDirectory()
+    const cartridgeRoot = path.join(projectDirectory, "cartridges", "app_jobs")
+    writeFile(
+      path.join(cartridgeRoot, "steptypes.json"),
+      JSON.stringify({
+        "step-types": {
+          "script-module-step": [
+            {
+              "@type-id": "custom.ExportProducts",
+              function: "Run",
+              module: "app_jobs/cartridge/scripts/export",
+            },
+          ],
+        },
+      }),
+    )
+    writeFile(
+      path.join(cartridgeRoot, "cartridge", "scripts", "export.js"),
+      "exports.Run = function () {}",
+    )
+    const output = captureStdout()
+    vi.spyOn(ux, "colorizeJson").mockImplementation((value) => JSON.stringify(value))
+
+    const result = await ExplainJobStep.run(
+      [
+        "custom.ExportProducts",
+        "--cartridges-dir",
+        path.join(projectDirectory, "cartridges"),
+        "--json",
+      ],
+      { root: packageDirectory },
+    )
+
+    expect(result.resolved).toMatchObject({
+      definition: { kind: "script-module-step", typeId: "custom.ExportProducts" },
+      outcome: "selected",
     })
     expect(output).toHaveLength(1)
     expect(JSON.parse(output[0] ?? "")).toEqual(result)

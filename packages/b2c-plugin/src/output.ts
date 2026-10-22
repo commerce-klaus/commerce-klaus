@@ -1,7 +1,11 @@
+import type { CartridgeOrderTrace } from "@commerce-klaus/sfcc-module-resolver/resolution"
+
 import path from "node:path"
 
 import type { ExplainResult } from "./commands/klaus/explain.js"
 import type { ExplainCustomApiResult } from "./commands/klaus/explain/custom-api.js"
+import type { ExplainHookResult } from "./commands/klaus/explain/hook.js"
+import type { ExplainJobStepResult } from "./commands/klaus/explain/job-step.js"
 import type { ResolveResult } from "./commands/klaus/resolve.js"
 import type {
   DoctorResult,
@@ -32,6 +36,37 @@ function formatResultCount(
   return count > 0
     ? colorize("green", formatCount(count, singular))
     : colorize("yellow", emptyMessage)
+}
+
+function renderCartridgeOrderSummary(
+  trace: CartridgeOrderTrace,
+  cartridgeRoots: string[],
+  currentDirectory: string,
+  colorize: Colorize,
+): string[] {
+  const selectedAttempt = trace.attempts.find((attempt) => attempt.outcome === "selected")
+  const origin = selectedAttempt?.origin
+  const lines = [
+    `Cartridge order source: ${trace.source}${
+      origin ? ` (${path.isAbsolute(origin) ? displayPath(origin, currentDirectory) : origin})` : ""
+    }`,
+  ]
+  for (const attempt of trace.attempts) {
+    if (attempt.outcome === "invalid") {
+      lines.push(
+        `  ${colorize("yellow", "WARN")} ${attempt.source}: ${attempt.error ?? "invalid source"}`,
+      )
+    }
+    if (attempt.missingCartridges.length > 0) {
+      lines.push(
+        `  ${colorize("yellow", "MISSING")} ${attempt.source}: ${attempt.missingCartridges.join(", ")}`,
+      )
+    }
+  }
+  lines.push(
+    `Cartridge path: ${formatResultCount(cartridgeRoots.length, "cartridge", "none found", colorize)}`,
+  )
+  return lines
 }
 
 export function renderInspection(
@@ -396,6 +431,142 @@ export function renderCustomApiResolutionTrace(
         : `${colorize("yellow", "WARN")}: Registration resolved with incomplete metadata.`,
   )
 
+  return lines.join("\n")
+}
+
+export function renderHookResolutionTrace(
+  result: ExplainHookResult,
+  currentDirectory: string,
+  colorize: Colorize,
+): string {
+  const lines = [
+    `Explaining SFCC hook ${colorize("dim", result.hookName)}`,
+    ...renderCartridgeOrderSummary(
+      result.cartridgeOrderTrace,
+      result.cartridgeRoots,
+      currentDirectory,
+      colorize,
+    ),
+  ]
+
+  for (const attempt of result.attempts) {
+    const cartridge = path.basename(attempt.cartridgeRoot)
+    if (attempt.outcome === "not-found") {
+      lines.push(`  ${colorize("dim", "MISS")} ${cartridge}`)
+      continue
+    }
+    if (attempt.outcome === "invalid") {
+      lines.push(`  ${colorize("yellow", "INVALID")} ${cartridge}`)
+      lines.push(
+        `    hooks.json: ${colorize("dim", displayPath(attempt.hooksJsonPath, currentDirectory))}`,
+        `    ${colorize("yellow", attempt.error)}`,
+      )
+      continue
+    }
+
+    const label =
+      attempt.outcome === "selected"
+        ? colorize("green", "SELECT")
+        : attempt.outcome === "shadowed"
+          ? colorize("yellow", "SHADOWED")
+          : colorize("yellow", "UNRESOLVED")
+    lines.push(`  ${label} ${cartridge}`)
+    lines.push(
+      `    hooks.json: ${colorize("dim", displayPath(attempt.hooksJsonPath, currentDirectory))}`,
+      `    Script: ${attempt.script}`,
+      attempt.scriptPath
+        ? `    Implementation: ${colorize("dim", displayPath(attempt.scriptPath, currentDirectory))}`
+        : `    Implementation: ${colorize("yellow", "not resolved")}`,
+    )
+  }
+
+  lines.push(
+    result.resolved
+      ? `Resolved: ${colorize("green", path.basename(result.resolved.cartridgeRoot))}`
+      : `Resolved: ${colorize("yellow", "no matching registration found")}`,
+    result.resolved
+      ? `${colorize("green", "DONE")}: Hook resolution trace completed.`
+      : `${colorize("yellow", "MISS")}: Hook could not be resolved.`,
+  )
+  return lines.join("\n")
+}
+
+export function renderStepTypeResolutionTrace(
+  result: ExplainJobStepResult,
+  currentDirectory: string,
+  colorize: Colorize,
+): string {
+  const lines = [
+    `Explaining SFCC job step ${colorize("dim", result.typeId)}`,
+    ...renderCartridgeOrderSummary(
+      result.cartridgeOrderTrace,
+      result.cartridgeRoots,
+      currentDirectory,
+      colorize,
+    ),
+  ]
+
+  for (const attempt of result.attempts) {
+    const cartridge = path.basename(attempt.cartridgeRoot)
+    if (attempt.outcome === "not-found") {
+      lines.push(`  ${colorize("dim", "MISS")} ${cartridge}`)
+      continue
+    }
+    if (attempt.outcome === "invalid") {
+      lines.push(`  ${colorize("yellow", "INVALID")} ${cartridge}`)
+      lines.push(
+        `    steptypes.json: ${colorize("dim", displayPath(attempt.stepTypesPath, currentDirectory))}`,
+      )
+      if (attempt.error) {
+        lines.push(`    ${colorize("yellow", attempt.error)}`)
+      }
+      for (const diagnostic of attempt.diagnostics) {
+        lines.push(`    ${colorize("yellow", diagnostic.path)}: ${diagnostic.message}`)
+      }
+      continue
+    }
+
+    const label =
+      attempt.outcome === "selected"
+        ? colorize("green", "SELECT")
+        : attempt.outcome === "shadowed"
+          ? colorize("yellow", "SHADOWED")
+          : colorize("yellow", "UNRESOLVED")
+    const definition = attempt.definition
+    lines.push(`  ${label} ${cartridge}`)
+    lines.push(
+      `    steptypes.json: ${colorize("dim", displayPath(attempt.stepTypesPath, currentDirectory))}`,
+      `    Kind: ${definition.kind}`,
+      `    Module: ${definition.module}`,
+      attempt.modulePath
+        ? `    Implementation: ${colorize("dim", displayPath(attempt.modulePath, currentDirectory))}`
+        : `    Implementation: ${colorize("yellow", "not resolved")}`,
+      `    Parameters: ${definition.parameters.length}`,
+      `    Status codes: ${definition.statusCodes.join(", ") || "none"}`,
+    )
+    if (definition.kind === "script-module-step") {
+      lines.push(
+        `    Function: ${definition.functionName}`,
+        `    Timeout: ${definition.timeoutSeconds ? `${definition.timeoutSeconds}s` : "none"}`,
+      )
+    } else {
+      lines.push(
+        `    Chunk size: ${definition.chunkSize}`,
+        `    Functions: ${Object.entries(definition.functions)
+          .map(([name, value]) => `${name}=${value}`)
+          .join(", ")}`,
+      )
+    }
+  }
+
+  lines.push(
+    result.resolved
+      ? `Resolved: ${colorize("green", path.basename(result.resolved.cartridgeRoot))}`
+      : `Resolved: ${colorize("yellow", "no matching definition found")}`,
+    result.resolved
+      ? `${colorize("green", "DONE")}: Job step resolution trace completed.`
+      : `${colorize("yellow", "MISS")}: Job step could not be resolved.`,
+  )
   return lines.join("\n")
 }
 

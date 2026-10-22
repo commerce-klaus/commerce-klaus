@@ -612,6 +612,68 @@ Use `--cartridges-dir` or `--cartridge-path` to inspect a different project
 layout or precedence order. Use `--json` for the complete structured trace,
 including all attempted cartridges and shadowed registrations.
 
+## Explain hook resolution
+
+Show which `hooks.json` registration provides one extension point:
+
+::: code-group
+
+```bash [pnpm]
+pnpm exec b2c klaus explain hook app.payment.authorize
+```
+
+```bash [yarn]
+yarn exec b2c klaus explain hook app.payment.authorize
+```
+
+```bash [npm]
+npm exec -- b2c klaus explain hook app.payment.authorize
+```
+
+```bash [Vite+]
+vp exec b2c klaus explain hook app.payment.authorize
+```
+
+:::
+
+Each cartridge is marked as `SELECT`, `SHADOWED`, `UNRESOLVED`, `INVALID`, or
+`MISS`. Matching registrations include the declaring `hooks.json`, configured
+script, and resolved implementation. An unresolved script does not block a
+valid lower-precedence registration, matching the runtime resolver.
+
+## Explain job step resolution
+
+Show which `steptypes.json` definition provides one job step type:
+
+::: code-group
+
+```bash [pnpm]
+pnpm exec b2c klaus explain job-step custom.ExportProducts
+```
+
+```bash [yarn]
+yarn exec b2c klaus explain job-step custom.ExportProducts
+```
+
+```bash [npm]
+npm exec -- b2c klaus explain job-step custom.ExportProducts
+```
+
+```bash [Vite+]
+vp exec b2c klaus explain job-step custom.ExportProducts
+```
+
+:::
+
+The trace shows the selected, shadowed, unresolved, invalid, and missing
+definitions in cartridge order. A resolved definition includes its task or
+chunk kind, module and implementation, parameter and status-code counts,
+configured task function and timeout, or chunk size and lifecycle functions.
+Invalid documents retain their parser diagnostics and JSON paths.
+
+Both metadata commands show cartridge-order provenance and support
+`--cartridges-dir`, `--cartridge-path`, and `--json`.
+
 ## Standalone commands
 
 The original project-local commands remain available:

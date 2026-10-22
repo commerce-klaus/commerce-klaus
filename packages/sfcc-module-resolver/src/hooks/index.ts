@@ -1,4 +1,5 @@
 export {
+  explainHookResolution,
   findResolvedHookRegistrations as resolveHookRegistrations,
   getHookRegistrationsForScriptFile,
   getHookRegistrationsFromDocument,
@@ -8,6 +9,11 @@ export {
 } from "./implementation.ts"
 export type {
   HookRegistration,
+  HookResolutionAttempt,
+  HookResolutionInvalidAttempt,
+  HookResolutionNotFoundAttempt,
+  HookResolutionRegistrationAttempt,
+  HookResolutionTrace,
   RequiredHookExport,
   ResolvedHookRegistration,
 } from "./implementation.ts"

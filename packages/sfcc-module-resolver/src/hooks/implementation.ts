@@ -12,6 +12,37 @@ export interface ResolvedHookRegistration extends HookRegistration {
   scriptPath: string
 }
 
+export interface HookResolutionNotFoundAttempt {
+  cartridgeRoot: string
+  outcome: "not-found"
+}
+
+export interface HookResolutionInvalidAttempt {
+  cartridgeRoot: string
+  error: string
+  hooksJsonPath: string
+  outcome: "invalid"
+}
+
+export interface HookResolutionRegistrationAttempt extends HookRegistration {
+  cartridgeRoot: string
+  hooksJsonPath: string
+  outcome: "selected" | "shadowed" | "unresolved"
+  scriptPath?: string
+}
+
+export type HookResolutionAttempt =
+  | HookResolutionInvalidAttempt
+  | HookResolutionNotFoundAttempt
+  | HookResolutionRegistrationAttempt
+
+export interface HookResolutionTrace {
+  attempts: HookResolutionAttempt[]
+  cartridgeRoots: string[]
+  hookName: string
+  resolved: HookResolutionRegistrationAttempt | null
+}
+
 function isHookRegistration(value: unknown): value is HookRegistration {
   return (
     typeof value === "object" &&
@@ -135,6 +166,71 @@ export function findResolvedHookRegistrations(
   }
 
   return registrations
+}
+
+export function explainHookResolution(
+  hookName: string,
+  cartridgeRoots: string[],
+): HookResolutionTrace {
+  const attempts: HookResolutionAttempt[] = []
+  let resolved: HookResolutionRegistrationAttempt | null = null
+
+  for (const cartridgeRoot of cartridgeRoots) {
+    const hooksJsonPath = getCartridgeHooksJsonPath(cartridgeRoot)
+    if (!hooksJsonPath) {
+      attempts.push({ cartridgeRoot, outcome: "not-found" })
+      continue
+    }
+
+    let cartridgeRegistrations: HookRegistration[] | undefined
+    try {
+      cartridgeRegistrations = getHookRegistrationsFromDocument(
+        JSON.parse(fs.readFileSync(hooksJsonPath, "utf8")),
+      )
+    } catch (error) {
+      attempts.push({
+        cartridgeRoot,
+        error: error instanceof Error ? error.message : String(error),
+        hooksJsonPath,
+        outcome: "invalid",
+      })
+      continue
+    }
+    if (!cartridgeRegistrations) {
+      attempts.push({
+        cartridgeRoot,
+        error: "The hooks document must contain a valid hooks array.",
+        hooksJsonPath,
+        outcome: "invalid",
+      })
+      continue
+    }
+
+    const matchingRegistrations = cartridgeRegistrations.filter(
+      (registration) => registration.name === hookName,
+    )
+    if (matchingRegistrations.length === 0) {
+      attempts.push({ cartridgeRoot, outcome: "not-found" })
+      continue
+    }
+
+    for (const registration of matchingRegistrations) {
+      const scriptPath = resolveHookScriptPath(path.dirname(hooksJsonPath), registration.script)
+      const attempt: HookResolutionRegistrationAttempt = {
+        ...registration,
+        cartridgeRoot,
+        hooksJsonPath,
+        outcome: scriptPath ? (resolved ? "shadowed" : "selected") : "unresolved",
+        ...(scriptPath ? { scriptPath } : {}),
+      }
+      attempts.push(attempt)
+      if (scriptPath && !resolved) {
+        resolved = attempt
+      }
+    }
+  }
+
+  return { attempts, cartridgeRoots, hookName, resolved }
 }
 
 export interface RequiredHookExport {

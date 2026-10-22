@@ -4,6 +4,7 @@ import path from "node:path"
 import { expect, test } from "vite-plus/test"
 
 import {
+  explainHookResolution,
   resolveHookRegistrations,
   getHookRegistrationsForScriptFile,
   getHookRegistrationsFromDocument,
@@ -132,6 +133,43 @@ test("resolveHookRegistrations uses the first resolvable hook in cartridge order
         scriptPath: path.join(customRoot, "cartridge", "scripts", "hooks", "payment.js"),
       },
     ])
+  })
+})
+
+test("explainHookResolution reports unresolved, selected, missing, and shadowed hooks", () => {
+  withTempDir((tempDir) => {
+    const roots = ["app_unresolved", "app_custom", "app_empty", "app_base"].map((name) =>
+      path.join(tempDir, "cartridges", name),
+    )
+
+    for (const cartridgeRoot of [roots[0], roots[1], roots[3]]) {
+      writeJson(path.join(cartridgeRoot, "package.json"), {
+        hooks: "./cartridge/scripts/hooks.json",
+      })
+      writeJson(path.join(cartridgeRoot, "cartridge", "scripts", "hooks.json"), {
+        hooks: [{ name: "app.payment.authorize", script: "./hooks/payment" }],
+      })
+    }
+    fs.mkdirSync(roots[2], { recursive: true })
+    for (const cartridgeRoot of [roots[1], roots[3]]) {
+      const scriptPath = path.join(cartridgeRoot, "cartridge", "scripts", "hooks", "payment.js")
+      fs.mkdirSync(path.dirname(scriptPath), { recursive: true })
+      fs.writeFileSync(scriptPath, 'exports.authorize = () => "authorized"\n')
+    }
+
+    const trace = explainHookResolution("app.payment.authorize", roots)
+
+    expect(trace.attempts.map((attempt) => attempt.outcome)).toEqual([
+      "unresolved",
+      "selected",
+      "not-found",
+      "shadowed",
+    ])
+    expect(trace.resolved).toMatchObject({
+      cartridgeRoot: roots[1],
+      outcome: "selected",
+      scriptPath: path.join(roots[1], "cartridge", "scripts", "hooks", "payment.js"),
+    })
   })
 })
 

@@ -139,6 +139,9 @@ filesystem order remains the final fallback.
 - `resolveHookRegistrations(cartridgeRoots): ResolvedHookRegistration[]`
   - Discovers resolvable hook scripts in cartridge-path order and keeps the first registration for each extension point
   - Includes the owning `cartridgeRoot`, declared `hooksJsonPath`, and resolved `scriptPath`
+- `explainHookResolution(hookName, cartridgeRoots): HookResolutionTrace`
+  - Reports selected, shadowed, unresolved, invalid, and missing registrations in cartridge order
+  - Continues past unresolved scripts exactly like effective hook resolution
 - `resolveHookScriptPath(hooksDirectory, script): string | undefined`
   - Resolves a registration's `script` field to an existing file, trying `.js`, `.cjs`, `.mjs`, and `.ds`
 - `getHookRegistrationsForScriptFile(filePath): HookRegistration[]`
@@ -157,6 +160,10 @@ filesystem order remains the final fallback.
   - Reads `steptypes.json` from each cartridge root
   - Resolves module paths with the standard SFCC runtime extensions and index-module fallback
   - Keeps the first resolvable definition for each type ID in cartridge-path order
+  - Includes the owning `cartridgeRoot`, `stepTypesPath`, and resolved `modulePath`
+- `explainStepTypeResolution(typeId, cartridgeRoots): StepTypeResolutionTrace`
+  - Reports selected, shadowed, unresolved, invalid, and missing definitions in cartridge order
+  - Preserves structured parser diagnostics for invalid `steptypes.json` documents
 
 Capability fields remain optional so consumers can distinguish an omitted declaration from an explicit `false`. The resolver exposes this metadata without inferring or enforcing a job context.
 

@@ -4,6 +4,7 @@ import path from "node:path"
 import { expect, test } from "vite-plus/test"
 
 import {
+  explainStepTypeResolution,
   getStepTypeDefinitionsForScriptFile,
   parseStepTypeDefinitionsFromDocument,
   resolveStepTypeDefinitions,
@@ -336,15 +337,71 @@ test("resolveStepTypeDefinitions resolves modules and honors cartridge priority"
 
     expect(resolveStepTypeDefinitions([customRoot, baseRoot])).toEqual([
       {
+        cartridgeRoot: customRoot,
         functionName: "CustomRun",
         kind: "script-module-step",
         module: "app_custom/cartridge/scripts/jobs/feed",
         modulePath: path.join(customRoot, "cartridge", "scripts", "jobs", "feed.js"),
         parameters: [],
         statusCodes: [],
+        stepTypesPath: path.join(customRoot, "steptypes.json"),
         typeId: "custom.GenerateFeed",
       },
     ])
+  })
+})
+
+test("explainStepTypeResolution reports invalid, unresolved, selected, and shadowed steps", () => {
+  withTempDir((tempDir) => {
+    const cartridgesDir = path.join(tempDir, "cartridges")
+    const invalidRoot = path.join(cartridgesDir, "app_invalid")
+    const unresolvedRoot = path.join(cartridgesDir, "app_unresolved")
+    const customRoot = path.join(cartridgesDir, "app_custom")
+    const baseRoot = path.join(cartridgesDir, "app_base")
+    fs.mkdirSync(invalidRoot, { recursive: true })
+    fs.writeFileSync(path.join(invalidRoot, "steptypes.json"), "not json")
+
+    for (const [cartridgeRoot, cartridgeName] of [
+      [unresolvedRoot, "app_unresolved"],
+      [customRoot, "app_custom"],
+      [baseRoot, "app_base"],
+    ]) {
+      writeJson(path.join(cartridgeRoot, "steptypes.json"), {
+        "step-types": {
+          "script-module-step": [
+            {
+              "@type-id": "custom.GenerateFeed",
+              function: "Run",
+              module: `${cartridgeName}/cartridge/scripts/jobs/feed`,
+            },
+          ],
+        },
+      })
+    }
+    for (const cartridgeRoot of [customRoot, baseRoot]) {
+      const scriptPath = path.join(cartridgeRoot, "cartridge", "scripts", "jobs", "feed.js")
+      fs.mkdirSync(path.dirname(scriptPath), { recursive: true })
+      fs.writeFileSync(scriptPath, "exports.Run = function () {}\n")
+    }
+
+    const trace = explainStepTypeResolution("custom.GenerateFeed", [
+      invalidRoot,
+      unresolvedRoot,
+      customRoot,
+      baseRoot,
+    ])
+
+    expect(trace.attempts.map((attempt) => attempt.outcome)).toEqual([
+      "invalid",
+      "unresolved",
+      "selected",
+      "shadowed",
+    ])
+    expect(trace.resolved).toMatchObject({
+      cartridgeRoot: customRoot,
+      modulePath: path.join(customRoot, "cartridge", "scripts", "jobs", "feed.js"),
+      outcome: "selected",
+    })
   })
 })
 

@@ -68,9 +68,10 @@ b2c klaus validate
 ```
 
 Commerce Klaus also provides commands for generated type status and cleanup,
-project graphs and impact analysis, module and Custom API resolution explanations
-with cartridge-order provenance, and project diagnostics. Run `b2c klaus --help`
-or a subcommand with `--help` for the local command reference.
+project graphs and impact analysis, module, Custom API, hook, and job step
+resolution explanations with cartridge-order provenance, and project
+diagnostics. Run `b2c klaus --help` or a subcommand with `--help` for the local
+command reference.
 
 ## Documentation
 

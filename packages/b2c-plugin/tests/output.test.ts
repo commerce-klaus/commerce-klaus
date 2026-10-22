@@ -3,6 +3,7 @@ import { describe, expect, test } from "vite-plus/test"
 import {
   renderCustomApiResolutionTrace,
   renderDoctor,
+  renderHookResolutionTrace,
   renderInspection,
   renderProjectImpact,
   renderProjectGraph,
@@ -11,6 +12,7 @@ import {
   renderProjectGraphMermaid,
   renderResolution,
   renderResolutionTrace,
+  renderStepTypeResolutionTrace,
   renderValidation,
   renderValidationSarif,
   type Colorize,
@@ -366,6 +368,132 @@ describe("renderCustomApiResolutionTrace", () => {
     expect(output).toContain("<yellow>SHADOWED</yellow> app_base")
     expect(output).toContain("Operation: GET /loyalty")
     expect(output).toContain("<green>DONE</green>: Custom API resolution trace completed.")
+  })
+})
+
+describe("renderHookResolutionTrace", () => {
+  test("renders unresolved, selected, and shadowed hook registrations", () => {
+    const cartridgeOrderTrace = {
+      cartridgesDir: "/project/cartridges",
+      source: "configured" as const,
+      cartridgeRoots: [
+        "/project/cartridges/app_unresolved",
+        "/project/cartridges/app_custom",
+        "/project/cartridges/app_base",
+      ],
+      attempts: [
+        {
+          source: "configured" as const,
+          outcome: "selected" as const,
+          origin: "cartridgePath",
+          requestedCartridges: ["app_unresolved", "app_custom", "app_base"],
+          cartridgeRoots: [
+            "/project/cartridges/app_unresolved",
+            "/project/cartridges/app_custom",
+            "/project/cartridges/app_base",
+          ],
+          missingCartridges: [],
+        },
+      ],
+    }
+    const selected = {
+      cartridgeRoot: "/project/cartridges/app_custom",
+      hooksJsonPath: "/project/cartridges/app_custom/cartridge/scripts/hooks.json",
+      name: "app.payment.authorize",
+      outcome: "selected" as const,
+      script: "./hooks/payment",
+      scriptPath: "/project/cartridges/app_custom/cartridge/scripts/hooks/payment.js",
+    }
+    const output = renderHookResolutionTrace(
+      {
+        attempts: [
+          {
+            cartridgeRoot: "/project/cartridges/app_unresolved",
+            hooksJsonPath: "/project/cartridges/app_unresolved/cartridge/scripts/hooks.json",
+            name: "app.payment.authorize",
+            outcome: "unresolved",
+            script: "./hooks/payment",
+          },
+          selected,
+          {
+            ...selected,
+            cartridgeRoot: "/project/cartridges/app_base",
+            outcome: "shadowed",
+          },
+        ],
+        cartridgeOrderTrace,
+        cartridgeRoots: cartridgeOrderTrace.cartridgeRoots,
+        hookName: "app.payment.authorize",
+        resolved: selected,
+      },
+      "/project",
+      colorize,
+    )
+
+    expect(output).toContain("<yellow>UNRESOLVED</yellow> app_unresolved")
+    expect(output).toContain("<green>SELECT</green> app_custom")
+    expect(output).toContain("<yellow>SHADOWED</yellow> app_base")
+    expect(output).toContain("<green>DONE</green>: Hook resolution trace completed.")
+  })
+})
+
+describe("renderStepTypeResolutionTrace", () => {
+  test("renders selected task metadata and invalid documents", () => {
+    const cartridgeOrderTrace = {
+      cartridgesDir: "/project/cartridges",
+      source: "configured" as const,
+      cartridgeRoots: ["/project/cartridges/app_invalid", "/project/cartridges/app_jobs"],
+      attempts: [
+        {
+          source: "configured" as const,
+          outcome: "selected" as const,
+          origin: "cartridgePath",
+          requestedCartridges: ["app_invalid", "app_jobs"],
+          cartridgeRoots: ["/project/cartridges/app_invalid", "/project/cartridges/app_jobs"],
+          missingCartridges: [],
+        },
+      ],
+    }
+    const selected = {
+      cartridgeRoot: "/project/cartridges/app_jobs",
+      definition: {
+        functionName: "Run",
+        kind: "script-module-step" as const,
+        module: "app_jobs/cartridge/scripts/export",
+        parameters: [],
+        statusCodes: ["OK"],
+        timeoutSeconds: 60,
+        typeId: "custom.ExportProducts",
+      },
+      modulePath: "/project/cartridges/app_jobs/cartridge/scripts/export.js",
+      outcome: "selected" as const,
+      stepTypesPath: "/project/cartridges/app_jobs/steptypes.json",
+    }
+    const output = renderStepTypeResolutionTrace(
+      {
+        attempts: [
+          {
+            cartridgeRoot: "/project/cartridges/app_invalid",
+            diagnostics: [{ message: "Invalid step.", path: "step-types.script[0]" }],
+            outcome: "invalid",
+            stepTypesPath: "/project/cartridges/app_invalid/steptypes.json",
+          },
+          selected,
+        ],
+        cartridgeOrderTrace,
+        cartridgeRoots: cartridgeOrderTrace.cartridgeRoots,
+        resolved: selected,
+        typeId: "custom.ExportProducts",
+      },
+      "/project",
+      colorize,
+    )
+
+    expect(output).toContain("<yellow>INVALID</yellow> app_invalid")
+    expect(output).toContain("<green>SELECT</green> app_jobs")
+    expect(output).toContain("Function: Run")
+    expect(output).toContain("Timeout: 60s")
+    expect(output).toContain("<green>DONE</green>: Job step resolution trace completed.")
   })
 })
 

@@ -61,7 +61,42 @@ export type StepTypeDefinition =
   | ChunkScriptModuleStepTypeDefinition
 
 export type ResolvedStepTypeDefinition = StepTypeDefinition & {
+  cartridgeRoot: string
   modulePath: string
+  stepTypesPath: string
+}
+
+export interface StepTypeResolutionNotFoundAttempt {
+  cartridgeRoot: string
+  outcome: "not-found"
+}
+
+export interface StepTypeResolutionInvalidAttempt {
+  cartridgeRoot: string
+  diagnostics: StepTypeDocumentDiagnostic[]
+  error?: string
+  outcome: "invalid"
+  stepTypesPath: string
+}
+
+export interface StepTypeResolutionDefinitionAttempt {
+  cartridgeRoot: string
+  definition: StepTypeDefinition
+  modulePath?: string
+  outcome: "selected" | "shadowed" | "unresolved"
+  stepTypesPath: string
+}
+
+export type StepTypeResolutionAttempt =
+  | StepTypeResolutionDefinitionAttempt
+  | StepTypeResolutionInvalidAttempt
+  | StepTypeResolutionNotFoundAttempt
+
+export interface StepTypeResolutionTrace {
+  attempts: StepTypeResolutionAttempt[]
+  cartridgeRoots: string[]
+  resolved: StepTypeResolutionDefinitionAttempt | null
+  typeId: string
 }
 
 export type StepTypeDocumentDiagnostic = {
@@ -402,11 +437,10 @@ export function findResolvedStepTypeDefinitions(
   const registeredTypeIds = new Set<string>()
 
   for (const cartridgeRoot of cartridgeRoots) {
+    const stepTypesPath = path.join(cartridgeRoot, "steptypes.json")
     let cartridgeDefinitions: StepTypeDefinition[] | undefined
     try {
-      const document = JSON.parse(
-        fs.readFileSync(path.join(cartridgeRoot, "steptypes.json"), "utf8"),
-      )
+      const document = JSON.parse(fs.readFileSync(stepTypesPath, "utf8"))
       cartridgeDefinitions = getStepTypeDefinitionsFromDocument(document)
     } catch {
       continue
@@ -430,11 +464,80 @@ export function findResolvedStepTypeDefinitions(
       }
 
       registeredTypeIds.add(definition.typeId)
-      definitions.push({ ...definition, modulePath })
+      definitions.push({ ...definition, cartridgeRoot, modulePath, stepTypesPath })
     }
   }
 
   return definitions
+}
+
+export function explainStepTypeResolution(
+  typeId: string,
+  cartridgeRoots: string[],
+): StepTypeResolutionTrace {
+  const attempts: StepTypeResolutionAttempt[] = []
+  let resolved: StepTypeResolutionDefinitionAttempt | null = null
+
+  for (const cartridgeRoot of cartridgeRoots) {
+    const stepTypesPath = path.join(cartridgeRoot, "steptypes.json")
+    if (!fs.existsSync(stepTypesPath)) {
+      attempts.push({ cartridgeRoot, outcome: "not-found" })
+      continue
+    }
+
+    let parsed: StepTypeDocumentParseResult
+    try {
+      parsed = parseStepTypeDefinitionsFromDocument(
+        JSON.parse(fs.readFileSync(stepTypesPath, "utf8")),
+      )
+    } catch (error) {
+      attempts.push({
+        cartridgeRoot,
+        diagnostics: [],
+        error: error instanceof Error ? error.message : String(error),
+        outcome: "invalid",
+        stepTypesPath,
+      })
+      continue
+    }
+    if (parsed.diagnostics.length > 0) {
+      attempts.push({
+        cartridgeRoot,
+        diagnostics: parsed.diagnostics,
+        outcome: "invalid",
+        stepTypesPath,
+      })
+      continue
+    }
+
+    const matchingDefinitions = parsed.definitions.filter(
+      (definition) => definition.typeId === typeId,
+    )
+    if (matchingDefinitions.length === 0) {
+      attempts.push({ cartridgeRoot, outcome: "not-found" })
+      continue
+    }
+
+    for (const definition of matchingDefinitions) {
+      const modulePath = resolveCandidateFile(
+        path.resolve(path.dirname(cartridgeRoot), definition.module),
+        definition.module,
+      )
+      const attempt: StepTypeResolutionDefinitionAttempt = {
+        cartridgeRoot,
+        definition,
+        ...(modulePath ? { modulePath } : {}),
+        outcome: modulePath ? (resolved ? "shadowed" : "selected") : "unresolved",
+        stepTypesPath,
+      }
+      attempts.push(attempt)
+      if (modulePath && !resolved) {
+        resolved = attempt
+      }
+    }
+  }
+
+  return { attempts, cartridgeRoots, resolved, typeId }
 }
 
 export function getResolvedStepTypeDefinitionsForScriptFile(
