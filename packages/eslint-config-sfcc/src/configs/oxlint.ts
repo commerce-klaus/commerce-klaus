@@ -2,6 +2,7 @@ import type { Linter } from "eslint"
 
 import sfccRules from "../rules/sfcc.js"
 import sitegenesisRules from "../rules/sitegenesis.js"
+import { createEmptyMigrationConfig, type EmptyMigrationConfigOptions } from "./empty-migration.js"
 import {
   cartridgeArchitectureRules,
   createCartridgeArchitectureConfig,
@@ -20,30 +21,57 @@ export const oxlintRules: Record<string, "error" | "warn"> = {
   ...sitegenesisRules,
 } as Record<string, "error" | "warn">
 
-export interface OxlintArchitectureOverride {
+export interface OxlintRuleOverride {
   files: string[]
+  excludeFiles?: string[]
   rules: NonNullable<Linter.Config["rules"]>
+}
+
+export type OxlintArchitectureOverride = OxlintRuleOverride
+
+function getIndividualGlobs(
+  globs: NonNullable<Linter.Config["files"]>,
+  option: "files" | "ignores",
+): string[] {
+  const individualGlobs: string[] = []
+  for (const glob of globs) {
+    if (typeof glob !== "string") {
+      throw new TypeError(`Oxlint overrides require individual ${option} globs.`)
+    }
+    individualGlobs.push(glob)
+  }
+  return individualGlobs
+}
+
+function toOxlintRuleOverride(config: Linter.Config): OxlintRuleOverride {
+  if (!config.files || !config.rules) {
+    throw new TypeError("Oxlint overrides require file globs and rules.")
+  }
+
+  const excludeFiles = config.ignores ? getIndividualGlobs(config.ignores, "ignores") : undefined
+  return {
+    files: getIndividualGlobs(config.files, "files"),
+    ...(excludeFiles && excludeFiles.length > 0 ? { excludeFiles } : {}),
+    rules: { ...config.rules },
+  }
 }
 
 /** Creates Oxlint overrides from central or explicit cartridge architecture assignments. */
 export function createOxlintArchitectureOverrides(
   options: CartridgeArchitectureConfigOptions = {},
 ): OxlintArchitectureOverride[] {
-  return createCartridgeArchitectureConfig(options).flatMap((config) => {
-    if (!config.files || !config.rules) {
-      return []
-    }
+  return createCartridgeArchitectureConfig(options).map(toOxlintRuleOverride)
+}
 
-    const files: string[] = []
-    for (const file of config.files) {
-      if (typeof file !== "string") {
-        throw new TypeError("Oxlint architecture overrides require individual file globs.")
-      }
-      files.push(file)
-    }
-
-    return [{ files, rules: { ...config.rules } }]
-  })
+/** Creates an Oxlint override that reports every global empty() call and safely fixes known cases. */
+export function createOxlintEmptyMigrationOverride(
+  options: EmptyMigrationConfigOptions = {},
+): OxlintRuleOverride {
+  const [config] = createEmptyMigrationConfig(options)
+  if (!config) {
+    throw new TypeError("The empty migration config did not produce an override.")
+  }
+  return toOxlintRuleOverride(config)
 }
 
 export { cartridgeArchitectureRules }

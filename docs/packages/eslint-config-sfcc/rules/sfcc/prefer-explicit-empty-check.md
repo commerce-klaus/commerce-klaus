@@ -32,7 +32,7 @@ Set the `autofix` option to `true` to apply replacements that preserve both the 
 }
 ```
 
-The [`empty-migration`](../../index.md#migrate-empty-in-batches) ESLint preset enables this option together with `sfcc/no-ambiguous-empty`. Oxlint can enable the same option directly in its cartridge override. Potentially side-effecting expressions remain suggestions in both migration modes.
+The [`empty-migration`](../../index.md#migrate-empty-in-batches) ESLint preset enables this option together with `sfcc/no-ambiguous-empty`. Oxlint can generate the equivalent override with `createOxlintEmptyMigrationOverride()`. Potentially side-effecting expressions remain suggestions in both migration modes.
 
 The rule reads local `@type` and `@param` JSDoc annotations in both ESLint and Oxlint. When ESLint TypeScript parser services are available, it also follows inferred types and type aliases.
 

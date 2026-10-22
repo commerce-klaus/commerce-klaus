@@ -7,7 +7,11 @@ import {
 } from "./configs/compatibility.js"
 import emptyMigration, { createEmptyMigrationConfig } from "./configs/empty-migration.js"
 import generatedTypes, { createGeneratedTypesConfig } from "./configs/generated-types.js"
-import oxlint, { createOxlintArchitectureOverrides, oxlintRules } from "./configs/oxlint.js"
+import oxlint, {
+  createOxlintArchitectureOverrides,
+  createOxlintEmptyMigrationOverride,
+  oxlintRules,
+} from "./configs/oxlint.js"
 import recommended, { createRecommendedConfig } from "./configs/recommended.js"
 import {
   createStorefrontConfig,
@@ -83,13 +87,14 @@ export {
   createEmptyMigrationConfig,
   createGeneratedTypesConfig,
   createOxlintArchitectureOverrides,
+  createOxlintEmptyMigrationOverride,
   createRecommendedConfig,
   createStorefrontConfig,
 }
 export type { CompatibilityConfigOptions, CompatibilityVersion } from "./configs/compatibility.js"
 export type { EmptyMigrationConfigOptions } from "./configs/empty-migration.js"
 export type { GeneratedTypesConfigOptions } from "./configs/generated-types.js"
-export type { OxlintArchitectureOverride } from "./configs/oxlint.js"
+export type { OxlintArchitectureOverride, OxlintRuleOverride } from "./configs/oxlint.js"
 export type {
   CartridgeArchitectureConfigOptions,
   StorefrontConfigOptions,

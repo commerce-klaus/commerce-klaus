@@ -210,26 +210,21 @@ Use `createEmptyMigrationConfig()` instead of the static preset to customize `ca
 
 ### Use the migration with Oxlint
 
-Oxlint can apply the same safe fixes through the JavaScript plugin. Add the migration rules to the cartridge override in `oxlint.config.ts`:
+Oxlint can apply the same safe fixes through the JavaScript plugin. Add the generated migration override in `oxlint.config.ts`:
 
-```ts{8-11} [oxlint.config.ts]
+```ts{2,8} [oxlint.config.ts]
 import { defineConfig } from "oxlint"
-import sfccOxlint from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
+import sfccOxlint, {
+  createOxlintEmptyMigrationOverride,
+} from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
 
 export default defineConfig({
   ...sfccOxlint.lint,
-  overrides: [
-    {
-      files: ["cartridges/**/*.{js,ds}"],
-      rules: {
-        ...sfccOxlint.lint.rules,
-        "sfcc/no-ambiguous-empty": "error",
-        "sfcc/prefer-explicit-empty-check": ["error", { autofix: true }],
-      },
-    },
-  ],
+  overrides: [createOxlintEmptyMigrationOverride()],
 })
 ```
+
+The builder uses the same rules, central cartridges directory, file globs, and client/static exclusions as the ESLint migration preset. Pass `cartridgesDir`, `files`, `ignores`, or shared SFCC settings to override them for one Oxlint configuration.
 
 Run Oxlint without `--fix` to inventory known and ambiguous calls:
 

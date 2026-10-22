@@ -219,6 +219,48 @@ describe("ESLint and Oxlint rule compatibility", () => {
     expect(output).toContain("sfcc(no-sfra-server)")
   })
 
+  test("applies the empty migration override through the Oxlint subpath", () => {
+    const temporaryDir = fs.mkdtempSync(path.join(os.tmpdir(), "commerce-klaus-oxlint-empty-"))
+
+    try {
+      const configFile = path.join(temporaryDir, "oxlint.config.mjs")
+      const sampleFile = path.join(temporaryDir, "sample.js")
+      const packageLink = path.join(temporaryDir, "node_modules/@commerce-klaus/eslint-config-sfcc")
+
+      fs.mkdirSync(path.dirname(packageLink), { recursive: true })
+      fs.symlinkSync(packageRoot, packageLink, "junction")
+      fs.writeFileSync(
+        configFile,
+        `import sfcc, { createOxlintEmptyMigrationOverride } from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
+        export default {
+          lint: {
+            ...sfcc.lint,
+            overrides: [
+              createOxlintEmptyMigrationOverride({
+                files: ["**/*.js"],
+                ignores: [],
+              }),
+            ],
+          },
+        }\n`,
+      )
+      fs.writeFileSync(
+        sampleFile,
+        "/** @type {string} */\nconst value = getValue()\nmodule.exports = empty(value)\n",
+      )
+
+      const result = spawnSync(oxlint, ["--config", configFile, "--fix", sampleFile], {
+        cwd: temporaryDir,
+        encoding: "utf8",
+      })
+
+      expect(result.status, `${result.stdout}${result.stderr}`).toBe(0)
+      expect(fs.readFileSync(sampleFile, "utf8")).toContain("module.exports = value.length === 0")
+    } finally {
+      fs.rmSync(temporaryDir, { recursive: true, force: true })
+    }
+  })
+
   test("runs sfcc/valid-hook-export", async () => {
     const relativeFilePath = "cartridges/app_custom/cartridge/scripts/hooks/basket.js"
     const code = "exports.afterPATCH = function () {}\n"

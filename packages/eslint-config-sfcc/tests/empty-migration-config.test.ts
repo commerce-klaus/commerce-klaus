@@ -1,7 +1,12 @@
 import { ESLint } from "eslint"
 import { expect, test } from "vite-plus/test"
 
-import { configs, createEmptyMigrationConfig, emptyMigration } from "../src/index.js"
+import {
+  configs,
+  createEmptyMigrationConfig,
+  createOxlintEmptyMigrationOverride,
+  emptyMigration,
+} from "../src/index.js"
 
 test("exports the empty migration preset", () => {
   expect(configs["empty-migration"]).toBe(emptyMigration)
@@ -19,6 +24,22 @@ test("uses explicit file and ignore globs", () => {
 
   expect(config[0]?.files).toEqual(["commerce/**/*.js"])
   expect(config[0]?.ignores).toEqual(["commerce/generated/**"])
+})
+
+test("creates an equivalent Oxlint migration override", () => {
+  const override = createOxlintEmptyMigrationOverride({
+    files: ["commerce/**/*.js"],
+    ignores: ["commerce/generated/**"],
+  })
+
+  expect(override).toEqual({
+    files: ["commerce/**/*.js"],
+    excludeFiles: ["commerce/generated/**"],
+    rules: {
+      "sfcc/no-ambiguous-empty": "error",
+      "sfcc/prefer-explicit-empty-check": ["error", { autofix: true }],
+    },
+  })
 })
 
 test("fixes known calls and leaves ambiguous calls for review", async () => {
