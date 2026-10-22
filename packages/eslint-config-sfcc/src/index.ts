@@ -5,6 +5,7 @@ import {
   compatibility22_7,
   createCompatibilityConfig,
 } from "./configs/compatibility.js"
+import emptyMigration, { createEmptyMigrationConfig } from "./configs/empty-migration.js"
 import generatedTypes, { createGeneratedTypesConfig } from "./configs/generated-types.js"
 import oxlint, { createOxlintArchitectureOverrides, oxlintRules } from "./configs/oxlint.js"
 import recommended, { createRecommendedConfig } from "./configs/recommended.js"
@@ -24,6 +25,7 @@ import sitegenesis from "./plugins/sitegenesis/index.js"
 type Configs = {
   "compatibility-21.2": Linter.Config[]
   "compatibility-22.7": Linter.Config[]
+  "empty-migration": Linter.Config[]
   "generated-types": Linter.Config[]
   recommended: Linter.Config[]
   "storefront-next": Linter.Config[]
@@ -36,6 +38,7 @@ type Configs = {
 const configs: Configs = {
   "compatibility-21.2": compatibility21_2,
   "compatibility-22.7": compatibility22_7,
+  "empty-migration": emptyMigration,
   "generated-types": generatedTypes,
   recommended,
   "storefront-next": storefrontNext,
@@ -59,6 +62,7 @@ export {
   compatibility21_2,
   compatibility22_7,
   configs,
+  emptyMigration,
   generatedTypes,
   oxlint,
   oxlintRules,
@@ -76,12 +80,14 @@ export {
 export {
   createCompatibilityConfig,
   createCartridgeArchitectureConfig,
+  createEmptyMigrationConfig,
   createGeneratedTypesConfig,
   createOxlintArchitectureOverrides,
   createRecommendedConfig,
   createStorefrontConfig,
 }
 export type { CompatibilityConfigOptions, CompatibilityVersion } from "./configs/compatibility.js"
+export type { EmptyMigrationConfigOptions } from "./configs/empty-migration.js"
 export type { GeneratedTypesConfigOptions } from "./configs/generated-types.js"
 export type { OxlintArchitectureOverride } from "./configs/oxlint.js"
 export type {

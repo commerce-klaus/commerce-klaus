@@ -24,6 +24,16 @@ See the official [`TopLevel.global.empty()` documentation](https://salesforcecom
 
 Suggestions are not applied automatically so callers can review repeated member access and simplify conditions with surrounding control-flow knowledge.
 
+Set the `autofix` option to `true` to apply replacements that preserve both the result and evaluation behavior:
+
+```js
+{
+  "sfcc/prefer-explicit-empty-check": ["error", { autofix: true }]
+}
+```
+
+The [`empty-migration`](../../index.md#migrate-empty-in-batches) ESLint preset enables this option together with `sfcc/no-ambiguous-empty`. Oxlint can enable the same option directly in its cartridge override. Potentially side-effecting expressions remain suggestions in both migration modes.
+
 The rule reads local `@type` and `@param` JSDoc annotations in both ESLint and Oxlint. When ESLint TypeScript parser services are available, it also follows inferred types and type aliases.
 
 ## Replacements

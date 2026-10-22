@@ -4,9 +4,50 @@ import {
   analyzeEmptyArgument,
   asGlobalEmptyCall,
   buildExplicitEmptyReplacement,
+  canAutofixEmptyReplacement,
   isJavaScriptTarget,
 } from "../_utils/empty-global.js"
 import { withSfccSettings } from "../_utils/sfcc-settings.js"
+
+interface RuleOptions {
+  autofix?: boolean
+}
+
+const DELIMITED_PARENT_TYPES = new Set([
+  "ArrayExpression",
+  "ArrowFunctionExpression",
+  "AssignmentExpression",
+  "AssignmentPattern",
+  "CallExpression",
+  "ConditionalExpression",
+  "DoWhileStatement",
+  "ExpressionStatement",
+  "ForStatement",
+  "IfStatement",
+  "NewExpression",
+  "Property",
+  "ReturnStatement",
+  "SequenceExpression",
+  "SwitchCase",
+  "SwitchStatement",
+  "TemplateLiteral",
+  "ThrowStatement",
+  "VariableDeclarator",
+  "WhileStatement",
+])
+
+function getAutofixReplacement(callExpression: Rule.Node, replacement: string): string {
+  const parentType = callExpression.parent?.type
+  if (
+    !parentType ||
+    DELIMITED_PARENT_TYPES.has(parentType) ||
+    (parentType === "LogicalExpression" && !replacement.includes(" || "))
+  ) {
+    return replacement
+  }
+
+  return `(${replacement})`
+}
 
 const preferExplicitEmptyCheck: Rule.RuleModule = {
   meta: {
@@ -17,8 +58,19 @@ const preferExplicitEmptyCheck: Rule.RuleModule = {
       url: "https://commerce-klaus.github.io/commerce-klaus/packages/eslint-config-sfcc/rules/sfcc/prefer-explicit-empty-check",
       recommended: true,
     },
+    fixable: "code",
     hasSuggestions: true,
-    schema: [],
+    schema: [
+      {
+        type: "object",
+        properties: {
+          autofix: {
+            type: "boolean",
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
     messages: {
       preferExplicitCheck:
         "Replace SFCC empty() with an explicit check that preserves its behavior for this value type.",
@@ -29,6 +81,7 @@ const preferExplicitEmptyCheck: Rule.RuleModule = {
     if (!isJavaScriptTarget(context.filename)) {
       return {}
     }
+    const [{ autofix = false } = {}] = context.options as [RuleOptions?]
 
     return {
       CallExpression(node: Rule.Node) {
@@ -47,10 +100,17 @@ const preferExplicitEmptyCheck: Rule.RuleModule = {
           analysis,
           context.sourceCode.getText(argument),
         )
+        const autofixReplacement =
+          autofix && canAutofixEmptyReplacement(analysis, argument)
+            ? getAutofixReplacement(callExpression, replacement)
+            : undefined
 
         context.report({
           node: callExpression,
           messageId: "preferExplicitCheck",
+          fix: autofixReplacement
+            ? (fixer) => fixer.replaceText(callExpression, autofixReplacement)
+            : undefined,
           suggest: [
             {
               messageId: "suggestExplicitCheck",

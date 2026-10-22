@@ -339,3 +339,24 @@ export function buildExplicitEmptyReplacement(
 
   return analysis.nullable ? `${nullishCheck(text)} || ${valueCheck}` : valueCheck
 }
+
+export function canAutofixEmptyReplacement(
+  analysis: Exclude<EmptyArgumentAnalysis, { kind: "ambiguous" }>,
+  argument: Rule.Node,
+): boolean {
+  if (argument.type === "Identifier" || argument.type === "Literal") {
+    return true
+  }
+
+  if (analysis.nullable || analysis.kind === "always-empty" || analysis.kind === "nullish-only") {
+    return false
+  }
+
+  return [
+    "ArrayExpression",
+    "CallExpression",
+    "MemberExpression",
+    "NewExpression",
+    "TemplateLiteral",
+  ].includes(argument.type)
+}

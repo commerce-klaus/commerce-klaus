@@ -58,6 +58,25 @@ async function lintStrict(code: string) {
   return results[0]
 }
 
+async function lintWithAutofix(code: string) {
+  const eslint = new ESLint({
+    fix: true,
+    overrideConfigFile: true,
+    overrideConfig: [
+      {
+        files: ["**/*.js"],
+        plugins: { sfcc },
+        rules: {
+          "sfcc/prefer-explicit-empty-check": ["error", { autofix: true }],
+        },
+      },
+    ],
+  })
+
+  const results = await eslint.lintText(code, { filePath: "fixture.js" })
+  return results[0]
+}
+
 async function lintTypeAwareFixture(filename: string) {
   const results = await typeAwareEslint.lintFiles([path.join(fixtureDir, filename)])
   return results[0]
@@ -89,6 +108,43 @@ describe("SFCC empty() migration rules", () => {
     const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
     expect(applyFirstSuggestion(code, hit)).toBe("[].length === 0")
+  })
+
+  test("autofixes a known value only when explicitly enabled", async () => {
+    const result = await lintWithAutofix('const value = ""\nempty(value)')
+
+    expect(result?.output).toBe('const value = ""\nvalue.length === 0')
+    expect(result?.messages).toHaveLength(0)
+  })
+
+  test("preserves expression precedence when autofixing", async () => {
+    const result = await lintWithAutofix('const value = ""\n!empty(value)')
+
+    expect(result?.output).toBe('const value = ""\n!(value.length === 0)')
+  })
+
+  test("groups nullable replacements inside logical expressions", async () => {
+    const result = await lintWithAutofix(
+      [
+        "/** @type {string | null | undefined} */",
+        "const value = getValue()",
+        "empty(value) && consume()",
+      ].join("\n"),
+    )
+
+    expect(result?.output).toContain(
+      "(value === null || value === undefined || value.length === 0) && consume()",
+    )
+  })
+
+  test("does not autofix when replacement would discard side effects", async () => {
+    const code = "empty({ value: getValue() })"
+    const result = await lintWithAutofix(code)
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
+
+    expect(result?.output).toBeUndefined()
+    expect(hit?.suggestions).toHaveLength(1)
+    expect(applyFirstSuggestion(code, hit)).toBe("false")
   })
 
   test("infers a constant string initializer without type services", async () => {

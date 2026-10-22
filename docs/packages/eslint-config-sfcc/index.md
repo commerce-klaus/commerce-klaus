@@ -109,6 +109,176 @@ export default defineConfig(
 
 Compatibility presets are additive restrictions. They do not replace `recommended` and must be composed after it.
 
+## Migrate `empty()` in batches
+
+The ESLint-only `empty-migration` preset turns the recommended `empty()` guidance into a reviewable project migration. It:
+
+- reports every safely replaceable global `empty()` call as an error;
+- enables automatic fixes only when the replacement preserves evaluation behavior;
+- reports unknown or mixed argument types with concrete decision guidance;
+- leaves ambiguous and side-effect-sensitive calls unchanged.
+
+Compose it after the recommended config while the migration is active:
+
+```js{5} [eslint.config.js]
+import sfcc from "@commerce-klaus/eslint-config-sfcc"
+import { defineConfig } from "eslint/config"
+
+export default defineConfig(
+  sfcc.configs.recommended,
+  sfcc.configs["empty-migration"],
+)
+```
+
+Run ESLint without `--fix` to inventory safe and ambiguous calls:
+
+::: code-group
+
+```bash [pnpm]
+pnpm exec eslint cartridges
+```
+
+```bash [Yarn]
+yarn exec eslint cartridges
+```
+
+```bash [npm]
+npm exec -- eslint cartridges
+```
+
+```bash [Vite+]
+vp exec eslint cartridges
+```
+
+:::
+
+Preview all safe replacements as structured output without modifying files:
+
+::: code-group
+
+```bash [pnpm]
+pnpm exec eslint cartridges --fix-dry-run --format json
+```
+
+```bash [Yarn]
+yarn exec eslint cartridges --fix-dry-run --format json
+```
+
+```bash [npm]
+npm exec -- eslint cartridges --fix-dry-run --format json
+```
+
+```bash [Vite+]
+vp exec eslint cartridges --fix-dry-run --format json
+```
+
+:::
+
+Apply the safe replacements after reviewing the preview:
+
+::: code-group
+
+```bash [pnpm]
+pnpm exec eslint cartridges --fix
+```
+
+```bash [Yarn]
+yarn exec eslint cartridges --fix
+```
+
+```bash [npm]
+npm exec -- eslint cartridges --fix
+```
+
+```bash [Vite+]
+vp exec eslint cartridges --fix
+```
+
+:::
+
+Known strings and arrays become length checks, SFCC collections use `isEmpty()`, and nullable objects use explicit nullish checks. A replacement is not applied automatically when it would repeat or discard a potentially side-effecting expression. The normal editor suggestion remains available for manual review.
+
+For an ambiguous value, decide which contract actually applies:
+
+- `value === null || value === undefined` for nullable objects and values where only absence matters;
+- `value.length === 0` with the necessary nullish checks for strings and arrays;
+- `value.isEmpty()` with the necessary nullish checks for SFCC collections.
+
+Add or narrow the JSDoc type after making that decision, then rerun the migration. Once no global calls remain, remove the migration preset and enable `sfcc/no-empty-global` as an error to prevent regressions.
+
+Use `createEmptyMigrationConfig()` instead of the static preset to customize `cartridgesDir`, `files`, `ignores`, or shared SFCC settings.
+
+### Use the migration with Oxlint
+
+Oxlint can apply the same safe fixes through the JavaScript plugin. Add the migration rules to the cartridge override in `oxlint.config.ts`:
+
+```ts{8-11} [oxlint.config.ts]
+import { defineConfig } from "oxlint"
+import sfccOxlint from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
+
+export default defineConfig({
+  ...sfccOxlint.lint,
+  overrides: [
+    {
+      files: ["cartridges/**/*.{js,ds}"],
+      rules: {
+        ...sfccOxlint.lint.rules,
+        "sfcc/no-ambiguous-empty": "error",
+        "sfcc/prefer-explicit-empty-check": ["error", { autofix: true }],
+      },
+    },
+  ],
+})
+```
+
+Run Oxlint without `--fix` to inventory known and ambiguous calls:
+
+::: code-group
+
+```bash [pnpm]
+pnpm exec oxlint --type-aware
+```
+
+```bash [Yarn]
+yarn exec oxlint --type-aware
+```
+
+```bash [npm]
+npm exec -- oxlint --type-aware
+```
+
+```bash [Vite+]
+vp exec oxlint --type-aware
+```
+
+:::
+
+Apply the safe replacements with the project's normal Oxlint fix command:
+
+::: code-group
+
+```bash [pnpm]
+pnpm exec oxlint --type-aware --fix
+```
+
+```bash [Yarn]
+yarn exec oxlint --type-aware --fix
+```
+
+```bash [npm]
+npm exec -- oxlint --type-aware --fix
+```
+
+```bash [Vite+]
+vp exec oxlint --type-aware --fix
+```
+
+:::
+
+Oxlint JavaScript plugins do not receive TypeScript parser services, even when Oxlint itself runs with `--type-aware`. Commerce Klaus can still classify literals, constant string initializers, local `@type` and `@param` JSDoc annotations, and directly recognizable SFCC collections. Complex inferred types and aliases require ESLint with `@typescript-eslint/parser`.
+
+For a large initial migration, use the ESLint preset to benefit from full project type information, then keep the two Oxlint rules enabled to prevent regressions and fix locally evident cases.
+
 ## SFCC module resolution
 
 <!--@include: ../../_partials/sfcc-module-resolution.md-->

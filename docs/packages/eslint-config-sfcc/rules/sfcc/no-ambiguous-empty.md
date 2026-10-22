@@ -16,6 +16,8 @@ Local `@type` and `@param` annotations work in both ESLint and Oxlint. More comp
 - Auto-fix: none
 - Suggestions: none
 
+The [`empty-migration`](../../index.md#migrate-empty-in-batches) preset raises the severity to `error` so unresolved decisions remain visible after safe replacements have been applied.
+
 ## Unknown type
 
 ```js [Invalid]
@@ -44,3 +46,9 @@ value === null || value === undefined || value.length === 0
 ## Mixed semantics
 
 A union such as `string | Record<string, unknown>` remains ambiguous even with type information. Empty strings are SFCC-empty, while non-null plain objects are not. Narrow the value before checking it.
+
+Choose the replacement from the actual contract rather than the current runtime value:
+
+- use an explicit nullish check when only absence counts as empty;
+- use `.length === 0` for strings and arrays;
+- use `.isEmpty()` for SFCC collections.

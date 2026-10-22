@@ -19,9 +19,9 @@ const noAmbiguousEmpty: Rule.RuleModule = {
     schema: [],
     messages: {
       mixedType:
-        "Cannot safely replace empty(): type {{type}} spans values with different SFCC empty semantics. Narrow the value before checking it.",
+        "Cannot safely replace empty(): type {{type}} spans values with different SFCC empty semantics. Narrow the value. Then use a nullish, length, or SFCC collection check that matches the contract.",
       unknownType:
-        "Cannot safely replace empty(): the value type is unknown or too broad. Add or narrow its JSDoc type to receive a behavior-preserving replacement.",
+        "Cannot safely replace empty(): the value type is unknown or too broad. Decide whether the contract needs a nullish, length, or SFCC collection check. Add or narrow its JSDoc type to document that contract.",
     },
   },
   create: withSfccSettings((context) => {

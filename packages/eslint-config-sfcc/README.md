@@ -12,6 +12,7 @@ Shareable ESLint flat config for Salesforce Commerce Cloud projects. It catches 
 - Includes SFCC and SiteGenesis rules
 - Provides Storefront Next, PWA, SFRA, and SiteGenesis policy presets
 - Provides additive presets for older SFCC compatibility modes
+- Provides a reviewable, safe batch migration away from the SFCC `empty()` global
 - Provides an opt-in preset for enforcing generated project types at metadata boundaries
 - Supports ESLint and an Oxlint-compatible preset
 
