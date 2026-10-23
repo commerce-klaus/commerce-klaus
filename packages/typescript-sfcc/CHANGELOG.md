@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.8.0
+
+### Minor Changes
+
+- b776380: Load effective hook implementations from project metadata in Vitest and generate an extension-point registry for typed hook invocation.
+- 29db05a: Support TypeScript 7.1 and newer for cartridge-aware CLI typechecking and generated project types while retaining the TypeScript 5.5–6 tsserver plugin.
+
+### Patch Changes
+
+- Updated dependencies [40ffa6f]
+- Updated dependencies [9de00ee]
+- Updated dependencies [b3335c5]
+- Updated dependencies [00a3dec]
+- Updated dependencies [b776380]
+- Updated dependencies [1d806d0]
+- Updated dependencies [7e37249]
+- Updated dependencies [29db05a]
+- Updated dependencies [87ec511]
+  - @commerce-klaus/sfcc-module-resolver@2.1.0
+  - @commerce-klaus/config@1.1.0
+
 ## 1.7.5
 
 ### Patch Changes

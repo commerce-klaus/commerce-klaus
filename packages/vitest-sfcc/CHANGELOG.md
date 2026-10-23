@@ -1,5 +1,34 @@
 # @commerce-klaus/vitest-sfcc
 
+## 1.1.0
+
+### Minor Changes
+
+- 40ffa6f: Add reusable focused OAS contract validation and optional request and response validation for metadata-loaded Custom APIs.
+- 48daf21: Add a Custom API test harness with request globals, customer context, a focused `dw/system/RESTResponseMgr`, and captured success or RFC 9457 error responses.
+- 00a3dec: Resolve effective Custom API definitions by API and operation ID, and load their registered implementations directly in Vitest tests.
+- b776380: Load effective hook implementations from project metadata in Vitest and generate an extension-point registry for typed hook invocation.
+- cf0122e: Add typed SFCC global contracts, runtime inspection and selective removal APIs, and configurable project-level default globals.
+- 87ec511: Derive focused Vitest cartridge paths from central architecture assignments while preserving effective SFCC precedence.
+
+### Patch Changes
+
+- f72fc61: Provide resolved job step metadata to each Vitest worker so type ID loading does not depend on test initialization order.
+- Updated dependencies [40ffa6f]
+- Updated dependencies [48daf21]
+- Updated dependencies [9de00ee]
+- Updated dependencies [b3335c5]
+- Updated dependencies [00a3dec]
+- Updated dependencies [b776380]
+- Updated dependencies [1d806d0]
+- Updated dependencies [cf0122e]
+- Updated dependencies [7e37249]
+- Updated dependencies [29db05a]
+- Updated dependencies [87ec511]
+  - @commerce-klaus/sfcc-module-resolver@2.1.0
+  - @commerce-klaus/sfcc-test-runtime@1.1.0
+  - @commerce-klaus/config@1.1.0
+
 ## 1.0.4
 
 ### Patch Changes
