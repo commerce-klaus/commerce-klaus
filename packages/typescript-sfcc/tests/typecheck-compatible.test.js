@@ -13,6 +13,7 @@ import { parseConfigFile } from "../src/typecheck.ts"
 import { typecheckTest } from "./test-helpers.js"
 
 const require = createRequire(import.meta.url)
+const nativeTypeScriptVersion = require("typescript-7/package.json").version
 
 async function withTempDir(run) {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-ts-compatible-test-"))
@@ -187,7 +188,7 @@ typecheckTest("uses TypeScript 7.1 for SFCC modules and super modules", async ()
     })
 
     expect(result.backend).toBe("native")
-    expect(result.typescriptVersion).toBe("7.1.0-beta")
+    expect(result.typescriptVersion).toBe(nativeTypeScriptVersion)
     expect(result.diagnostics.filter((diagnostic) => diagnostic.code === 2345)).toHaveLength(3)
     expect(result.formattedDiagnostics).toContain("Product.js")
     expect(result.formattedDiagnostics).toContain("TS2345")
