@@ -5,6 +5,7 @@ export default defineConfig({
     entry: [
       "src/index.ts",
       "src/typecheck.ts",
+      "src/typecheck-compatible.ts",
       "src/typecheck-cartridges.ts",
       "src/sync-types.ts",
       "src/commands.ts",

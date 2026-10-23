@@ -4,10 +4,11 @@
 
 TypeScript tooling for Salesforce Commerce Cloud cartridge projects.
 
-The package currently ships two main entry points:
+The package ships these main integration paths:
 
-- a tsserver plugin that resolves SFCC-specific module patterns such as `~/...`, `*/...`, cartridge aliases, and `module.superModule`
-- a CLI that typechecks cartridge projects with the same resolution behavior
+- a TypeScript 5.5–6 tsserver plugin that resolves SFCC-specific module patterns such as `~/...`, `*/...`, cartridge aliases, and `module.superModule`
+- a CLI that typechecks cartridge projects with either the TypeScript 5.5–6 compiler API or the TypeScript 7.1+ native API
+- compiler-independent project type generation for both TypeScript generations
 
 ## What Commerce Klaus adds
 
@@ -74,6 +75,28 @@ npm install -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
 
 ```bash [Vite+]
 vp install -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
+```
+
+:::
+
+While TypeScript 7.1 is on the beta channel, install it explicitly:
+
+::: code-group
+
+```bash [pnpm]
+pnpm add -D typescript@beta
+```
+
+```bash [yarn]
+yarn add -D typescript@beta
+```
+
+```bash [npm]
+npm install -D typescript@beta
+```
+
+```bash [Vite+]
+vp install -D typescript@beta
 ```
 
 :::
@@ -380,7 +403,28 @@ When the generated declaration is loaded together with `@commerce-klaus/vitest-s
 
 ## tsserver Plugin
 
-Add the plugin to your cartridge `jsconfig.json` or `tsconfig.json`:
+### TypeScript version support
+
+| Project TypeScript | Typecheck CLI | Type generation | Editor plugin     |
+| ------------------ | ------------- | --------------- | ----------------- |
+| 5.5–6.x            | Supported     | Supported       | Supported         |
+| 7.0.x              | Not supported | Not supported   | Not supported     |
+| 7.1+               | Supported     | Supported       | Not yet supported |
+
+TypeScript 7.1 replaces tsserver with a native language server. It provides a
+new compiler API, which Commerce Klaus uses for command-line typechecking, but
+it does not load existing language-service plugins. Content mappers are not a
+replacement for this package because TypeScript does not allow them to register
+the built-in `.js` extension used by SFCC cartridges.
+
+The missing TypeScript 7 editor plugin hook is tracked upstream in the
+[TypeScript native plugin discussion](https://github.com/microsoft/typescript-go/discussions/475).
+Until an appropriate hook is available, the package keeps the proven tsserver
+plugin for TypeScript 5.5–6 without forcing CLI-only projects to stay on an
+older compiler.
+
+With TypeScript 5.5–6, add the plugin to your cartridge `jsconfig.json` or
+`tsconfig.json`:
 
 ```json{3} [cartridges/jsconfig.json]
 {
@@ -410,8 +454,15 @@ help, colored terminal output, errors, and structured `--json` output. Run eithe
 command with `--help` to see its complete option reference.
 
 The typecheck loads the project's installed TypeScript compiler, including when
-it runs through the B2C CLI plugin. This keeps compiler options and diagnostics
-aligned with the TypeScript version declared by the project.
+it runs through the B2C CLI plugin. TypeScript 5.5–6 uses the established
+compiler-host adapter; TypeScript 7.1+ uses the native synchronous API. Both
+adapters delegate cartridge ordering and SFCC module semantics to the shared
+resolver.
+
+Programmatic integrations that need both compiler generations should call the
+asynchronous `typecheckSolutionProjectsCompatible()` export. The existing
+synchronous `typecheckSolutionProjects()` and `runProjectTypecheck()` exports
+remain available for TypeScript 5.5–6 integrations.
 
 The Salesforce extension provides editor IntelliSense but does not expose a
 project-wide TypeScript check. Use `sfcc-ts-typecheck` locally and in CI to apply

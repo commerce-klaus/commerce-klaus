@@ -19,9 +19,18 @@ export {
   createFormatHost,
   formatDiagnostics,
   parseConfigFile,
+  resolveTypecheckProjects,
   runProjectTypecheck,
   typecheckSolutionProjects,
 } from "./typecheck.ts"
+export {
+  resolveTypeScriptBackend,
+  typecheckSolutionProjectsCompatible,
+  type CompatibleDiagnostic,
+  type CompatibleTypecheckOptions,
+  type CompatibleTypecheckResult,
+  type TypeScriptBackend,
+} from "./typecheck-compatible.ts"
 
 export { validateHookRegistrations } from "./hooks.ts"
 export { generateHookTypes } from "./hook-types.ts"

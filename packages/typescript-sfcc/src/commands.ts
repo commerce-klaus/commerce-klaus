@@ -8,7 +8,7 @@ import { cleanGeneratedTypes, type CleanGeneratedTypesResult } from "./clean-typ
 import { renderSyncTypesResult } from "./sync-types-output.ts"
 import { SyncTypesExecutionError, syncTypes, type SyncTypesResult } from "./sync-types.ts"
 import { parseArguments } from "./typecheck-cartridges.ts"
-import { formatDiagnostics, typecheckSolutionProjects } from "./typecheck.ts"
+import { typecheckSolutionProjectsCompatible } from "./typecheck-compatible.ts"
 import { renderTypesStatus } from "./types-status-output.ts"
 import { getTypesStatus, type TypesStatusResult } from "./types-status.ts"
 
@@ -131,7 +131,7 @@ export class TypecheckCommand extends CommerceKlausCommand {
     }
 
     try {
-      const diagnostics = typecheckSolutionProjects({
+      const result = await typecheckSolutionProjectsCompatible({
         solutionConfigPath:
           flags.project || !findCommerceKlausConfig(currentDirectory)
             ? solutionConfigPath
@@ -139,9 +139,9 @@ export class TypecheckCommand extends CommerceKlausCommand {
         cartridgesDir,
         cwd: currentDirectory,
       })
-      const formattedDiagnostics = formatDiagnostics(diagnostics, currentDirectory).trimEnd()
+      const formattedDiagnostics = result.formattedDiagnostics.trimEnd()
 
-      if (diagnostics.length > 0) {
+      if (result.diagnostics.length > 0) {
         if (!this.jsonEnabled() && formattedDiagnostics) {
           ux.stdout(formattedDiagnostics)
         }

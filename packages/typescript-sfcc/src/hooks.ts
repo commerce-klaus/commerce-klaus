@@ -6,7 +6,7 @@ import {
 } from "@commerce-klaus/sfcc-module-resolver/hooks"
 import fs from "node:fs"
 import path from "node:path"
-import ts from "typescript"
+import ts from "typescript-legacy"
 
 const DIAGNOSTIC_CODE = 81001
 

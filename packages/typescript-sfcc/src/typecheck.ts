@@ -22,6 +22,13 @@ export interface TypecheckOptions {
   configFile?: string | false
 }
 
+export interface ResolvedTypecheckProjects {
+  cartridgeRoots: string[]
+  configPaths: string[]
+  currentDirectory: string
+  cwd: string
+}
+
 type TypeScript = typeof ts
 
 export function resolveTypeScript(currentDirectory: string): TypeScript {
@@ -59,6 +66,7 @@ export function parseConfigFile(
   currentDirectory: string,
   typescript: TypeScript = ts,
 ): ts.ParsedCommandLine {
+  assertLegacyCompilerApi(typescript)
   const configParseHost: ts.ParseConfigFileHost = {
     ...typescript.sys,
     onUnRecoverableConfigFileDiagnostic: (diagnostic) => {
@@ -85,6 +93,7 @@ export function runProjectTypecheck(
   currentDirectory: string,
   typescript: TypeScript = ts,
 ): readonly ts.Diagnostic[] {
+  assertLegacyCompilerApi(typescript)
   const parsedConfig = parseConfigFile(configPath, currentDirectory, typescript)
   const existingPaths = parsedConfig.options.paths ?? {}
   parsedConfig.options.paths = {
@@ -190,7 +199,7 @@ export function runProjectTypecheck(
   return typescript.getPreEmitDiagnostics(program)
 }
 
-function withGeneratedTypeFiles(
+export function withGeneratedTypeFiles(
   rootNames: string[],
   configPath: string,
   cartridgeRoots: string[],
@@ -207,8 +216,17 @@ function withGeneratedTypeFiles(
 }
 
 export function typecheckSolutionProjects(options: TypecheckOptions): ts.Diagnostic[] {
+  const project = resolveTypecheckProjects(options)
+  const typescript = resolveTypeScript(project.cwd)
+  const typecheckDiagnostics = project.configPaths.flatMap((configPath) =>
+    runProjectTypecheck(configPath, project.cartridgeRoots, project.currentDirectory, typescript),
+  )
+
+  return [...typecheckDiagnostics, ...validateHookRegistrations(project.cartridgeRoots)]
+}
+
+export function resolveTypecheckProjects(options: TypecheckOptions): ResolvedTypecheckProjects {
   const cwd = path.resolve(options.cwd ?? process.cwd())
-  const typescript = resolveTypeScript(cwd)
   const centralConfig = resolveCommerceKlausConfig({
     cwd,
     configFile: options.configFile,
@@ -229,11 +247,7 @@ export function typecheckSolutionProjects(options: TypecheckOptions): ts.Diagnos
   const cartridgeRoots = inferCartridgeOrder(resolvedCartridgesDir, resolvedSolutionConfigPath)
   const currentDirectory = path.dirname(resolvedCartridgesDir)
 
-  const typecheckDiagnostics = configPaths.flatMap((configPath) =>
-    runProjectTypecheck(configPath, cartridgeRoots, currentDirectory, typescript),
-  )
-
-  return [...typecheckDiagnostics, ...validateHookRegistrations(cartridgeRoots)]
+  return { cartridgeRoots, configPaths, currentDirectory, cwd }
 }
 
 export function formatDiagnostics(
@@ -241,10 +255,22 @@ export function formatDiagnostics(
   currentDirectory: string,
   typescript: TypeScript = resolveTypeScript(currentDirectory),
 ): string {
+  assertLegacyCompilerApi(typescript)
   return typescript.formatDiagnosticsWithColorAndContext(
     diagnostics,
     createFormatHost(currentDirectory, typescript),
   )
+}
+
+function assertLegacyCompilerApi(typescript: TypeScript): void {
+  if (
+    typeof typescript.createProgram !== "function" ||
+    typeof typescript.getParsedCommandLineOfConfigFile !== "function"
+  ) {
+    throw new Error(
+      "This synchronous API supports TypeScript 5.5–6. Use typecheckSolutionProjectsCompatible() with TypeScript 7.1 or newer.",
+    )
+  }
 }
 
 function pathToExtension(filePath: string, typescript: TypeScript): ts.Extension {

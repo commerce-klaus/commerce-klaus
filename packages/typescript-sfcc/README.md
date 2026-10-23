@@ -7,7 +7,7 @@ TypeScript tooling for Salesforce Commerce Cloud cartridge projects. It provides
 ## Highlights
 
 - Resolves `dw/*`, `*/`, `~/`, cartridge aliases, and `module.superModule`
-- Typechecks cartridges with the same behavior as the editor plugin
+- Typechecks cartridges with TypeScript 5.5–6 or the TypeScript 7.1+ native API
 - Generates types for custom attributes, hooks, Custom APIs, and custom job steps with overridable chunk item types
 - Validates hook registrations and statically detectable exports
 
@@ -50,7 +50,11 @@ npm install -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
 vp install -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
 ```
 
-Enable the editor plugin in a cartridge `jsconfig.json` or `tsconfig.json`:
+While TypeScript 7.1 is on the beta channel, replace `typescript` with
+`typescript@beta` in the command for your package manager.
+
+With TypeScript 5.5–6, enable the editor plugin in a cartridge `jsconfig.json`
+or `tsconfig.json`:
 
 ```json
 {
@@ -65,6 +69,12 @@ The plugin composes with the
 Existing language-service resolutions from Salesforce take precedence; Commerce
 Klaus fills unresolved modules and adds generated project declarations and
 `module.superModule` support.
+
+TypeScript 7.1 uses a native language server and no longer loads tsserver
+plugins. The CLI and type generators support TypeScript 7.1+, but the editor
+plugin currently requires TypeScript 5.5–6. Projects that only use the CLI and
+generators can adopt TypeScript 7.1 without installing an older project
+compiler.
 
 Synchronize types and run the cartridge typecheck:
 

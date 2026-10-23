@@ -1,6 +1,6 @@
 import fs from "node:fs"
 import path from "node:path"
-import ts from "typescript"
+import ts from "typescript-legacy"
 
 export const GENERATED_HOOK_TYPES_FILE_NAME = "sfcc-hooks.generated.d.ts"
 

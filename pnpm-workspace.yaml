@@ -24,6 +24,8 @@ catalog:
   globals: ^17.4.0
   oxlint: ^1.79.0
   typescript: npm:@typescript/typescript6@^6.0.2
+  typescript-legacy: npm:@typescript/typescript6@^6.0.2
+  typescript-7: npm:typescript@7.1.0-beta
   vite: npm:@voidzero-dev/vite-plus-core@latest
   vitest: 5.0.5
   vite-plus: latest

@@ -34,6 +34,12 @@ test("oclif commands are available to CLI adapters", () => {
   expect(packageManifest.dependencies["@oclif/core"]).toBe("catalog:")
 })
 
-test("supports TypeScript 5.5 through 6", () => {
-  expect(packageManifest.peerDependencies.typescript).toBe(">=5.5.0 <7")
+test("supports the legacy TypeScript plugin range and the native TypeScript API range", () => {
+  expect(packageManifest.peerDependencies.typescript).toBe(">=5.5.0 <7 || >=7.1.0-beta <8")
+  expect(packageManifest.dependencies["typescript-legacy"]).toBe("catalog:")
+  expect(packageManifest.exports["./typecheck-compatible"]).toEqual({
+    types: "./dist/typecheck-compatible.d.mts",
+    import: "./dist/typecheck-compatible.mjs",
+    require: "./dist/typecheck-compatible.cjs",
+  })
 })

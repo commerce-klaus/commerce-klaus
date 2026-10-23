@@ -59,7 +59,10 @@ export function transformSuperModuleSource(
   filePath: string,
   cartridgeRoots: string[],
 ): string {
-  if (!sourceCode.includes("module.superModule")) {
+  if (
+    !sourceCode.includes("module.superModule") ||
+    !findContainingCartridgeRoot(filePath, cartridgeRoots)
+  ) {
     return sourceCode
   }
 

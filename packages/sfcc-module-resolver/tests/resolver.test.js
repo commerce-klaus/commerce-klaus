@@ -359,3 +359,13 @@ test("transformSuperModuleSource injects require and rewrites module.superModule
     expect(transformed.startsWith('"use strict"\n')).toBe(true)
   })
 })
+
+test("transformSuperModuleSource leaves JavaScript outside cartridges unchanged", () => {
+  const source = "module.exports = module.superModule\n"
+
+  expect(
+    transformSuperModuleSource(source, "/workspace/node_modules/example/index.js", [
+      "/workspace/cartridges/app_custom",
+    ]),
+  ).toBe(source)
+})
