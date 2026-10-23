@@ -8,20 +8,20 @@ Shared project configuration for Commerce Klaus tools.
 
 ::: code-group
 
-```bash [Vite+]
-vp install -D @commerce-klaus/config
-```
-
 ```bash [pnpm]
 pnpm add -D @commerce-klaus/config
+```
+
+```bash [npm]
+npm install -D @commerce-klaus/config
 ```
 
 ```bash [Yarn]
 yarn add -D @commerce-klaus/config
 ```
 
-```bash [npm]
-npm install -D @commerce-klaus/config
+```bash [Vite+]
+vp install -D @commerce-klaus/config
 ```
 
 :::

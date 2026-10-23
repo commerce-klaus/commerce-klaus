@@ -4,36 +4,15 @@
 
 This page describes the common model used throughout Commerce Klaus. Individual packages apply the model at different stages: linting validates module identifiers, TypeScript resolves them for editor features and type checking, build plugins make them available to Babel or Vite, and `vitest-sfcc` combines resolution with a controlled test runtime.
 
-## The cartridge path is an ordered lookup path
+## Before you begin
 
-An SFCC project contains cartridges, each with a `cartridge/` directory. The active cartridge path is an ordered list such as:
+Module resolution builds on [cartridges and cartridge paths](/guide/cartridges-and-cartridge-paths). The examples below use this ordered path:
 
 ```text
 app_brand:app_core:app_storefront_base:modules
 ```
 
-Read the path from left to right. `app_brand` has the highest precedence, followed by `app_core`, then `app_storefront_base`, and finally `modules`.
-
-Suppose these files exist:
-
-```text
-cartridges/
-├── app_brand/cartridge/scripts/price.js
-├── app_core/cartridge/scripts/price.js
-└── app_storefront_base/cartridge/scripts/price.js
-```
-
-The expression below resolves to the file in `app_brand` because it is the first matching cartridge:
-
-```js
-const price = require("*/cartridge/scripts/price")
-```
-
-Reordering the cartridge path can therefore change application behavior without changing the source of the importing module.
-
-::: warning Cartridge order is behavior
-Do not alphabetically sort or deduplicate an explicit cartridge path. A deterministic alphabetical scan is useful only as a tooling fallback when the project provides no authoritative order.
-:::
+Entries on the left have higher precedence. The central guide explains cartridge structure, site-specific paths, overrides, and how Commerce Klaus determines the effective order.
 
 ## Resolution forms
 
@@ -71,6 +50,21 @@ app_core/cartridge/config/local.js
 ```
 
 No other cartridge is searched. Resolution fails when the importer is outside the configured cartridge roots because there is no current cartridge to use.
+
+::: tip Prefer `~/` for local cartridge dependencies
+
+When the target module belongs to the importing file's own cartridge, use `~/` instead of `*/` or
+the cartridge's name. This makes the local dependency explicit and prevents a cartridge with higher
+precedence from unexpectedly supplying a module with the same path. Reserve `*/` for dependencies
+that should intentionally follow cartridge-path overrides.
+
+The ESLint `pwa` and `storefront-next` presets enforce this policy by combining
+[`sfcc/no-proprietary-module-syntax`](/packages/eslint-config-sfcc/rules/sfcc/no-proprietary-module-syntax)
+for `*/` paths with
+[`sfcc/prefer-tilde-require-path`](/packages/eslint-config-sfcc/rules/sfcc/prefer-tilde-require-path)
+for named imports from the current cartridge.
+
+:::
 
 ### Named cartridge aliases
 
@@ -173,22 +167,18 @@ For example, `*/cartridge/scripts/example` can resolve to a matching `example.js
 
 When an identifier contains an explicit extension, that exact candidate is preferred. Legacy `.ds` requests can fall back to a corresponding `.js` file to support migrated code.
 
-## Where cartridge order comes from
-
-<!--@include: ../_partials/cartridge-order-inference.md-->
-
 ## A practical decision guide
 
 Use the module form that communicates the dependency you intend:
 
-| Intent                                           | Module form                 |
-| ------------------------------------------------ | --------------------------- |
-| Load the effective implementation with overrides | `*/cartridge/...`           |
-| Load a private module from the current cartridge | `~/cartridge/...`           |
-| Depend deliberately on one named cartridge       | `<cartridge>/cartridge/...` |
-| Extend the next lower-precedence implementation  | `module.superModule`        |
-| Load a sibling or parent module directly         | `./...` or `../...`         |
-| Use an SFCC platform API                         | `dw/...`                    |
-| Register an SFRA controller                      | `server`                    |
+| Intent                                               | Module form                 |
+| ---------------------------------------------------- | --------------------------- |
+| Load the effective implementation with overrides     | `*/cartridge/...`           |
+| Load a module from the current cartridge (preferred) | `~/cartridge/...`           |
+| Depend deliberately on one different named cartridge | `<cartridge>/cartridge/...` |
+| Extend the next lower-precedence implementation      | `module.superModule`        |
+| Load a nearby sibling or parent module directly      | `./...` or `../...`         |
+| Use an SFCC platform API                             | `dw/...`                    |
+| Register an SFRA controller                          | `server`                    |
 
 The important distinction is between **selection** and **execution**. Module resolution selects what a specifier means. Type information, source transformation, platform behavior, and test mocks determine what a tool can then do with the selected module. Commerce Klaus keeps those responsibilities in separate packages while sharing the same cartridge semantics between them.

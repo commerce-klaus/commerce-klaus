@@ -45,7 +45,7 @@ SFCC cartridge code uses CommonJS, cartridge-specific module identifiers, platfo
 
 Use this package when cartridge code must run in Vitest. It provides the complete test integration: cartridge resolution, CommonJS transformation, SFCC platform-module fallbacks, globals, dependency mocking, hooks, and execution harnesses.
 
-Use [`@commerce-klaus/vite-plugin-sfcc-modules`](../vite-plugin-sfcc-modules/) only when another Vite-based tool needs cartridge-aware module resolution without the test runtime. `vitest-sfcc` already includes the required resolution behavior, so the two plugins should not be configured together.
+<!--@include: ../../_partials/vite-integration-choice.md-->
 
 ## Features
 
@@ -65,12 +65,12 @@ Use [`@commerce-klaus/vite-plugin-sfcc-modules`](../vite-plugin-sfcc-modules/) o
 pnpm add -D @commerce-klaus/vitest-sfcc vitest
 ```
 
-```bash [yarn]
-yarn add -D @commerce-klaus/vitest-sfcc vitest
-```
-
 ```bash [npm]
 npm install -D @commerce-klaus/vitest-sfcc vitest
+```
+
+```bash [Yarn]
+yarn add -D @commerce-klaus/vitest-sfcc vitest
 ```
 
 ```bash [Vite+]
@@ -79,7 +79,11 @@ vp install -D @commerce-klaus/vitest-sfcc vitest
 
 :::
 
+::: info Runtime APIs are included
+
 Do not install `@commerce-klaus/sfcc-test-runtime` separately when using the Vitest integration. It is an internal dependency and its public APIs are re-exported through `@commerce-klaus/vitest-sfcc/runtime`.
+
+:::
 
 ## Configuration
 
@@ -136,7 +140,8 @@ The same inference rules are shared by the other Commerce Klaus packages through
 ### Focused cartridge paths
 
 Architecture assignments in `commerce-klaus.config.ts` can define the project
-once:
+once. The [Cartridge architectures guide](/guide/cartridge-architectures)
+defines the shared labels and explains their policy boundaries:
 
 ```ts [commerce-klaus.config.ts]
 import { defineConfig } from "@commerce-klaus/config"
@@ -283,7 +288,11 @@ The validator covers:
 - JSON response schemas and responses that declare no body
 - local `$ref`, objects, arrays, strings, finite numbers, integers, booleans, `required`, `enum`, `nullable`, properties, items, and `additionalProperties`
 
+::: warning Validation is intentionally partial
+
 Authentication and authorization declarations, non-JSON media types, response headers, formats, composition keywords, and further numeric or string constraints are not evaluated. Unknown local references fail explicitly; unsupported keywords are left to full OAS validation tools rather than approximated.
+
+:::
 
 ## Dependency mocking
 
@@ -620,20 +629,7 @@ Mutable or computed module IDs and mutations of an existing export property fail
 
 Most Vitest projects should install only `@commerce-klaus/vitest-sfcc`. Install the runtime package directly only when building another test-runner integration or using the runtime without Vite and Vitest.
 
-## Development
-
-This repository uses Vite+ (`vp`):
-
-```bash
-vp install
-vp check
-vp test
-vp run build
-```
-
-## License
-
-MIT
+<!--@include: ../../_partials/package-development.md-->
 
 [npm-url]: https://www.npmjs.com/package/@commerce-klaus/vitest-sfcc
 [npm-image]: https://badgen.net/npm/v/@commerce-klaus/vitest-sfcc

@@ -47,3 +47,9 @@ const result = getLoyaltyInfo()
 ```
 
 Request bodies, parameters, and named schemas remain available for explicit annotations inside the handler. The rule does not guess which local value represents them.
+
+## Default behavior
+
+- ⚪ **Severity:** off by default; `error` in the `generated-types` preset
+- ➖ **Auto-fix:** none
+- 💡 **Editor suggestions:** add or replace the generated handler or response type

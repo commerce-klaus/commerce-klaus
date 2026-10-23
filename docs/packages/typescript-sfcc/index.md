@@ -65,12 +65,12 @@ For the broader modernization strategy, see [Modernize SFCC JavaScript with conf
 pnpm add -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
 ```
 
-```bash [yarn]
-yarn add -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
-```
-
 ```bash [npm]
 npm install -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
+```
+
+```bash [Yarn]
+yarn add -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
 ```
 
 ```bash [Vite+]
@@ -87,12 +87,12 @@ While TypeScript 7.1 is on the beta channel, install it explicitly:
 pnpm add -D typescript@beta
 ```
 
-```bash [yarn]
-yarn add -D typescript@beta
-```
-
 ```bash [npm]
 npm install -D typescript@beta
+```
+
+```bash [Yarn]
+yarn add -D typescript@beta
 ```
 
 ```bash [Vite+]
@@ -300,12 +300,12 @@ explicitly before `sfcc-ts-typecheck`:
 pnpm run types:sfcc:sync
 ```
 
-```bash [yarn]
-yarn run types:sfcc:sync
-```
-
 ```bash [npm]
 npm run types:sfcc:sync
+```
+
+```bash [Yarn]
+yarn run types:sfcc:sync
 ```
 
 ```bash [Vite+]
@@ -483,16 +483,16 @@ pnpm exec sfcc-ts-typecheck --project cartridges/jsconfig.json
 pnpm exec sfcc-ts-typecheck --project cartridges/tsconfig.json
 ```
 
-```bash [yarn]
-yarn exec sfcc-ts-typecheck
-yarn exec sfcc-ts-typecheck --project cartridges/jsconfig.json
-yarn exec sfcc-ts-typecheck --project cartridges/tsconfig.json
-```
-
 ```bash [npm]
 npm exec -- sfcc-ts-typecheck
 npm exec -- sfcc-ts-typecheck --project cartridges/jsconfig.json
 npm exec -- sfcc-ts-typecheck --project cartridges/tsconfig.json
+```
+
+```bash [Yarn]
+yarn exec sfcc-ts-typecheck
+yarn exec sfcc-ts-typecheck --project cartridges/jsconfig.json
+yarn exec sfcc-ts-typecheck --project cartridges/tsconfig.json
 ```
 
 ```bash [Vite+]
@@ -511,12 +511,12 @@ If your project config is outside the cartridges folder, pass the cartridges roo
 pnpm exec sfcc-ts-typecheck --project config/tsconfig.cartridges.json --cartridges-dir cartridges
 ```
 
-```bash [yarn]
-yarn exec sfcc-ts-typecheck --project config/tsconfig.cartridges.json --cartridges-dir cartridges
-```
-
 ```bash [npm]
 npm exec -- sfcc-ts-typecheck --project config/tsconfig.cartridges.json --cartridges-dir cartridges
+```
+
+```bash [Yarn]
+yarn exec sfcc-ts-typecheck --project config/tsconfig.cartridges.json --cartridges-dir cartridges
 ```
 
 ```bash [Vite+]

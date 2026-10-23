@@ -18,8 +18,8 @@ Affected Rhino versions can represent composed JavaScript strings as an internal
 
 ## Default behavior
 
-- Severity: `error`
-- Auto-fix: replaces interpolation-free tagged templates with an equivalent string literal
+- 🔴 **Severity:** `error`
+- 🛠️ **Auto-fix:** replaces interpolation-free tagged templates with an equivalent string literal
 
 ## Example
 

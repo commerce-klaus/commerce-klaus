@@ -9,7 +9,7 @@ tags:
   - tooling
 ---
 
-Salesforce Commerce Cloud development has a peculiar split personality. The surrounding JavaScript ecosystem moves quickly, while server-side cartridge code runs with its own module conventions, APIs, and Rhino compatibility constraints.
+Salesforce Commerce Cloud development has a peculiar split personality. The surrounding JavaScript ecosystem moves quickly, while server-side cartridge code executes in the [SFCC script runtime](/guide/sfcc-script-runtime), with its own module conventions, APIs, and compatibility constraints.
 
 Generic tooling sees only JavaScript files. SFCC developers see cartridge precedence, `module.superModule`, Script API classes, metadata-defined attributes, registered hooks, and a deployment target that may reject code long after it was written.
 
@@ -34,4 +34,4 @@ That is the standard for the project: focused packages, explicit constraints, in
 
 > Klaus is here to tame the SFCC Rhino.
 
-The Rhino does not disappear. It simply becomes easier to work with.
+The runtime does not disappear. It simply becomes easier to work with. "Rhino" in the slogan refers to its underlying JavaScript engine; see [the explanation](/guide/sfcc-script-runtime#why-tame-the-sfcc-rhino).

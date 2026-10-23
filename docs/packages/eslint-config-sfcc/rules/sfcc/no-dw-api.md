@@ -53,9 +53,9 @@ export default {
 
 ## Default behavior
 
-- Severity: off (opt-in)
-- Allowed modules: none
-- Auto-fix: none
+- ⚪ **Severity:** off (opt-in)
+- ⚙️ **Allowed modules:** none
+- ➖ **Auto-fix:** none
 
 ## Example
 

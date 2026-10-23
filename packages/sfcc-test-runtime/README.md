@@ -18,12 +18,12 @@ Framework-independent SFCC runtime modules and dependency mocking for local test
 pnpm add -D @commerce-klaus/sfcc-test-runtime
 ```
 
-```bash [yarn]
-yarn add -D @commerce-klaus/sfcc-test-runtime
-```
-
 ```bash [npm]
 npm install -D @commerce-klaus/sfcc-test-runtime
+```
+
+```bash [Yarn]
+yarn add -D @commerce-klaus/sfcc-test-runtime
 ```
 
 ```bash [Vite+]

@@ -2,24 +2,25 @@
 
 Commerce Klaus covers the development loop around SFCC server-side JavaScript: static compatibility checks, cartridge-aware type information, and local module execution.
 
-## Project-facing tools
+[Choose a package](/guide/choosing-a-package) for recommendations and a task-oriented adoption path.
 
-| Package                                                                     | Use it for                                                             |
-| --------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| [`@commerce-klaus/b2c-plugin`](./b2c-plugin/)                               | Running Commerce Klaus tools through the Salesforce B2C CLI            |
-| [`@commerce-klaus/eslint-config-sfcc`](./eslint-config-sfcc/)               | Rhino compatibility and SFCC-specific correctness rules                |
-| [`@commerce-klaus/typescript-sfcc`](./typescript-sfcc/)                     | Editor resolution, cartridge typechecking, and generated project types |
-| [`@commerce-klaus/vitest-sfcc`](./vitest-sfcc/)                             | SFCC runtime modules and cartridge-aware dependency mocking in Vitest  |
-| [`@commerce-klaus/vite-plugin-sfcc-modules`](./vite-plugin-sfcc-modules/)   | SFCC module resolution in other Vite-based tooling                     |
-| [`@commerce-klaus/babel-plugin-sfcc-modules`](./babel-plugin-sfcc-modules/) | SFCC module rewriting in Babel-based pipelines                         |
+## Commerce Klaus tools
 
-## Shared foundation
+These packages provide direct feedback or commands in the everyday development workflow.
 
-[`@commerce-klaus/config`](./config/) provides the public, project-wide configuration contract shared by Commerce Klaus tools.
+<!--@include: ../_partials/package-cards-tools.md-->
 
-[`@commerce-klaus/sfcc-module-resolver`](./sfcc-module-resolver/) is the common Node.js resolution core used by the project-facing packages. It is also public for authors building additional SFCC-aware tools.
+## Integration adapters
 
-[`@commerce-klaus/sfcc-test-runtime`](./sfcc-test-runtime/) is the framework-independent runtime core used by the Vitest integration. It provides isolated module replacements and focused implementations of common `dw/*` modules.
+These packages connect Commerce Klaus module semantics to an existing transformation pipeline.
+
+<!--@include: ../_partials/package-cards-adapters.md-->
+
+## Utilities and shared foundations
+
+Most projects consume these public packages indirectly. Use them directly when building another SFCC-aware integration.
+
+<!--@include: ../_partials/package-cards-utilities.md-->
 
 ## What is shared?
 

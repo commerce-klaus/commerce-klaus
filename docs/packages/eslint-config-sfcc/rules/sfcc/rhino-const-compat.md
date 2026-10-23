@@ -17,8 +17,8 @@ Rhino does not handle `const` reliably in some loop-related contexts. This rule 
 
 ## Default behavior
 
-- Severity: `error`
-- Auto-fix: yes
+- 🔴 **Severity:** `error`
+- 🛠️ **Auto-fix:** yes
 
 ## Example
 

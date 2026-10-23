@@ -18,12 +18,12 @@ for one invocation.
 pnpm add -D @commerce-klaus/b2c-plugin @commerce-klaus/typescript-sfcc @salesforce/b2c-cli typescript
 ```
 
-```bash [yarn]
-yarn add -D @commerce-klaus/b2c-plugin @commerce-klaus/typescript-sfcc @salesforce/b2c-cli typescript
-```
-
 ```bash [npm]
 npm install -D @commerce-klaus/b2c-plugin @commerce-klaus/typescript-sfcc @salesforce/b2c-cli typescript
+```
+
+```bash [Yarn]
+yarn add -D @commerce-klaus/b2c-plugin @commerce-klaus/typescript-sfcc @salesforce/b2c-cli typescript
 ```
 
 ```bash [Vite+]
@@ -46,12 +46,12 @@ Run the `prepare` script to refresh the link after changing the plugin locally:
 pnpm run prepare
 ```
 
-```bash [yarn]
-yarn run prepare
-```
-
 ```bash [npm]
 npm run prepare
+```
+
+```bash [Yarn]
+yarn run prepare
 ```
 
 ```bash [Vite+]

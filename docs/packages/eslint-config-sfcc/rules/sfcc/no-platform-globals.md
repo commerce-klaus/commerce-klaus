@@ -28,9 +28,9 @@ Implicit request and session state couples business logic to the SFCC runtime. P
 
 ## Default behavior
 
-- Severity: off (opt-in)
-- Allowed platform globals: none
-- Auto-fix: none
+- ⚪ **Severity:** off (opt-in)
+- ⚙️ **Allowed platform globals:** none
+- ➖ **Auto-fix:** none
 
 ## Examples
 

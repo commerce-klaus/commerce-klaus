@@ -33,12 +33,12 @@ the test runtime. You do not need to install or configure that plugin alongside
 pnpm add -D @commerce-klaus/vitest-sfcc vitest
 ```
 
-```bash [yarn]
-yarn add -D @commerce-klaus/vitest-sfcc vitest
-```
-
 ```bash [npm]
 npm install -D @commerce-klaus/vitest-sfcc vitest
+```
+
+```bash [Yarn]
+yarn add -D @commerce-klaus/vitest-sfcc vitest
 ```
 
 ```bash [Vite+]

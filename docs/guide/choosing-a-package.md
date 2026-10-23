@@ -1,23 +1,35 @@
 # Choosing a package
 
-Commerce Klaus packages are designed to work independently and share SFCC semantics where they overlap.
+Choose a package by the job it performs. Most SFCC projects should start with the **tools**. Add an **integration adapter** only when another build or test pipeline needs cartridge-aware modules. Use the **utilities** directly when building an integration of your own.
 
-| Goal                                                             | Package                                                                             |
-| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| Share project settings across Commerce Klaus tools               | [`@commerce-klaus/config`](/packages/config/)                                       |
-| Run Commerce Klaus commands through the Salesforce B2C CLI       | [`@commerce-klaus/b2c-plugin`](/packages/b2c-plugin/)                               |
-| Detect invalid SFCC patterns with ESLint or Oxlint               | [`@commerce-klaus/eslint-config-sfcc`](/packages/eslint-config-sfcc/)               |
-| Resolve cartridge modules in the editor and typecheck JavaScript | [`@commerce-klaus/typescript-sfcc`](/packages/typescript-sfcc/)                     |
-| Unit-test SFCC cartridge code with Vitest                        | [`@commerce-klaus/vitest-sfcc`](/packages/vitest-sfcc/)                             |
-| Resolve SFCC server-side modules in other Vite-based tools       | [`@commerce-klaus/vite-plugin-sfcc-modules`](/packages/vite-plugin-sfcc-modules/)   |
-| Run SFCC server-side modules in Babel-based tooling              | [`@commerce-klaus/babel-plugin-sfcc-modules`](/packages/babel-plugin-sfcc-modules/) |
-| Build another SFCC-aware tool on the shared resolution core      | [`@commerce-klaus/sfcc-module-resolver`](/packages/sfcc-module-resolver/)           |
+## Commerce Klaus tools
 
-## A sensible adoption path
+These packages provide direct feedback or commands in the everyday development workflow.
 
-1. Add the lint config through ESLint or Oxlint to detect runtime compatibility problems with little project restructuring.
-2. Add the TypeScript tooling for editor feedback, CI typechecks, and generated project-specific declarations.
-3. Add the Vitest integration when unit tests need to execute cartridge modules in an SFCC-aware runtime.
-4. Add the Vite or Babel adapter only when another tool needs cartridge transformation without the Vitest runtime.
+<!--@include: ../_partials/package-cards-tools.md-->
 
-Do not configure `vitest-sfcc` together with `vite-plugin-sfcc-modules`; the Vitest integration already includes cartridge resolution and transformation. The standalone Vite and Babel plugins remain alternatives for other tooling pipelines.
+::: tip A sensible starting point
+
+Begin with the ESLint config for immediate compatibility feedback. Add TypeScript for editor and CI guarantees, then add the Vitest integration when tests need to execute cartridge modules. The B2C CLI plugin provides a common command surface for type and project workflows.
+
+:::
+
+## Integration adapters
+
+These packages connect Commerce Klaus module semantics to an existing transformation pipeline. They do not provide the SFCC test runtime.
+
+<!--@include: ../_partials/package-cards-adapters.md-->
+
+<!--@include: ../_partials/vite-integration-choice.md-->
+
+## Utilities and shared foundations
+
+Most projects consume these packages indirectly through the tools and adapters above. Import them directly when you need their focused API or are building another SFCC-aware integration.
+
+<!--@include: ../_partials/package-cards-utilities.md-->
+
+::: info Utilities are public, but not the default starting point
+
+The utilities are supported public packages. They are separated here because typical projects get them through a higher-level Commerce Klaus tool rather than wiring them directly.
+
+:::

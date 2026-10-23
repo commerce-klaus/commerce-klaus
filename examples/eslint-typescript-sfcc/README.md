@@ -6,7 +6,7 @@ This private workspace package shows the smallest recommended setup for using
 
 The ESLint flat config combines the recommended presets from ESLint,
 TypeScript ESLint, SonarJS, and Unicorn. The SFCC config is applied last so its
-Rhino and CommonJS compatibility overrides take precedence. Unicorn continues
+SFCC script runtime compatibility overrides take precedence. Unicorn continues
 to enforce kebab-case filenames but does not check SFCC cartridge directory
 names such as `app_example`.
 

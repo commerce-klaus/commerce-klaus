@@ -56,11 +56,11 @@ The `*/` and `~/` prefixes and `module.superModule` are SFCC runtime extensions 
 
 ## Default behavior
 
-- Severity: off by default; error for `*/` paths in the `pwa` and `storefront-next` presets
-- Allowed proprietary syntax: none
-- Allowed require paths: none
-- Auto-fix: none
-- Editor suggestions: replace an unambiguous `*/` path with `~/` for a local module or with its named cartridge path
+- ⚪ **Severity:** off by default; error for `*/` paths in the `pwa` and `storefront-next` presets
+- ⚙️ **Allowed proprietary syntax:** none
+- ⚙️ **Allowed require paths:** none
+- ➖ **Auto-fix:** none
+- 💡 **Editor suggestions:** replace an unambiguous `*/` path with `~/` for a local module or with its named cartridge path
 
 The suggestion is intentionally not an automatic fix. A named cartridge import opts out of
 future cartridge-path overrides, so the developer must confirm that architectural change. It is

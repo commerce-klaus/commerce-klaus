@@ -12,7 +12,7 @@ This config is not an ES5 style guide. Its goal is to let SFCC projects use the 
 
 ::: tip Compatibility policy
 
-Write modern JavaScript by default. A feature is restricted only when SFCC/Rhino does not support it reliably or when it conflicts with an SFCC-specific runtime contract.
+Write modern JavaScript by default. A feature is restricted only when the [SFCC script runtime](/guide/sfcc-script-runtime) does not support it reliably or when it conflicts with a platform-specific runtime contract.
 
 :::
 
@@ -40,7 +40,60 @@ The rule configuration and integration tests define the compatibility contract. 
 
 :::
 
-## Recommended Config
+## Choose the linting workflow
+
+::: tip Prefer Oxlint for everyday work
+
+Use **Oxlint as the default local and CI lint pass**. It starts quickly, covers the normal Commerce Klaus compatibility and architecture rules, and is the better feedback loop for day-to-day development.
+
+Use **ESLint deliberately for complete migrations and audits**. Its parser can inspect legacy files and nonstandard syntax that Oxlint rejects or does not discover, and its TypeScript parser services provide higher-confidence analysis for complex inferred types.
+
+:::
+
+| Workflow                                       | Recommended tool        | Why                                                                                                  |
+| ---------------------------------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------- |
+| Normal development, editor feedback, and CI    | Oxlint                  | Fast feedback with almost the complete Commerce Klaus rule set                                       |
+| Initial modernization or legacy syntax cleanup | ESLint                  | Covers `.ds`, E4X-like syntax, JavaScript type annotations, and complex type-aware migration cases   |
+| Ongoing project with legacy-regression guards  | Oxlint, then ESLint     | Keeps the daily pass fast while a focused ESLint fallback covers the three parser-boundary rules     |
+| Maximum-confidence `empty()` migration         | ESLint migration preset | Uses TypeScript parser services for inferred and aliased types that Oxlint JavaScript plugins cannot |
+
+Start with the [Oxlint configuration](#use-oxlint-for-daily-linting). Add the [focused ESLint fallback](#eslint-after-oxlint) when the repository must prevent legacy parser-boundary syntax from returning.
+
+## Oxlint rule coverage
+
+The Oxlint preset enables every built-in Commerce Klaus rule that Oxlint can parse and discover. The exceptions and type-aware differences are explicit below.
+
+### Rules unavailable in Oxlint
+
+These are parser and file-discovery boundaries, not rules omitted for performance:
+
+| ESLint-only rule                                                | Why Oxlint cannot run it                                                                                                               | When the rule matters                                                                       |
+| --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [`sfcc/no-ds-files`](rules/sfcc/no-ds-files.md)                 | Oxlint ignores `.ds` files, so the JavaScript plugin never receives the file and cannot report its extension.                          | Modernizing cartridges that may still contain legacy Demandware Script files                |
+| [`sfcc/no-e4x-syntax`](rules/sfcc/no-e4x-syntax.md)             | E4X-like elements are not standard JavaScript. Oxlint stops with a parser error before the Commerce Klaus rule can inspect the nodes.  | Finding E4X-like markup and offering the safe static `XML(...)` migration suggestion        |
+| [`sfcc/no-type-annotations`](rules/sfcc/no-type-annotations.md) | TypeScript-style annotations inside `.js` are invalid JavaScript, so Oxlint stops before the JavaScript plugin can report or fix them. | Moving tolerated legacy annotations to JSDoc while preserving runnable cartridge JavaScript |
+
+The focused [ESLint-after-Oxlint config](#eslint-after-oxlint) covers exactly these rules without duplicating Oxlint diagnostics.
+
+### Rules refined by ESLint type information
+
+These rules run in both tools. Oxlint uses syntax, literals, constant initializers, directly recognizable SFCC values, and rule-specific local JSDoc where supported. ESLint can additionally use TypeScript parser services to follow inferred types and aliases.
+
+| Rule                                                                            | Oxlint behavior                                                                                      | Additional ESLint precision                                                                                |
+| ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| [`sfcc/no-ambiguous-empty`](rules/sfcc/no-ambiguous-empty.md)                   | Uses locally visible evidence and reports values whose `empty()` semantics remain unknown or mixed.  | Resolves inferred and aliased argument types before deciding whether an `empty()` call is ambiguous.       |
+| [`sfcc/no-empty-global`](rules/sfcc/no-empty-global.md)                         | Always reports `empty()`; offers a replacement only when the argument semantics are locally known.   | Offers behavior-preserving suggestions for additional arguments whose inferred or aliased type is known.   |
+| [`sfcc/no-string-equals`](rules/sfcc/no-string-equals.md)                       | Conservatively reports every matching `.equals(...)` call.                                           | Restricts reports to string-like receivers and skips known non-string or mixed receiver types.             |
+| [`sfcc/prefer-explicit-empty-check`](rules/sfcc/prefer-explicit-empty-check.md) | Suggests or fixes replacements when local evidence identifies the `empty()` argument semantics.      | Recognizes additional inferred and aliased argument types, producing more migration diagnostics and fixes. |
+| [`sfcc/valid-require-path`](rules/sfcc/valid-require-path.md)                   | Validates static string and template-literal module paths; ignores non-literal identifier arguments. | Also validates identifiers with exact string-literal types and unions containing only string literals.     |
+
+::: info No rule requires parser services to run
+
+The five rules above degrade conservatively when TypeScript parser services are absent. They remain available in Oxlint; they are not part of the ESLint-only fallback. Use ESLint when a migration needs the most complete analysis of inferred and aliased types.
+
+:::
+
+## ESLint configuration
 
 ### Install
 
@@ -50,12 +103,12 @@ The rule configuration and integration tests define the compatibility contract. 
 pnpm add -D eslint @commerce-klaus/eslint-config-sfcc
 ```
 
-```bash [yarn]
-yarn add -D eslint @commerce-klaus/eslint-config-sfcc
-```
-
 ```bash [npm]
 npm install -D eslint @commerce-klaus/eslint-config-sfcc
+```
+
+```bash [Yarn]
+yarn add -D eslint @commerce-klaus/eslint-config-sfcc
 ```
 
 ```bash [Vite+]
@@ -109,6 +162,85 @@ export default defineConfig(
 
 Compatibility presets are additive restrictions. They do not replace `recommended` and must be composed after it.
 
+## Built-in Plugins
+
+This package ships two built-in ESLint plugins, both automatically registered in the recommended config:
+
+1. `sfcc` for general SFCC script runtime compatibility rules
+2. `sitegenesis` for the SiteGenesis-specific controller rule ported from [`eslint-plugin-sitegenesis`](https://www.npmjs.com/package/eslint-plugin-sitegenesis)
+
+### `sfcc`
+
+The `sfcc` plugin contains the general SFCC script runtime rules:
+
+::: tip Recommended is not a ranking
+
+Every rule in this plugin addresses an intentional compatibility or project-policy concern, whether or not it is enabled by the recommended config. The preset is a conservative baseline; opt-in rules are provided for conventions that depend on a team's architecture or migration goals. This distinction follows the [Commerce Klaus philosophy](/about/philosophy#treat-recommended-configs-as-a-baseline-not-a-ranking) of making platform constraints and project decisions explicit.
+
+:::
+
+**Default indicators:** 🔴 `error` · 🟡 `warn` · ⚪ `off` · 🛠️ auto-fix available · ➖ no auto-fix
+
+Oxlint runs every built-in rule except `sfcc/no-ds-files`, `sfcc/no-e4x-syntax`, and `sfcc/no-type-annotations`. See [why those rules require ESLint](#rules-that-require-eslint).
+
+| Rule                                                                                          | Description                                                                                                                                                                                                  | Default    | Auto-fix  |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- | --------- |
+| [sfcc/no-ambiguous-empty](rules/sfcc/no-ambiguous-empty.md)                                   | Requires enough type information to determine which SFCC `empty()` semantics apply before migration.                                                                                                         | 🟡 `warn`  | ➖ No     |
+| [sfcc/no-controllers](rules/sfcc/no-controllers.md)                                           | Disallows files below `cartridge/controllers/` for Storefront Next, PWA, or selected cartridges that must remain controller-free.                                                                            | ⚪ `off`   | ➖ No     |
+| [sfcc/no-custom-api-additional-properties](rules/sfcc/no-custom-api-additional-properties.md) | Disallows `additionalProperties` in Custom API request body schemas, since the platform does not register such endpoints.                                                                                    | 🔴 `error` | ➖ No     |
+| [sfcc/no-custom-api-response-methods](rules/sfcc/no-custom-api-response-methods.md)           | Disallows legacy global `response` APIs in Custom API implementations, which must return JSON through `RESTResponseMgr`.                                                                                     | 🔴 `error` | ➖ No     |
+| [sfcc/no-custom-api](rules/sfcc/no-custom-api.md)                                             | Disallows JavaScript below `cartridge/rest-apis/` in cartridges that must not expose Custom APIs.                                                                                                            | ⚪ `off`   | ➖ No     |
+| [sfcc/no-ds-files](rules/sfcc/no-ds-files.md)                                                 | Disallows legacy `.ds` files in SFCC projects. Use `.js` files instead.                                                                                                                                      | 🔴 `error` | ➖ No     |
+| [sfcc/no-dw-api](rules/sfcc/no-dw-api.md)                                                     | Disallows SFCC `dw/*` APIs in portable domain, utility, or shared cartridges, with support for exact and namespace allow lists.                                                                              | ⚪ `off`   | ➖ No     |
+| [sfcc/no-e4x-syntax](rules/sfcc/no-e4x-syntax.md)                                             | Disallows JSX/E4X-like tag syntax (e.g. `<a/>`) in SFCC JavaScript to avoid parser ambiguity and unsupported runtime patterns.                                                                               | 🔴 `error` | ➖ No     |
+| [sfcc/no-empty-global](rules/sfcc/no-empty-global.md)                                         | Strictly disallows every use of the SFCC-specific `empty(...)` global.                                                                                                                                       | ⚪ `off`   | ➖ No     |
+| [sfcc/no-forms](rules/sfcc/no-forms.md)                                                       | Disallows SFCC `dw/web/Form*` modules and the SFRA `server.forms` API in headless cartridges.                                                                                                                | ⚪ `off`   | ➖ No     |
+| [sfcc/no-hooks](rules/sfcc/no-hooks.md)                                                       | Disallows scripts registered by a cartridge's `hooks.json`, including Salesforce and project-specific hooks.                                                                                                 | ⚪ `off`   | ➖ No     |
+| [sfcc/no-isml-rendering](rules/sfcc/no-isml-rendering.md)                                     | Backward-compatible umbrella that disallows both template modules and SFRA response rendering.                                                                                                               | ⚪ `off`   | ➖ No     |
+| [sfcc/no-page-designer](rules/sfcc/no-page-designer.md)                                       | Disallows `dw/experience/*` APIs in cartridges that must remain independent of Page Designer.                                                                                                                | ⚪ `off`   | ➖ No     |
+| [sfcc/no-pipeline-api](rules/sfcc/no-pipeline-api.md)                                         | Disallows JavaScript access to the legacy `dw/system/Pipeline` API.                                                                                                                                          | ⚪ `off`   | ➖ No     |
+| [sfcc/no-platform-globals](rules/sfcc/no-platform-globals.md)                                 | Disallows stateful SFCC globals (`customer`, `request`, `response`, and `session`) in favor of explicit dependencies.                                                                                        | ⚪ `off`   | ➖ No     |
+| [sfcc/no-proprietary-module-syntax](rules/sfcc/no-proprietary-module-syntax.md)               | Disallows configurable SFCC-specific module syntax (`*/*`, `~/*`, and `module.superModule`) for projects that require portable modules.                                                                      | ⚪ `off`   | ➖ No     |
+| [sfcc/no-rhino-extensions](rules/sfcc/no-rhino-extensions.md)                                 | Disallows Rhino and LiveConnect runtime globals such as `Iterator`, `Packages`, `java`, and `javax`.                                                                                                         | ⚪ `off`   | ➖ No     |
+| [sfcc/no-rhino-import-globals](rules/sfcc/no-rhino-import-globals.md)                         | Disallows legacy Rhino globals `importScript(...)`, `importPackage(...)`, and `importClass(...)`. Use CommonJS `require()` instead.                                                                          | 🔴 `error` | ➖ No     |
+| [sfcc/no-service-framework](rules/sfcc/no-service-framework.md)                               | Disallows `dw/svc/*` APIs in cartridges that must delegate external communication to an integration layer.                                                                                                   | ⚪ `off`   | ➖ No     |
+| [sfcc/no-sfra-server](rules/sfcc/no-sfra-server.md)                                           | Disallows the SFRA `server` module in headless and SiteGenesis cartridges.                                                                                                                                   | ⚪ `off`   | ➖ No     |
+| [sfcc/no-storefront-isml-rendering](rules/sfcc/no-storefront-isml-rendering.md)               | Disallows SFRA storefront response rendering while permitting non-storefront templates such as email and XML.                                                                                                | ⚪ `off`   | ➖ No     |
+| [sfcc/no-string-equals](rules/sfcc/no-string-equals.md)                                       | Disallows Java-style `String.equals(...)` calls in JavaScript files. Use strict equality (`===`) instead.                                                                                                    | 🔴 `error` | ➖ No     |
+| [sfcc/no-string-raw](rules/sfcc/no-string-raw.md)                                             | Disallows `String.raw` because affected SFCC Rhino versions can expose its result as an internal `ConsString` to Java-backed platform APIs.                                                                  | 🔴 `error` | 🛠️ Yes    |
+| [sfcc/no-template-rendering](rules/sfcc/no-template-rendering.md)                             | Disallows access to `dw/template/ISML` and `dw/util/Template` where all server-side template rendering is prohibited.                                                                                        | ⚪ `off`   | ➖ No     |
+| [sfcc/no-type-annotations](rules/sfcc/no-type-annotations.md)                                 | Disallows type annotation syntax in JavaScript files (e.g. `const x: string = ...`, `function y(): number {}`). Rhino/E4X may accept it, but it is invalid in standard JavaScript; use JSDoc typing instead. | 🔴 `error` | 🛠️ Yes    |
+| [sfcc/prefer-const](rules/sfcc/prefer-const.md)                                               | Requires `const` for `let` declarations that are never reassigned, excluding Rhino-sensitive nested/loop contexts.                                                                                           | 🔴 `error` | 🛠️ Yes    |
+| [sfcc/prefer-explicit-empty-check](rules/sfcc/prefer-explicit-empty-check.md)                 | Suggests a behavior-preserving explicit JavaScript replacement when the `empty(...)` argument type is known.                                                                                                 | 🟡 `warn`  | 🛠️ Opt-in |
+| [sfcc/prefer-generated-custom-api-types](rules/sfcc/prefer-generated-custom-api-types.md)     | Requires Custom API handlers and response values to use operation types generated from `api.json` and OAS schemas.                                                                                           | ⚪ `off`   | ➖ No     |
+| [sfcc/prefer-generated-hook-types](rules/sfcc/prefer-generated-hook-types.md)                 | Requires registered Salesforce system hook exports to use their generated `SfccHooks` function type.                                                                                                         | ⚪ `off`   | ➖ No     |
+| [sfcc/prefer-generated-job-step-types](rules/sfcc/prefer-generated-job-step-types.md)         | Requires effective custom job step exports to use function types generated from `steptypes.json`.                                                                                                            | ⚪ `off`   | ➖ No     |
+| [sfcc/prefer-native-collections](rules/sfcc/prefer-native-collections.md)                     | Prefers native `Array`, `Map`, and `Set` collections over explicit imports of concrete `dw/util` collection implementations.                                                                                 | ⚪ `off`   | ➖ No     |
+| [sfcc/prefer-tilde-require-path](rules/sfcc/prefer-tilde-require-path.md)                     | Prefers `~/` require paths for modules that belong to the importing file's own cartridge.                                                                                                                    | ⚪ `off`   | 🛠️ Yes    |
+| [sfcc/require-file-extension](rules/sfcc/require-file-extension.md)                           | Requires explicit `.js`, `.ds`, or `.json` extensions in relative and cartridge module paths, with cartridge-aware auto-fixes when resolvable.                                                               | ⚪ `off`   | 🛠️ Yes    |
+| [sfcc/rhino-const-compat](rules/sfcc/rhino-const-compat.md)                                   | Enforces `let` instead of `const` in Rhino loop-critical contexts (loop headers and declarations inside loop bodies) and supports auto-fix.                                                                  | 🔴 `error` | 🛠️ Yes    |
+| [sfcc/rhino-const-conflict](rules/sfcc/rhino-const-conflict.md)                               | Detects same-name `const` declarations in nested blocks within the same function (Rhino treats them as function-scoped) and supports auto-fix to `let`.                                                      | 🔴 `error` | 🛠️ Yes    |
+| [sfcc/valid-custom-api-dir-name](rules/sfcc/valid-custom-api-dir-name.md)                     | Requires Custom API `rest-apis` directory names to contain only lowercase alphanumeric characters and hyphens.                                                                                               | 🔴 `error` | ➖ No     |
+| [sfcc/valid-custom-api-export](rules/sfcc/valid-custom-api-export.md)                         | Requires a public static CommonJS export for each Custom API endpoint mapped to the file in the rest-apis `api.json`.                                                                                        | 🔴 `error` | ➖ No     |
+| [sfcc/valid-hook-export](rules/sfcc/valid-hook-export.md)                                     | Requires a static CommonJS export for each Salesforce hook method registered for the file in the cartridge's `hooks.json`.                                                                                   | 🔴 `error` | ➖ No     |
+| [sfcc/valid-job-step-export](rules/sfcc/valid-job-step-export.md)                             | Requires static CommonJS exports for the functions configured for the file in effective `steptypes.json` job step definitions.                                                                               | 🔴 `error` | ➖ No     |
+| [sfcc/valid-require-path](rules/sfcc/valid-require-path.md)                                   | Validates SFCC-compatible `require()` paths (`dw/*`, `cartridgeName/*`, `./*`, `../*`, `*/*`, `~/*`) and supports optional filesystem existence checks.                                                      | 🔴 `error` | ➖ No     |
+| [sfcc/valid-step-type-definition](rules/sfcc/valid-step-type-definition.md)                   | Reports invalid job step definitions directly in cartridge `steptypes.json` files.                                                                                                                           | 🔴 `error` | ➖ No     |
+
+The recommended config intentionally combines these `sfcc/*` rules so `--fix` does not bounce between conflicting suggestions: Rhino-unsafe `const` becomes `let`, while genuinely safe top-level function bindings still become `const`.
+
+### `sitegenesis`
+
+`sitegenesis` only contains `sitegenesis/no-global-require`.
+
+That rule is enabled in the recommended config by default, because it is still useful protection for repositories that contain SiteGenesis-style controller code. In non-SiteGenesis projects it is effectively dormant, because it only applies to files under `cartridge/controllers/`.
+
+| Rule                                                                    | Description                                                                                                                                                 | Default    | Auto-fix |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | -------- |
+| [sitegenesis/no-global-require](rules/sitegenesis/no-global-require.md) | Disallows top-level `require()` calls in controller files when not every exported SiteGenesis route uses them. Only applies below `cartridge/controllers/`. | 🔴 `error` | ➖ No    |
+
+---
+
 ## Migrate `empty()` in batches
 
 The ESLint-only `empty-migration` preset turns the recommended `empty()` guidance into a reviewable project migration. It:
@@ -138,12 +270,12 @@ Run ESLint without `--fix` to inventory safe and ambiguous calls:
 pnpm exec eslint cartridges
 ```
 
-```bash [Yarn]
-yarn exec eslint cartridges
-```
-
 ```bash [npm]
 npm exec -- eslint cartridges
+```
+
+```bash [Yarn]
+yarn exec eslint cartridges
 ```
 
 ```bash [Vite+]
@@ -160,12 +292,12 @@ Preview all safe replacements as structured output without modifying files:
 pnpm exec eslint cartridges --fix-dry-run --format json
 ```
 
-```bash [Yarn]
-yarn exec eslint cartridges --fix-dry-run --format json
-```
-
 ```bash [npm]
 npm exec -- eslint cartridges --fix-dry-run --format json
+```
+
+```bash [Yarn]
+yarn exec eslint cartridges --fix-dry-run --format json
 ```
 
 ```bash [Vite+]
@@ -182,12 +314,12 @@ Apply the safe replacements after reviewing the preview:
 pnpm exec eslint cartridges --fix
 ```
 
-```bash [Yarn]
-yarn exec eslint cartridges --fix
-```
-
 ```bash [npm]
 npm exec -- eslint cartridges --fix
+```
+
+```bash [Yarn]
+yarn exec eslint cartridges --fix
 ```
 
 ```bash [Vite+]
@@ -234,12 +366,12 @@ Run Oxlint without `--fix` to inventory known and ambiguous calls:
 pnpm exec oxlint --type-aware
 ```
 
-```bash [Yarn]
-yarn exec oxlint --type-aware
-```
-
 ```bash [npm]
 npm exec -- oxlint --type-aware
+```
+
+```bash [Yarn]
+yarn exec oxlint --type-aware
 ```
 
 ```bash [Vite+]
@@ -256,12 +388,12 @@ Apply the safe replacements with the project's normal Oxlint fix command:
 pnpm exec oxlint --type-aware --fix
 ```
 
-```bash [Yarn]
-yarn exec oxlint --type-aware --fix
-```
-
 ```bash [npm]
 npm exec -- oxlint --type-aware --fix
+```
+
+```bash [Yarn]
+yarn exec oxlint --type-aware --fix
 ```
 
 ```bash [Vite+]
@@ -331,9 +463,15 @@ export default defineConfig(
 
 ### Storefront architecture presets
 
-Storefront presets are policy overlays that describe which controller architecture a project uses. Compose one after `recommended`:
+Storefront presets are policy overlays for the shared cartridge architecture
+labels:
 
-They do not change the JavaScript compatibility baseline: modern syntax and standard library APIs supported by SFCC remain allowed in every storefront preset.
+<!--@include: ../../_partials/cartridge-architectures.md-->
+
+Compose one preset after `recommended` when the same architecture applies to
+every cartridge covered by the ESLint configuration:
+
+The presets do not change the JavaScript compatibility baseline: modern syntax and standard library APIs supported by SFCC remain allowed in every storefront preset.
 `sitegenesis/no-global-require` also remains enabled in every preset because the rule limits itself to files under `cartridge/controllers/`.
 
 ```js{5-6} [eslint.config.js]
@@ -346,22 +484,10 @@ export default defineConfig(
 )
 ```
 
-| Preset                    | Enabled architecture rules                                                                                                                                                 |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `storefront-next`         | `no-controllers`, `no-forms`, `no-storefront-isml-rendering`, `no-pipeline-api`, `no-proprietary-module-syntax` (`*/` only), `no-sfra-server`, `prefer-tilde-require-path` |
-| `pwa`                     | `no-controllers`, `no-forms`, `no-storefront-isml-rendering`, `no-pipeline-api`, `no-proprietary-module-syntax` (`*/` only), `no-sfra-server`, `prefer-tilde-require-path` |
-| `sfra`                    | `no-pipeline-api`                                                                                                                                                          |
-| `sitegenesis-controllers` | `no-pipeline-api`, `no-sfra-server`                                                                                                                                        |
-| `sitegenesis-pipelines`   | `no-sfra-server`                                                                                                                                                           |
+<!--@include: ../../_partials/cartridge-architecture-eslint-policies.md-->
 
-`pwa` and `storefront-next` currently enforce the same headless boundaries. They have separate semantic names so their policies can evolve independently as their platform contracts diverge.
-
-Both headless presets require named cartridge imports instead of `*/` lookup and `~/` for imports
-from the current cartridge. Together, these rules distinguish local dependencies from explicit
-cross-cartridge dependencies. The presets continue to allow `module.superModule`; enable
-`sfcc/no-proprietary-module-syntax` directly when a project also prohibits that form.
-
-The `sitegenesis-pipelines` preset applies to JavaScript only. It is the only preset that permits access to `dw/system/Pipeline`; all other presets reject pipeline execution. ESLint cannot validate pipeline XML files.
+The [Cartridge architectures guide](/guide/cartridge-architectures) explains
+the intended boundary, special cases, and selection behavior for every label.
 
 #### Configure mixed architectures centrally
 
@@ -417,20 +543,44 @@ The helper accepts `cartridgesDir`, `cartridges`, and `files`. Explicit `files` 
 
 ### Compatibility with other recommended configs
 
-The recommended config deliberately disables selected rules from commonly used ESLint presets when they suggest syntax, APIs, or module patterns that SFCC/Rhino does not support. This allows you to combine the SFCC config with those presets without forcing otherwise valid server-side SFCC code into incompatible modern JavaScript patterns.
+The recommended config deliberately disables selected rules from commonly used ESLint presets when they suggest syntax, APIs, or module patterns that the SFCC script runtime does not support. This allows you to combine the SFCC config with those presets without forcing otherwise valid server-side SFCC code into incompatible modern JavaScript patterns.
 
 The compatibility overrides cover:
 
 - **ESLint recommended and core rules:** disables rules such as `object-shorthand`, `prefer-object-spread`, `prefer-rest-params`, and `prefer-spread` that can suggest unsupported syntax or APIs. The core `prefer-const` rule is replaced by SFCC-aware rules that account for Rhino's scoping behavior.
-- **`eslint-plugin-unicorn`:** disables modern syntax and API preferences such as `prefer-at`, `prefer-module`, `prefer-spread`, and `prefer-string-replace-all`, as well as rules whose fixes or assumptions are unsafe for Rhino and SFCC APIs.
+- **`eslint-plugin-unicorn`:** disables modern syntax and API preferences such as `prefer-at`, `prefer-module`, `prefer-spread`, and `prefer-string-replace-all`, as well as rules whose fixes or assumptions are unsafe for the SFCC script runtime.
 - **`typescript-eslint`:** disables `@typescript-eslint/no-require-imports` because SFCC server-side modules use CommonJS `require()`.
 - **`eslint-plugin-sonarjs`:** disables `sonarjs/no-implicit-global` because its assumptions conflict with SFCC's server-side module environment.
 
 These overrides only take effect for rules enabled by another config in your ESLint setup; this package does not otherwise enable the external presets.
 
-### Use with Oxlint
+### Use Oxlint for daily linting
 
-Oxlint can run the included `sfcc` and `sitegenesis` plugins through its alpha JavaScript plugin API. Create an `oxlint.config.mjs` file that exports the included preset:
+Oxlint is the recommended default for normal development. It can run the included `sfcc` and `sitegenesis` plugins through its alpha JavaScript plugin API.
+
+Install Oxlint alongside the Commerce Klaus config:
+
+::: code-group
+
+```bash [pnpm]
+pnpm add -D oxlint @commerce-klaus/eslint-config-sfcc
+```
+
+```bash [npm]
+npm install -D oxlint @commerce-klaus/eslint-config-sfcc
+```
+
+```bash [Yarn]
+yarn add -D oxlint @commerce-klaus/eslint-config-sfcc
+```
+
+```bash [Vite+]
+vp install -D oxlint @commerce-klaus/eslint-config-sfcc
+```
+
+:::
+
+Create an `oxlint.config.mjs` file that exports the included preset:
 
 ```js{1,3} [oxlint.config.mjs]
 import sfcc from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
@@ -438,7 +588,9 @@ import sfcc from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
 export default sfcc
 ```
 
-The preset loads both plugins and enables the supported SFCC and SiteGenesis rules. `sfcc/no-ds-files` is excluded because Oxlint ignores `.ds` files. `sfcc/no-e4x-syntax` and `sfcc/no-type-annotations` are excluded because their invalid JavaScript syntax causes Oxlint parser errors before JavaScript plugins can run.
+The preset loads both plugins and enables the supported SFCC and SiteGenesis rules.
+
+See the central [Oxlint rule coverage](#oxlint-rule-coverage) matrix for the three ESLint-only rules and the five rules that gain additional precision from ESLint type information.
 
 For mixed architectures, reuse the assignments from the central project configuration:
 
@@ -483,11 +635,17 @@ export default {
 }
 ```
 
-Rules use their syntax-based behavior in Oxlint. Oxlint JavaScript plugins do not provide TypeScript parser services, so type-aware refinements are unavailable.
+::: info Type-aware refinement
+
+Oxlint JavaScript plugins do not provide TypeScript parser services, even when Oxlint runs with `--type-aware`. Type-sensitive Commerce Klaus rules continue with their documented conservative behavior instead of silently disabling themselves.
+
+This distinction is why Oxlint is preferred for everyday feedback while ESLint remains the higher-confidence migration tool.
+
+:::
 
 ### ESLint after Oxlint
 
-Run ESLint after Oxlint to cover only the three rules that Oxlint cannot run: `sfcc/no-ds-files`, `sfcc/no-e4x-syntax`, and `sfcc/no-type-annotations`.
+Run ESLint after Oxlint for a complete migration or to keep legacy syntax from returning. The fallback covers only `sfcc/no-ds-files`, `sfcc/no-e4x-syntax`, and `sfcc/no-type-annotations`.
 
 This optional fallback requires `@typescript-eslint/parser`:
 
@@ -497,12 +655,12 @@ This optional fallback requires `@typescript-eslint/parser`:
 pnpm add -D @typescript-eslint/parser
 ```
 
-```bash [yarn]
-yarn add -D @typescript-eslint/parser
-```
-
 ```bash [npm]
 npm install -D @typescript-eslint/parser
+```
+
+```bash [Yarn]
+yarn add -D @typescript-eslint/parser
 ```
 
 ```bash [Vite+]
@@ -674,77 +832,6 @@ These focused replacements cover the legacy syntax most likely to prevent modern
 
 `default xml namespace = "..."` is also parser-incompatible in modern JavaScript and must be refactored manually.
 
-## Built-in Plugins
-
-This package ships two built-in ESLint plugins, both automatically registered in the recommended config:
-
-1. `sfcc` for general SFCC/Rhino compatibility rules
-2. `sitegenesis` for the SiteGenesis-specific controller rule ported from [`eslint-plugin-sitegenesis`](https://www.npmjs.com/package/eslint-plugin-sitegenesis)
-
-### `sfcc`
-
-The `sfcc` plugin contains the general Rhino/SFCC runtime rules:
-
-::: tip Recommended is not a ranking
-
-Every rule in this plugin addresses an intentional compatibility or project-policy concern, whether or not it is enabled by the recommended config. The preset is a conservative baseline; opt-in rules are provided for conventions that depend on a team's architecture or migration goals. This distinction follows the [Commerce Klaus philosophy](/about/philosophy#treat-recommended-configs-as-a-baseline-not-a-ranking) of making platform constraints and project decisions explicit.
-
-:::
-
-| Rule                                                                                          | Description                                                                                                                                                                                                  | Default |
-| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
-| [sfcc/no-controllers](rules/sfcc/no-controllers.md)                                           | Disallows files below `cartridge/controllers/` for Storefront Next, PWA, or selected cartridges that must remain controller-free.                                                                            | Off     |
-| [sfcc/no-custom-api](rules/sfcc/no-custom-api.md)                                             | Disallows JavaScript below `cartridge/rest-apis/` in cartridges that must not expose Custom APIs.                                                                                                            | Off     |
-| [sfcc/no-ambiguous-empty](rules/sfcc/no-ambiguous-empty.md)                                   | Requires enough type information to determine which SFCC `empty()` semantics apply before migration.                                                                                                         | `warn`  |
-| [sfcc/no-ds-files](rules/sfcc/no-ds-files.md)                                                 | Disallows legacy `.ds` files in SFCC projects. Use `.js` files instead.                                                                                                                                      | `error` |
-| [sfcc/no-dw-api](rules/sfcc/no-dw-api.md)                                                     | Disallows SFCC `dw/*` APIs in portable domain, utility, or shared cartridges, with support for exact and namespace allow lists.                                                                              | Off     |
-| [sfcc/no-e4x-syntax](rules/sfcc/no-e4x-syntax.md)                                             | Disallows JSX/E4X-like tag syntax (e.g. `<a/>`) in SFCC JavaScript to avoid parser ambiguity and unsupported runtime patterns.                                                                               | `error` |
-| [sfcc/no-empty-global](rules/sfcc/no-empty-global.md)                                         | Strictly disallows every use of the SFCC-specific `empty(...)` global.                                                                                                                                       | Off     |
-| [sfcc/no-forms](rules/sfcc/no-forms.md)                                                       | Disallows SFCC `dw/web/Form*` modules and the SFRA `server.forms` API in headless cartridges.                                                                                                                | Off     |
-| [sfcc/no-hooks](rules/sfcc/no-hooks.md)                                                       | Disallows scripts registered by a cartridge's `hooks.json`, including Salesforce and project-specific hooks.                                                                                                 | Off     |
-| [sfcc/no-isml-rendering](rules/sfcc/no-isml-rendering.md)                                     | Backward-compatible umbrella that disallows both template modules and SFRA response rendering.                                                                                                               | Off     |
-| [sfcc/no-page-designer](rules/sfcc/no-page-designer.md)                                       | Disallows `dw/experience/*` APIs in cartridges that must remain independent of Page Designer.                                                                                                                | Off     |
-| [sfcc/no-pipeline-api](rules/sfcc/no-pipeline-api.md)                                         | Disallows JavaScript access to the legacy `dw/system/Pipeline` API.                                                                                                                                          | Off     |
-| [sfcc/no-platform-globals](rules/sfcc/no-platform-globals.md)                                 | Disallows stateful SFCC globals (`customer`, `request`, `response`, and `session`) in favor of explicit dependencies.                                                                                        | Off     |
-| [sfcc/no-proprietary-module-syntax](rules/sfcc/no-proprietary-module-syntax.md)               | Disallows configurable SFCC-specific module syntax (`*/*`, `~/*`, and `module.superModule`) for projects that require portable modules.                                                                      | Off     |
-| [sfcc/no-custom-api-additional-properties](rules/sfcc/no-custom-api-additional-properties.md) | Disallows `additionalProperties` in Custom API request body schemas, since the platform does not register such endpoints.                                                                                    | `error` |
-| [sfcc/no-custom-api-response-methods](rules/sfcc/no-custom-api-response-methods.md)           | Disallows legacy global `response` APIs in Custom API implementations, which must return JSON through `RESTResponseMgr`.                                                                                     | `error` |
-| [sfcc/no-string-equals](rules/sfcc/no-string-equals.md)                                       | Disallows Java-style `String.equals(...)` calls in JavaScript files. Use strict equality (`===`) instead.                                                                                                    | `error` |
-| [sfcc/no-string-raw](rules/sfcc/no-string-raw.md)                                             | Disallows `String.raw` because affected SFCC Rhino versions can expose its result as an internal `ConsString` to Java-backed platform APIs.                                                                  | `error` |
-| [sfcc/no-type-annotations](rules/sfcc/no-type-annotations.md)                                 | Disallows type annotation syntax in JavaScript files (e.g. `const x: string = ...`, `function y(): number {}`). Rhino/E4X may accept it, but it is invalid in standard JavaScript; use JSDoc typing instead. | `error` |
-| [sfcc/no-rhino-import-globals](rules/sfcc/no-rhino-import-globals.md)                         | Disallows legacy Rhino globals `importScript(...)`, `importPackage(...)`, and `importClass(...)`. Use CommonJS `require()` instead.                                                                          | `error` |
-| [sfcc/no-rhino-extensions](rules/sfcc/no-rhino-extensions.md)                                 | Disallows Rhino and LiveConnect runtime globals such as `Iterator`, `Packages`, `java`, and `javax`.                                                                                                         | Off     |
-| [sfcc/no-service-framework](rules/sfcc/no-service-framework.md)                               | Disallows `dw/svc/*` APIs in cartridges that must delegate external communication to an integration layer.                                                                                                   | Off     |
-| [sfcc/no-sfra-server](rules/sfcc/no-sfra-server.md)                                           | Disallows the SFRA `server` module in headless and SiteGenesis cartridges.                                                                                                                                   | Off     |
-| [sfcc/no-storefront-isml-rendering](rules/sfcc/no-storefront-isml-rendering.md)               | Disallows SFRA storefront response rendering while permitting non-storefront templates such as email and XML.                                                                                                | Off     |
-| [sfcc/no-template-rendering](rules/sfcc/no-template-rendering.md)                             | Disallows access to `dw/template/ISML` and `dw/util/Template` where all server-side template rendering is prohibited.                                                                                        | Off     |
-| [sfcc/prefer-native-collections](rules/sfcc/prefer-native-collections.md)                     | Prefers native `Array`, `Map`, and `Set` collections over explicit imports of concrete `dw/util` collection implementations.                                                                                 | Off     |
-| [sfcc/prefer-const](rules/sfcc/prefer-const.md)                                               | Requires `const` for `let` declarations that are never reassigned, excluding Rhino-sensitive nested/loop contexts.                                                                                           | `error` |
-| [sfcc/prefer-explicit-empty-check](rules/sfcc/prefer-explicit-empty-check.md)                 | Suggests a behavior-preserving explicit JavaScript replacement when the `empty(...)` argument type is known.                                                                                                 | `warn`  |
-| [sfcc/require-file-extension](rules/sfcc/require-file-extension.md)                           | Requires explicit `.js`, `.ds`, or `.json` extensions in relative and cartridge module paths, with cartridge-aware auto-fixes when resolvable.                                                               | Off     |
-| [sfcc/rhino-const-compat](rules/sfcc/rhino-const-compat.md)                                   | Enforces `let` instead of `const` in Rhino loop-critical contexts (loop headers and declarations inside loop bodies) and supports auto-fix.                                                                  | `error` |
-| [sfcc/rhino-const-conflict](rules/sfcc/rhino-const-conflict.md)                               | Detects same-name `const` declarations in nested blocks within the same function (Rhino treats them as function-scoped) and supports auto-fix to `let`.                                                      | `error` |
-| [sfcc/valid-custom-api-dir-name](rules/sfcc/valid-custom-api-dir-name.md)                     | Requires Custom API `rest-apis` directory names to contain only lowercase alphanumeric characters and hyphens.                                                                                               | `error` |
-| [sfcc/valid-custom-api-export](rules/sfcc/valid-custom-api-export.md)                         | Requires a public static CommonJS export for each Custom API endpoint mapped to the file in the rest-apis `api.json`.                                                                                        | `error` |
-| [sfcc/valid-hook-export](rules/sfcc/valid-hook-export.md)                                     | Requires a static CommonJS export for each Salesforce hook method registered for the file in the cartridge's `hooks.json`.                                                                                   | `error` |
-| [sfcc/valid-job-step-export](rules/sfcc/valid-job-step-export.md)                             | Requires static CommonJS exports for the functions configured for the file in effective `steptypes.json` job step definitions.                                                                               | `error` |
-| [sfcc/valid-require-path](rules/sfcc/valid-require-path.md)                                   | Validates SFCC-compatible `require()` paths (`dw/*`, `cartridgeName/*`, `./*`, `../*`, `*/*`, `~/*`) and supports optional filesystem existence checks.                                                      | `error` |
-| [sfcc/valid-step-type-definition](rules/sfcc/valid-step-type-definition.md)                   | Reports invalid job step definitions directly in cartridge `steptypes.json` files.                                                                                                                           | `error` |
-
-The recommended config intentionally combines these `sfcc/*` rules so `--fix` does not bounce between conflicting suggestions: Rhino-unsafe `const` becomes `let`, while genuinely safe top-level function bindings still become `const`.
-
-### `sitegenesis`
-
-`sitegenesis` only contains `sitegenesis/no-global-require`.
-
-That rule is enabled in the recommended config by default, because it is still useful protection for repositories that contain SiteGenesis-style controller code. In non-SiteGenesis projects it is effectively dormant, because it only applies to files under `cartridge/controllers/`.
-
-| Rule                                                                    | Description                                                                                                                                                 | Default |
-| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| [sitegenesis/no-global-require](rules/sitegenesis/no-global-require.md) | Disallows top-level `require()` calls in controller files when not every exported SiteGenesis route uses them. Only applies below `cartridge/controllers/`. | `error` |
-
----
-
 ## Package history and migration
 
 This package was originally maintained and published as `@jenssimon/eslint-config-sfcc`. Version 5.0.0 of that package introduced ESLint Flat Config and the breaking changes described below. Development continued under the `@jenssimon` scope before the package moved to Commerce Klaus as `@commerce-klaus/eslint-config-sfcc`, whose release history starts at version 1.0.0.
@@ -761,7 +848,7 @@ This is a major release with breaking changes.
 The package now uses the [flat config format](https://eslint.org/docs/latest/use/configure/configuration-files) (`eslint.config.js`). The legacy `.eslintrc`-based format is no longer supported.
 
 **Focus: compatibility, not formatting**
-The config no longer enforces any code style or formatting rules. Its sole purpose is to detect JavaScript features that are not supported on SFCC sandboxes (Rhino engine). Formatting should be handled separately, e.g. with [Prettier](https://github.com/prettier/prettier) or [Oxfmt](https://github.com/oxc-project/oxc).
+The config no longer enforces any code style or formatting rules. Its sole purpose is to detect JavaScript features that are not supported by the SFCC script runtime. Formatting should be handled separately, e.g. with [Prettier](https://github.com/prettier/prettier) or [Oxfmt](https://github.com/oxc-project/oxc).
 
 **No more base config**
 The previous version extended [`@jenssimon/eslint-config-base`](https://github.com/jenssimon/eslint-config-base) (Airbnb style guide). This dependency has been removed entirely. Rules like `comma-dangle`, `no-var`, `import/*`, `consistent-return`, etc. are no longer part of this config.
@@ -770,13 +857,13 @@ The previous version extended [`@jenssimon/eslint-config-base`](https://github.c
 The old `eslint-plugin-es5` has been replaced by [`eslint-plugin-es`](https://github.com/mysticatea/eslint-plugin-es). Rules have been mapped accordingly.
 
 **No more SiteGenesis / SFRA configs**
-The `sfra` and `sfra-storefront` configurations have been removed. These configurations were specific to SFRA and SiteGenesis and are not part of this general-purpose SFCC config. The external `eslint-plugin-sitegenesis` dependency is no longer used — `sitegenesis/no-global-require` is now built in, and the Rhino-specific general rules live in the built-in `sfcc` plugin.
+The `sfra` and `sfra-storefront` configurations have been removed. These configurations were specific to SFRA and SiteGenesis and are not part of this general-purpose SFCC config. The external `eslint-plugin-sitegenesis` dependency is no longer used — `sitegenesis/no-global-require` is now built in, and the general SFCC script runtime rules live in the built-in `sfcc` plugin.
 
 ### Migration steps
 
 1. Replace `.eslintrc.*` with `eslint.config.js`
 2. Update the package name and import (see [Usage](#recommended-config) above)
-3. Remove [`@jenssimon/eslint-config-base`](https://github.com/jenssimon/eslint-config-base), [`eslint-plugin-es5`](https://github.com/nkt/eslint-plugin-es5), and [`eslint-plugin-sitegenesis`](https://www.npmjs.com/package/eslint-plugin-sitegenesis) from your dependencies — `sitegenesis/no-global-require` is built in and the general Rhino rules are now `sfcc/*`
+3. Remove [`@jenssimon/eslint-config-base`](https://github.com/jenssimon/eslint-config-base), [`eslint-plugin-es5`](https://github.com/nkt/eslint-plugin-es5), and [`eslint-plugin-sitegenesis`](https://www.npmjs.com/package/eslint-plugin-sitegenesis) from your dependencies — `sitegenesis/no-global-require` is built in and the general SFCC script runtime rules are now `sfcc/*`
 4. Add any formatting rules you need directly to your own `eslint.config.js`
 
 ## Development

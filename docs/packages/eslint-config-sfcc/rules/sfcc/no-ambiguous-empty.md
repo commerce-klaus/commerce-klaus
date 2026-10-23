@@ -8,13 +8,19 @@ Replacing `empty(value)` safely requires knowing what `value` can contain. For e
 
 This rule turns an ambiguous migration into a concrete typing task. Add or narrow JSDoc type information, then [`sfcc/prefer-explicit-empty-check`](./prefer-explicit-empty-check.md) can offer a behavior-preserving replacement.
 
-Local `@type` and `@param` annotations work in both ESLint and Oxlint. More complex inferred and aliased types require ESLint TypeScript parser services.
+## Oxlint support
+
+::: info Available in Oxlint with ESLint type refinement
+
+Oxlint classifies literals, constant string initializers, directly recognizable SFCC collections, and local `@type` or `@param` JSDoc. ESLint TypeScript parser services additionally follow inferred and aliased types before deciding whether an `empty()` call remains ambiguous.
+
+:::
 
 ## Default behavior
 
-- Severity: `warn`
-- Auto-fix: none
-- Suggestions: none
+- 🟡 **Severity:** `warn`
+- ➖ **Auto-fix:** none
+- 💡 **Suggestions:** none
 
 The [`empty-migration`](../../index.md#migrate-empty-in-batches) preset raises the severity to `error` so unresolved decisions remain visible after safe replacements have been applied.
 

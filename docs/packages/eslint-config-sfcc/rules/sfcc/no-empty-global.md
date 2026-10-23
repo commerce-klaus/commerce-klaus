@@ -8,11 +8,19 @@ Disallows every call to the SFCC-specific global `empty(...)`.
 
 Use this rule when a project wants to remove `empty()` completely and require explicit JavaScript checks.
 
+## Oxlint support
+
+::: info Available in Oxlint with ESLint type refinement
+
+Oxlint always reports the global call and offers a replacement when local syntax or JSDoc identifies the argument semantics. ESLint TypeScript parser services recognize additional inferred and aliased argument types, so ESLint can offer behavior-preserving suggestions in more cases.
+
+:::
+
 ## Default behavior
 
-- Severity: Off
-- Auto-fix: none
-- Suggestions: one behavior-preserving replacement when the argument type is known
+- ⚪ **Severity:** Off
+- ➖ **Auto-fix:** none
+- 💡 **Suggestions:** one behavior-preserving replacement when the argument type is known
 
 The recommended config instead enables:
 

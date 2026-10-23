@@ -101,7 +101,23 @@ export default defineConfig({
           items: [
             { text: "Getting started", link: "/guide/getting-started" },
             { text: "Choosing a package", link: "/guide/choosing-a-package" },
+          ],
+        },
+        {
+          text: "Commerce Klaus",
+          items: [
             { text: "Project configuration", link: "/guide/project-configuration" },
+            { text: "Cartridge architectures", link: "/guide/cartridge-architectures" },
+          ],
+        },
+        {
+          text: "SFCC platform",
+          items: [
+            { text: "SFCC script runtime", link: "/guide/sfcc-script-runtime" },
+            {
+              text: "Cartridges and cartridge paths",
+              link: "/guide/cartridges-and-cartridge-paths",
+            },
             { text: "SFCC module resolution", link: "/guide/sfcc-module-resolution" },
           ],
         },
@@ -115,6 +131,12 @@ export default defineConfig({
             { text: "ESLint config", link: "/packages/eslint-config-sfcc/" },
             { text: "TypeScript tooling", link: "/packages/typescript-sfcc/" },
             { text: "Vitest integration", link: "/packages/vitest-sfcc/" },
+          ],
+        },
+        {
+          text: "Integration adapters",
+          collapsed: true,
+          items: [
             { text: "Vite plugin", link: "/packages/vite-plugin-sfcc-modules/" },
             { text: "Babel plugin", link: "/packages/babel-plugin-sfcc-modules/" },
           ],

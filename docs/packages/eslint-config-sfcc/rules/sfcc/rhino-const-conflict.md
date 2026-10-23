@@ -17,8 +17,8 @@ This is a Rhino-specific safeguard. A pattern that is legal in modern JavaScript
 
 ## Default behavior
 
-- Severity: `error`
-- Auto-fix: yes
+- 🔴 **Severity:** `error`
+- 🛠️ **Auto-fix:** yes
 
 ## Example
 

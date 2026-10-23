@@ -19,8 +19,8 @@ The config aims to preserve the safe use of `const` while avoiding patterns that
 
 ## Default behavior
 
-- Severity: `error`
-- Auto-fix: yes
+- 🔴 **Severity:** `error`
+- 🛠️ **Auto-fix:** yes
 
 ## Example
 

@@ -5,24 +5,30 @@ Commerce Klaus packages can share project-wide SFCC settings from a
 the workspace root; tools search from their working directory toward the
 filesystem root.
 
+::: info New to cartridge configuration?
+
+If these concepts are new, read [Cartridges and cartridge paths](/guide/cartridges-and-cartridge-paths) before configuring `cartridgesDir`, `cartridgePath`, or site metadata.
+
+:::
+
 Install the dedicated configuration package:
 
 ::: code-group
 
-```bash [Vite+]
-vp install -D @commerce-klaus/config
-```
-
 ```bash [pnpm]
 pnpm add -D @commerce-klaus/config
+```
+
+```bash [npm]
+npm install -D @commerce-klaus/config
 ```
 
 ```bash [Yarn]
 yarn add -D @commerce-klaus/config
 ```
 
-```bash [npm]
-npm install -D @commerce-klaus/config
+```bash [Vite+]
+vp install -D @commerce-klaus/config
 ```
 
 :::
@@ -68,21 +74,39 @@ configuration stable when a tool runs from a package or cartridge directory.
 
 ## Cartridge architectures
 
-The optional `architectures` map assigns lint policies to selected cartridges in mixed-architecture repositories. Supported keys are:
+<!--@include: ../_partials/cartridge-architectures.md-->
 
-- `storefront-next`
-- `pwa`
-- `sfra`
-- `sitegenesis-controllers`
-- `sitegenesis-pipelines`
+Read [Cartridge architectures](/guide/cartridge-architectures) for detailed
+profiles, the ESLint policy matrix, focused test selection, and guidance for
+mixed storefront generations.
 
-Assign each cartridge to at most one architecture. Commerce Klaus rejects ambiguous assignments instead of making the result depend on override order.
+The optional `architectures` map is most useful in repositories that contain
+more than one storefront generation. Assign each cartridge to at most one
+architecture:
 
-The ESLint package consumes these assignments through
-`createCartridgeArchitectureConfig()`. Its Oxlint integration exposes the same
-policies through `createOxlintArchitectureOverrides()`. `vitest-sfcc` can use
-them to derive a focused cartridge path for one test project through
-`cartridgeSelection`.
+```ts [commerce-klaus.config.ts]
+export default defineConfig({
+  architectures: {
+    "storefront-next": ["app_headless", "bc_custom_api"],
+    sfra: ["app_storefront_base"],
+    "sitegenesis-controllers": ["bm_tools"],
+  },
+})
+```
+
+Commerce Klaus rejects unknown architecture names and cartridges assigned to
+more than one architecture. Shared or infrastructure cartridges can remain
+unassigned when no architecture policy applies to them.
+
+| Consumer      | How it uses the assignment                                                                                   |
+| ------------- | ------------------------------------------------------------------------------------------------------------ |
+| ESLint        | `createCartridgeArchitectureConfig()` creates cartridge-scoped policy overlays.                              |
+| Oxlint        | `createOxlintArchitectureOverrides()` exposes the same policies as generated overrides.                      |
+| `vitest-sfcc` | `cartridgeSelection` selects assigned cartridges for one test project without changing their relative order. |
+
+When Vitest selects an architecture, unassigned cartridges are excluded by
+default. Add shared cartridges explicitly or set `includeUnassigned: true` when
+the test module graph requires them.
 
 ## Overrides
 

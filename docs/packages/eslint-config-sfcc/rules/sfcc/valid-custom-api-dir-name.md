@@ -14,8 +14,8 @@ Salesforce B2C Commerce requires Custom API directory names to only contain alph
 
 ## Default behavior
 
-- Severity: `error`
-- Auto-fix: none
+- 🔴 **Severity:** `error`
+- ➖ **Auto-fix:** none
 
 ## Example
 

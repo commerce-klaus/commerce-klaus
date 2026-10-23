@@ -22,8 +22,8 @@ Enable this rule only when `~/` syntax is allowed. Do not combine it with a
 
 ## Default behavior
 
-- Severity: off by default; error in the `pwa` and `storefront-next` presets
-- Auto-fix: replaces the current cartridge name with `~`
+- ⚪ **Severity:** off by default; error in the `pwa` and `storefront-next` presets
+- 🛠️ **Auto-fix:** replaces the current cartridge name with `~`
 
 ## Examples
 

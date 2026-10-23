@@ -17,9 +17,9 @@ SiteGenesis controllers are easier to reason about when route-specific dependenc
 
 ## Default behavior
 
-- Severity: `error`
-- Auto-fix: none
-- Editor suggestion: move a single-declarator `require` into its only consuming function
+- 🔴 **Severity:** `error`
+- ➖ **Auto-fix:** none
+- 💡 **Editor suggestion:** move a single-declarator `require` into its only consuming function
 
 ## Options
 

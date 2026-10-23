@@ -12,8 +12,8 @@ This rule is opt-in and is not part of the recommended config or an architecture
 
 ## Default behavior
 
-- Severity: off (opt-in)
-- Auto-fix: none
+- ⚪ **Severity:** off (opt-in)
+- ➖ **Auto-fix:** none
 
 ## Example
 

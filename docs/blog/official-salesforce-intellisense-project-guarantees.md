@@ -103,12 +103,12 @@ Install the Commerce Klaus plugin and its TypeScript engine with the package man
 pnpm add -D @commerce-klaus/b2c-plugin @commerce-klaus/typescript-sfcc @salesforce/b2c-cli typescript
 ```
 
-```bash [Yarn]
-yarn add -D @commerce-klaus/b2c-plugin @commerce-klaus/typescript-sfcc @salesforce/b2c-cli typescript
-```
-
 ```bash [npm]
 npm install -D @commerce-klaus/b2c-plugin @commerce-klaus/typescript-sfcc @salesforce/b2c-cli typescript
+```
+
+```bash [Yarn]
+yarn add -D @commerce-klaus/b2c-plugin @commerce-klaus/typescript-sfcc @salesforce/b2c-cli typescript
 ```
 
 ```bash [Vite+]
@@ -127,16 +127,16 @@ pnpm exec b2c klaus types sync
 pnpm exec b2c klaus types check
 ```
 
-```bash [Yarn]
-yarn exec b2c plugins link node_modules/@commerce-klaus/b2c-plugin --no-install
-yarn exec b2c klaus types sync
-yarn exec b2c klaus types check
-```
-
 ```bash [npm]
 npm exec -- b2c plugins link node_modules/@commerce-klaus/b2c-plugin --no-install
 npm exec -- b2c klaus types sync
 npm exec -- b2c klaus types check
+```
+
+```bash [Yarn]
+yarn exec b2c plugins link node_modules/@commerce-klaus/b2c-plugin --no-install
+yarn exec b2c klaus types sync
+yarn exec b2c klaus types check
 ```
 
 ```bash [Vite+]
@@ -156,14 +156,14 @@ pnpm exec b2c klaus types status --min-version 26.7.0
 pnpm exec b2c klaus types check --project cartridges/jsconfig.json
 ```
 
-```bash [Yarn]
-yarn exec b2c klaus types status --min-version 26.7.0
-yarn exec b2c klaus types check --project cartridges/jsconfig.json
-```
-
 ```bash [npm]
 npm exec -- b2c klaus types status --min-version 26.7.0
 npm exec -- b2c klaus types check --project cartridges/jsconfig.json
+```
+
+```bash [Yarn]
+yarn exec b2c klaus types status --min-version 26.7.0
+yarn exec b2c klaus types check --project cartridges/jsconfig.json
 ```
 
 ```bash [Vite+]
@@ -181,7 +181,7 @@ This is the important distinction: Salesforce validates the metadata file and pr
 
 Type information is one part of the local feedback loop. Commerce Klaus keeps the same platform assumptions across focused packages:
 
-- [`@commerce-klaus/eslint-config-sfcc`](/packages/eslint-config-sfcc/) catches Rhino compatibility problems, invalid SFCC patterns, and registration mistakes that types do not model.
+- [`@commerce-klaus/eslint-config-sfcc`](/packages/eslint-config-sfcc/) catches [SFCC script runtime](/guide/sfcc-script-runtime) compatibility problems, invalid SFCC patterns, and registration mistakes that types do not model.
 - [`@commerce-klaus/vitest-sfcc`](/packages/vitest-sfcc/) resolves cartridge modules and provides deterministic platform mocks so real cartridge code can be tested locally.
 - The [`@commerce-klaus/vite-plugin-sfcc-modules`](/packages/vite-plugin-sfcc-modules/) and [`@commerce-klaus/babel-plugin-sfcc-modules`](/packages/babel-plugin-sfcc-modules/) packages make SFCC CommonJS and cartridge imports available to their respective toolchains.
 - [`@commerce-klaus/b2c-plugin`](/packages/b2c-plugin/) exposes project checks through the official Salesforce B2C CLI.

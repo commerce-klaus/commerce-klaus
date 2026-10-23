@@ -13,8 +13,8 @@ Those globals come from older Rhino-based environments. They make code harder to
 
 ## Default behavior
 
-- Severity: `error`
-- Auto-fix: none
+- 🔴 **Severity:** `error`
+- ➖ **Auto-fix:** none
 
 ## Example
 

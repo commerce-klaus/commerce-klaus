@@ -17,10 +17,18 @@ Disallows Java-style `String.equals(...)` calls in JavaScript files. Use strict 
 
 Using strict equality makes intent explicit and keeps code idiomatic JavaScript.
 
+## Oxlint support
+
+::: info Available in Oxlint with ESLint type refinement
+
+Oxlint conservatively reports every matching `.equals(...)` call. ESLint TypeScript parser services restrict reports to string-like receivers and skip receivers known to be non-string or mixed types.
+
+:::
+
 ## Default behavior
 
-- Severity: `error`
-- Auto-fix: suggestion available (replace `left.equals(right)` with `left === right`)
+- 🔴 **Severity:** `error`
+- 💡 **Editor suggestion:** replace `left.equals(right)` with `left === right`
 
 ## Example
 

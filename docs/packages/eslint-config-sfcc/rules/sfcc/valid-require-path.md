@@ -34,10 +34,18 @@ Relevant options include:
 
 SFCC projects often mix cartridge-relative imports, template-path lookups, and legacy require conventions. This rule keeps those paths consistent and catches typos before they become runtime failures.
 
+## Oxlint support
+
+::: info Available in Oxlint with ESLint type refinement
+
+Oxlint validates static string and template-literal paths and ignores non-literal identifier arguments. ESLint TypeScript parser services additionally validate identifiers with exact string-literal types and unions whose members are all exact string literals.
+
+:::
+
 ## Default behavior
 
-- Severity: `error`
-- Auto-fix: none
+- 🔴 **Severity:** `error`
+- ➖ **Auto-fix:** none
 
 ## Example
 

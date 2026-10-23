@@ -30,9 +30,9 @@ Native collections reduce direct platform coupling and work with standard JavaSc
 
 ## Default behavior
 
-- Severity: off (opt-in)
-- Allowed SFCC collection implementations: none
-- Auto-fix: none
+- ⚪ **Severity:** off (opt-in)
+- ⚙️ **Allowed SFCC collection implementations:** none
+- ➖ **Auto-fix:** none
 
 ## Examples
 

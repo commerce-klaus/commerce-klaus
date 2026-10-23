@@ -37,5 +37,5 @@ The `storefront-next` and `pwa` presets enable this rule. It can still be config
 
 ## Default behavior
 
-- Severity: off (opt-in)
-- Auto-fix: none
+- ⚪ **Severity:** off (opt-in)
+- ➖ **Auto-fix:** none

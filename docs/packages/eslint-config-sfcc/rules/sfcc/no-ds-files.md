@@ -11,10 +11,18 @@ Disallows legacy `.ds` files in SFCC projects. Rename them to `.js` and keep the
 
 `.ds` is a legacy SFCC file extension. Keeping these files around makes code harder to modernize and can hide the fact that the project should be using standard JavaScript files.
 
+## Oxlint support
+
+::: warning ESLint only
+
+Oxlint ignores `.ds` files during file discovery, so its JavaScript plugin never receives the file and cannot run this rule. Use the focused [`eslint-after-oxlint`](../../#eslint-after-oxlint) config during migrations or in CI when `.ds` files must remain prohibited.
+
+:::
+
 ## Default behavior
 
-- Severity: `error`
-- Auto-fix: none
+- 🔴 **Severity:** `error`
+- ➖ **Auto-fix:** none
 
 ## Example
 

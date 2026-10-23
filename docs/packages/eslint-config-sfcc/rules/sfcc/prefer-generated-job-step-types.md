@@ -31,3 +31,9 @@ exports.run = run
 The rule resolves effective registrations in cartridge-path order and ignores unregistered or overridden implementations. It supports function declarations and functions assigned to local variables, and offers an ESLint suggestion for missing and incorrect `@type` annotations.
 
 This rule is enabled by the opt-in `generated-types` preset, not by `recommended`, because the generated declarations must be available to the JavaScript project.
+
+## Default behavior
+
+- ⚪ **Severity:** off by default; `error` in the `generated-types` preset
+- ➖ **Auto-fix:** none
+- 💡 **Editor suggestions:** add or replace the generated job-step function type

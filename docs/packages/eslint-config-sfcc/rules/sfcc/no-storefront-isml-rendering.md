@@ -15,8 +15,8 @@ Use [`sfcc/no-template-rendering`](./no-template-rendering.md) as well when all 
 
 ## Default behavior
 
-- Severity: off by default; error in the `pwa` and `storefront-next` presets
-- Auto-fix: none
+- ⚪ **Severity:** off by default; error in the `pwa` and `storefront-next` presets
+- ➖ **Auto-fix:** none
 
 ## Example
 

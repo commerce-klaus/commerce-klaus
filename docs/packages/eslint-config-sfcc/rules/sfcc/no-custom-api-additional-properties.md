@@ -16,8 +16,8 @@ Salesforce B2C Commerce does not register a Custom API endpoint whose request bo
 
 ## Default behavior
 
-- Severity: `error`
-- Auto-fix: none
+- 🔴 **Severity:** `error`
+- ➖ **Auto-fix:** none
 
 ## Example
 

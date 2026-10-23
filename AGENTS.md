@@ -4,7 +4,7 @@
 
 Commerce Klaus is a Vite+ monorepo of pragmatic developer tools for Salesforce
 Commerce Cloud (SFCC), backed by a pnpm workspace for package and dependency
-management. It brings SFCC's cartridge model, Rhino runtime constraints,
+management. It brings SFCC's cartridge model, script runtime constraints,
 platform APIs, metadata, and CommonJS conventions into ESLint, TypeScript, Vite,
 Babel, Vitest, and CI.
 
@@ -23,6 +23,39 @@ fantasy character.
 
 Source code and documentation are written in English.
 
+### Documentation Callouts
+
+Use VitePress custom containers consistently and sparingly:
+
+- `info` provides prerequisite context, terminology, or an important boundary.
+- `tip` recommends an optional practice or preferred workflow.
+- `warning` highlights a likely misconfiguration, incomplete validation, or
+  compatibility risk that can produce incorrect behavior.
+- `danger` is reserved for destructive, irreversible, or security-sensitive
+  consequences.
+- `details` hides optional examples or reference material that would interrupt
+  the main flow.
+
+Give callouts a specific title. Do not simulate them with headings such as
+“Warning”, prefixes such as “Important:”, or ordinary prose that is easy to
+miss. Keep normal API limitations inline when they are already clear in their
+immediate reference context; not every negative statement needs a callout.
+
+### Runtime Terminology
+
+Use **SFCC script runtime** for the server-side environment that executes
+cartridge JavaScript, including its engine, module loading, platform APIs, and
+execution context. Link to [the runtime guide](docs/guide/sfcc-script-runtime.md)
+at the first useful mention in explanatory documentation.
+
+Reserve **Rhino** for the underlying JavaScript engine, concrete engine-specific
+behavior, existing identifiers such as `sfcc/rhino-const-compat`, and the slogan
+“Tame the SFCC Rhino”. Do not use it as a synonym for the whole environment or
+rename public rules and APIs to match prose terminology. When introducing the
+slogan, link its explanation or add a short footnote. Keep the local **test
+runtime**, Node.js tooling, and frontend runtimes distinct from the SFCC script
+runtime.
+
 ## Repository Map and Ownership
 
 - `packages/config`: the public, dependency-light owner of the shared
@@ -33,10 +66,10 @@ Source code and documentation are written in English.
   cartridge discovery and ordering, SFCC module resolution, super modules,
   hooks, job step definitions, and Custom API contracts. Put filesystem-based
   SFCC semantics here when more than one adapter needs them.
-- `packages/eslint-config-sfcc`: ESLint and Oxlint-compatible rules for Rhino
-  compatibility and statically detectable SFCC mistakes. Keep ESTree-specific
-  analysis and diagnostics here; reuse the shared resolver for filesystem and
-  registration semantics.
+- `packages/eslint-config-sfcc`: ESLint and Oxlint-compatible rules for SFCC
+  script runtime compatibility and statically detectable SFCC mistakes. Keep
+  ESTree-specific analysis and diagnostics here; reuse the shared resolver for
+  filesystem and registration semantics.
 - `packages/typescript-sfcc`: tsserver plugin, typecheck and type-sync CLIs, and
   generated declarations for Script API types, custom attributes, hooks, and
   Custom APIs. Keep TypeScript AST and language-service concerns here.
@@ -92,6 +125,10 @@ tool invocation, commonly written as a colon-separated value such as
 precedence. If both `app_custom` and `app_storefront_base` contain the requested
 module, the implementation from `app_custom` wins.
 
+Use [the cartridge guide](docs/guide/cartridges-and-cartridge-paths.md) as the
+central user-facing explanation. Link to it instead of redefining cartridges,
+cartridge paths, or precedence in package documentation.
+
 This order is part of SFCC runtime behavior, not merely a filesystem search
 convenience. It determines which cartridge overrides another, which hook or job
 step registration is effective, and which implementation is the next
@@ -109,11 +146,18 @@ The shared resolver understands these module forms:
   implementations, or user mocks depending on the consumer.
 - relative paths and `.js`, `.ds`, and `.json` runtime extensions.
 
+Prefer `~/` whenever a module belongs to the importing file's own cartridge,
+especially when a higher-precedence cartridge could provide the same path.
+Reserve `*/` for dependencies that intentionally select the effective
+implementation through cartridge-path precedence; do not use it as a shortcut
+for a known local dependency.
+
 `inferCartridgeOrder()` establishes the canonical precedence: explicit
-`cartridgePath`, configured or environment `SFCC_CARTRIDGE_PATH`, solution
-`jsconfig` references, a site's `custom-cartridges` value, then a deterministic
-alphabetical filesystem fallback. Preserve first-cartridge-wins behavior for
-modules, hooks, job step type IDs, and similar registrations.
+`cartridgePath`; configured or environment `SFCC_CARTRIDGES` and the legacy
+`SFCC_CARTRIDGE_PATH`; solution `jsconfig` references; a site's
+`custom-cartridges` value; then a deterministic alphabetical filesystem
+fallback. Preserve first-cartridge-wins behavior for modules, hooks, job step
+type IDs, and similar registrations.
 
 ### Super Modules
 
@@ -124,20 +168,20 @@ inheritance, and produce `undefined` when no fallback exists.
 
 ### Runtime Compatibility
 
-SFCC server-side code is CommonJS JavaScript running under platform-specific
-Rhino constraints. Runnable cartridge code and runnable test fixtures must be
-`.js` with JSDoc and `checkJs`/`allowJs`, never TypeScript. TypeScript is used for
-the tooling implementation, declarations, tests of tooling APIs, and config.
+SFCC server-side code is CommonJS JavaScript running in the SFCC script runtime.
+Runnable cartridge code and runnable test fixtures must be `.js` with JSDoc and
+`checkJs`/`allowJs`, never TypeScript. TypeScript is used for the tooling
+implementation, declarations, tests of tooling APIs, and config.
 
 Do not introduce Node.js, browser, or modern ECMAScript behavior into cartridge
-code unless the target SFCC runtime supports it. Platform globals such as
+code unless the target SFCC script runtime supports it. Platform globals such as
 `request`, `session`, `customer`, and `empty` need explicit lint, type, or test
 runtime treatment.
 
 Prefer `const` for bindings that are never reassigned, including code examples
 and runnable cartridge fixtures. Use `let` only for reassigned bindings or where
-the configured SFCC Rhino compatibility rules require it, such as loop-critical
-or conflicting nested-block declarations. Use `var` only in targeted legacy
+the configured SFCC script runtime compatibility rules require it, such as
+loop-critical or conflicting nested-block declarations. Use `var` only in targeted legacy
 fixtures and documentation that intentionally demonstrate `var` behavior; do
 not use it as the default for cartridge code merely because the runtime is
 Rhino-based.
@@ -221,16 +265,61 @@ and process globals between tests because Vitest workers are reused.
 - VitePress navigation is maintained manually. When adding or moving docs,
   update `docs/.vitepress/config.ts`; add blog posts to both
   `docs/blog/index.md` and the Blog sidebar.
+- Use `docs/_partials` for identical cross-page explanations and maintenance
+  blocks with one shared contract. Keep contextual package guidance on its
+  owning page, and do not create one partial per package merely to avoid
+  parameter differences that Markdown includes cannot express.
+- Order the Guide sidebar from onboarding to deeper context: start with
+  "Getting started" and "Choosing a package", continue with Commerce
+  Klaus-specific usage and configuration, then explain SFCC platform concepts
+  from foundational topics to details that depend on them.
 - Treat `docs/packages/*` as the canonical source for package descriptions,
   configuration, APIs, and detailed usage. Keep package READMEs compact for npm
   and GitHub discovery: retain a short overview, installation, a minimal quick
   start, and a prominent link to the full documentation; do not duplicate
   option tables, command references, advanced examples, or troubleshooting.
+- In package overviews, distinguish direct Commerce Klaus tools from integration
+  adapters and shared utilities. Do not present low-level utilities as the
+  default starting point for ordinary projects. Keep the package cards in the
+  reference overview and task-oriented chooser sourced from the shared package
+  card partials so their taxonomy, descriptions, links, and visual presentation
+  stay aligned.
+- Treat cartridge architecture names and meanings as a shared documentation
+  contract. Source their definitions and visual cards from the central
+  cartridge-architecture partial; tool pages should explain only how they
+  consume assignments. Make clear that assignments are explicit policy labels,
+  do not alter cartridge-path precedence, and allow each cartridge at most one
+  architecture. Keep `docs/guide/cartridge-architectures.md` as the canonical
+  detail page for profiles, lint policies, test selection, and assignment
+  guidance.
+- Keep card interactions consistent across the home page, blog, and package
+  overviews: use the shared `ck-card` visual primitives based on the cartridge
+  architecture cards. Build first-party card collections with the shared
+  `CardGrid.vue` and `DocumentationCard.vue` components instead of copying list
+  or card markup. Make the entire card the link, reuse the shared hover and
+  `focus-visible` behavior in the theme stylesheet, and respect reduced-motion
+  preferences. VitePress feature cards and plugin-provided blog cards should
+  mirror the same surface, radius, spacing, typography, and grid gap through
+  theme overrides.
+- Present ESLint rule defaults consistently in overview tables and detail
+  pages: use 🔴 for `error`, 🟡 for `warn`, ⚪ for `off`, 🛠️ for an available
+  auto-fix, 💡 for editor suggestions, and ➖ when no auto-fix is available.
+  Rule overview tables must show whether auto-fixing is available by default,
+  available only through an opt-in rule option, or unavailable.
+- Present Oxlint as the preferred everyday lint pass for local development and
+  CI. Present ESLint as the complete migration and audit tool for legacy files,
+  parser-boundary syntax, and complex type-aware analysis. Explain that
+  `sfcc/no-ds-files`, `sfcc/no-e4x-syntax`, and `sfcc/no-type-annotations`
+  require ESLint; do not describe reduced type-aware refinement in otherwise
+  available Oxlint rules as missing rule support. Keep the central Oxlint
+  coverage matrix and the `Oxlint support` section on every affected rule page
+  aligned with the implementations.
 - In consumer-facing documentation, every package installation and
-  package-executed CLI example must include Vite+, pnpm, Yarn, and npm variants.
-  Use VitePress code groups where supported. Repository development commands
-  remain Vite+ only because this monorepo does not support npm or Yarn as its
-  workspace package manager.
+  package-executed CLI example must include pnpm, npm, Yarn, and Vite+ variants,
+  in exactly that order. Use VitePress code groups where supported. This display
+  order does not change the repository workflow: development commands remain
+  Vite+ only because this monorepo does not support npm or Yarn as its workspace
+  package manager.
 - Keep `b2c-plugin` command output consistent with the Salesforce B2C CLI and
   the existing Commerce Klaus type commands. Use oclif `ux.stdout()` and
   `ux.colorize()` for human-readable output: green for successful values and

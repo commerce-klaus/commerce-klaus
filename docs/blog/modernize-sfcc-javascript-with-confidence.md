@@ -49,7 +49,7 @@ ESLint is often introduced as a style tool. In an SFCC project, it can do more i
 
 A useful SFCC configuration answers runtime questions:
 
-- Is this syntax supported by the target Rhino environment?
+- Is this syntax supported by the target [SFCC script runtime](/guide/sfcc-script-runtime)?
 - Is this standard-library method available?
 - Is the cartridge import valid?
 - Does a Custom API export the configured function and mark it as public?

@@ -33,12 +33,12 @@ central values. The public configuration contract lives in
 pnpm add @commerce-klaus/sfcc-module-resolver
 ```
 
-```bash [yarn]
-yarn add @commerce-klaus/sfcc-module-resolver
-```
-
 ```bash [npm]
 npm install @commerce-klaus/sfcc-module-resolver
+```
+
+```bash [Yarn]
+yarn add @commerce-klaus/sfcc-module-resolver
 ```
 
 ```bash [Vite+]

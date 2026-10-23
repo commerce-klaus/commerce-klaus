@@ -26,9 +26,9 @@ export default {
 
 ## Default behavior
 
-- Severity: off (opt-in)
-- Allowed Rhino globals: none
-- Auto-fix: none
+- ⚪ **Severity:** off (opt-in)
+- ⚙️ **Allowed Rhino globals:** none
+- ➖ **Auto-fix:** none
 
 ## Examples
 

@@ -19,8 +19,8 @@ Requires a static CommonJS export for each Salesforce hook method registered for
 
 ## Default behavior
 
-- Severity: `error`
-- Auto-fix: none
+- 🔴 **Severity:** `error`
+- ➖ **Auto-fix:** none
 
 ## Example
 

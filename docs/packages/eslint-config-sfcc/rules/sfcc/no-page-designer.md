@@ -35,8 +35,8 @@ export default [
 
 ## Default behavior
 
-- Severity: off (opt-in)
-- Auto-fix: none
+- ⚪ **Severity:** off (opt-in)
+- ➖ **Auto-fix:** none
 
 ## Example
 

@@ -17,11 +17,19 @@ Disallows JSX/E4X-like syntax in SFCC JavaScript. The rule keeps JavaScript pars
 
 SFCC code may be parsed in toolchains that are tolerant of E4X-like syntax, but that syntax is not valid plain JavaScript and is not a reliable fit for modern linting or runtime workflows.
 
+## Oxlint support
+
+::: warning ESLint only
+
+Oxlint rejects E4X-like markup before JavaScript plugins can inspect its syntax tree. Use the focused [`eslint-after-oxlint`](../../#eslint-after-oxlint) config to report accepted JSX/E4X-like nodes and provide the static `XML(...)` migration suggestion.
+
+:::
+
 ## Default behavior
 
-- Severity: `error`
-- Auto-fix: none
-- Suggestions: yes, for static markup
+- 🔴 **Severity:** `error`
+- ➖ **Auto-fix:** none
+- 💡 **Suggestions:** yes, for static markup
 
 ## Example
 

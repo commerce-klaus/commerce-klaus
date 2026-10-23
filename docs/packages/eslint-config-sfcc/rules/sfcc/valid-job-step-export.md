@@ -17,8 +17,8 @@ A job step definition is only executable when its module exports every configure
 
 ## Default behavior
 
-- Severity: `error`
-- Auto-fix: none
+- 🔴 **Severity:** `error`
+- ➖ **Auto-fix:** none
 
 ## Script module example
 

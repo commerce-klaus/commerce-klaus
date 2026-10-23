@@ -16,7 +16,7 @@ You are starting a new **Storefront Next** or **PWA** project. The storefront st
 
 Then the project needs server-side code: perhaps a Custom API implementation, a hook, or a job step. Those files are JavaScript too, but they run in a different environment with different rules.
 
-This is where a greenfield project can become unexpectedly frustrating. A modern storefront does not turn the Salesforce Commerce Cloud cartridge runtime into Node.js. The team still needs to account for Rhino constraints, CommonJS modules, platform APIs, metadata-driven contracts, and cartridge precedence.
+This is where a greenfield project can become unexpectedly frustrating. A modern storefront does not turn the [SFCC script runtime](/guide/sfcc-script-runtime) into Node.js. The team still needs to account for JavaScript compatibility constraints, CommonJS modules, platform APIs, metadata-driven contracts, and cartridge precedence.
 
 Developers with SFRA, SiteGenesis, or other long-running SFCC experience will recognize many of these boundaries. Their knowledge remains valuable. The opportunity in a new Storefront Next or PWA project is to encode that knowledge from the beginning, so nobody has to rely on memory or repeat old failures to learn it.
 
@@ -26,7 +26,7 @@ Commerce Klaus makes that operating environment explicit in the tools the team a
 
 A modern storefront and an SFCC cartridge can belong to the same product without sharing a runtime.
 
-Storefront code follows the capabilities of its own build tools and deployment environment. Server-side cartridge code still executes on SFCC, with Rhino constraints, CommonJS modules, platform APIs, and cartridge resolution semantics. A new storefront architecture does not turn that backend into Node.js.
+Storefront code follows the capabilities of its own build tools and deployment environment. Server-side cartridge code still executes in the SFCC script runtime, with its JavaScript compatibility constraints, CommonJS modules, platform APIs, and cartridge resolution semantics. A new storefront architecture does not turn that backend into Node.js.
 
 The boundary becomes visible as soon as storefront work crosses into a server-side cartridge. Familiar assumptions no longer reliably apply:
 
@@ -56,7 +56,7 @@ Starting fresh does not mean writing cartridge JavaScript as if it were still 20
 
 Commerce Klaus's [ESLint compatibility policy](/packages/eslint-config-sfcc/#modern-javascript-where-sfcc-supports-it) allows modern features supported by the platform, including `const`, `let`, arrow functions, destructuring, template literals, generators, and `for...of`. It reports known runtime gaps such as classes, default parameters, spread syntax, and `Promise`.
 
-The distinction matters: syntax support and standard-library availability are separate questions. TypeScript accepting an expression does not establish that Rhino can execute it. A passing test in Node.js does not establish that a builtin exists on SFCC.
+The distinction matters: syntax support and standard-library availability are separate questions. TypeScript accepting an expression does not establish that the SFCC script runtime can execute it. A passing test in Node.js does not establish that a builtin exists on SFCC.
 
 The recommended lint config supplies the SFCC compatibility layer. When a code version targets an older compatibility mode, an [additional compatibility preset](/packages/eslint-config-sfcc/#older-compatibility-modes) adds the relevant restrictions.
 
@@ -136,6 +136,6 @@ Commerce Klaus cannot remove every SFCC quirk, and it does not make platform kno
 
 Developers should be able to bring both modern JavaScript experience and knowledge from earlier SFCC architectures into the new project. They need a clear operating range, not a sequence of surprising failures that teaches them to distrust either background.
 
-Klaus does not replace the Rhino. He helps make its boundaries explicit, so the developer can spend more time solving the commerce problem inside them.
+Klaus does not replace the SFCC script runtime. He helps make its boundaries explicit, so the developer can spend more time solving the commerce problem inside them.
 
 For the complementary perspective on improving an existing codebase, see [Modernize SFCC JavaScript with confidence](/blog/modernize-sfcc-javascript-with-confidence).

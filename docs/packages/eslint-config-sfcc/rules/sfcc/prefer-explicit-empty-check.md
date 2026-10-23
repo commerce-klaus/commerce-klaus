@@ -18,9 +18,9 @@ See the official [`TopLevel.global.empty()` documentation](https://salesforcecom
 
 ## Default behavior
 
-- Severity: `warn`
-- Auto-fix: none
-- Suggestions: one behavior-preserving replacement
+- 🟡 **Severity:** `warn`
+- 🛠️ **Auto-fix:** opt-in through the `autofix` option
+- 💡 **Suggestions:** one behavior-preserving replacement
 
 Suggestions are not applied automatically so callers can review repeated member access and simplify conditions with surrounding control-flow knowledge.
 
@@ -34,7 +34,13 @@ Set the `autofix` option to `true` to apply replacements that preserve both the 
 
 The [`empty-migration`](../../index.md#migrate-empty-in-batches) ESLint preset enables this option together with `sfcc/no-ambiguous-empty`. Oxlint can generate the equivalent override with `createOxlintEmptyMigrationOverride()`. Potentially side-effecting expressions remain suggestions in both migration modes.
 
-The rule reads local `@type` and `@param` JSDoc annotations in both ESLint and Oxlint. When ESLint TypeScript parser services are available, it also follows inferred types and type aliases.
+## Oxlint support
+
+::: info Available in Oxlint with ESLint type refinement
+
+Oxlint uses literals, constant string initializers, directly recognizable SFCC collections, and local `@type` or `@param` JSDoc to select safe replacements. ESLint TypeScript parser services additionally follow inferred types and aliases, producing suggestions or fixes for more calls.
+
+:::
 
 ## Replacements
 

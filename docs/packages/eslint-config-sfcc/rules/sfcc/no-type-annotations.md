@@ -17,11 +17,19 @@ Disallows inline type-annotation syntax in JavaScript files. Use JSDoc types ins
 
 Rhino and E4X-era parsers may tolerate syntax that is invalid in standard JavaScript. This rule keeps `.js` files aligned with normal JavaScript syntax and nudges type information into JSDoc.
 
+## Oxlint support
+
+::: warning ESLint only
+
+Oxlint rejects TypeScript-style annotations in JavaScript before JavaScript plugins can inspect or fix them. Use the focused [`eslint-after-oxlint`](../../#eslint-after-oxlint) config to migrate these annotations to valid JavaScript and JSDoc.
+
+:::
+
 ## Default behavior
 
-- Severity: `error`
-- Auto-fix: yes, where safe
-- Suggestions: yes
+- 🔴 **Severity:** `error`
+- 🛠️ **Auto-fix:** yes, where safe
+- 💡 **Suggestions:** yes
 
 ## Example
 

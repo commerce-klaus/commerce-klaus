@@ -26,7 +26,11 @@ runtime.setGlobals({ request, session, customer })
 
 Tests often need a small, deterministic subset of SFCC behavior without coupling that behavior to Vite, Vitest, cartridge discovery, or filesystem resolution. This package provides that framework-independent core: an explicit module registry, controlled globals, focused platform modules, and execution harnesses for controllers, hooks, and job steps.
 
-It intentionally does not emulate the complete SFCC platform. Unknown modules fail unless a caller registers a mock or supplies a real-module fallback.
+::: warning Not a platform emulator
+
+This package intentionally does not emulate the complete SFCC platform. Unknown modules fail unless a caller registers a mock or supplies a real-module fallback.
+
+:::
 
 ## Features
 
@@ -45,12 +49,12 @@ It intentionally does not emulate the complete SFCC platform. Unknown modules fa
 pnpm add -D @commerce-klaus/sfcc-test-runtime
 ```
 
-```bash [yarn]
-yarn add -D @commerce-klaus/sfcc-test-runtime
-```
-
 ```bash [npm]
 npm install -D @commerce-klaus/sfcc-test-runtime
+```
+
+```bash [Yarn]
+yarn add -D @commerce-klaus/sfcc-test-runtime
 ```
 
 ```bash [Vite+]
@@ -59,7 +63,11 @@ vp install -D @commerce-klaus/sfcc-test-runtime
 
 :::
 
+::: info Using Vitest?
+
 Do not add this direct dependency when `@commerce-klaus/vitest-sfcc` already owns the test integration. Use its `@commerce-klaus/vitest-sfcc/runtime` subpath instead.
+
+:::
 
 ## Runtime API
 
@@ -341,20 +349,7 @@ This package does not read cartridge paths, `jsconfig.json`, `site.xml`, `hooks.
 
 `@commerce-klaus/vitest-sfcc` depends on this package internally and exposes its consumer-facing APIs and types through `@commerce-klaus/vitest-sfcc/runtime`. Direct consumers of this package are typically test-runner adapters or custom harnesses.
 
-## Development
-
-This repository uses Vite+ (`vp`):
-
-```bash
-vp install
-vp check
-vp test
-vp run build
-```
-
-## License
-
-MIT
+<!--@include: ../../_partials/package-development.md-->
 
 [npm-url]: https://www.npmjs.com/package/@commerce-klaus/sfcc-test-runtime
 [npm-image]: https://badgen.net/npm/v/@commerce-klaus/sfcc-test-runtime

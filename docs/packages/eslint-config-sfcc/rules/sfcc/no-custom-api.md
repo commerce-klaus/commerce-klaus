@@ -38,5 +38,5 @@ Disabling the Custom API validation rules in the same overlay avoids secondary d
 
 ## Default behavior
 
-- Severity: off (opt-in)
-- Auto-fix: none
+- ⚪ **Severity:** off (opt-in)
+- ➖ **Auto-fix:** none

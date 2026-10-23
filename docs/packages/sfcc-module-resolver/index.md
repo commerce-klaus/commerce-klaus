@@ -289,7 +289,11 @@ if (exportStep?.kind === "chunk-script-module-step") {
 }
 ```
 
+::: warning Discovery skips invalid definitions
+
 Malformed documents and definitions whose modules cannot be resolved are skipped during filesystem discovery. Duplicate type IDs use the same first-cartridge-wins priority as module and hook resolution.
+
+:::
 
 Each definition exposes normalized `parameters` and `statusCodes` arrays. Empty parameter containers and missing status declarations become empty arrays. Boolean metadata flags accept both JSON booleans and SFCC's string forms (`"true"` and `"false"`); default values remain lossless so consumers can apply runtime-specific conversion.
 

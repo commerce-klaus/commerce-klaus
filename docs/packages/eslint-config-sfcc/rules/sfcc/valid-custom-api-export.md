@@ -19,9 +19,9 @@ Custom API endpoints are only registered when the implementation script exports 
 
 ## Default behavior
 
-- Severity: `error`
-- Auto-fix: none
-- Suggestion: adds `.public = true` to the exported function or local handler binding
+- 🔴 **Severity:** `error`
+- ➖ **Auto-fix:** none
+- 💡 **Suggestion:** adds `.public = true` to the exported function or local handler binding
 
 ## Example
 

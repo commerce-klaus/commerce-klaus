@@ -2,11 +2,17 @@
 
 Commerce Klaus is a set of focused packages. Adopt only the parts your project needs, or combine them into one consistent SFCC development workflow.
 
+::: info New to server-side cartridge development?
+
+Start with the [SFCC script runtime](/guide/sfcc-script-runtime) to understand the execution environment and how it differs from Node.js and browser JavaScript.
+
+:::
+
 ## Requirements
 
 - Node.js 22.13 or newer
 - An SFCC cartridge project
-- Vite+, pnpm, Yarn, or npm
+- pnpm, npm, Yarn, or Vite+
 
 ## Recommended setup
 
@@ -20,14 +26,14 @@ pnpm add -D eslint typescript @salesforce/b2c-cli \
   @commerce-klaus/typescript-sfcc
 ```
 
-```bash [yarn]
-yarn add -D eslint typescript @salesforce/b2c-cli \
+```bash [npm]
+npm install -D eslint typescript @salesforce/b2c-cli \
   @commerce-klaus/eslint-config-sfcc \
   @commerce-klaus/typescript-sfcc
 ```
 
-```bash [npm]
-npm install -D eslint typescript @salesforce/b2c-cli \
+```bash [Yarn]
+yarn add -D eslint typescript @salesforce/b2c-cli \
   @commerce-klaus/eslint-config-sfcc \
   @commerce-klaus/typescript-sfcc
 ```
@@ -57,12 +63,12 @@ For a faster lint path, Commerce Klaus also exposes its supported SFCC and SiteG
 pnpm add -D oxlint @commerce-klaus/eslint-config-sfcc
 ```
 
-```bash [yarn]
-yarn add -D oxlint @commerce-klaus/eslint-config-sfcc
-```
-
 ```bash [npm]
 npm install -D oxlint @commerce-klaus/eslint-config-sfcc
+```
+
+```bash [Yarn]
+yarn add -D oxlint @commerce-klaus/eslint-config-sfcc
 ```
 
 ```bash [Vite+]
@@ -77,7 +83,11 @@ import sfcc from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
 export default sfcc
 ```
 
+::: warning Oxlint cannot run every SFCC rule
+
 Oxlint cannot run the three rules whose input is invalid JavaScript syntax. Projects that need those checks can follow Oxlint with the minimal [ESLint fallback](/packages/eslint-config-sfcc/#eslint-after-oxlint) instead of running the complete ESLint preset twice.
+
+:::
 
 Enable cartridge-aware TypeScript resolution:
 
@@ -98,14 +108,14 @@ pnpm exec sfcc-ts-sync-types
 pnpm exec sfcc-ts-typecheck
 ```
 
-```bash [yarn]
-yarn exec sfcc-ts-sync-types
-yarn exec sfcc-ts-typecheck
-```
-
 ```bash [npm]
 npm exec -- sfcc-ts-sync-types
 npm exec -- sfcc-ts-typecheck
+```
+
+```bash [Yarn]
+yarn exec sfcc-ts-sync-types
+yarn exec sfcc-ts-typecheck
 ```
 
 ```bash [Vite+]
@@ -125,12 +135,12 @@ add the Commerce Klaus plugin as a development dependency:
 pnpm add -D @commerce-klaus/b2c-plugin @salesforce/b2c-cli
 ```
 
-```bash [yarn]
-yarn add -D @commerce-klaus/b2c-plugin @salesforce/b2c-cli
-```
-
 ```bash [npm]
 npm install -D @commerce-klaus/b2c-plugin @salesforce/b2c-cli
+```
+
+```bash [Yarn]
+yarn add -D @commerce-klaus/b2c-plugin @salesforce/b2c-cli
 ```
 
 ```bash [Vite+]
@@ -159,14 +169,14 @@ pnpm exec b2c klaus types sync
 pnpm exec b2c klaus types check
 ```
 
-```bash [yarn]
-yarn exec b2c klaus types sync
-yarn exec b2c klaus types check
-```
-
 ```bash [npm]
 npm exec -- b2c klaus types sync
 npm exec -- b2c klaus types check
+```
+
+```bash [Yarn]
+yarn exec b2c klaus types sync
+yarn exec b2c klaus types check
 ```
 
 ```bash [Vite+]
@@ -189,12 +199,12 @@ Use the dedicated Vitest integration when tests need to execute cartridge code:
 pnpm add -D vitest @commerce-klaus/vitest-sfcc
 ```
 
-```bash [yarn]
-yarn add -D vitest @commerce-klaus/vitest-sfcc
-```
-
 ```bash [npm]
 npm install -D vitest @commerce-klaus/vitest-sfcc
+```
+
+```bash [Yarn]
+yarn add -D vitest @commerce-klaus/vitest-sfcc
 ```
 
 ```bash [Vite+]
@@ -229,7 +239,13 @@ Choose the adapter that matches the tool running your server-side code:
 - Use the [Vite plugin](/packages/vite-plugin-sfcc-modules/) when another Vite-based tool needs cartridge-aware module resolution without the test runtime.
 - Use the [Babel plugin](/packages/babel-plugin-sfcc-modules/) for existing Babel-based tests and tooling.
 
-These integrations use the same resolver core, so `*/`, `~/`, cartridge aliases, and `module.superModule` follow the same ordering rules. Do not configure the Vite and Vitest plugins together; the Vitest package already includes the required module resolution.
+These integrations use the same resolver core, so `*/`, `~/`, cartridge aliases, and `module.superModule` follow the same ordering rules.
+
+::: warning Choose one Vite integration
+
+Do not configure the Vite and Vitest plugins together. The Vitest package already includes the required module resolution.
+
+:::
 
 ## Complete example
 

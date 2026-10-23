@@ -4,7 +4,7 @@ Commerce Klaus builds pragmatic developer tools for Salesforce Commerce Cloud. T
 
 ## Respect the runtime
 
-SFCC server-side JavaScript is not browser JavaScript and it is not Node.js. Rhino compatibility, CommonJS modules, cartridge precedence, and platform APIs are real constraints. The tooling models those constraints explicitly instead of hiding them behind generic presets.
+The [SFCC script runtime](/guide/sfcc-script-runtime) is not a browser and it is not Node.js. JavaScript compatibility, CommonJS modules, cartridge precedence, and platform APIs are real constraints. The tooling models those constraints explicitly instead of hiding them behind generic presets.
 
 ## Move failures closer to the editor
 
@@ -31,3 +31,5 @@ Klaus is a traditional, down-to-earth German first name. Here it personifies the
 The name pairs the corporate world of Salesforce Commerce Cloud with a friendly, no-nonsense developer persona:
 
 > Klaus is here to tame the SFCC Rhino.
+
+"Rhino" in the slogan refers to the underlying JavaScript engine, not the whole execution environment. See [why "Tame the SFCC Rhino"?](/guide/sfcc-script-runtime#why-tame-the-sfcc-rhino).

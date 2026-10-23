@@ -47,7 +47,7 @@ This plugin resolves those patterns according to cartridge path order and rewrit
 
 Use this plugin when a Vite-based tool needs cartridge-aware module resolution without an SFCC test runtime.
 
-Use [`@commerce-klaus/vitest-sfcc`](../vitest-sfcc/) when cartridge code must run in Vitest. It adds the CommonJS transformation, `dw/*` and `server` implementations, globals, dependency mocking, hooks, and controller and job-step harnesses needed for tests. It already performs cartridge resolution, so the two plugins should not be configured together in the same Vitest run.
+<!--@include: ../../_partials/vite-integration-choice.md-->
 
 ## Features
 
@@ -65,12 +65,12 @@ Use [`@commerce-klaus/vitest-sfcc`](../vitest-sfcc/) when cartridge code must ru
 pnpm add -D @commerce-klaus/vite-plugin-sfcc-modules
 ```
 
-```bash [yarn]
-yarn add -D @commerce-klaus/vite-plugin-sfcc-modules
-```
-
 ```bash [npm]
 npm install -D @commerce-klaus/vite-plugin-sfcc-modules
+```
+
+```bash [Yarn]
+yarn add -D @commerce-klaus/vite-plugin-sfcc-modules
 ```
 
 ```bash [Vite+]
@@ -159,7 +159,11 @@ Resolves only in the current file's cartridge.
 
 Resolves to the next matching module in cartridge path order after the current cartridge.
 
-Important: `module.superModule` is rewritten to a static `import`, not a runtime `require()`. This is intentional so Vite can transform transitive super-module chains as part of the normal module graph.
+::: info Static super-module imports
+
+`module.superModule` is rewritten to a static `import`, not a runtime `require()`. This allows Vite to transform transitive super-module chains as part of the normal module graph.
+
+:::
 
 ## Vite + Vitest notes
 
@@ -175,20 +179,7 @@ Important: `module.superModule` is rewritten to a static `import`, not a runtime
 | Runtime setup        | Often Babel tooling / register              | Native Vite/Vitest                         |
 | Main use case        | Babel-based SFCC toolchains                 | Modern Vite-based SFCC toolchains          |
 
-## Development
-
-This repository uses Vite+ (`vp`):
-
-```bash
-vp install
-vp check
-vp test
-vp run build
-```
-
-## License
-
-MIT
+<!--@include: ../../_partials/package-development.md-->
 
 [npm-url]: https://www.npmjs.com/package/@commerce-klaus/vite-plugin-sfcc-modules
 [npm-image]: https://badgen.net/npm/v/@commerce-klaus/vite-plugin-sfcc-modules

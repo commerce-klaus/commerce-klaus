@@ -12,9 +12,9 @@ files.
 
 ## Default behavior
 
-- Severity: `error`
-- Files: `cartridges/*/steptypes.json`
-- Auto-fix: none
+- 🔴 **Severity:** `error`
+- 📁 **Files:** `cartridges/*/steptypes.json`
+- ➖ **Auto-fix:** none
 
 ## Example
 

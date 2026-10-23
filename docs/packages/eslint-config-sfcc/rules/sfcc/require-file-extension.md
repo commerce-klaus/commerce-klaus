@@ -21,10 +21,10 @@ would load for the importing cartridge.
 
 ## Default behavior
 
-- Severity: off
-- Auto-fix: appends the extension when the path resolves directly to one `.js`, `.ds`, or `.json`
+- ⚪ **Severity:** off
+- 🛠️ **Auto-fix:** appends the extension when the path resolves directly to one `.js`, `.ds`, or `.json`
   file
-- Reports without a fix when the target cannot be resolved or the path resolves through an
+- ℹ️ **Without a fix:** reports when the target cannot be resolved or the path resolves through an
   `index.*` file
 
 ## Examples

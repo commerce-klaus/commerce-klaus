@@ -52,12 +52,12 @@ This plugin supports Babel 7 and 8 and declares `@babel/core` and `@babel/types`
 pnpm add -D @commerce-klaus/babel-plugin-sfcc-modules
 ```
 
-```sh [yarn]
-yarn add -D @commerce-klaus/babel-plugin-sfcc-modules
-```
-
 ```sh [npm]
 npm install -D @commerce-klaus/babel-plugin-sfcc-modules
+```
+
+```sh [Yarn]
+yarn add -D @commerce-klaus/babel-plugin-sfcc-modules
 ```
 
 ```sh [Vite+]
@@ -151,30 +151,17 @@ If no fallback cartridge module exists, it is rewritten to `undefined`.
 | Runtime setup        | Babel-driven test/tooling runtime           | Native Vite/Vitest                         |
 | Main use case        | Existing Babel-based SFCC workflows         | Modern Vite-based SFCC workflows           |
 
-## Warning
+::: warning Frontend bundles are unsupported
 
 ![kitten.png](https://github.com/jenssimon/babel-plugin-sfcc-modules/raw/main/kitten.png)
 
-You shouldn't use it for frontend code. There are better alternatives to deal with a cartridge path, [NODE_PATH](https://nodejs.org/api/modules.html#modules_loading_from_the_global_folders) and the handling of frontend assets in [sgmf-scripts](https://www.npmjs.com/package/sgmf-scripts).
+Do not use this plugin for frontend bundles. Frontend build tools provide better ways to handle aliases, package lookup, and assets; SFRA projects can use the asset handling in [sgmf-scripts](https://www.npmjs.com/package/sgmf-scripts).
 
-In my opinion the best way to handle frontend code is to have a clean configuration of Webpack aliases.
+The cartridge path is a server-side SFCC concept. The plugin may transform frontend code, but that use is not supported. Prefer explicit aliases in the frontend bundler.
 
-The cartridge path concept isn't common for Node.js/frontend code. This plugin will work for it but I won't officially support it.
+:::
 
-## Development
-
-This repository uses Vite+ (`vp`):
-
-```bash
-vp install
-vp check
-vp test
-vp run build
-```
-
-## License
-
-MIT
+<!--@include: ../../_partials/package-development.md-->
 
 [npm-url]: https://www.npmjs.com/package/@commerce-klaus/babel-plugin-sfcc-modules
 [npm-image]: https://badgen.net/npm/v/@commerce-klaus/babel-plugin-sfcc-modules

@@ -19,12 +19,12 @@ The plugin supports Babel 7 and 8 and declares `@babel/core` and `@babel/types` 
 pnpm add -D @commerce-klaus/babel-plugin-sfcc-modules
 ```
 
-```bash [yarn]
-yarn add -D @commerce-klaus/babel-plugin-sfcc-modules
-```
-
 ```bash [npm]
 npm install -D @commerce-klaus/babel-plugin-sfcc-modules
+```
+
+```bash [Yarn]
+yarn add -D @commerce-klaus/babel-plugin-sfcc-modules
 ```
 
 ```bash [Vite+]

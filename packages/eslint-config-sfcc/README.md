@@ -2,7 +2,7 @@
 
 # @commerce-klaus/eslint-config-sfcc
 
-Shareable ESLint flat config for Salesforce Commerce Cloud projects. It catches Rhino compatibility problems and SFCC-specific mistakes before code reaches a sandbox.
+Shareable ESLint flat config for Salesforce Commerce Cloud projects. It catches [SFCC script runtime](https://commerce-klaus.github.io/commerce-klaus/guide/sfcc-script-runtime) compatibility problems and platform-specific mistakes before code reaches a sandbox.
 
 ## Highlights
 
@@ -16,18 +16,20 @@ Shareable ESLint flat config for Salesforce Commerce Cloud projects. It catches 
 - Provides an opt-in preset for enforcing generated project types at metadata boundaries
 - Supports ESLint and an Oxlint-compatible preset
 
+**Prefer Oxlint for everyday linting.** It provides the fast feedback loop for normal development and CI. Use ESLint for complete migrations and audits where `.ds` files, E4X-like syntax, JavaScript type annotations, or complex inferred types require its parser and TypeScript services. The full guide documents a focused ESLint fallback for the three rules Oxlint cannot run.
+
 ## Install
 
 ```bash [pnpm]
 pnpm add -D eslint @commerce-klaus/eslint-config-sfcc
 ```
 
-```bash [yarn]
-yarn add -D eslint @commerce-klaus/eslint-config-sfcc
-```
-
 ```bash [npm]
 npm install -D eslint @commerce-klaus/eslint-config-sfcc
+```
+
+```bash [Yarn]
+yarn add -D eslint @commerce-klaus/eslint-config-sfcc
 ```
 
 ```bash [Vite+]
@@ -53,7 +55,7 @@ The preset checks registered job step functions, SFCC system hook implementation
 The recommended config checks server-side JavaScript below `cartridges/` and excludes client-side and static asset folders.
 It also disables Node.js and browser globals inherited from earlier flat config entries while keeping CommonJS and SFCC runtime globals available.
 
-It also disables selected incompatible rules from ESLint core/recommended, `eslint-plugin-unicorn`, `typescript-eslint`, and `eslint-plugin-sonarjs`. This keeps those presets usable alongside SFCC code without suggesting unsupported Rhino syntax, APIs, or module patterns. See the configuration guide for the documented compatibility overrides.
+It also disables selected incompatible rules from ESLint core/recommended, `eslint-plugin-unicorn`, `typescript-eslint`, and `eslint-plugin-sonarjs`. This keeps those presets usable alongside SFCC code without suggesting syntax, APIs, or module patterns unsupported by the SFCC script runtime. See the configuration guide for the documented compatibility overrides.
 
 The recommended config follows the current SFCC Script API. Projects using an older
 compatibility mode can add the corresponding preset after `recommended`:

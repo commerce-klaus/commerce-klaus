@@ -38,12 +38,12 @@ Salesforce Script API declarations are synchronized through the
 pnpm add -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
 ```
 
-```bash [yarn]
-yarn add -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
-```
-
 ```bash [npm]
 npm install -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
+```
+
+```bash [Yarn]
+yarn add -D @commerce-klaus/typescript-sfcc typescript @salesforce/b2c-cli
 ```
 
 ```bash [Vite+]
@@ -83,14 +83,14 @@ pnpm exec sfcc-ts-sync-types
 pnpm exec sfcc-ts-typecheck
 ```
 
-```bash [yarn]
-yarn exec sfcc-ts-sync-types
-yarn exec sfcc-ts-typecheck
-```
-
 ```bash [npm]
 npm exec -- sfcc-ts-sync-types
 npm exec -- sfcc-ts-typecheck
+```
+
+```bash [Yarn]
+yarn exec sfcc-ts-sync-types
+yarn exec sfcc-ts-typecheck
 ```
 
 ```bash [Vite+]

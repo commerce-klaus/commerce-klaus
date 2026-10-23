@@ -16,8 +16,8 @@ The bare `server` module is specific to SFRA controllers. Disallowing it prevent
 
 ## Default behavior
 
-- Severity: off (opt-in)
-- Auto-fix: none
+- ⚪ **Severity:** off (opt-in)
+- ➖ **Auto-fix:** none
 
 ## Example
 

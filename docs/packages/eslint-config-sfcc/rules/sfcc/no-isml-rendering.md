@@ -19,8 +19,8 @@ ISML files themselves are outside ESLint's JavaScript scope. This rule prevents 
 
 ## Default behavior
 
-- Severity: off (opt-in)
-- Auto-fix: none
+- ⚪ **Severity:** off (opt-in)
+- ➖ **Auto-fix:** none
 
 ## Examples
 

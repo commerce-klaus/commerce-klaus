@@ -14,8 +14,8 @@ Custom APIs must return JSON. Legacy controller response APIs can produce redire
 
 ## Default behavior
 
-- Severity: `error`
-- Auto-fix: none
+- 🔴 **Severity:** `error`
+- ➖ **Auto-fix:** none
 
 ## Example
 
