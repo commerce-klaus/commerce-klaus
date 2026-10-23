@@ -1,5 +1,23 @@
 # @commerce-klaus/sfcc-module-resolver
 
+## 2.1.0
+
+### Minor Changes
+
+- 40ffa6f: Add reusable focused OAS contract validation and optional request and response validation for metadata-loaded Custom APIs.
+- 9de00ee: Add structured Custom API resolution traces and a `b2c klaus explain custom-api` command for selected, shadowed, and missing registrations.
+- b3335c5: Add structured hook and job step resolution traces plus `b2c klaus explain hook` and `b2c klaus explain job-step` commands.
+- 00a3dec: Resolve effective Custom API definitions by API and operation ID, and load their registered implementations directly in Vitest tests.
+- b776380: Load effective hook implementations from project metadata in Vitest and generate an extension-point registry for typed hook invocation.
+- 1d806d0: Explain which configuration source selected the effective cartridge order and report missing cartridges or invalid fallback inputs in module resolution traces.
+
+### Patch Changes
+
+- 29db05a: Support TypeScript 7.1 and newer for cartridge-aware CLI typechecking and generated project types while retaining the TypeScript 5.5–6 tsserver plugin.
+- Updated dependencies [7e37249]
+- Updated dependencies [87ec511]
+  - @commerce-klaus/config@1.1.0
+
 ## 2.0.0
 
 ### Major Changes

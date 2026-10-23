@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.15.0
+
+### Minor Changes
+
+- de3f3d2: Make legacy migrations more targeted with exported-route-aware SiteGenesis require diagnostics, separate storefront and general template-rendering policies, and exact path allowances for proprietary module syntax.
+- 1c42603: Split `empty()` migration into two recommended warnings: `sfcc/prefer-explicit-empty-check` offers behavior-preserving replacements for known value types, while `sfcc/no-ambiguous-empty` asks for better JSDoc information instead of guessing. Keep `sfcc/no-empty-global` as an opt-in strict ban.
+- e3c960c: Add an Oxlint builder for the safe `empty()` migration workflow, including shared cartridge globs and client or static exclusions.
+- 0fd04c6: Add an ESLint migration preset that inventories every SFCC `empty()` call, safely fixes known argument types in batches, and leaves ambiguous or side-effect-sensitive calls for explicit review.
+- 7e37249: Define cartridge architecture roles once in the shared project configuration and reuse the same Storefront Next, PWA, SFRA, and SiteGenesis policies through ESLint or Oxlint architecture builders.
+
+### Patch Changes
+
+- Updated dependencies [40ffa6f]
+- Updated dependencies [9de00ee]
+- Updated dependencies [b3335c5]
+- Updated dependencies [00a3dec]
+- Updated dependencies [b776380]
+- Updated dependencies [1d806d0]
+- Updated dependencies [7e37249]
+- Updated dependencies [29db05a]
+- Updated dependencies [87ec511]
+  - @commerce-klaus/sfcc-module-resolver@2.1.0
+  - @commerce-klaus/config@1.1.0
+
 ## 1.14.0
 
 ### Minor Changes

@@ -1,5 +1,12 @@
 # @commerce-klaus/sfcc-test-runtime
 
+## 1.1.0
+
+### Minor Changes
+
+- 48daf21: Add a Custom API test harness with request globals, customer context, a focused `dw/system/RESTResponseMgr`, and captured success or RFC 9457 error responses.
+- cf0122e: Add typed SFCC global contracts, runtime inspection and selective removal APIs, and configurable project-level default globals.
+
 ## 1.0.0
 
 ### Major Changes
