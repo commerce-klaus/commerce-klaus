@@ -1,5 +1,13 @@
 # @commerce-klaus/b2c-plugin
 
+## 1.1.1
+
+### Patch Changes
+
+- 208c864: Use the TypeScript compiler executable provided by the workspace dependency when building the plugin.
+- Updated dependencies [edd1a61]
+  - @commerce-klaus/sfcc-module-resolver@2.1.1
+
 ## 1.1.0
 
 ### Minor Changes
