@@ -11,7 +11,7 @@ catalog:
   "@eslint/js": ^10.0.1
   "@oclif/core": ^5.0.0
   "@salesforce/b2c-cli": ^2.0.0
-  "@types/node": ^24
+  "@types/node": ^26.0.0
   "@typescript-eslint/eslint-plugin": ^8.68.0
   "@typescript-eslint/parser": ^8.68.0
   "@vitest/coverage-v8": 5.0.5
