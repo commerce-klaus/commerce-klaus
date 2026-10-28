@@ -1,5 +1,13 @@
 # @commerce-klaus/sfcc-test-runtime
 
+## 1.1.1
+
+### Patch Changes
+
+- edd1a61: Match SFCC script module mocks with or without a supported file extension. Export the shared runtime extensions through a dependency-light subpath.
+- Updated dependencies [edd1a61]
+  - @commerce-klaus/sfcc-module-resolver@2.1.1
+
 ## 1.1.0
 
 ### Minor Changes
