@@ -1,3 +1,5 @@
+import { SUPPORTED_RUNTIME_EXTENSIONS } from "@commerce-klaus/sfcc-module-resolver/runtime-extensions"
+
 import type { SfccGlobals } from "./globals.js"
 
 import { Calendar } from "../platform/calendar.js"
@@ -7,6 +9,20 @@ import { createStringUtilsModule } from "../platform/string-utils.js"
 
 export type SfccModule = object | ((...args: never[]) => unknown)
 export type SfccModuleFallback = () => SfccModule
+
+const SUPPORTED_RUNTIME_EXTENSION_PATTERN = new RegExp(
+  `\\.(?:${SUPPORTED_RUNTIME_EXTENSIONS.join("|")})$`,
+  "u",
+)
+
+function getModuleIdAliases(moduleId: string): string[] {
+  const extensionlessId = moduleId.replace(SUPPORTED_RUNTIME_EXTENSION_PATTERN, "")
+  if (extensionlessId !== moduleId) {
+    return [extensionlessId]
+  }
+
+  return SUPPORTED_RUNTIME_EXTENSIONS.map((extension) => `${moduleId}.${extension}`)
+}
 
 export interface LoggerEntry {
   level: "debug" | "info" | "warn" | "error" | "fatal"
@@ -97,9 +113,14 @@ export class ModuleRegistry {
   }
 
   resolve(moduleId: string, fallback?: SfccModuleFallback, resolvedId?: string): SfccModule {
+    const mock =
+      this.mocks.get(moduleId) ??
+      getModuleIdAliases(moduleId)
+        .map((alias) => this.mocks.get(alias))
+        .find((implementation) => implementation !== undefined)
     const implementation =
       (resolvedId ? this.resolvedMocks.get(resolvedId) : undefined) ??
-      this.mocks.get(moduleId) ??
+      mock ??
       this.defaults.get(moduleId)
     if (implementation) {
       return implementation

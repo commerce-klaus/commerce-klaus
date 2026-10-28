@@ -20,6 +20,40 @@ describe("SFCC module registry", () => {
     })
   })
 
+  it("matches an extensionless mock to an SFCC module with a script extension", () => {
+    runtime.mock("~/cartridge/scripts/provider", { value: "mocked" })
+
+    expect(requireSfccModule("~/cartridge/scripts/provider.js", () => ({ value: "real" }))).toEqual(
+      { value: "mocked" },
+    )
+    expect(requireSfccModule("~/cartridge/scripts/provider.ds", () => ({ value: "real" }))).toEqual(
+      { value: "mocked" },
+    )
+    expect(
+      requireSfccModule("~/cartridge/scripts/provider.json", () => ({ value: "real" })),
+    ).toEqual({ value: "mocked" })
+  })
+
+  it("matches a script-extension mock to an extensionless SFCC module", () => {
+    runtime.mock("~/cartridge/scripts/provider.js", { value: "mocked" })
+
+    expect(requireSfccModule("~/cartridge/scripts/provider", () => ({ value: "real" }))).toEqual({
+      value: "mocked",
+    })
+  })
+
+  it("prefers an exact module mock when extension variants are also registered", () => {
+    runtime.mock("~/cartridge/scripts/provider", { value: "extensionless" })
+    runtime.mock("~/cartridge/scripts/provider.js", { value: "javascript" })
+
+    expect(requireSfccModule("~/cartridge/scripts/provider.js")).toEqual({
+      value: "javascript",
+    })
+    expect(requireSfccModule("~/cartridge/scripts/provider")).toEqual({
+      value: "extensionless",
+    })
+  })
+
   it("restores fallback resolution on reset", () => {
     runtime.mock("*/cartridge/scripts/provider", { value: "mocked" })
     runtime.reset()

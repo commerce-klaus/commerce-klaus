@@ -1,9 +1,10 @@
 import fs from "node:fs"
 import path from "node:path"
 
+import { SUPPORTED_RUNTIME_EXTENSIONS } from "../runtime-extensions.ts"
 import { findContainingCartridgeRoot } from "./cartridge-order.ts"
 
-export const SUPPORTED_RUNTIME_EXTENSIONS = ["js", "ds", "json"] as const
+export { SUPPORTED_RUNTIME_EXTENSIONS } from "../runtime-extensions.ts"
 
 export function stripExtension(filePath: string): string {
   return filePath.replace(/\.[^.]+$/u, "")

@@ -70,14 +70,15 @@ const resolved = resolveSfccModule("*/cartridge/scripts/util", importer)
 
 The public API is grouped by SFCC domain:
 
-| Entry point                                        | Responsibility                                      |
-| -------------------------------------------------- | --------------------------------------------------- |
-| `@commerce-klaus/sfcc-module-resolver`             | Resolution API, equivalent to `/resolution`         |
-| `@commerce-klaus/sfcc-module-resolver/resolution`  | Cartridge order, module resolution, and superModule |
-| `@commerce-klaus/sfcc-module-resolver/hooks`       | Hook registration discovery and contracts           |
-| `@commerce-klaus/sfcc-module-resolver/job-steps`   | Job step definitions and script contracts           |
-| `@commerce-klaus/sfcc-module-resolver/custom-apis` | Custom API and OAS discovery                        |
-| `@commerce-klaus/sfcc-module-resolver/project`     | Project validation and dependency graphs            |
+| Entry point                                               | Responsibility                                                     |
+| --------------------------------------------------------- | ------------------------------------------------------------------ |
+| `@commerce-klaus/sfcc-module-resolver`                    | Resolution API, equivalent to `/resolution`                        |
+| `@commerce-klaus/sfcc-module-resolver/resolution`         | Cartridge order, module resolution, and superModule                |
+| `@commerce-klaus/sfcc-module-resolver/runtime-extensions` | Runtime script extensions without filesystem resolver dependencies |
+| `@commerce-klaus/sfcc-module-resolver/hooks`              | Hook registration discovery and contracts                          |
+| `@commerce-klaus/sfcc-module-resolver/job-steps`          | Job step definitions and script contracts                          |
+| `@commerce-klaus/sfcc-module-resolver/custom-apis`        | Custom API and OAS discovery                                       |
+| `@commerce-klaus/sfcc-module-resolver/project`            | Project validation and dependency graphs                           |
 
 Import from the domain entry point that owns the required behavior. The package
 root intentionally exposes only the resolution API.
@@ -85,6 +86,7 @@ root intentionally exposes only the resolution API.
 ### Constants
 
 - `SUPPORTED_RUNTIME_EXTENSIONS`: `readonly ["js", "ds", "json"]`
+  - Also available from `/runtime-extensions`, which does not load the filesystem-based resolver.
 - `SUPER_MODULE_TOKEN`: `"__sfcc_superModule__"`
 - `DEFAULT_SITE_TEMPLATE_PATH`: `"sites/site_template"`
 

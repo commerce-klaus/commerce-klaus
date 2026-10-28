@@ -39,6 +39,11 @@
       "import": "./dist/resolution.mjs",
       "require": "./dist/resolution.cjs"
     },
+    "./runtime-extensions": {
+      "types": "./dist/runtime-extensions.d.mts",
+      "import": "./dist/runtime-extensions.mjs",
+      "require": "./dist/runtime-extensions.cjs"
+    },
     "./hooks": {
       "types": "./dist/hooks.d.mts",
       "import": "./dist/hooks.mjs",

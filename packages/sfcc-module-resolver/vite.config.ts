@@ -5,6 +5,7 @@ export default defineConfig({
     entry: [
       "src/index.ts",
       "src/resolution.ts",
+      "src/runtime-extensions.ts",
       "src/hooks.ts",
       "src/job-steps.ts",
       "src/custom-apis.ts",

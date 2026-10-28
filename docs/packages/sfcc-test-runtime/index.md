@@ -88,7 +88,7 @@ runtime.mockResolved("/workspace/cartridges/app_custom/cartridge/scripts/provide
 runtime.reset()
 ```
 
-`mock()` targets the original module identifier. This is useful for platform modules and shared identifiers such as `*/cartridge/scripts/provider` or `./helper`. `mockResolved()` targets exactly one absolute cartridge file and takes precedence when identical relative identifiers occur in different directories.
+`mock()` targets the original module identifier. SFCC script modules match whether the mock or import includes a supported `.js`, `.ds`, or `.json` extension; an exact identifier match takes precedence when multiple variants are registered. This is useful for platform modules and shared identifiers such as `*/cartridge/scripts/provider` or `./helper`. `mockResolved()` targets exactly one absolute cartridge file and takes precedence when identical relative identifiers occur in different directories.
 
 ## Runtime modules
 
