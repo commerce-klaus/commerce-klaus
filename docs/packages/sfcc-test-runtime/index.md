@@ -85,10 +85,11 @@ const runtime = createSfccTestRuntime({
 
 runtime.mock("dw/system/Logger", loggerMock)
 runtime.mockResolved("/workspace/cartridges/app_custom/cartridge/scripts/provider.js", providerMock)
+runtime.hasModuleMock("dw/system/Logger")
 runtime.reset()
 ```
 
-`mock()` targets the original module identifier. SFCC script modules match whether the mock or import includes a supported `.js`, `.ds`, or `.json` extension; an exact identifier match takes precedence when multiple variants are registered. This is useful for platform modules and shared identifiers such as `*/cartridge/scripts/provider` or `./helper`. `mockResolved()` targets exactly one absolute cartridge file and takes precedence when identical relative identifiers occur in different directories.
+`mock()` targets the original module identifier. SFCC script modules match whether the mock or import includes a supported `.js`, `.ds`, or `.json` extension; an exact identifier match takes precedence when multiple variants are registered. This is useful for platform modules and shared identifiers such as `*/cartridge/scripts/provider` or `./helper`. `mockResolved()` targets exactly one absolute cartridge file and takes precedence when identical relative identifiers occur in different directories. `hasModuleMock()` reports whether an identifier or one of its supported extension aliases has an explicit `mock()` replacement; built-in runtime implementations do not count as mocks.
 
 ## Runtime modules
 

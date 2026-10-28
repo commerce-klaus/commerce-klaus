@@ -105,6 +105,13 @@ export class ModuleRegistry {
     this.resolvedMocks.set(resolvedId, implementation)
   }
 
+  hasMock(moduleId: string): boolean {
+    return (
+      this.mocks.has(moduleId) ||
+      getModuleIdAliases(moduleId).some((alias) => this.mocks.has(alias))
+    )
+  }
+
   reset(): void {
     this.mocks.clear()
     this.resolvedMocks.clear()

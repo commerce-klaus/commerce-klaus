@@ -56,6 +56,10 @@ export class SfccTestRuntime {
     this.moduleRegistry.mockResolved(resolvedId, implementation)
   }
 
+  hasModuleMock(moduleId: string): boolean {
+    return this.moduleRegistry.hasMock(moduleId)
+  }
+
   setGlobals(globals: SfccGlobals): void {
     this.globalsRuntime.set(globals)
   }

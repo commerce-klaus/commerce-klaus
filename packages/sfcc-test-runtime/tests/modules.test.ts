@@ -15,6 +15,7 @@ describe("SFCC module registry", () => {
   it("uses a registered module instead of its fallback", () => {
     runtime.mock("*/cartridge/scripts/provider", { value: "mocked" })
 
+    expect(runtime.hasModuleMock("*/cartridge/scripts/provider")).toBe(true)
     expect(requireSfccModule("*/cartridge/scripts/provider", () => ({ value: "real" }))).toEqual({
       value: "mocked",
     })
@@ -23,6 +24,7 @@ describe("SFCC module registry", () => {
   it("matches an extensionless mock to an SFCC module with a script extension", () => {
     runtime.mock("~/cartridge/scripts/provider", { value: "mocked" })
 
+    expect(runtime.hasModuleMock("~/cartridge/scripts/provider.js")).toBe(true)
     expect(requireSfccModule("~/cartridge/scripts/provider.js", () => ({ value: "real" }))).toEqual(
       { value: "mocked" },
     )
@@ -58,6 +60,7 @@ describe("SFCC module registry", () => {
     runtime.mock("*/cartridge/scripts/provider", { value: "mocked" })
     runtime.reset()
 
+    expect(runtime.hasModuleMock("*/cartridge/scripts/provider")).toBe(false)
     expect(requireSfccModule("*/cartridge/scripts/provider", () => ({ value: "real" }))).toEqual({
       value: "real",
     })

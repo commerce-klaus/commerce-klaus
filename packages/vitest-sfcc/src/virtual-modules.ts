@@ -42,21 +42,25 @@ export function loadVirtualModule(
   if (moduleId === "dw/system/HookMgr") {
     const imports = hookRegistrations
       .map(
-        (registration, index) =>
-          `import * as hook${index} from ${encodeJavaScriptLiteral(`${registration.scriptPath}${CARTRIDGE_MODULE_SUFFIX}`)}`,
+        (registration) =>
+          `import(${encodeJavaScriptLiteral(`${registration.scriptPath}${CARTRIDGE_MODULE_SUFFIX}`)})`,
       )
-      .join("\n")
+      .join(",\n    ")
     const registrations = hookRegistrations
       .map(
         (registration, index) =>
-          `runtime.registerHook(${encodeJavaScriptLiteral(registration.name)}, "default" in hook${index} ? hook${index}.default : hook${index})`,
+          `runtime.registerHook(${encodeJavaScriptLiteral(registration.name)}, "default" in hooks[${index}] ? hooks[${index}].default : hooks[${index}])`,
       )
       .join("\n")
 
-    return `${imports}
-  import { getSfccRuntime } from "@commerce-klaus/vitest-sfcc/runtime"
-  const runtime = getSfccRuntime()
+    return `import { getSfccRuntime } from "@commerce-klaus/vitest-sfcc/runtime"
+const runtime = getSfccRuntime()
+if (!runtime.hasModuleMock("dw/system/HookMgr")) {
+  const hooks = await Promise.all([
+    ${imports}
+  ])
 ${registrations}
+}
 export default runtime.resolve("dw/system/HookMgr")
 `
   }

@@ -528,7 +528,7 @@ if (HookMgr.hasHook("app.payment.authorize")) {
 }
 ```
 
-Hook scripts run through the same cartridge transformer and can use `dw/*`, `*/`, `~/`, aliases, and `module.superModule`. `getSfccRuntime().hookCalls` exposes calls for test assertions.
+Hook scripts run through the same cartridge transformer and can use `dw/*`, `*/`, `~/`, aliases, and `module.superModule`. `getSfccRuntime().hookCalls` exposes calls for test assertions. Discovered scripts are loaded only when the built-in `HookMgr` is used. An explicit `runtime.mock("dw/system/HookMgr", ...)` takes precedence without evaluating unrelated discovered hook implementations.
 
 Use `loadSfccHook()` when the hook registration itself is part of the test and the implementation path should come from project metadata:
 

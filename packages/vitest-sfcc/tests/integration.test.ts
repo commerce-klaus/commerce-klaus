@@ -372,6 +372,9 @@ describe("vitest-sfcc", () => {
 
     expect(virtualModule).not.toContain("app_custom/cartridge/scripts/hooks/payment.js")
     expect(virtualModule).toContain("app_base/cartridge/scripts/hooks/payment.js")
+    expect(virtualModule).toContain('if (!runtime.hasModuleMock("dw/system/HookMgr"))')
+    expect(virtualModule).toContain("await Promise.all")
+    expect(virtualModule).not.toContain("import * as hook")
   })
 
   it("generates imports through the public vitest-sfcc runtime entry", () => {
@@ -656,5 +659,19 @@ describe("vitest-sfcc", () => {
         args: ["payment-1"],
       },
     ])
+  })
+
+  it("does not load discovered hooks when HookMgr is explicitly mocked", async () => {
+    const callHook = vi.fn(() => "mocked")
+    getSfccRuntime().mock("dw/system/HookMgr", {
+      callHook,
+      hasHook: () => true,
+    })
+
+    const subject = await import("./cartridges/app_custom/cartridge/scripts/hook-subject.js")
+
+    expect(subject.default.execute("payment-mocked")).toBe("mocked")
+    expect(callHook).toHaveBeenCalledWith("app.payment.authorize", "authorize", "payment-mocked")
+    expect(getSfccRuntime().hasHook("app.payment.authorize")).toBe(false)
   })
 })
