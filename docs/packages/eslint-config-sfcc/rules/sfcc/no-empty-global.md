@@ -20,7 +20,12 @@ Oxlint always reports the global call and offers a replacement when local syntax
 
 - ⚪ **Severity:** Off
 - ➖ **Auto-fix:** none
-- 💡 **Suggestions:** one behavior-preserving replacement when the argument type is known
+- 💡 **Suggestions:** one behavior-preserving replacement when the argument type
+  is known and the replacement preserves argument evaluation
+
+The rule still reports a known-type call when a direct code action would repeat
+or discard a potentially stateful expression. Cache that value first and apply
+the explicit check manually.
 
 The recommended config instead enables:
 

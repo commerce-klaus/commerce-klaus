@@ -35,6 +35,28 @@ const KNOWN_NON_EMPTY_PRIMITIVES = new Set([
   "Symbol",
 ])
 const AMBIGUOUS_TYPE_WORDS = new Set(["any", "unknown", "never", "{}", "object", "Object"])
+const DELIMITED_PARENT_TYPES = new Set([
+  "ArrayExpression",
+  "ArrowFunctionExpression",
+  "AssignmentExpression",
+  "AssignmentPattern",
+  "CallExpression",
+  "ConditionalExpression",
+  "DoWhileStatement",
+  "ExpressionStatement",
+  "ForStatement",
+  "IfStatement",
+  "NewExpression",
+  "Property",
+  "ReturnStatement",
+  "SequenceExpression",
+  "SwitchCase",
+  "SwitchStatement",
+  "TemplateLiteral",
+  "ThrowStatement",
+  "VariableDeclarator",
+  "WhileStatement",
+])
 
 export type EmptyArgumentAnalysis =
   | {
@@ -580,4 +602,39 @@ export function canAutofixEmptyReplacement(
     "NewExpression",
     "TemplateLiteral",
   ].includes(argument.type)
+}
+
+export function canSuggestEmptyReplacement(
+  analysis: Exclude<EmptyArgumentAnalysis, { kind: "ambiguous" }>,
+  argument: Rule.Node,
+): boolean {
+  if (
+    analysis.kind === "always-empty" ||
+    (analysis.kind === "nullish-only" && !analysis.nullable)
+  ) {
+    return (
+      argument.type === "Identifier" ||
+      argument.type === "Literal" ||
+      (argument.type === "ObjectExpression" &&
+        (argument as Rule.Node & { properties?: Rule.Node[] }).properties?.length === 0)
+    )
+  }
+
+  return canAutofixEmptyReplacement(analysis, argument)
+}
+
+export function getContextualEmptyReplacement(
+  callExpression: Rule.Node,
+  replacement: string,
+): string {
+  const parentType = callExpression.parent?.type
+  if (
+    !parentType ||
+    DELIMITED_PARENT_TYPES.has(parentType) ||
+    (parentType === "LogicalExpression" && !replacement.includes(" || "))
+  ) {
+    return replacement
+  }
+
+  return `(${replacement})`
 }

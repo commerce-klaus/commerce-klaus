@@ -4,6 +4,8 @@ import {
   analyzeEmptyArgument,
   asGlobalEmptyCall,
   buildExplicitEmptyReplacement,
+  canSuggestEmptyReplacement,
+  getContextualEmptyReplacement,
   isJavaScriptTarget,
 } from "../_utils/empty-global.js"
 import { withSfccSettings } from "../_utils/sfcc-settings.js"
@@ -22,6 +24,8 @@ const noEmptyGlobal: Rule.RuleModule = {
     messages: {
       forbiddenEmptyGlobal:
         "empty() is an SFCC-specific global with type-dependent semantics. Replace it with an explicit check.",
+      forbiddenEmptyGlobalManual:
+        "empty() is an SFCC-specific global. Its explicit replacement must be applied manually so the argument remains evaluated exactly once.",
       suggestExplicitCheck: "Replace with {{replacement}}.",
     },
   },
@@ -39,19 +43,27 @@ const noEmptyGlobal: Rule.RuleModule = {
 
         const argument = callExpression.arguments?.[0]
         let replacement: string | undefined
+        let requiresManualReplacement = false
         if (argument) {
           const analysis = analyzeEmptyArgument(context, argument, sfccSettings)
           if (analysis.kind !== "ambiguous") {
-            replacement = buildExplicitEmptyReplacement(
+            const explicitReplacement = buildExplicitEmptyReplacement(
               analysis,
               context.sourceCode.getText(argument),
             )
+            if (canSuggestEmptyReplacement(analysis, argument)) {
+              replacement = getContextualEmptyReplacement(callExpression, explicitReplacement)
+            } else {
+              requiresManualReplacement = true
+            }
           }
         }
 
         context.report({
           node: callExpression,
-          messageId: "forbiddenEmptyGlobal",
+          messageId: requiresManualReplacement
+            ? "forbiddenEmptyGlobalManual"
+            : "forbiddenEmptyGlobal",
           suggest: replacement
             ? [
                 {

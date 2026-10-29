@@ -5,48 +5,14 @@ import {
   asGlobalEmptyCall,
   buildExplicitEmptyReplacement,
   canAutofixEmptyReplacement,
+  canSuggestEmptyReplacement,
+  getContextualEmptyReplacement,
   isJavaScriptTarget,
 } from "../_utils/empty-global.js"
 import { withSfccSettings } from "../_utils/sfcc-settings.js"
 
 interface RuleOptions {
   autofix?: boolean
-}
-
-const DELIMITED_PARENT_TYPES = new Set([
-  "ArrayExpression",
-  "ArrowFunctionExpression",
-  "AssignmentExpression",
-  "AssignmentPattern",
-  "CallExpression",
-  "ConditionalExpression",
-  "DoWhileStatement",
-  "ExpressionStatement",
-  "ForStatement",
-  "IfStatement",
-  "NewExpression",
-  "Property",
-  "ReturnStatement",
-  "SequenceExpression",
-  "SwitchCase",
-  "SwitchStatement",
-  "TemplateLiteral",
-  "ThrowStatement",
-  "VariableDeclarator",
-  "WhileStatement",
-])
-
-function getAutofixReplacement(callExpression: Rule.Node, replacement: string): string {
-  const parentType = callExpression.parent?.type
-  if (
-    !parentType ||
-    DELIMITED_PARENT_TYPES.has(parentType) ||
-    (parentType === "LogicalExpression" && !replacement.includes(" || "))
-  ) {
-    return replacement
-  }
-
-  return `(${replacement})`
 }
 
 const preferExplicitEmptyCheck: Rule.RuleModule = {
@@ -79,10 +45,8 @@ const preferExplicitEmptyCheck: Rule.RuleModule = {
       preferExplicitCheck:
         "Replace SFCC empty() with an explicit check that preserves its behavior for the inferred type {{type}}.",
       reviewEvaluation:
-        "The explicit replacement for inferred type {{type}} repeats this expression. Cache the value first if member access or evaluation can be stateful.",
+        "The explicit replacement for inferred type {{type}} repeats this expression. Cache the value first so the original expression remains evaluated once.",
       suggestExplicitCheck: "Replace with {{replacement}}.",
-      suggestReviewedExplicitCheck:
-        "Review {{replacement}}; cache the value first if access can be stateful.",
     },
   },
   create: withSfccSettings((context, sfccSettings) => {
@@ -112,7 +76,7 @@ const preferExplicitEmptyCheck: Rule.RuleModule = {
           autofix &&
           callExpression.parent?.type !== "UnaryExpression" &&
           canAutofixEmptyReplacement(analysis, argument)
-            ? getAutofixReplacement(callExpression, replacement)
+            ? getContextualEmptyReplacement(callExpression, replacement)
             : undefined
         const repeatsExpression =
           analysis.nullable &&
@@ -125,6 +89,9 @@ const preferExplicitEmptyCheck: Rule.RuleModule = {
               : repeatsExpression
                 ? "reviewEvaluation"
                 : "preferExplicitCheck"
+        const suggestionReplacement = canSuggestEmptyReplacement(analysis, argument)
+          ? getContextualEmptyReplacement(callExpression, replacement)
+          : undefined
 
         context.report({
           node: callExpression,
@@ -133,15 +100,15 @@ const preferExplicitEmptyCheck: Rule.RuleModule = {
           fix: autofixReplacement
             ? (fixer) => fixer.replaceText(callExpression, autofixReplacement)
             : undefined,
-          suggest: [
-            {
-              messageId: repeatsExpression
-                ? "suggestReviewedExplicitCheck"
-                : "suggestExplicitCheck",
-              data: { replacement },
-              fix: (fixer) => fixer.replaceText(callExpression, replacement),
-            },
-          ],
+          suggest: suggestionReplacement
+            ? [
+                {
+                  messageId: "suggestExplicitCheck",
+                  data: { replacement: suggestionReplacement },
+                  fix: (fixer) => fixer.replaceText(callExpression, suggestionReplacement),
+                },
+              ]
+            : [],
         })
       },
     }

@@ -398,15 +398,15 @@ vp exec eslint --config eslint.empty-migration.config.js cartridges --fix
 
 Treat the results as three migration queues:
 
-| Queue                 | Meaning                                                                                                  | Action                                                                   |
-| --------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| Autofixable           | The type and replacement are known, and the original expression is still evaluated safely.               | Review the dry-run output, then apply `--fix`.                           |
-| Typed suggestion only | The replacement is known, but expanding it may repeat a getter, method call, or other member expression. | Cache the value first, then apply the explicit check manually.           |
-| Ambiguous             | The type is unknown, too broad, or combines values with different SFCC `empty()` semantics.              | Inspect metadata and callers, then document or narrow the real contract. |
+| Queue         | Meaning                                                                                                               | Action                                                                   |
+| ------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Autofixable   | The type and replacement are known, and the original expression is still evaluated safely.                            | Review the dry-run output, then apply `--fix`.                           |
+| Manual review | The replacement is known, but expanding it may repeat or discard a getter, method call, or other stateful expression. | Cache the value first, then apply the explicit check manually.           |
+| Ambiguous     | The type is unknown, too broad, or combines values with different SFCC `empty()` semantics.                           | Inspect metadata and callers, then document or narrow the real contract. |
 
 Diagnostic totals are not necessarily unique `empty()` call totals. One source expression can contribute more than one diagnostic while overlapping type evidence or multiple arguments are being reported. Track progress by rule and confirm the remaining source calls separately.
 
-Known strings and arrays become length checks, SFCC collections use `isEmpty()`, and nullable objects use explicit nullish checks. A replacement is not applied automatically when it would repeat or discard a potentially side-effecting expression. The normal editor suggestion remains available for manual review.
+Known strings and arrays become length checks, SFCC collections use `isEmpty()`, and nullable objects use explicit nullish checks. A replacement is neither fixed nor offered as a code action when it would repeat or discard a potentially side-effecting expression. The diagnostic remains available for manual review and recommends caching the value first.
 
 Cache stateful expressions before expanding them:
 

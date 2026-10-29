@@ -142,11 +142,13 @@ describe("SFCC empty() migration rules", () => {
   })
 
   test("does not autofix a negated empty check", async () => {
-    const result = await lintWithAutofix('const value = ""\n!empty(value)')
+    const code = 'const value = ""\n!empty(value)'
+    const result = await lintWithAutofix(code)
     const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
     expect(result?.output).toBeUndefined()
     expect(hit?.suggestions).toHaveLength(1)
+    expect(applyFirstSuggestion(code, hit)).toBe('const value = ""\n!(value.length === 0)')
   })
 
   test("keeps a defensive null check for a non-null object type", async () => {
@@ -168,10 +170,7 @@ describe("SFCC empty() migration rules", () => {
 
     expect(result?.output).toBeUndefined()
     expect(hit?.message).toContain("Cache the value first")
-    expect(hit?.suggestions?.[0]?.desc).toContain(
-      "customer.custom.code === null || customer.custom.code === undefined",
-    )
-    expect(hit?.suggestions?.[0]?.desc).toContain("cache the value first")
+    expect(hit?.suggestions).toBeUndefined()
   })
 
   test("groups nullable replacements inside logical expressions", async () => {
@@ -194,8 +193,8 @@ describe("SFCC empty() migration rules", () => {
     const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
     expect(result?.output).toBeUndefined()
-    expect(hit?.suggestions).toHaveLength(1)
-    expect(applyFirstSuggestion(code, hit)).toBe("false")
+    expect(hit?.suggestions).toBeUndefined()
+    expect(hit?.message).toContain("always false")
   })
 
   test("infers a constant string initializer without type services", async () => {
@@ -328,6 +327,22 @@ describe("SFCC empty() migration rules", () => {
     expect(applyFirstSuggestion(code, hit)).toBe('"sample".length === 0')
   })
 
+  test("strict rule parenthesizes a safe replacement inside negation", async () => {
+    const code = '!empty("sample")'
+    const result = await lintStrict(code)
+    const hit = findMessage(result, "sfcc/no-empty-global")
+
+    expect(applyFirstSuggestion(code, hit)).toBe('!("sample".length === 0)')
+  })
+
+  test("strict rule withholds replacements that discard side effects", async () => {
+    const result = await lintStrict("empty({ value: getValue() })")
+    const hit = findMessage(result, "sfcc/no-empty-global")
+
+    expect(hit?.message).toContain("evaluated exactly once")
+    expect(hit?.suggestions).toBeUndefined()
+  })
+
   test("strict rule ignores locally shadowed empty functions", async () => {
     const result = await lintStrict("function empty(value) { return !value }\nempty(customer)")
 
@@ -374,9 +389,9 @@ describe("SFCC empty() migration rules", () => {
     const result = await lintTypeAwareFixture("generated-job-step.js")
     const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
-    expect(hit?.suggestions?.[0]?.desc).toContain(
-      "parameters.ScheduleId === null || parameters.ScheduleId === undefined || parameters.ScheduleId.length === 0",
-    )
+    expect(hit?.message).toContain("inferred type string | undefined")
+    expect(hit?.message).toContain("Cache the value first")
+    expect(hit?.suggestions).toBeUndefined()
     expect(findMessage(result, "sfcc/no-ambiguous-empty")).toBeUndefined()
   })
 
@@ -384,9 +399,9 @@ describe("SFCC empty() migration rules", () => {
     const result = await lintTypeAwareFixture("generated-custom-api.js")
     const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
-    expect(hit?.suggestions?.[0]?.desc).toContain(
-      "payload.email === null || payload.email === undefined || payload.email.length === 0",
-    )
+    expect(hit?.message).toContain("inferred type string | undefined")
+    expect(hit?.message).toContain("Cache the value first")
+    expect(hit?.suggestions).toBeUndefined()
     expect(findMessage(result, "sfcc/no-ambiguous-empty")).toBeUndefined()
   })
 

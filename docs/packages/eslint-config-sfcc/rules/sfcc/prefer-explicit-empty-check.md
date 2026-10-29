@@ -20,9 +20,13 @@ See the official [`TopLevel.global.empty()` documentation](https://salesforcecom
 
 - 🟡 **Severity:** `warn`
 - 🛠️ **Auto-fix:** opt-in through the `autofix` option
-- 💡 **Suggestions:** one behavior-preserving replacement
+- 💡 **Suggestions:** one behavior-preserving replacement when it can be applied
+  without changing argument evaluation
 
-Suggestions are not applied automatically so callers can review repeated member access and simplify conditions with surrounding control-flow knowledge.
+Suggestions are not applied automatically so callers can simplify conditions
+with surrounding control-flow knowledge. The rule omits a code action when an
+explicit replacement would repeat or discard a potentially stateful
+expression.
 
 Set the `autofix` option to `true` to apply replacements that preserve both the result and evaluation behavior:
 
@@ -35,17 +39,21 @@ Set the `autofix` option to `true` to apply replacements that preserve both the 
 Autofix is limited to positive checks whose expressions can be evaluated safely.
 Type-derived replacements retain explicit `null` and `undefined` guards even
 when the static type is non-null, because legacy callers and optional platform
-attributes can violate that annotation at runtime. Member access and negated
-checks remain available as editor suggestions so applying a replacement does
-not duplicate a getter evaluation or introduce conflicting lint diagnostics.
+attributes can violate that annotation at runtime. Safe negated checks remain
+available as parenthesized editor suggestions. Member access and method calls
+that would be evaluated more than once remain diagnostics without a code
+action.
 
 ::: warning Preserve one evaluation
 
-An editor suggestion shows the known replacement but cannot introduce a well-named local variable. Cache a member access or method result before expanding it when a getter, proxy, or method could return a different value or perform work on each access.
+The diagnostic identifies the known argument semantics, but a code action
+cannot introduce a well-named local variable. Cache a member access or method
+result before expanding it when a getter, proxy, or method could return a
+different value or perform work on each access.
 
 :::
 
-The [`empty-migration`](../../index.md#migrate-empty-in-batches) ESLint preset enables this option together with `sfcc/no-ambiguous-empty`. Oxlint can generate the equivalent override with `createOxlintEmptyMigrationOverride()`. Potentially side-effecting expressions remain suggestions in both migration modes.
+The [`empty-migration`](../../index.md#migrate-empty-in-batches) ESLint preset enables this option together with `sfcc/no-ambiguous-empty`. Oxlint can generate the equivalent override with `createOxlintEmptyMigrationOverride()`. Potentially side-effecting expressions remain manual-review diagnostics in both migration modes.
 
 ## Oxlint support
 

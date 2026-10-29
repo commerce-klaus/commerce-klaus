@@ -6,7 +6,6 @@ import path from "node:path"
 import { expect, test } from "vite-plus/test"
 
 import sfcc from "../src/plugins/sfcc/index.js"
-import { applySuggestion } from "./test-utils.js"
 
 const METADATA_HEADER = [
   '<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">',
@@ -119,7 +118,8 @@ test("classifies a static Site preference from metadata", { timeout: 15_000 }, a
   const hit = getMessage(result, "sfcc/prefer-explicit-empty-check")
 
   expect(hit?.message).toContain("SitePreferences.headline metadata (string)")
-  expect(hit?.suggestions?.[0]?.desc).toContain(".length === 0")
+  expect(hit?.message).toContain("Cache the value first")
+  expect(hit?.suggestions).toBeUndefined()
   expect(getMessage(result, "sfcc/no-ambiguous-empty")).toBeUndefined()
 })
 
@@ -128,10 +128,10 @@ test("uses a nullish check for numeric preferences", { timeout: 15_000 }, async 
     'const Site = require("dw/system/Site")\nempty(Site.current.getCustomPreferenceValue("threshold"))',
   )
   const hit = getMessage(result, "sfcc/prefer-explicit-empty-check")
-  const replacement = applySuggestion(result.code, hit?.suggestions?.[0] as { fix?: any })
 
-  expect(replacement).toContain("=== null")
-  expect(replacement).not.toContain(".length")
+  expect(hit?.message).toContain("SitePreferences.threshold metadata (double)")
+  expect(hit?.message).toContain("Cache the value first")
+  expect(hit?.suggestions).toBeUndefined()
 })
 
 test(
@@ -148,7 +148,8 @@ test(
     const hit = getMessage(result, "sfcc/prefer-explicit-empty-check")
 
     expect(hit?.message).toContain("Product.composition metadata (text)")
-    expect(hit?.suggestions?.[0]?.desc).toContain(".length === 0")
+    expect(hit?.message).toContain("Cache the value first")
+    expect(hit?.suggestions).toBeUndefined()
     expect(getMessage(result, "sfcc/no-ambiguous-empty")).toBeUndefined()
   },
 )
