@@ -1,5 +1,11 @@
 # @commerce-klaus/sfcc-test-runtime
 
+## 1.2.0
+
+### Minor Changes
+
+- 9e4e85a: Avoid evaluating discovered hook implementations when tests provide an explicit `dw/system/HookMgr` mock, and expose module-mock inspection through the test runtime.
+
 ## 1.1.1
 
 ### Patch Changes

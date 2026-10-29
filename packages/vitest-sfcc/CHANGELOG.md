@@ -1,5 +1,13 @@
 # @commerce-klaus/vitest-sfcc
 
+## 1.1.1
+
+### Patch Changes
+
+- 9e4e85a: Avoid evaluating discovered hook implementations when tests provide an explicit `dw/system/HookMgr` mock, and expose module-mock inspection through the test runtime.
+- Updated dependencies [9e4e85a]
+  - @commerce-klaus/sfcc-test-runtime@1.2.0
+
 ## 1.1.0
 
 ### Minor Changes

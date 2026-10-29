@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.15.1
+
+### Patch Changes
+
+- 73d3062: Keep `prefer-explicit-empty-check` autofixes safe for legacy runtime values by preserving null guards and leaving member access and negated checks as suggestions.
+
 ## 1.15.0
 
 ### Minor Changes
