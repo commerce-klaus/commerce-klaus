@@ -3,8 +3,19 @@ import type { Rule } from "eslint"
 type TypeLike = {
   types?: unknown[]
   value?: unknown
+  aliasSymbol?: SymbolLike
+  symbol?: SymbolLike
+  getSymbol?: () => SymbolLike | undefined
   isUnion?: () => boolean
   isStringLiteral?: () => boolean
+}
+
+type SymbolLike = {
+  declarations?: DeclarationLike[]
+}
+
+type DeclarationLike = {
+  getSourceFile?: () => { fileName?: unknown }
 }
 
 type TypeCheckerLike = {
@@ -222,4 +233,44 @@ export function getTypeWordsForNode(context: Rule.RuleContext, node: Rule.Node):
   }
 
   return parseTypeWordsFromTypeText(typeText)
+}
+
+export function getTypeDeclarationFilePathsForNode(
+  context: Rule.RuleContext,
+  node: Rule.Node,
+): string[] {
+  const type = getTypeForNode(context, node)
+  if (!type) {
+    return []
+  }
+
+  return [...getTypeDeclarationFilePaths(type)]
+}
+
+function getTypeDeclarationFilePaths(type: unknown): Set<string> {
+  const typeLike = type as TypeLike | undefined
+  const filePaths = new Set<string>()
+  if (!typeLike) {
+    return filePaths
+  }
+
+  const symbols = [typeLike.getSymbol?.(), typeLike.symbol, typeLike.aliasSymbol].filter(
+    (symbol): symbol is SymbolLike => symbol !== undefined,
+  )
+  for (const symbol of symbols) {
+    for (const declaration of symbol.declarations ?? []) {
+      const fileName = declaration.getSourceFile?.().fileName
+      if (typeof fileName === "string") {
+        filePaths.add(fileName)
+      }
+    }
+  }
+
+  for (const part of typeLike.types ?? []) {
+    for (const filePath of getTypeDeclarationFilePaths(part)) {
+      filePaths.add(filePath)
+    }
+  }
+
+  return filePaths
 }

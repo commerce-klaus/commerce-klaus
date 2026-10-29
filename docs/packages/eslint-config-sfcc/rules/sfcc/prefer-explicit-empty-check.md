@@ -55,6 +55,17 @@ Oxlint uses literals, constant string initializers, directly recognizable SFCC c
 
 :::
 
+## Metadata-aware values
+
+When `siteTemplatePath` points to exported object metadata, the rule also classifies:
+
+- `Site.current.getCustomPreferenceValue("literalName")` calls with a static preference name;
+- `.custom.attributeName` accesses whose receiver has one unambiguous parser-provided SFCC object type.
+
+String-like and multiple-value metadata types use length checks. Numeric, boolean, date, markup, and single-select enum values use nullish checks. Custom Attribute values remain nullable defensively even when metadata marks them as mandatory.
+
+Dynamic preference names, unknown receiver types, unsupported metadata types, and conflicting definitions remain ambiguous. The rule does not infer an object type from an attribute name alone.
+
 ## Replacements
 
 | Known argument type                          | Suggested condition  |

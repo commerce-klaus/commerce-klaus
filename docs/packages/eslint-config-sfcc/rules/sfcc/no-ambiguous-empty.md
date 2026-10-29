@@ -71,3 +71,5 @@ For values that remain ambiguous after enabling parser services, inspect evidenc
 4. focused tests for nullish, empty, non-empty, `0`, and `false` values.
 
 A helper declared with `*`, `any`, or `unknown` may still have a narrow real contract. Update its JSDoc when all callers prove which value categories it accepts. Keep separate helpers for categories with different empty semantics instead of recreating a generic `empty()` wrapper.
+
+The companion rule automatically uses configured site metadata for static Site preference names and `.custom` attributes with a known receiver type. This rule deliberately continues to report dynamic names, unknown receivers, conflicting definitions, and metadata types without a defined replacement.

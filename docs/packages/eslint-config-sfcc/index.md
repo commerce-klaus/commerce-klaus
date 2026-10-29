@@ -212,7 +212,7 @@ Oxlint runs every built-in rule except `sfcc/no-ds-files`, `sfcc/no-e4x-syntax`,
 | [sfcc/no-type-annotations](rules/sfcc/no-type-annotations.md)                                 | Disallows type annotation syntax in JavaScript files (e.g. `const x: string = ...`, `function y(): number {}`). Rhino/E4X may accept it, but it is invalid in standard JavaScript; use JSDoc typing instead. | 🔴 `error` | 🛠️ Yes    |
 | [sfcc/prefer-const](rules/sfcc/prefer-const.md)                                               | Requires `const` for `let` declarations that are never reassigned, excluding Rhino-sensitive nested/loop contexts.                                                                                           | 🔴 `error` | 🛠️ Yes    |
 | [sfcc/prefer-explicit-empty-check](rules/sfcc/prefer-explicit-empty-check.md)                 | Suggests a behavior-preserving explicit JavaScript replacement when the `empty(...)` argument type is known.                                                                                                 | 🟡 `warn`  | 🛠️ Opt-in |
-| [sfcc/prefer-generated-custom-api-types](rules/sfcc/prefer-generated-custom-api-types.md)     | Requires Custom API handlers and response values to use operation types generated from `api.json` and OAS schemas.                                                                                           | ⚪ `off`   | ➖ No     |
+| [sfcc/prefer-generated-custom-api-types](rules/sfcc/prefer-generated-custom-api-types.md)     | Requires Custom API handlers, parsed request bodies, and response values to use operation types generated from `api.json` and OAS schemas.                                                                   | ⚪ `off`   | ➖ No     |
 | [sfcc/prefer-generated-hook-types](rules/sfcc/prefer-generated-hook-types.md)                 | Requires registered Salesforce system hook exports to use their generated `SfccHooks` function type.                                                                                                         | ⚪ `off`   | ➖ No     |
 | [sfcc/prefer-generated-job-step-types](rules/sfcc/prefer-generated-job-step-types.md)         | Requires effective custom job step exports to use function types generated from `steptypes.json`.                                                                                                            | ⚪ `off`   | ➖ No     |
 | [sfcc/prefer-native-collections](rules/sfcc/prefer-native-collections.md)                     | Prefers native `Array`, `Map`, and `Set` collections over explicit imports of concrete `dw/util` collection implementations.                                                                                 | ⚪ `off`   | ➖ No     |
@@ -324,6 +324,34 @@ vp exec eslint --config eslint.empty-migration.config.js cartridges
 
 :::
 
+Use the migration formatter for an action-oriented summary instead of the normal diagnostic list:
+
+::: code-group
+
+```bash [pnpm]
+empty_formatter=$(node -p "require.resolve('@commerce-klaus/eslint-config-sfcc/formatters/empty-migration')")
+pnpm exec eslint --config eslint.empty-migration.config.js cartridges --format "$empty_formatter"
+```
+
+```bash [npm]
+empty_formatter=$(node -p "require.resolve('@commerce-klaus/eslint-config-sfcc/formatters/empty-migration')")
+npm exec -- eslint --config eslint.empty-migration.config.js cartridges --format "$empty_formatter"
+```
+
+```bash [Yarn]
+empty_formatter=$(node -p "require.resolve('@commerce-klaus/eslint-config-sfcc/formatters/empty-migration')")
+yarn exec eslint --config eslint.empty-migration.config.js cartridges --format "$empty_formatter"
+```
+
+```bash [Vite+]
+empty_formatter=$(node -p "require.resolve('@commerce-klaus/eslint-config-sfcc/formatters/empty-migration')")
+vp exec eslint --config eslint.empty-migration.config.js cartridges --format "$empty_formatter"
+```
+
+:::
+
+ESLint requires a formatter file path, so `require.resolve()` turns the public package subpath into that path. The formatter counts unique source locations, groups `AUTOFIX`, `REVIEW`, and `AMBIGUOUS` calls by file, and lists all unrelated ESLint diagnostics separately. It does not change ESLint's exit code or hide parser and project errors.
+
 Preview all safe replacements as structured output without modifying files:
 
 ::: code-group
@@ -401,7 +429,7 @@ For an ambiguous value, decide which contract actually applies:
 - `value.length === 0` with the necessary nullish checks for strings and arrays;
 - `value.isEmpty()` with the necessary nullish checks for SFCC collections.
 
-Do not replace `empty(value)` with `!value`: SFCC does not consider `0` or `false` empty. Check Custom Attribute and preference definitions in site metadata, generated Job Step and Custom API contracts, and every caller of broad utility functions before deciding that a value is ambiguous. Narrow a generic helper's JSDoc contract when its callers prove a smaller set of supported values.
+Do not replace `empty(value)` with `!value`: SFCC does not consider `0` or `false` empty. The migration rules automatically use configured site metadata for static Site preference names and `.custom` attributes with an unambiguous parser-provided receiver type. Check metadata manually for dynamic names and unknown receivers, then inspect generated Job Step and Custom API contracts and every caller of broad utility functions before deciding that a value is ambiguous. Narrow a generic helper's JSDoc contract when its callers prove a smaller set of supported values.
 
 ::: warning Native and adapter collections
 
@@ -524,13 +552,13 @@ export default defineConfig(
 
 The preset verifies metadata-driven function boundaries and enables:
 
-| Rule                                | Generated contract                                         |
-| ----------------------------------- | ---------------------------------------------------------- |
-| `prefer-generated-job-step-types`   | `SfccJobSteps.Definitions` from `steptypes.json`           |
-| `prefer-generated-hook-types`       | `SfccHooks` aliases for registered Salesforce system hooks |
-| `prefer-generated-custom-api-types` | Custom API `Handler` and local `Response` values from OAS  |
+| Rule                                | Generated contract                                                               |
+| ----------------------------------- | -------------------------------------------------------------------------------- |
+| `prefer-generated-job-step-types`   | `SfccJobSteps.Definitions` from `steptypes.json`                                 |
+| `prefer-generated-hook-types`       | `SfccHooks` aliases for registered Salesforce system hooks                       |
+| `prefer-generated-custom-api-types` | Custom API `Handler`, parsed `RequestBody`, and local `Response` values from OAS |
 
-Missing or broader `@type` annotations receive an editor suggestion that inserts or replaces the generated type. All three rules follow the exported local binding, so both `const handler = function () {}` and `function handler() {}` declarations are supported. The Custom API rule also follows a local identifier passed to `RESTResponseMgr.createSuccess()` within that handler and applies the generated operation `Response` type.
+Missing or broader `@type` annotations receive an editor suggestion that inserts or replaces the generated type. All three rules follow the exported local binding, so both `const handler = function () {}` and `function handler() {}` declarations are supported. The Custom API rule follows local `JSON.parse()` results derived from `request.httpParameterMap.requestBodyAsString` and applies the operation `RequestBody` type. It also follows a local identifier passed to `RESTResponseMgr.createSuccess()` within that handler and applies the generated operation `Response` type.
 
 Generated custom attribute declarations are not enforced by this preset. Access through typed platform APIs such as `Product.custom` and `CustomObjectMgr.getCustomObject()` is already inferred automatically. A standalone helper parameter named `custom` does not contain enough information to determine its system or custom object type without guessing.
 

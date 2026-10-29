@@ -26,7 +26,7 @@ const noAmbiguousEmpty: Rule.RuleModule = {
         "Cannot safely replace empty(): inferred type {{type}} is unknown or too broad. Decide whether the contract needs a nullish, length, or SFCC collection check. Add or narrow its JSDoc type to document that contract.",
     },
   },
-  create: withSfccSettings((context) => {
+  create: withSfccSettings((context, sfccSettings) => {
     if (!isJavaScriptTarget(context.filename)) {
       return {}
     }
@@ -44,7 +44,7 @@ const noAmbiguousEmpty: Rule.RuleModule = {
           return
         }
 
-        const analysis = analyzeEmptyArgument(context, argument)
+        const analysis = analyzeEmptyArgument(context, argument, sfccSettings)
         if (analysis.kind !== "ambiguous") {
           return
         }

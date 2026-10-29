@@ -1,4 +1,8 @@
-import { XMLParser } from "fast-xml-parser"
+import {
+  readSfccObjectMetadata,
+  type SfccAttributeDefinition,
+  type SfccObjectTypeDefinition,
+} from "@commerce-klaus/sfcc-module-resolver/object-metadata"
 import {
   existsSync as nodeExistsSync,
   readdirSync as nodeReaddirSync,
@@ -45,47 +49,6 @@ export interface GenerateCustomAttributesTypesResult {
   declarationsCount: number
   attributesCount: number
 }
-
-interface ValueDefinition {
-  value?: unknown
-}
-
-interface ParsedAttributeDefinition {
-  [key: string]: unknown
-}
-
-interface ParsedTypeExtension {
-  "type-id"?: unknown
-  "display-name"?: unknown
-  description?: unknown
-  "custom-attribute-definitions"?: {
-    "attribute-definition"?: ParsedAttributeDefinition | ParsedAttributeDefinition[]
-  }
-}
-
-interface ParsedCustomType {
-  "type-id"?: unknown
-  "display-name"?: unknown
-  description?: unknown
-  "attribute-definitions"?: {
-    "attribute-definition"?: ParsedAttributeDefinition | ParsedAttributeDefinition[]
-  }
-}
-
-interface ParsedMetadataRoot {
-  metadata?: {
-    "type-extension"?: ParsedTypeExtension | ParsedTypeExtension[]
-    "custom-type"?: ParsedCustomType | ParsedCustomType[]
-  }
-}
-
-const parser = new XMLParser({
-  ignoreAttributes: false,
-  attributeNamePrefix: "",
-  trimValues: true,
-  parseTagValue: false,
-  parseAttributeValue: false,
-})
 
 const SFCC_TYPE_TO_TYPESCRIPT: Record<string, string> = {
   boolean: "boolean",
@@ -231,8 +194,15 @@ export function generateCustomAttributesTypes(
     }
   }
 
-  const xmlFiles = listMetaXmlFiles(metaDirectory, readdirSync, statSync)
-  if (xmlFiles.length === 0) {
+  const metadata = readSfccObjectMetadata({
+    cwd: options.workspaceRoot,
+    siteTemplatePath: options.siteTemplatePath,
+    existsSync,
+    readFileSync,
+    readdirSync,
+    statSync,
+  })
+  if (metadata.sourceFiles.length === 0) {
     return {
       outputFilePath,
       sourceFiles: [],
@@ -249,19 +219,11 @@ export function generateCustomAttributesTypes(
   const customObjectAttributes = new Map<string, AttributeMap>()
   const customObjectDocumentation = new Map<string, GeneratedDocumentation>()
 
-  for (const xmlFilePath of xmlFiles) {
-    const parsed = parser.parse(readFileSync(xmlFilePath, "utf8")) as ParsedMetadataRoot
-    const metadata = parsed.metadata
-    if (!metadata) {
-      continue
-    }
-
-    for (const extension of toArray(metadata["type-extension"])) {
-      ingestTypeExtension(extension, typeAttributes, typeDocumentation)
-    }
-
-    for (const customType of toArray(metadata["custom-type"])) {
-      ingestCustomType(customType, customObjectAttributes, customObjectDocumentation)
+  for (const objectType of metadata.objectTypes) {
+    if (objectType.kind === "system") {
+      ingestObjectType(objectType, typeAttributes, typeDocumentation)
+    } else {
+      ingestObjectType(objectType, customObjectAttributes, customObjectDocumentation)
     }
   }
 
@@ -285,7 +247,7 @@ export function generateCustomAttributesTypes(
   if (!rendered) {
     return {
       outputFilePath,
-      sourceFiles: xmlFiles,
+      sourceFiles: metadata.sourceFiles,
       written: false,
       declarationsCount: 0,
       attributesCount: 0,
@@ -296,7 +258,7 @@ export function generateCustomAttributesTypes(
 
   return {
     outputFilePath,
-    sourceFiles: xmlFiles,
+    sourceFiles: metadata.sourceFiles,
     written: true,
     declarationsCount: rendered.declarationsCount,
     attributesCount: rendered.attributesCount,
@@ -314,18 +276,6 @@ function detectDwGlobalNamespace(
   }
 
   return /(?:declare\s+namespace|module)\s+dw\b/u.test(readFileSync(globalTypesPath, "utf8"))
-}
-
-function listMetaXmlFiles(
-  metaDirectory: string,
-  readdirSync: (dirPath: string) => string[],
-  statSync: (filePath: string) => { isDirectory(): boolean },
-): string[] {
-  const fileNames = readdirSync(metaDirectory).sort((left, right) => left.localeCompare(right))
-  return fileNames
-    .filter((fileName) => fileName.endsWith(".xml"))
-    .map((fileName) => path.join(metaDirectory, fileName))
-    .filter((filePath) => !statSync(filePath).isDirectory())
 }
 
 function buildDwModuleIndex(
@@ -370,44 +320,22 @@ function buildDwModuleIndex(
   return byTypeName
 }
 
-function ingestTypeExtension(
-  extension: ParsedTypeExtension,
+function ingestObjectType(
+  objectType: SfccObjectTypeDefinition,
   target: Map<string, AttributeMap>,
   documentationTarget: Map<string, GeneratedDocumentation>,
 ): void {
-  const typeId = asString(extension["type-id"])
-  if (!typeId) {
-    return
-  }
-
-  documentationTarget.set(typeId, extractDocumentation(extension))
-
-  const definitions = extension["custom-attribute-definitions"]
-  const attributeDefinitions = toArray(definitions?.["attribute-definition"])
-  upsertAttributeDefinitions(target, typeId, attributeDefinitions)
-}
-
-function ingestCustomType(
-  customType: ParsedCustomType,
-  target: Map<string, AttributeMap>,
-  documentationTarget: Map<string, GeneratedDocumentation>,
-): void {
-  const typeId = asString(customType["type-id"])
-  if (!typeId) {
-    return
-  }
-
-  documentationTarget.set(typeId, extractDocumentation(customType))
-
-  const definitions = customType["attribute-definitions"]
-  const attributeDefinitions = toArray(definitions?.["attribute-definition"])
-  upsertAttributeDefinitions(target, typeId, attributeDefinitions)
+  documentationTarget.set(objectType.typeId, {
+    displayName: objectType.displayName,
+    description: objectType.description,
+  })
+  upsertAttributeDefinitions(target, objectType.typeId, objectType.attributes)
 }
 
 function upsertAttributeDefinitions(
   target: Map<string, AttributeMap>,
   typeId: string,
-  attributeDefinitions: ParsedAttributeDefinition[],
+  attributeDefinitions: SfccAttributeDefinition[],
 ): void {
   if (attributeDefinitions.length === 0) {
     return
@@ -415,16 +343,14 @@ function upsertAttributeDefinitions(
 
   const existing = target.get(typeId) ?? new Map<string, GeneratedAttribute>()
   for (const definition of attributeDefinitions) {
-    const attributeId = asString(definition["attribute-id"])
-    if (!attributeId) {
-      continue
-    }
-
-    existing.set(attributeId, {
-      name: attributeId,
+    existing.set(definition.id, {
+      name: definition.id,
       typeName: toTypescriptType(definition),
-      required: asString(definition["mandatory-flag"]) === "true",
-      documentation: extractDocumentation(definition),
+      required: definition.mandatory,
+      documentation: {
+        displayName: definition.displayName,
+        description: definition.description,
+      },
     })
   }
 
@@ -897,51 +823,6 @@ function mergeCustomObjectAttributes(
   return [...merged.values()].sort((left, right) => left.name.localeCompare(right.name))
 }
 
-function extractDocumentation(source: unknown): GeneratedDocumentation {
-  if (!isRecord(source)) {
-    return {}
-  }
-
-  const displayName = extractXDefaultText(source["display-name"])
-  const description = extractXDefaultText(source.description)
-
-  return {
-    displayName,
-    description,
-  }
-}
-
-function extractXDefaultText(value: unknown): string | undefined {
-  if (typeof value === "string") {
-    return value
-  }
-
-  if (Array.isArray(value)) {
-    const defaultEntry = value.find((item) => {
-      if (!isRecord(item)) {
-        return false
-      }
-
-      const language = asString(item["xml:lang"]) ?? asString(item.lang)
-      return language === "x-default"
-    })
-
-    return extractXDefaultText(defaultEntry ?? value[0])
-  }
-
-  if (!isRecord(value)) {
-    return undefined
-  }
-
-  const language = asString(value["xml:lang"]) ?? asString(value.lang)
-  if (language && language !== "x-default") {
-    return undefined
-  }
-
-  const text = value["#text"]
-  return typeof text === "string" ? text : undefined
-}
-
 function renderDocumentationComment(
   documentation: GeneratedDocumentation | undefined,
   indentation: string,
@@ -999,26 +880,21 @@ function hasModulePath(dwModuleIndex: Map<string, string[]>, modulePath: string)
   return false
 }
 
-function toTypescriptType(attributeDefinition: ParsedAttributeDefinition): string {
-  const rawType = asString(attributeDefinition.type)?.toLowerCase()
-  if (!rawType) {
-    return "unknown"
-  }
-
+function toTypescriptType(attributeDefinition: SfccAttributeDefinition): string {
+  const rawType = attributeDefinition.type
   if (rawType.startsWith("enum-of-")) {
     const enumType = toEnumValueType(rawType, attributeDefinition)
-    return isSelectMultiple(attributeDefinition) ? `${enumType}[]` : enumType
+    return attributeDefinition.selectMultiple ? `${enumType}[]` : enumType
   }
 
   if (rawType.startsWith("set-of-")) {
-    return toSetValueType(rawType, attributeDefinition)
+    return toSetValueType(rawType)
   }
 
   return SFCC_TYPE_TO_TYPESCRIPT[rawType] ?? "unknown"
 }
 
-function toSetValueType(rawType: string, attributeDefinition: ParsedAttributeDefinition): string {
-  void attributeDefinition
+function toSetValueType(rawType: string): string {
   const baseRawType = rawType.slice("set-of-".length)
   if (!baseRawType) {
     return "unknown[]"
@@ -1027,10 +903,10 @@ function toSetValueType(rawType: string, attributeDefinition: ParsedAttributeDef
   return `${SFCC_TYPE_TO_TYPESCRIPT[baseRawType] ?? "unknown"}[]`
 }
 
-function toEnumValueType(rawType: string, attributeDefinition: ParsedAttributeDefinition): string {
+function toEnumValueType(rawType: string, attributeDefinition: SfccAttributeDefinition): string {
   const enumBaseType = rawType.slice("enum-of-".length)
   const inferredBaseType = SFCC_TYPE_TO_TYPESCRIPT[enumBaseType] ?? "unknown"
-  const enumValueLiterals = extractEnumValues(attributeDefinition, inferredBaseType)
+  const enumValueLiterals = extractEnumValues(attributeDefinition.values, inferredBaseType)
   if (enumValueLiterals.length > 0) {
     return `SfccEnumValue<${enumValueLiterals.join(" | ")}>`
   }
@@ -1042,22 +918,12 @@ function toEnumValueType(rawType: string, attributeDefinition: ParsedAttributeDe
   return `SfccEnumValue<${inferredBaseType}>`
 }
 
-function extractEnumValues(
-  attributeDefinition: ParsedAttributeDefinition,
-  baseType: string,
-): string[] {
-  const valueDefinitions = attributeDefinition["value-definitions"]
-  if (!isRecord(valueDefinitions)) {
-    return []
-  }
-
-  const values = toArray(
-    valueDefinitions["value-definition"] as ValueDefinition | ValueDefinition[],
-  )
-    .map((valueDefinition) => toTypedEnumLiteral(valueDefinition.value, baseType))
+function extractEnumValues(values: string[], baseType: string): string[] {
+  const literals = values
+    .map((value) => toTypedEnumLiteral(value, baseType))
     .filter((value): value is string => Boolean(value))
 
-  return [...new Set(values)].sort((left, right) => left.localeCompare(right))
+  return [...new Set(literals)].sort((left, right) => left.localeCompare(right))
 }
 
 function toTypedEnumLiteral(value: unknown, baseType: string): string | undefined {
@@ -1084,32 +950,16 @@ function toTypedEnumLiteral(value: unknown, baseType: string): string | undefine
   return JSON.stringify(text)
 }
 
+function asString(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined
+}
+
 function toPropertyIdentifier(propertyName: string): string {
   if (/^[A-Za-z_$][A-Za-z0-9_$]*$/u.test(propertyName)) {
     return propertyName
   }
 
   return JSON.stringify(propertyName)
-}
-
-function toArray<T>(value: T | T[] | undefined): T[] {
-  if (!value) {
-    return []
-  }
-
-  return Array.isArray(value) ? value : [value]
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null
-}
-
-function asString(value: unknown): string | undefined {
-  return typeof value === "string" ? value : undefined
-}
-
-function isSelectMultiple(attributeDefinition: ParsedAttributeDefinition): boolean {
-  return asString(attributeDefinition["select-multiple-flag"]) === "true"
 }
 
 export function getGeneratedCustomAttributesFileName(): string {

@@ -1,7 +1,18 @@
 import type { Rule } from "eslint"
 
 import {
+  findSfccAttributeDefinition,
+  getSfccAttributeEmptySemantics,
+  type SfccObjectMetadata,
+} from "@commerce-klaus/sfcc-module-resolver/object-metadata"
+
+import type { SfccSettings } from "../../types/sfcc-settings.js"
+
+import { getSfccObjectMetadata } from "./object-metadata.js"
+import { getRuleCwd } from "./sfcc-settings.js"
+import {
   getExactStringLiteralValuesForNode,
+  getTypeDeclarationFilePathsForNode,
   getTypeTextForNode,
   getTypeWordsForNode,
   isArrayTypeWord,
@@ -102,8 +113,28 @@ function getPropertyName(node: Rule.Node): string | undefined {
     return node.name
   }
 
-  if (node.type === "MemberExpression" && !node.computed && node.property.type === "Identifier") {
+  if (node.type === "MemberExpression") {
+    return getStaticMemberPropertyName(node)
+  }
+
+  return undefined
+}
+
+function getStaticMemberPropertyName(node: Rule.Node): string | undefined {
+  if (node.type !== "MemberExpression") {
+    return undefined
+  }
+
+  if (!node.computed && node.property.type === "Identifier") {
     return node.property.name
+  }
+
+  if (
+    node.computed &&
+    node.property.type === "Literal" &&
+    typeof node.property.value === "string"
+  ) {
+    return node.property.value
   }
 
   return undefined
@@ -245,6 +276,7 @@ function classifyTypeWord(word: string): "length" | "collection" | "nullish-only
 export function analyzeEmptyArgument(
   context: Rule.RuleContext,
   argument: Rule.Node,
+  sfccSettings?: SfccSettings,
 ): EmptyArgumentAnalysis {
   if (argument.type === "Literal") {
     if (argument.value === null) {
@@ -275,6 +307,17 @@ export function analyzeEmptyArgument(
 
   if (isStringInitializedIdentifier(context, argument)) {
     return { kind: "length", nullable: false, typeText: "string" }
+  }
+
+  if (sfccSettings) {
+    const metadataAnalysis = analyzeMetadataArgument(
+      context,
+      argument,
+      getSfccObjectMetadata(sfccSettings, getRuleCwd(context)),
+    )
+    if (metadataAnalysis) {
+      return metadataAnalysis
+    }
   }
 
   const exactStringLiterals = getExactStringLiteralValuesForNode(context, argument)
@@ -316,6 +359,178 @@ export function analyzeEmptyArgument(
   }
 
   return { kind, nullable: true, typeText }
+}
+
+function analyzeMetadataArgument(
+  context: Rule.RuleContext,
+  argument: Rule.Node,
+  metadata: SfccObjectMetadata,
+): EmptyArgumentAnalysis | undefined {
+  const reference = getMetadataAttributeReference(context, argument)
+  if (!reference) {
+    return undefined
+  }
+
+  const definition = findSfccAttributeDefinition(
+    metadata,
+    reference.objectTypeId,
+    reference.attributeId,
+  )
+  if (!definition) {
+    return undefined
+  }
+
+  const semantics = getSfccAttributeEmptySemantics(definition)
+  if (!semantics) {
+    return undefined
+  }
+
+  return {
+    kind: semantics,
+    nullable: true,
+    typeText: `${reference.objectTypeId}.${reference.attributeId} metadata (${definition.type})`,
+  }
+}
+
+function getMetadataAttributeReference(
+  context: Rule.RuleContext,
+  argument: Rule.Node,
+): { objectTypeId: string; attributeId: string } | undefined {
+  if (argument.type === "CallExpression" && argument.callee.type === "MemberExpression") {
+    const callee = asRuleNode(argument.callee)
+    const receiver = asRuleNode(argument.callee.object)
+    const preferenceNameNode = asRuleNode(argument.arguments?.[0])
+    const methodName = callee ? getStaticMemberPropertyName(callee) : undefined
+    const preferenceName = preferenceNameNode ? getStaticStringValue(preferenceNameNode) : undefined
+    if (
+      methodName === "getCustomPreferenceValue" &&
+      preferenceName &&
+      receiver &&
+      isSiteExpression(context, receiver)
+    ) {
+      return { objectTypeId: "SitePreferences", attributeId: preferenceName }
+    }
+  }
+
+  if (argument.type !== "MemberExpression") {
+    return undefined
+  }
+
+  const attributeId = getStaticMemberPropertyName(argument)
+  const customAccess = asRuleNode(argument.object)
+  if (
+    !attributeId ||
+    customAccess?.type !== "MemberExpression" ||
+    getStaticMemberPropertyName(customAccess) !== "custom"
+  ) {
+    return undefined
+  }
+
+  const receiver = asRuleNode(customAccess.object)
+  if (!receiver) {
+    return undefined
+  }
+
+  const objectTypeIds = getTypeWordsForNode(context, receiver)
+    .filter((word) => !isNullableTypeWord(word))
+    .map(toMetadataObjectTypeId)
+    .filter((typeId): typeId is string => typeId !== undefined)
+  const declarationFilePaths = getTypeDeclarationFilePathsForNode(context, receiver)
+  const sfccObjectTypeIds = objectTypeIds.filter((typeId) =>
+    declarationFilePaths.some((filePath) => isSfccTypeDeclaration(filePath, typeId)),
+  )
+
+  return new Set(sfccObjectTypeIds).size === 1
+    ? { objectTypeId: sfccObjectTypeIds[0]!, attributeId }
+    : undefined
+}
+
+function isSiteExpression(context: Rule.RuleContext, node: Rule.Node): boolean {
+  if (isSfccModuleRequire(node, "dw/system/Site")) {
+    return true
+  }
+
+  const typeIds = getTypeWordsForNode(context, node)
+    .map(toMetadataObjectTypeId)
+    .filter((typeId): typeId is string => typeId !== undefined)
+  const declarationFilePaths = getTypeDeclarationFilePathsForNode(context, node)
+  if (
+    typeIds.some(
+      (typeId) =>
+        typeId === "Site" &&
+        declarationFilePaths.some((filePath) => isSfccTypeDeclaration(filePath, typeId)),
+    )
+  ) {
+    return true
+  }
+
+  if (node.type === "Identifier") {
+    return isIdentifierBoundToSfccModule(context, node, "dw/system/Site")
+  }
+
+  if (node.type === "MemberExpression") {
+    const object = asRuleNode(node.object)
+    return object ? isSiteExpression(context, object) : false
+  }
+
+  if (node.type === "CallExpression" && node.callee.type === "MemberExpression") {
+    const object = asRuleNode(node.callee.object)
+    return object ? isSiteExpression(context, object) : false
+  }
+
+  return false
+}
+
+function toMetadataObjectTypeId(typeWord: string): string | undefined {
+  const normalized = typeWord
+    .replace(/^typeof\s+/u, "")
+    .replace(/<.*>$/u, "")
+    .trim()
+  const match = /(?:^|\.)([A-Za-z_$][\w$]*)$/u.exec(normalized)
+  return match?.[1]
+}
+
+function getStaticStringValue(node: Rule.Node | undefined): string | undefined {
+  return node?.type === "Literal" && typeof node.value === "string" ? node.value : undefined
+}
+
+function isIdentifierBoundToSfccModule(
+  context: Rule.RuleContext,
+  node: Rule.Node & { type: "Identifier" },
+  moduleId: string,
+): boolean {
+  const scope = context.sourceCode.getScope(node)
+  const reference = scope.references.find((item) => item.identifier === node)
+  const definitionNode = reference?.resolved?.defs?.[0]?.node as
+    | (Rule.Node & { init?: unknown })
+    | undefined
+  return isSfccModuleRequire(asRuleNode(definitionNode?.init), moduleId)
+}
+
+function isSfccModuleRequire(node: Rule.Node | undefined, moduleId: string): boolean {
+  if (
+    node?.type !== "CallExpression" ||
+    node.callee.type !== "Identifier" ||
+    node.callee.name !== "require"
+  ) {
+    return false
+  }
+
+  return getStaticStringValue(asRuleNode(node.arguments?.[0])) === moduleId
+}
+
+function isSfccTypeDeclaration(filePath: string, typeId: string): boolean {
+  const normalizedPath = filePath.replaceAll("\\", "/")
+  return normalizedPath.includes("/types/dw/") && normalizedPath.endsWith(`/${typeId}.d.ts`)
+}
+
+function asRuleNode(value: unknown): Rule.Node | undefined {
+  return typeof value === "object" &&
+    value !== null &&
+    "type" in value &&
+    typeof value.type === "string"
+    ? (value as Rule.Node)
+    : undefined
 }
 
 function nullishCheck(text: string): string {

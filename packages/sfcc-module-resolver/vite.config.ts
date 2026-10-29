@@ -10,6 +10,7 @@ export default defineConfig({
       "src/job-steps.ts",
       "src/custom-apis.ts",
       "src/project.ts",
+      "src/object-metadata.ts",
     ],
     format: ["esm", "cjs"],
     dts: true,

@@ -11,6 +11,7 @@ Shared Node.js utilities for SFCC cartridge order, module resolution, super modu
 - Resolves `*/`, `~/`, cartridge aliases, and `module.superModule`
 - Explains resolution with every attempted file path and the selected match
 - Provides deterministic filesystem helpers for SFCC-aware tooling
+- Normalizes Custom Attribute and preference definitions from site metadata
 - Reads and resolves cartridge hook registrations
 - Discovers effective hook scripts in cartridge-path order
 - Reads job step definitions, parameters, status codes, execution capabilities, and task timeouts from `steptypes.json`
@@ -57,9 +58,9 @@ const resolveSfccModule = createModuleResolver(cartridgeRoots)
 const orderTrace = explainCartridgeOrder({ cartridgesDir: "cartridges" })
 ```
 
-The package provides focused entry points for `resolution`, `hooks`, `job-steps`,
-`custom-apis`, and project-wide validation and graphs under `project`. The package
-root contains the resolution API only.
+The package provides focused entry points for `resolution`, `object-metadata`,
+`hooks`, `job-steps`, `custom-apis`, and project-wide validation and graphs under
+`project`. The package root contains the resolution API only.
 
 ## Documentation
 

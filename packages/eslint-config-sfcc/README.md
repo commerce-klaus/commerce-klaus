@@ -13,6 +13,9 @@ Shareable ESLint flat config for Salesforce Commerce Cloud projects. It catches 
 - Provides Storefront Next, PWA, SFRA, and SiteGenesis policy presets
 - Provides additive presets for older SFCC compatibility modes
 - Provides a reviewable, safe batch migration away from the SFCC `empty()` global
+- Includes an action-oriented formatter for `empty()` migration inventories
+- Uses Custom Attribute and Site Preference metadata for higher-confidence `empty()` migration guidance
+- Connects parsed Custom API request bodies to generated OAS operation types
 - Provides an opt-in preset for enforcing generated project types at metadata boundaries
 - Supports ESLint and an Oxlint-compatible preset
 

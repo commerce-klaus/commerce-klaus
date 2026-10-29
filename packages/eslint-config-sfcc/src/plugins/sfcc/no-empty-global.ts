@@ -25,7 +25,7 @@ const noEmptyGlobal: Rule.RuleModule = {
       suggestExplicitCheck: "Replace with {{replacement}}.",
     },
   },
-  create: withSfccSettings((context) => {
+  create: withSfccSettings((context, sfccSettings) => {
     if (!isJavaScriptTarget(context.filename)) {
       return {}
     }
@@ -40,7 +40,7 @@ const noEmptyGlobal: Rule.RuleModule = {
         const argument = callExpression.arguments?.[0]
         let replacement: string | undefined
         if (argument) {
-          const analysis = analyzeEmptyArgument(context, argument)
+          const analysis = analyzeEmptyArgument(context, argument, sfccSettings)
           if (analysis.kind !== "ambiguous") {
             replacement = buildExplicitEmptyReplacement(
               analysis,

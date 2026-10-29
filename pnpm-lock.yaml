@@ -536,9 +536,6 @@ importers:
       '@salesforce/b2c-cli':
         specifier: '>=1.18.0'
         version: 2.10.0(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
-      fast-xml-parser:
-        specifier: 'catalog:'
-        version: 5.11.2
       typescript-legacy:
         specifier: 'catalog:'
         version: '@typescript/typescript6@6.0.2'

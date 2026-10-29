@@ -370,6 +370,26 @@ describe("SFCC empty() migration rules", () => {
     )
   })
 
+  test("uses generated Job Step parameter types for empty checks", async () => {
+    const result = await lintTypeAwareFixture("generated-job-step.js")
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
+
+    expect(hit?.suggestions?.[0]?.desc).toContain(
+      "parameters.ScheduleId === null || parameters.ScheduleId === undefined || parameters.ScheduleId.length === 0",
+    )
+    expect(findMessage(result, "sfcc/no-ambiguous-empty")).toBeUndefined()
+  })
+
+  test("uses generated Custom API request body types for empty checks", async () => {
+    const result = await lintTypeAwareFixture("generated-custom-api.js")
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
+
+    expect(hit?.suggestions?.[0]?.desc).toContain(
+      "payload.email === null || payload.email === undefined || payload.email.length === 0",
+    )
+    expect(findMessage(result, "sfcc/no-ambiguous-empty")).toBeUndefined()
+  })
+
   test("keeps a defensive nullish check for a non-null Record", async () => {
     const result = await lintTypeAwareFixture("record.js")
     const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")

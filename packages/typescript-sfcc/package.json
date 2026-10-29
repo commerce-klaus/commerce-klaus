@@ -86,7 +86,6 @@
     "@commerce-klaus/config": "workspace:^",
     "@commerce-klaus/sfcc-module-resolver": "workspace:^",
     "@oclif/core": "catalog:",
-    "fast-xml-parser": "catalog:",
     "typescript-legacy": "catalog:"
   },
   "devDependencies": {

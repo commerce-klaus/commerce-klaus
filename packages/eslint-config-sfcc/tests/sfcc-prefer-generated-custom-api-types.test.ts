@@ -20,6 +20,29 @@ function withCustomApi<T>(run: (filename: string) => T): T {
       endpoints: [{ endpoint: "getLoyaltyInfo", implementation: "script", schema: "schema.yaml" }],
     }),
   )
+  fs.writeFileSync(
+    path.join(tempDir, directory, "schema.yaml"),
+    [
+      "openapi: 3.0.0",
+      "paths:",
+      "  /loyalty:",
+      "    post:",
+      "      operationId: getLoyaltyInfo",
+      "      requestBody:",
+      "        required: true",
+      "        content:",
+      "          application/json:",
+      "            schema:",
+      "              type: object",
+      "              properties:",
+      "                customerNo:",
+      "                  type: string",
+      "      responses:",
+      "        '200':",
+      "          description: OK",
+      "",
+    ].join("\n"),
+  )
 
   try {
     process.chdir(tempDir)
@@ -77,6 +100,83 @@ test("allows the matching generated Custom API handler type", () => {
     const code = [
       '/** @type {SfccCustomApis.Operations["getLoyaltyInfo"]["Handler"]} */',
       "function getLoyaltyInfo() {}",
+      "exports.getLoyaltyInfo = getLoyaltyInfo",
+      "",
+    ].join("\n")
+
+    expect(lint(code, filename)).toEqual([])
+  })
+})
+
+test("suggests the generated request body type for a parsed request", () => {
+  withCustomApi((filename) => {
+    const code = [
+      '/** @type {SfccCustomApis.Operations["getLoyaltyInfo"]["Handler"]} */',
+      "function getLoyaltyInfo() {",
+      "  const requestBody = request.httpParameterMap.requestBodyAsString",
+      "  const payload = JSON.parse(requestBody)",
+      "  return payload.customerNo",
+      "}",
+      "exports.getLoyaltyInfo = getLoyaltyInfo",
+      "",
+    ].join("\n")
+    const [message] = lint(code, filename)
+
+    expect(message?.messageId).toBe("missingGeneratedRequestBodyType")
+    expect(applySuggestion(code, message?.suggestions?.[0] ?? {})).toContain(
+      '/** @type {SfccCustomApis.Operations["getLoyaltyInfo"]["RequestBody"]} */\n  const payload',
+    )
+  })
+})
+
+test("suggests the generated request body type for an assigned parse result", () => {
+  withCustomApi((filename) => {
+    const code = [
+      '/** @type {SfccCustomApis.Operations["getLoyaltyInfo"]["Handler"]} */',
+      "function getLoyaltyInfo() {",
+      "  const requestBody = request.httpParameterMap.requestBodyAsString",
+      "  let payload",
+      "  payload = JSON.parse(requestBody)",
+      "  return payload.customerNo",
+      "}",
+      "exports.getLoyaltyInfo = getLoyaltyInfo",
+      "",
+    ].join("\n")
+    const [message] = lint(code, filename)
+
+    expect(message?.messageId).toBe("missingGeneratedRequestBodyType")
+    expect(applySuggestion(code, message?.suggestions?.[0] ?? {})).toContain(
+      '/** @type {SfccCustomApis.Operations["getLoyaltyInfo"]["RequestBody"]} */\n  let payload',
+    )
+  })
+})
+
+test("allows a parsed request with the generated request body type", () => {
+  withCustomApi((filename) => {
+    const code = [
+      '/** @type {SfccCustomApis.Operations["getLoyaltyInfo"]["Handler"]} */',
+      "function getLoyaltyInfo() {",
+      "  const requestBody = request.httpParameterMap.requestBodyAsString",
+      '  /** @type {SfccCustomApis.Operations["getLoyaltyInfo"]["RequestBody"]} */',
+      "  const payload = JSON.parse(requestBody)",
+      "  return payload.customerNo",
+      "}",
+      "exports.getLoyaltyInfo = getLoyaltyInfo",
+      "",
+    ].join("\n")
+
+    expect(lint(code, filename)).toEqual([])
+  })
+})
+
+test("ignores JSON.parse calls unrelated to the Custom API request body", () => {
+  withCustomApi((filename) => {
+    const code = [
+      '/** @type {SfccCustomApis.Operations["getLoyaltyInfo"]["Handler"]} */',
+      "function getLoyaltyInfo() {",
+      '  const payload = JSON.parse(\'{"customerNo":"123"}\')',
+      "  return payload.customerNo",
+      "}",
       "exports.getLoyaltyInfo = getLoyaltyInfo",
       "",
     ].join("\n")

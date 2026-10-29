@@ -10,7 +10,7 @@ Shared SFCC cartridge path and module resolution utilities.
 
 <!--@include: ../../_partials/sfcc-module-resolution-guide-link.md-->
 
-At the API level, this package also centralizes cartridge-order detection, `hooks.json` registration lookups, and `steptypes.json` job-step discovery.
+At the API level, this package also centralizes cartridge-order detection, object metadata, `hooks.json` registration lookups, and `steptypes.json` job-step discovery.
 
 The project-wide configuration contract is owned by
 [`@commerce-klaus/config`](../config/). This package consumes the resolved
@@ -78,6 +78,7 @@ The public API is grouped by SFCC domain:
 | `@commerce-klaus/sfcc-module-resolver/hooks`              | Hook registration discovery and contracts                          |
 | `@commerce-klaus/sfcc-module-resolver/job-steps`          | Job step definitions and script contracts                          |
 | `@commerce-klaus/sfcc-module-resolver/custom-apis`        | Custom API and OAS discovery                                       |
+| `@commerce-klaus/sfcc-module-resolver/object-metadata`    | System and custom object attribute metadata                        |
 | `@commerce-klaus/sfcc-module-resolver/project`            | Project validation and dependency graphs                           |
 
 Import from the domain entry point that owns the required behavior. The package
@@ -133,6 +134,22 @@ filesystem order remains the final fallback.
   - Returns a cartridge specifier, for example `app_storefront_base/cartridge/controllers/Page`
 - `transformSuperModuleSource(sourceCode, filePath, cartridgeRoots): string`
 - `injectTopLevelStatement(sourceCode, statement): string`
+
+### Object metadata
+
+- `readSfccObjectMetadata(options): SfccObjectMetadata`
+  - Reads every XML file below the configured `siteTemplatePath` `meta/` directory
+  - Normalizes system object extensions and custom object definitions into one ordered representation
+  - Preserves attribute type, required and multiple flags, enum values, documentation, and source file provenance
+- `findSfccAttributeDefinition(metadata, objectTypeId, attributeId): SfccAttributeDefinition | undefined`
+  - Returns an attribute only when repeated definitions agree on the SFCC value type and multiple-value contract
+  - Leaves conflicting definitions unresolved so adapters do not guess which empty or type semantics apply
+- `getSfccAttributeEmptySemantics(definition): "length" | "nullish-only" | undefined`
+  - Maps string and multiple-value attributes to length checks
+  - Maps numbers, booleans, dates, markup, and single-select enum values to nullish checks
+  - Returns `undefined` for unknown metadata types
+
+`@commerce-klaus/typescript-sfcc` and the ESLint `empty()` migration rules consume this shared representation. File discovery and XML interpretation therefore stay consistent between generated declarations and diagnostics.
 
 ### Hook registrations
 

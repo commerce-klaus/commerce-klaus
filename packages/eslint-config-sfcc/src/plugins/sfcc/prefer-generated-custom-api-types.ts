@@ -1,6 +1,11 @@
 import type { Rule } from "eslint"
 
-import { getRequiredCustomApiExportsForScriptFile } from "@commerce-klaus/sfcc-module-resolver/custom-apis"
+import {
+  findOperationByOperationId,
+  getRequiredCustomApiExportsForScriptFile,
+  loadOasDocument,
+  resolveOasRequestBody,
+} from "@commerce-klaus/sfcc-module-resolver/custom-apis"
 
 import {
   type ProgramNode,
@@ -80,6 +85,120 @@ function getLocalVariableDeclaration(
   return declaration
 }
 
+function getStaticPropertyName(node: Rule.Node): string | undefined {
+  if (node.type === "MemberExpression" && !node.computed && node.property.type === "Identifier") {
+    return node.property.name
+  }
+
+  if (
+    node.type === "MemberExpression" &&
+    node.computed &&
+    node.property.type === "Literal" &&
+    typeof node.property.value === "string"
+  ) {
+    return node.property.value
+  }
+
+  return undefined
+}
+
+function isGlobalIdentifier(context: Rule.RuleContext, node: Rule.Node, name: string): boolean {
+  if (node.type !== "Identifier" || node.name !== name) {
+    return false
+  }
+
+  const scope = context.sourceCode.getScope(node)
+  const reference = scope.references.find((item) => item.identifier === node)
+  return !reference?.resolved || reference.resolved.scope.type === "global"
+}
+
+function isRequestBodyMember(context: Rule.RuleContext, node: Rule.Node): boolean {
+  if (node.type !== "MemberExpression" || getStaticPropertyName(node) !== "requestBodyAsString") {
+    return false
+  }
+
+  const parameterMap = node.object as Rule.Node
+  return (
+    parameterMap.type === "MemberExpression" &&
+    getStaticPropertyName(parameterMap) === "httpParameterMap" &&
+    isGlobalIdentifier(context, parameterMap.object as Rule.Node, "request")
+  )
+}
+
+function isRequestBodySource(
+  context: Rule.RuleContext,
+  node: Rule.Node,
+  visited = new Set<Rule.Node>(),
+): boolean {
+  if (visited.has(node)) {
+    return false
+  }
+  visited.add(node)
+
+  if (isRequestBodyMember(context, node)) {
+    return true
+  }
+
+  if (node.type === "LogicalExpression") {
+    return (
+      isRequestBodySource(context, node.left as Rule.Node, visited) ||
+      isRequestBodySource(context, node.right as Rule.Node, visited)
+    )
+  }
+
+  if (node.type !== "Identifier") {
+    return false
+  }
+
+  const scope = context.sourceCode.getScope(node)
+  const reference = scope.references.find((item) => item.identifier === node)
+  const definitionNode = reference?.resolved?.defs[0]?.node as
+    | (Rule.Node & { init?: Rule.Node })
+    | undefined
+  return (
+    definitionNode?.type === "VariableDeclarator" &&
+    definitionNode.init !== undefined &&
+    isRequestBodySource(context, definitionNode.init, visited)
+  )
+}
+
+function isRequestBodyJsonParse(context: Rule.RuleContext, node: Rule.Node): boolean {
+  if (
+    node.type !== "CallExpression" ||
+    node.callee.type !== "MemberExpression" ||
+    getStaticPropertyName(node.callee as Rule.Node) !== "parse" ||
+    !isGlobalIdentifier(context, node.callee.object as Rule.Node, "JSON")
+  ) {
+    return false
+  }
+
+  const argument = node.arguments[0] as Rule.Node | undefined
+  return argument !== undefined && isRequestBodySource(context, argument)
+}
+
+function getParsedRequestBodyDeclaration(
+  context: Rule.RuleContext,
+  call: Rule.Node,
+): Rule.Node | undefined {
+  const parent = getParent(call)
+  if (parent?.type === "VariableDeclarator") {
+    const identifier = (parent as Rule.Node & { id?: Rule.Node }).id
+    const declaration = getParent(parent)
+    return identifier?.type === "Identifier" && declaration?.type === "VariableDeclaration"
+      ? declaration
+      : undefined
+  }
+
+  if (parent?.type !== "AssignmentExpression") {
+    return undefined
+  }
+
+  const assignment = parent as Rule.Node & { left: Rule.Node; right: Rule.Node }
+  return assignment.right === call
+    ? getLocalVariableDeclaration(context, assignment.left)
+    : undefined
+}
+
 function includesGeneratedTypeConstituent(actualType: string, generatedType: string): boolean {
   let searchFrom = 0
   while (searchFrom < actualType.length) {
@@ -126,21 +245,32 @@ const preferGeneratedCustomApiTypes: Rule.RuleModule = {
         'Custom API success response should use its generated type "{{expectedType}}".',
       incorrectGeneratedResponseType:
         'Custom API success response uses "{{actualType}}" instead of its generated type "{{expectedType}}".',
+      missingGeneratedRequestBodyType:
+        'Parsed Custom API request body should use its generated type "{{expectedType}}".',
+      incorrectGeneratedRequestBodyType:
+        'Parsed Custom API request body uses "{{actualType}}" instead of its generated type "{{expectedType}}".',
       useGeneratedType: 'Use the generated type "{{expectedType}}".',
     },
   },
   create(context) {
+    const requestBodyParseCalls: Rule.Node[] = []
     const successCalls: Rule.Node[] = []
 
     return {
       CallExpression(node) {
-        if (isRestResponseMgrCreateSuccess(context, node as unknown as Rule.Node)) {
-          successCalls.push(node as unknown as Rule.Node)
+        const ruleNode = node as unknown as Rule.Node
+        if (isRestResponseMgrCreateSuccess(context, ruleNode)) {
+          successCalls.push(ruleNode)
+        }
+        if (isRequestBodyJsonParse(context, ruleNode)) {
+          requestBodyParseCalls.push(ruleNode)
         }
       },
       "Program:exit"(node) {
         const program = node as unknown as ProgramNode
-        for (const { operationId } of getRequiredCustomApiExportsForScriptFile(context.filename)) {
+        for (const { operationId, schemaPath } of getRequiredCustomApiExportsForScriptFile(
+          context.filename,
+        )) {
           const exportedFunction = findExportedFunction(program, operationId)
           if (!exportedFunction) {
             continue
@@ -166,7 +296,55 @@ const preferGeneratedCustomApiTypes: Rule.RuleModule = {
             continue
           }
 
+          const document = loadOasDocument(schemaPath)
+          const operation = document
+            ? findOperationByOperationId(document, operationId)?.operation
+            : undefined
+          const hasRequestBody =
+            document && resolveOasRequestBody(operation?.requestBody, document) !== undefined
           const reportedDeclarations = new Set<Rule.Node>()
+          if (hasRequestBody) {
+            for (const call of requestBodyParseCalls) {
+              if (!isInsideFunction(call, functionNode)) {
+                continue
+              }
+
+              const declaration = getParsedRequestBodyDeclaration(context, call)
+              if (!declaration || reportedDeclarations.has(declaration)) {
+                continue
+              }
+
+              const requestBodyType = `SfccCustomApis.Operations[${JSON.stringify(operationId)}]["RequestBody"]`
+              const requestBodyTypeComment = getTypeComment(context, declaration)
+              if (
+                requestBodyTypeComment &&
+                includesGeneratedTypeConstituent(requestBodyTypeComment.type, requestBodyType)
+              ) {
+                continue
+              }
+
+              reportedDeclarations.add(declaration)
+              context.report({
+                node: declaration,
+                messageId: requestBodyTypeComment
+                  ? "incorrectGeneratedRequestBodyType"
+                  : "missingGeneratedRequestBodyType",
+                data: {
+                  actualType: requestBodyTypeComment?.type ?? "",
+                  expectedType: requestBodyType,
+                },
+                suggest: [
+                  createGeneratedTypeSuggestion(
+                    context,
+                    declaration,
+                    requestBodyType,
+                    requestBodyTypeComment,
+                  ),
+                ],
+              })
+            }
+          }
+
           for (const call of successCalls) {
             if (!isInsideFunction(call, functionNode) || call.type !== "CallExpression") {
               continue

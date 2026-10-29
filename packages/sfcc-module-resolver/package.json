@@ -64,6 +64,11 @@
       "import": "./dist/project.mjs",
       "require": "./dist/project.cjs"
     },
+    "./object-metadata": {
+      "types": "./dist/object-metadata.d.mts",
+      "import": "./dist/object-metadata.mjs",
+      "require": "./dist/object-metadata.cjs"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {

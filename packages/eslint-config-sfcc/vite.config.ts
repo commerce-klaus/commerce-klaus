@@ -6,6 +6,7 @@ export default defineConfig({
       "src/index.ts",
       "src/configs/eslint-after-oxlint.ts",
       "src/configs/oxlint.ts",
+      "src/formatters/empty-migration.ts",
       "src/oxlint/sfcc.ts",
       "src/oxlint/sitegenesis.ts",
     ],

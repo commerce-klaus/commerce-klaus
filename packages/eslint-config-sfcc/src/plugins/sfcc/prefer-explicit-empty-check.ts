@@ -85,7 +85,7 @@ const preferExplicitEmptyCheck: Rule.RuleModule = {
         "Review {{replacement}}; cache the value first if access can be stateful.",
     },
   },
-  create: withSfccSettings((context) => {
+  create: withSfccSettings((context, sfccSettings) => {
     if (!isJavaScriptTarget(context.filename)) {
       return {}
     }
@@ -99,7 +99,7 @@ const preferExplicitEmptyCheck: Rule.RuleModule = {
           return
         }
 
-        const analysis = analyzeEmptyArgument(context, argument)
+        const analysis = analyzeEmptyArgument(context, argument, sfccSettings)
         if (analysis.kind === "ambiguous") {
           return
         }
