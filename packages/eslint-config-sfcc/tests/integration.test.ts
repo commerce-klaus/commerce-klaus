@@ -255,7 +255,9 @@ describe("ESLint and Oxlint rule compatibility", () => {
       })
 
       expect(result.status, `${result.stdout}${result.stderr}`).toBe(0)
-      expect(fs.readFileSync(sampleFile, "utf8")).toContain("module.exports = value.length === 0")
+      expect(fs.readFileSync(sampleFile, "utf8")).toContain(
+        "module.exports = value === null || value === undefined || value.length === 0",
+      )
     } finally {
       fs.rmSync(temporaryDir, { recursive: true, force: true })
     }
