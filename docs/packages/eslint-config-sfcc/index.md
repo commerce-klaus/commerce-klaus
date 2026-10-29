@@ -429,7 +429,7 @@ For an ambiguous value, decide which contract actually applies:
 - `value.length === 0` with the necessary nullish checks for strings and arrays;
 - `value.isEmpty()` with the necessary nullish checks for SFCC collections.
 
-Do not replace `empty(value)` with `!value`: SFCC does not consider `0` or `false` empty. The migration rules automatically use configured site metadata for static Site preference names and `.custom` attributes with an unambiguous parser-provided receiver type. Check metadata manually for dynamic names and unknown receivers, then inspect generated Job Step and Custom API contracts and every caller of broad utility functions before deciding that a value is ambiguous. Narrow a generic helper's JSDoc contract when its callers prove a smaller set of supported values.
+Do not replace `empty(value)` with `!value`: SFCC does not consider `0` or `false` empty. The migration rules automatically use configured site metadata for static Site preference names and `.custom` attributes with an unambiguous parser-provided receiver type or an explicit SFCC JSDoc type such as `dw.customer.Customer`. Check metadata manually for dynamic names and unknown receivers, then inspect generated Job Step and Custom API contracts and every caller of broad utility functions before deciding that a value is ambiguous. Narrow a generic helper's JSDoc contract when its callers prove a smaller set of supported values.
 
 ::: warning Native and adapter collections
 

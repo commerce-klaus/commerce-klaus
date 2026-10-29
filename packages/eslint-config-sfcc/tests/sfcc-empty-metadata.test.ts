@@ -20,10 +20,15 @@ const METADATA_HEADER = [
   '      <attribute-definition attribute-id="composition"><type>text</type></attribute-definition>',
   "    </custom-attribute-definitions>",
   "  </type-extension>",
+  '  <type-extension type-id="Customer">',
+  "    <custom-attribute-definitions>",
+  '      <attribute-definition attribute-id="nickname"><type>string</type></attribute-definition>',
+  "    </custom-attribute-definitions>",
+  "  </type-extension>",
   "</metadata>",
 ].join("\n")
 
-async function lintWithMetadata(code: string) {
+async function lintWithMetadata(code: string, typeAware = true) {
   const cwd = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-empty-metadata-test-"))
   const filename = path.join(cwd, "cartridges", "app_custom", "cartridge", "scripts", "sample.js")
   const metadataPath = path.join(
@@ -80,12 +85,16 @@ async function lintWithMetadata(code: string) {
       overrideConfig: [
         {
           files: ["cartridges/**/*.js"],
-          languageOptions: {
-            parser: tsParser,
-            parserOptions: {
-              project: [tsconfigPath],
-            },
-          },
+          ...(typeAware
+            ? {
+                languageOptions: {
+                  parser: tsParser,
+                  parserOptions: {
+                    project: [tsconfigPath],
+                  },
+                },
+              }
+            : {}),
           plugins: { sfcc },
           rules: {
             "sfcc/no-ambiguous-empty": "error",
@@ -153,6 +162,58 @@ test(
     expect(getMessage(result, "sfcc/no-ambiguous-empty")).toBeUndefined()
   },
 )
+
+test.each([
+  "/** @param {dw.customer.Customer} customer */",
+  "/** @param {import('dw/customer/Customer')} customer */",
+])(
+  "classifies metadata from explicit SFCC JSDoc without parser services",
+  { timeout: 15_000 },
+  async (jsdoc) => {
+    const result = await lintWithMetadata(
+      [jsdoc, "function check(customer) {", "  return empty(customer.custom.nickname)", "}"].join(
+        "\n",
+      ),
+      false,
+    )
+    const hit = getMessage(result, "sfcc/prefer-explicit-empty-check")
+
+    expect(hit?.message).toContain("Customer.nickname metadata (string)")
+    expect(hit?.message).toContain("Cache the value first")
+    expect(getMessage(result, "sfcc/no-ambiguous-empty")).toBeUndefined()
+  },
+)
+
+test("keeps unqualified JSDoc receiver types ambiguous", { timeout: 15_000 }, async () => {
+  const result = await lintWithMetadata(
+    [
+      "/** @param {Customer} customer */",
+      "function check(customer) {",
+      "  return empty(customer.custom.nickname)",
+      "}",
+    ].join("\n"),
+    false,
+  )
+
+  expect(getMessage(result, "sfcc/prefer-explicit-empty-check")).toBeUndefined()
+  expect(getMessage(result, "sfcc/no-ambiguous-empty")).toBeDefined()
+})
+
+test("classifies Site preferences from explicit SFCC JSDoc", { timeout: 15_000 }, async () => {
+  const result = await lintWithMetadata(
+    [
+      "/** @param {dw.system.Site} site */",
+      "function check(site) {",
+      '  return empty(site.getCustomPreferenceValue("headline"))',
+      "}",
+    ].join("\n"),
+    false,
+  )
+  const hit = getMessage(result, "sfcc/prefer-explicit-empty-check")
+
+  expect(hit?.message).toContain("SitePreferences.headline metadata (string)")
+  expect(getMessage(result, "sfcc/no-ambiguous-empty")).toBeUndefined()
+})
 
 test("keeps dynamic preference names ambiguous", { timeout: 15_000 }, async () => {
   const result = await lintWithMetadata(

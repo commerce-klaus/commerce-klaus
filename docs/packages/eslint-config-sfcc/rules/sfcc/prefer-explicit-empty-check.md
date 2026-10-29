@@ -59,7 +59,7 @@ The [`empty-migration`](../../index.md#migrate-empty-in-batches) ESLint preset e
 
 ::: info Available in Oxlint with ESLint type refinement
 
-Oxlint uses literals, constant string initializers, directly recognizable SFCC collections, and local `@type` or `@param` JSDoc to select safe replacements. ESLint TypeScript parser services additionally follow inferred types and aliases, producing suggestions or fixes for more calls.
+Oxlint uses literals, constant string initializers, directly recognizable SFCC collections, and local `@type` or `@param` JSDoc to select safe replacements. Explicit SFCC JSDoc types also connect Site Preferences and Custom Attributes to configured metadata. ESLint TypeScript parser services additionally follow inferred types and aliases, producing suggestions or fixes for more calls.
 
 :::
 
@@ -69,6 +69,11 @@ When `siteTemplatePath` points to exported object metadata, the rule also classi
 
 - `Site.current.getCustomPreferenceValue("literalName")` calls with a static preference name;
 - `.custom.attributeName` accesses whose receiver has one unambiguous parser-provided SFCC object type.
+
+Without parser services, an explicit JSDoc receiver type such as
+`dw.customer.Customer` or `import("dw/customer/Customer")` provides the same
+metadata connection. Unqualified names such as `Customer` do not, because they
+could refer to an application type with the same name.
 
 String-like and multiple-value metadata types use length checks. Numeric, boolean, date, markup, and single-select enum values use nullish checks. Custom Attribute values remain nullable defensively even when metadata marks them as mandatory.
 

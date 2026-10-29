@@ -252,6 +252,19 @@ describe("SFCC empty() migration rules", () => {
     expect(findMessage(result, "sfcc/prefer-explicit-empty-check")).toBeUndefined()
   })
 
+  test("parses nested JSDoc object types", async () => {
+    const code = [
+      "/** @param {{ code: string }} value */",
+      "function check(value) { return empty(value) }",
+    ].join("\n")
+    const result = await lint(code)
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
+
+    expect(hit?.message).toContain("inferred type { code: string }")
+    expect(applyFirstSuggestion(code, hit)).toContain("value === null || value === undefined")
+    expect(findMessage(result, "sfcc/no-ambiguous-empty")).toBeUndefined()
+  })
+
   test("does not treat an empty plain object as SFCC-empty", async () => {
     const code = "empty({})"
     const result = await lint(code)
@@ -397,6 +410,16 @@ describe("SFCC empty() migration rules", () => {
 
   test("uses generated Custom API request body types for empty checks", async () => {
     const result = await lintTypeAwareFixture("generated-custom-api.js")
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
+
+    expect(hit?.message).toContain("inferred type string | undefined")
+    expect(hit?.message).toContain("Cache the value first")
+    expect(hit?.suggestions).toBeUndefined()
+    expect(findMessage(result, "sfcc/no-ambiguous-empty")).toBeUndefined()
+  })
+
+  test("uses generated CustomObjectMgr result types for empty checks", async () => {
+    const result = await lintTypeAwareFixture("generated-custom-object.js")
     const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
     expect(hit?.message).toContain("inferred type string | undefined")

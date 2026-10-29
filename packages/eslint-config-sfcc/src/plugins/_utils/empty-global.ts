@@ -5,6 +5,11 @@ import {
   getSfccAttributeEmptySemantics,
   type SfccObjectMetadata,
 } from "@commerce-klaus/sfcc-module-resolver/object-metadata"
+import { parse as parseComment } from "comment-parser"
+import {
+  tryParse as parseJsdocType,
+  type RootResult as JsdocTypeNode,
+} from "jsdoc-type-pratt-parser"
 
 import type { SfccSettings } from "../../types/sfcc-settings.js"
 
@@ -208,22 +213,29 @@ function normalizeJsdocType(typeText: string): string {
   return normalized === "*" ? "any" : normalized
 }
 
-function findJsdocType(comments: string[], pattern: RegExp): string | undefined {
-  for (const comment of comments.toReversed()) {
-    const match = pattern.exec(comment)
-    if (match?.[1]) {
-      return normalizeJsdocType(match[1])
+function findJsdocType(
+  context: Rule.RuleContext,
+  node: Rule.Node,
+  tagName: "param" | "type",
+  parameterName?: string,
+): string | undefined {
+  for (const comment of context.sourceCode.getCommentsBefore(node).toReversed()) {
+    if (comment.type !== "Block" || !comment.value.startsWith("*")) {
+      continue
+    }
+
+    const block = parseComment(`/*${comment.value}*/`)[0]
+    const tag = block?.tags.find(
+      (candidate) =>
+        candidate.tag === tagName &&
+        (parameterName === undefined || candidate.name === parameterName),
+    )
+    if (tag?.type) {
+      return normalizeJsdocType(tag.type)
     }
   }
 
   return undefined
-}
-
-function getCommentValuesBefore(context: Rule.RuleContext, node: Rule.Node): string[] {
-  return context.sourceCode
-    .getCommentsBefore(node)
-    .filter((comment) => comment.type === "Block" && comment.value.startsWith("*"))
-    .map((comment) => comment.value)
 }
 
 function getJsdocTypeForIdentifier(context: Rule.RuleContext, node: Rule.Node): string | undefined {
@@ -250,16 +262,12 @@ function getJsdocTypeForIdentifier(context: Rule.RuleContext, node: Rule.Node): 
       definitionNode.parent?.type === "VariableDeclaration"
         ? (definitionNode.parent as Rule.Node)
         : definitionNode
-    return findJsdocType(getCommentValuesBefore(context, declarationNode), /@type\s*\{([^}]+)\}/u)
+    return findJsdocType(context, declarationNode, "type")
   }
 
   if (definition.type === "Parameter") {
     const parameterName = definition.name?.type === "Identifier" ? definition.name.name : node.name
-    const escapedName = parameterName.replaceAll(/[.*+?^${}()|[\]\\]/gu, "\\$&")
-    return findJsdocType(
-      getCommentValuesBefore(context, definitionNode),
-      new RegExp(`@param\\s*\\{([^}]+)\\}\\s*(?:\\[)?${escapedName}(?:[=\\]])?`, "u"),
-    )
+    return findJsdocType(context, definitionNode, "param", parameterName)
   }
 
   return undefined
@@ -461,10 +469,15 @@ function getMetadataAttributeReference(
   const sfccObjectTypeIds = objectTypeIds.filter((typeId) =>
     declarationFilePaths.some((filePath) => isSfccTypeDeclaration(filePath, typeId)),
   )
+  const jsdocObjectTypeId = getExplicitSfccObjectTypeIdFromJsdoc(
+    getJsdocTypeForIdentifier(context, receiver),
+  )
 
-  return new Set(sfccObjectTypeIds).size === 1
-    ? { objectTypeId: sfccObjectTypeIds[0]!, attributeId }
-    : undefined
+  if (new Set(sfccObjectTypeIds).size === 1) {
+    return { objectTypeId: sfccObjectTypeIds[0]!, attributeId }
+  }
+
+  return jsdocObjectTypeId ? { objectTypeId: jsdocObjectTypeId, attributeId } : undefined
 }
 
 function isSiteExpression(context: Rule.RuleContext, node: Rule.Node): boolean {
@@ -487,7 +500,10 @@ function isSiteExpression(context: Rule.RuleContext, node: Rule.Node): boolean {
   }
 
   if (node.type === "Identifier") {
-    return isIdentifierBoundToSfccModule(context, node, "dw/system/Site")
+    return (
+      isIdentifierBoundToSfccModule(context, node, "dw/system/Site") ||
+      getExplicitSfccObjectTypeIdFromJsdoc(getJsdocTypeForIdentifier(context, node)) === "Site"
+    )
   }
 
   if (node.type === "MemberExpression") {
@@ -501,6 +517,65 @@ function isSiteExpression(context: Rule.RuleContext, node: Rule.Node): boolean {
   }
 
   return false
+}
+
+function getExplicitSfccObjectTypeIdFromJsdoc(typeText: string | undefined): string | undefined {
+  if (!typeText) {
+    return undefined
+  }
+
+  let parsedType: JsdocTypeNode
+  try {
+    parsedType = parseJsdocType(typeText)
+  } catch (error) {
+    if (error instanceof Error) {
+      return undefined
+    }
+    throw error
+  }
+
+  const typeIds = getExplicitSfccObjectTypeIds(parsedType)
+  return typeIds && new Set(typeIds).size === 1 ? typeIds[0] : undefined
+}
+
+function getExplicitSfccObjectTypeIds(node: JsdocTypeNode): string[] | undefined {
+  if (
+    node.type === "JsdocTypeNullable" ||
+    node.type === "JsdocTypeNotNullable" ||
+    node.type === "JsdocTypeOptional" ||
+    node.type === "JsdocTypeParenthesis"
+  ) {
+    return getExplicitSfccObjectTypeIds(node.element)
+  }
+
+  if (node.type === "JsdocTypeUnion") {
+    const valueTypes = node.elements.filter(
+      (element) => element.type !== "JsdocTypeNull" && element.type !== "JsdocTypeUndefined",
+    )
+    const typeIds = valueTypes.flatMap((element) => getExplicitSfccObjectTypeIds(element) ?? [])
+    return typeIds.length === valueTypes.length ? typeIds : undefined
+  }
+
+  if (node.type === "JsdocTypeImport") {
+    const pathParts = node.element.value.split("/")
+    return pathParts[0] === "dw" && pathParts.length >= 3 ? [pathParts.at(-1)!] : undefined
+  }
+
+  const nameParts = getJsdocNamePathParts(node)
+  return nameParts?.[0] === "dw" && nameParts.length >= 3 ? [nameParts.at(-1)!] : undefined
+}
+
+function getJsdocNamePathParts(node: JsdocTypeNode): string[] | undefined {
+  if (node.type === "JsdocTypeName") {
+    return [node.value]
+  }
+
+  if (node.type !== "JsdocTypeNamePath" || node.right.type !== "JsdocTypeProperty") {
+    return undefined
+  }
+
+  const leftParts = getJsdocNamePathParts(node.left)
+  return leftParts ? [...leftParts, node.right.value] : undefined
 }
 
 function toMetadataObjectTypeId(typeWord: string): string | undefined {
