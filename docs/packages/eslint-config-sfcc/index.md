@@ -243,22 +243,62 @@ That rule is enabled in the recommended config by default, because it is still u
 
 ## Migrate `empty()` in batches
 
-The ESLint-only `empty-migration` preset turns the recommended `empty()` guidance into a reviewable project migration. It:
+The ESLint-only `empty-migration` preset turns the recommended `empty()` guidance into a reviewable project migration. Use a separate migration config for an established codebase so the normal lint pass can remain green while the inventory is reduced. The preset:
 
 - reports every safely replaceable global `empty()` call as an error;
 - enables automatic fixes only when the replacement preserves evaluation behavior;
 - reports unknown or mixed argument types with concrete decision guidance;
 - leaves ambiguous and side-effect-sensitive calls unchanged.
 
-Compose it after the recommended config while the migration is active:
+For the most complete inventory, install the optional TypeScript parser. Its project service follows inferred and aliased JavaScript types that Oxlint and local JSDoc analysis cannot resolve:
 
-```js{5} [eslint.config.js]
-import sfcc from "@commerce-klaus/eslint-config-sfcc"
+::: code-group
+
+```bash [pnpm]
+pnpm add -D @typescript-eslint/parser
+```
+
+```bash [npm]
+npm install -D @typescript-eslint/parser
+```
+
+```bash [Yarn]
+yarn add -D @typescript-eslint/parser
+```
+
+```bash [Vite+]
+vp install -D @typescript-eslint/parser
+```
+
+:::
+
+Create an opt-in migration config rather than adding the preset to the normal project config:
+
+```js [eslint.empty-migration.config.js]
+import {
+  createEmptyMigrationConfig,
+  createRecommendedConfig,
+} from "@commerce-klaus/eslint-config-sfcc"
+import parser from "@typescript-eslint/parser"
 import { defineConfig } from "eslint/config"
 
+const files = ["cartridges/**/*.js"]
+const ignores = ["cartridges/*/cartridge/client/**", "cartridges/*/cartridge/static/**"]
+
 export default defineConfig(
-  sfcc.configs.recommended,
-  sfcc.configs["empty-migration"],
+  {
+    files,
+    ignores,
+    languageOptions: {
+      parser,
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
+  createRecommendedConfig({ files, ignores }),
+  createEmptyMigrationConfig({ files, ignores }),
 )
 ```
 
@@ -267,19 +307,19 @@ Run ESLint without `--fix` to inventory safe and ambiguous calls:
 ::: code-group
 
 ```bash [pnpm]
-pnpm exec eslint cartridges
+pnpm exec eslint --config eslint.empty-migration.config.js cartridges
 ```
 
 ```bash [npm]
-npm exec -- eslint cartridges
+npm exec -- eslint --config eslint.empty-migration.config.js cartridges
 ```
 
 ```bash [Yarn]
-yarn exec eslint cartridges
+yarn exec eslint --config eslint.empty-migration.config.js cartridges
 ```
 
 ```bash [Vite+]
-vp exec eslint cartridges
+vp exec eslint --config eslint.empty-migration.config.js cartridges
 ```
 
 :::
@@ -289,19 +329,19 @@ Preview all safe replacements as structured output without modifying files:
 ::: code-group
 
 ```bash [pnpm]
-pnpm exec eslint cartridges --fix-dry-run --format json
+pnpm exec eslint --config eslint.empty-migration.config.js cartridges --fix-dry-run --format json
 ```
 
 ```bash [npm]
-npm exec -- eslint cartridges --fix-dry-run --format json
+npm exec -- eslint --config eslint.empty-migration.config.js cartridges --fix-dry-run --format json
 ```
 
 ```bash [Yarn]
-yarn exec eslint cartridges --fix-dry-run --format json
+yarn exec eslint --config eslint.empty-migration.config.js cartridges --fix-dry-run --format json
 ```
 
 ```bash [Vite+]
-vp exec eslint cartridges --fix-dry-run --format json
+vp exec eslint --config eslint.empty-migration.config.js cartridges --fix-dry-run --format json
 ```
 
 :::
@@ -311,24 +351,49 @@ Apply the safe replacements after reviewing the preview:
 ::: code-group
 
 ```bash [pnpm]
-pnpm exec eslint cartridges --fix
+pnpm exec eslint --config eslint.empty-migration.config.js cartridges --fix
 ```
 
 ```bash [npm]
-npm exec -- eslint cartridges --fix
+npm exec -- eslint --config eslint.empty-migration.config.js cartridges --fix
 ```
 
 ```bash [Yarn]
-yarn exec eslint cartridges --fix
+yarn exec eslint --config eslint.empty-migration.config.js cartridges --fix
 ```
 
 ```bash [Vite+]
-vp exec eslint cartridges --fix
+vp exec eslint --config eslint.empty-migration.config.js cartridges --fix
 ```
 
 :::
 
+Treat the results as three migration queues:
+
+| Queue                 | Meaning                                                                                                  | Action                                                                   |
+| --------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Autofixable           | The type and replacement are known, and the original expression is still evaluated safely.               | Review the dry-run output, then apply `--fix`.                           |
+| Typed suggestion only | The replacement is known, but expanding it may repeat a getter, method call, or other member expression. | Cache the value first, then apply the explicit check manually.           |
+| Ambiguous             | The type is unknown, too broad, or combines values with different SFCC `empty()` semantics.              | Inspect metadata and callers, then document or narrow the real contract. |
+
+Diagnostic totals are not necessarily unique `empty()` call totals. One source expression can contribute more than one diagnostic while overlapping type evidence or multiple arguments are being reported. Track progress by rule and confirm the remaining source calls separately.
+
 Known strings and arrays become length checks, SFCC collections use `isEmpty()`, and nullable objects use explicit nullish checks. A replacement is not applied automatically when it would repeat or discard a potentially side-effecting expression. The normal editor suggestion remains available for manual review.
+
+Cache stateful expressions before expanding them:
+
+```js [Before]
+if (empty(customer.custom.loyaltyID)) {
+  return
+}
+```
+
+```js [After]
+const loyaltyID = customer.custom.loyaltyID
+if (loyaltyID === null || loyaltyID === undefined || loyaltyID.length === 0) {
+  return
+}
+```
 
 For an ambiguous value, decide which contract actually applies:
 
@@ -336,7 +401,30 @@ For an ambiguous value, decide which contract actually applies:
 - `value.length === 0` with the necessary nullish checks for strings and arrays;
 - `value.isEmpty()` with the necessary nullish checks for SFCC collections.
 
-Add or narrow the JSDoc type after making that decision, then rerun the migration. Once no global calls remain, remove the migration preset and enable `sfcc/no-empty-global` as an error to prevent regressions.
+Do not replace `empty(value)` with `!value`: SFCC does not consider `0` or `false` empty. Check Custom Attribute and preference definitions in site metadata, generated Job Step and Custom API contracts, and every caller of broad utility functions before deciding that a value is ambiguous. Narrow a generic helper's JSDoc contract when its callers prove a smaller set of supported values.
+
+::: warning Native and adapter collections
+
+Use `isEmpty()` for native `dw.util.Collection` values. Test doubles for native collections should implement that method, preferably through the Commerce Klaus test runtime. If production code intentionally also accepts an adapter collection with an `empty` property or another shape, document that separate contract and handle it explicitly instead of treating the adapter as a native SFCC collection.
+
+:::
+
+Add or narrow the JSDoc type after making that decision, then rerun the migration. Focused tests should cover `null`, `undefined`, empty and non-empty values, plus valid `0` and `false` values wherever those primitives are accepted.
+
+Once no global calls remain, delete the temporary migration config and enable the strict rule after the recommended config:
+
+```js [eslint.config.js]
+import sfcc from "@commerce-klaus/eslint-config-sfcc"
+import { defineConfig } from "eslint/config"
+
+export default defineConfig(sfcc.configs.recommended, {
+  rules: {
+    "sfcc/no-ambiguous-empty": "off",
+    "sfcc/prefer-explicit-empty-check": "off",
+    "sfcc/no-empty-global": "error",
+  },
+})
+```
 
 Use `createEmptyMigrationConfig()` instead of the static preset to customize `cartridgesDir`, `files`, `ignores`, or shared SFCC settings.
 

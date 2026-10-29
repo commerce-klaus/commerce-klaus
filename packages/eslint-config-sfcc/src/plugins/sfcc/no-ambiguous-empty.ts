@@ -18,10 +18,12 @@ const noAmbiguousEmpty: Rule.RuleModule = {
     },
     schema: [],
     messages: {
+      missingArgument:
+        "Cannot safely replace empty() without an argument. Decide which value and empty semantics this call requires.",
       mixedType:
         "Cannot safely replace empty(): type {{type}} spans values with different SFCC empty semantics. Narrow the value. Then use a nullish, length, or SFCC collection check that matches the contract.",
       unknownType:
-        "Cannot safely replace empty(): the value type is unknown or too broad. Decide whether the contract needs a nullish, length, or SFCC collection check. Add or narrow its JSDoc type to document that contract.",
+        "Cannot safely replace empty(): inferred type {{type}} is unknown or too broad. Decide whether the contract needs a nullish, length, or SFCC collection check. Add or narrow its JSDoc type to document that contract.",
     },
   },
   create: withSfccSettings((context) => {
@@ -38,7 +40,7 @@ const noAmbiguousEmpty: Rule.RuleModule = {
 
         const argument = callExpression.arguments?.[0]
         if (!argument) {
-          context.report({ node: callExpression, messageId: "unknownType" })
+          context.report({ node: callExpression, messageId: "missingArgument" })
           return
         }
 

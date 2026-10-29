@@ -167,9 +167,11 @@ describe("SFCC empty() migration rules", () => {
     const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
     expect(result?.output).toBeUndefined()
+    expect(hit?.message).toContain("Cache the value first")
     expect(hit?.suggestions?.[0]?.desc).toContain(
       "customer.custom.code === null || customer.custom.code === undefined",
     )
+    expect(hit?.suggestions?.[0]?.desc).toContain("cache the value first")
   })
 
   test("groups nullable replacements inside logical expressions", async () => {
@@ -264,6 +266,8 @@ describe("SFCC empty() migration rules", () => {
     const result = await lint(code)
     const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
+    expect(hit?.message).toContain("always true")
+    expect(hit?.message).toContain("null")
     expect(applyFirstSuggestion(code, hit)).toBe("true")
   })
 
@@ -287,6 +291,7 @@ describe("SFCC empty() migration rules", () => {
     const hit = findMessage(result, "sfcc/no-ambiguous-empty")
 
     expect(hit?.severity).toBe(1)
+    expect(hit?.message).toContain("inferred type unknown")
     expect(hit?.message).toContain("Add or narrow its JSDoc type")
     expect(hit?.suggestions).toBeUndefined()
     expect(findMessage(result, "sfcc/prefer-explicit-empty-check")).toBeUndefined()
@@ -296,7 +301,7 @@ describe("SFCC empty() migration rules", () => {
     const result = await lint("empty()")
     const hit = findMessage(result, "sfcc/no-ambiguous-empty")
 
-    expect(hit?.message).toContain("value type is unknown")
+    expect(hit?.message).toContain("without an argument")
   })
 
   test("does not report locally shadowed empty functions", async () => {
@@ -390,6 +395,7 @@ describe("SFCC empty() migration rules", () => {
     const result = await lintTypeAwareFixture("union-string-object.js")
     const hit = findMessage(result, "sfcc/no-ambiguous-empty")
 
+    expect(hit?.message).toContain("CustomerValue")
     expect(hit?.message).toContain("different SFCC empty semantics")
     expect(findMessage(result, "sfcc/prefer-explicit-empty-check")).toBeUndefined()
   })
@@ -405,6 +411,16 @@ describe("SFCC empty() migration rules", () => {
     const result = await lintTypeAwareFixture("nullable-union-alias.js")
     const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
+    expect(hit?.message).toContain("always true")
     expect(hit?.suggestions?.[0]?.desc).toContain("true")
+  })
+
+  test("explains that non-empty primitives make the check redundant", async () => {
+    const result = await lint("empty(false)")
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
+
+    expect(hit?.message).toContain("always false")
+    expect(hit?.message).toContain("boolean")
+    expect(hit?.suggestions?.[0]?.desc).toContain("false")
   })
 })

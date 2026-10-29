@@ -8,6 +8,8 @@ Replacing `empty(value)` safely requires knowing what `value` can contain. For e
 
 This rule turns an ambiguous migration into a concrete typing task. Add or narrow JSDoc type information, then [`sfcc/prefer-explicit-empty-check`](./prefer-explicit-empty-check.md) can offer a behavior-preserving replacement.
 
+The diagnostic includes the inferred type when parser services expose one. `any` or `unknown` usually points to a missing boundary contract. A mixed union means that the known members require different replacements.
+
 ## Oxlint support
 
 ::: info Available in Oxlint with ESLint type refinement
@@ -58,3 +60,14 @@ Choose the replacement from the actual contract rather than the current runtime 
 - use an explicit nullish check when only absence counts as empty;
 - use `.length === 0` for strings and arrays;
 - use `.isEmpty()` for SFCC collections.
+
+## Find the contract
+
+For values that remain ambiguous after enabling parser services, inspect evidence in this order:
+
+1. generated Custom API, Job Step, hook, and Script API declarations;
+2. Custom Attribute and preference definitions in site metadata;
+3. every caller of a broad helper;
+4. focused tests for nullish, empty, non-empty, `0`, and `false` values.
+
+A helper declared with `*`, `any`, or `unknown` may still have a narrow real contract. Update its JSDoc when all callers prove which value categories it accepts. Keep separate helpers for categories with different empty semantics instead of recreating a generic `empty()` wrapper.

@@ -72,9 +72,17 @@ const preferExplicitEmptyCheck: Rule.RuleModule = {
       },
     ],
     messages: {
+      alwaysEmpty:
+        "SFCC empty() is always true for the inferred type {{type}}. Review the runtime contract, then remove the redundant condition or preserve any required argument side effects.",
+      neverEmpty:
+        "SFCC empty() is always false for the inferred type {{type}}. Review the runtime contract, then remove the redundant condition or preserve any required argument side effects.",
       preferExplicitCheck:
-        "Replace SFCC empty() with an explicit check that preserves its behavior for this value type.",
+        "Replace SFCC empty() with an explicit check that preserves its behavior for the inferred type {{type}}.",
+      reviewEvaluation:
+        "The explicit replacement for inferred type {{type}} repeats this expression. Cache the value first if member access or evaluation can be stateful.",
       suggestExplicitCheck: "Replace with {{replacement}}.",
+      suggestReviewedExplicitCheck:
+        "Review {{replacement}}; cache the value first if access can be stateful.",
     },
   },
   create: withSfccSettings((context) => {
@@ -106,16 +114,30 @@ const preferExplicitEmptyCheck: Rule.RuleModule = {
           canAutofixEmptyReplacement(analysis, argument)
             ? getAutofixReplacement(callExpression, replacement)
             : undefined
+        const repeatsExpression =
+          analysis.nullable &&
+          (argument.type === "CallExpression" || argument.type === "MemberExpression")
+        const messageId =
+          analysis.kind === "always-empty"
+            ? "alwaysEmpty"
+            : analysis.kind === "nullish-only" && !analysis.nullable
+              ? "neverEmpty"
+              : repeatsExpression
+                ? "reviewEvaluation"
+                : "preferExplicitCheck"
 
         context.report({
           node: callExpression,
-          messageId: "preferExplicitCheck",
+          messageId,
+          data: { type: analysis.typeText ?? analysis.kind },
           fix: autofixReplacement
             ? (fixer) => fixer.replaceText(callExpression, autofixReplacement)
             : undefined,
           suggest: [
             {
-              messageId: "suggestExplicitCheck",
+              messageId: repeatsExpression
+                ? "suggestReviewedExplicitCheck"
+                : "suggestExplicitCheck",
               data: { replacement },
               fix: (fixer) => fixer.replaceText(callExpression, replacement),
             },
