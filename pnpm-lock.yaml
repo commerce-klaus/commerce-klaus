@@ -7,153 +7,153 @@ importers:
     configDependencies: {}
     packageManagerDependencies:
       pnpm:
-        specifier: 12.15.0
-        version: 12.15.0
+        specifier: 12.16.1
+        version: 12.16.1
 
 packages:
 
-  '@pnpm/exe.android-arm64@12.15.0':
-    resolution: {integrity: sha512-eVCqmscY70LGvgRzu3mi8IBWBFGix+a6mNZoWmXxESsBdeiKEF9xQSuaeel10yn+zI7TXy2jlI63vFLzETk+aQ==}
+  '@pnpm/exe.android-arm64@12.16.1':
+    resolution: {integrity: sha512-PKf78Ew+i0CBYf0Xc+eMcqQiqyBT+u8XCVg1F5roc98/6wWfdYlWhrUMmEBiKWaJ3JqHxrtt8l1NwZ7qfJt2/Q==}
     cpu: [arm64]
     os: [android]
 
-  '@pnpm/exe.android-x64@12.15.0':
-    resolution: {integrity: sha512-Gx/WbkFcdUFUg8g8AShezcS9EiQxfYvdAm2hfKLO8sfJmJvKOCt5fzlgHWDzmGhoclibgW+tUGZ/KF4F4wOTCA==}
+  '@pnpm/exe.android-x64@12.16.1':
+    resolution: {integrity: sha512-xdu7gMbB98pdvhwMeA6612Of515FDlRUtfA/1f7nWPZfPLnEdSRBO2u+1N0XBtQ/ennhPH/lrxB1gC6gnR/cdg==}
     cpu: [x64]
     os: [android]
 
-  '@pnpm/exe.darwin-arm64@12.15.0':
-    resolution: {integrity: sha512-N0ZykiDWCvqSBJvt71j7cSoBR993FqvYZFtmpCtqvW3pguiI+NAgraLPA5OTwu5mV+/d8hYpVcPktJA3xFDLtA==}
+  '@pnpm/exe.darwin-arm64@12.16.1':
+    resolution: {integrity: sha512-pVbmIIbhixiLvADLu1WA3TaW8FZy/D72R1De27WbbFx8/2mxvnsTyFVm4fO9kjpjMY7RzJd48CiQ96p8fO3ebQ==}
     cpu: [arm64]
     os: [darwin]
 
-  '@pnpm/exe.darwin-x64@12.15.0':
-    resolution: {integrity: sha512-7Ntr2HlBUxzwWOg7NwDxCbRW/3vXuqKO+hcXm+w3SBi9rrHY53li1wLqWVT7Gjxd+lVEHM1QJZo6WJEGFU8C6A==}
+  '@pnpm/exe.darwin-x64@12.16.1':
+    resolution: {integrity: sha512-xZvQBFqcZjO7vFKTK3XsJpqY6lnBL9EWSLCzVUPq3kZ94+D96gwJCa76xxGNK8Cj32f4eeM91Qg+yNRR4sRpDw==}
     cpu: [x64]
     os: [darwin]
 
-  '@pnpm/exe.freebsd-x64@12.15.0':
-    resolution: {integrity: sha512-btOiyL7fL7W4uQGH0aqFai2TNC3IoKcZ7gNHBVbEFZt2dWrnrD0SufL3iGs3fLlmb4OtuU35uf4Zpr9V9Jh9mA==}
+  '@pnpm/exe.freebsd-x64@12.16.1':
+    resolution: {integrity: sha512-zTtunfi9mBhRXiXEJYfwiJj0tk7MgTSfqDSRh+Az9FZ9THazVIiQiVNS8jpcsftDOqu7LKNffQdjmgwHDThfUg==}
     cpu: [x64]
     os: [freebsd]
 
-  '@pnpm/exe.linux-arm64-musl@12.15.0':
-    resolution: {integrity: sha512-pNC38k+O+90FOjbPNSnw0E7apq1PKTmz3fFe1amn+lys/U5kL++uzir8bRiho8ONcyA3d9EU7wdqcY0DKkj+JA==}
+  '@pnpm/exe.linux-arm64-musl@12.16.1':
+    resolution: {integrity: sha512-BJ3mOmcmQgcUo92Ee/WfEOt1pRiv3y2MMAkhEiYHd85UiPpHTfFhv+SpCbALmfExzXk3UlaRtMYwHlkQymc4VA==}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@pnpm/exe.linux-arm64@12.15.0':
-    resolution: {integrity: sha512-qML/8aCXslh8td/w4U+HJNqUcZ2+m6EfTbWScIzZRmyPsRFN+xB4LP1U/hymxc1iSJiKtG56HJx2fvUErWFIGw==}
+  '@pnpm/exe.linux-arm64@12.16.1':
+    resolution: {integrity: sha512-JaRd5gNxwdNGBBkrZFt8bknrK4YmHVJBW0JMhUQ0fJ0dEYp6C2GT9ExaCqOO8EwYEyqM+jpKgJIK+8WFaJy3ew==}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@pnpm/exe.linux-ppc64@12.15.0':
-    resolution: {integrity: sha512-tjRDUUl7RCJ6T/6eoNPxOqkwU4Mzi5RtTXmSAxujyz37OTwwsMU7Ps087Zk4gHcUvRSeyF40ZFsew3vtE+nmUA==}
+  '@pnpm/exe.linux-ppc64@12.16.1':
+    resolution: {integrity: sha512-FnSV0Jv40S1cMv7vFNWwvu0X567Lec4L4HCRead3CFcD6zQDNbGw81s8N5bcKPahtPD9ApVuhsbmFCx4rw6RMw==}
     cpu: [ppc64]
     os: [linux]
     libc: [glibc]
 
-  '@pnpm/exe.linux-riscv64@12.15.0':
-    resolution: {integrity: sha512-bF1uBWEfbwaeryz6lIiaJ8AWD082otZfvzGX5l+6LZRpRwUEpJHUsJrORaYP5/cNMv5ZR2p6TvvcJcQzwtDzmw==}
+  '@pnpm/exe.linux-riscv64@12.16.1':
+    resolution: {integrity: sha512-C1Sww4FN5IttD4atRRhAKmQtSGWVp04ZAKNxO8pfu2bkRPwOW+7v+2DH1Xs1W+kZYYpO86BYDvUcadefF+AgaQ==}
     cpu: [riscv64]
     os: [linux]
     libc: [glibc]
 
-  '@pnpm/exe.linux-s390x@12.15.0':
-    resolution: {integrity: sha512-zKMhIzsexYMToeLmqV5jPsvV/f9vwsJb2kUH2NFYzalbxImeBrlA4kL7GwF8gD4pagV6jYYcJb8RjbZIdjHptg==}
+  '@pnpm/exe.linux-s390x@12.16.1':
+    resolution: {integrity: sha512-kn2fautsTcxIMODoovQVqZyfpDRdNgGkoeVqNdrKqbeBBvrEl+fXLkmZiq5xDht1LMr4sYiCNcsMfNMT6JPFmg==}
     cpu: [s390x]
     os: [linux]
     libc: [glibc]
 
-  '@pnpm/exe.linux-x64-musl@12.15.0':
-    resolution: {integrity: sha512-A9J0Jg0Rdx+qQU4qXtwyST5tto9IOu1zi4fDk35nbc6DWahggbcKtFvZPKFwL2qgUXGXOX//hXv6z/sp6emO8A==}
+  '@pnpm/exe.linux-x64-musl@12.16.1':
+    resolution: {integrity: sha512-PM6ccHCOe/O9SsTflTJTYWfwogJZa6EmUvpnwZgiPguJBddh20wDQKgxUPXf48rDsPm9vMsIij0uHswwwbXL8g==}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@pnpm/exe.linux-x64@12.15.0':
-    resolution: {integrity: sha512-yc+QlZR+9+nr29J4fRzhMoapgxTBDndq/+peyoq1XUufnQFnfbXUMFudDIKzHi545linGqmOmXfn0NoufNgcOg==}
+  '@pnpm/exe.linux-x64@12.16.1':
+    resolution: {integrity: sha512-RK//8ZLcXGW8A2k8bQOXZDBN1Qu92zN4dYnG1bzj1zoQ1fkZ6jNzZ1AvXtsfGVma795CJtvoaF5bLXf4l/FIUw==}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@pnpm/exe.win32-arm64@12.15.0':
-    resolution: {integrity: sha512-fPXZxuY1VclkOga9bc53qNCXcegfeoBR8+Ue+AospDwKzuGGSHll0oDxkLfkmpjyRqpe7bH5DyQPYp/xSMaIVA==}
+  '@pnpm/exe.win32-arm64@12.16.1':
+    resolution: {integrity: sha512-Ox3kNNVxtGw6pK7SVejmeOUgHhUTZgAM7NQQ6cU7frPw3ix9+j7d2MGbRg3fyEFAaKWq8ZAZLTQGcDyLnAu+qA==}
     cpu: [arm64]
     os: [win32]
 
-  '@pnpm/exe.win32-x64@12.15.0':
-    resolution: {integrity: sha512-nrd+Tp1We1DGj4DGG5Bea9lZNh9y1PjlLBdEwdInS4D0h0UIDtM7JaGGGDJhNzIwcHASyihWI7HLV+dtG+fhYg==}
+  '@pnpm/exe.win32-x64@12.16.1':
+    resolution: {integrity: sha512-k+FhRJ0ttphFoFIVB1Sk4v76YJAulafmA/Ly57cysesUhhIzVlApeOShUz0jXubKx317TThlEfpQrukldnqORA==}
     cpu: [x64]
     os: [win32]
 
-  pnpm@12.15.0:
-    resolution: {integrity: sha512-s5UdbW/0qfE9x89WzSjSuOs328ycaOUuHhGRhz6p+CoBcoerULqtxczElPA2xnwOR+sTYIwvo29HcRth6hKOYQ==}
+  pnpm@12.16.1:
+    resolution: {integrity: sha512-CR0d7nknV1Zhsl2rPCrjHK/BxU1rce1qZgDPDByxBDSkR+rhQBXxsj4ua+3u1535SpMuIWTSgyKA3OP7MvZW0Q==}
     engines: {node: '>=18'}
     hasBin: true
 
 snapshots:
 
-  '@pnpm/exe.android-arm64@12.15.0':
+  '@pnpm/exe.android-arm64@12.16.1':
     optional: true
 
-  '@pnpm/exe.android-x64@12.15.0':
+  '@pnpm/exe.android-x64@12.16.1':
     optional: true
 
-  '@pnpm/exe.darwin-arm64@12.15.0':
+  '@pnpm/exe.darwin-arm64@12.16.1':
     optional: true
 
-  '@pnpm/exe.darwin-x64@12.15.0':
+  '@pnpm/exe.darwin-x64@12.16.1':
     optional: true
 
-  '@pnpm/exe.freebsd-x64@12.15.0':
+  '@pnpm/exe.freebsd-x64@12.16.1':
     optional: true
 
-  '@pnpm/exe.linux-arm64-musl@12.15.0':
+  '@pnpm/exe.linux-arm64-musl@12.16.1':
     optional: true
 
-  '@pnpm/exe.linux-arm64@12.15.0':
+  '@pnpm/exe.linux-arm64@12.16.1':
     optional: true
 
-  '@pnpm/exe.linux-ppc64@12.15.0':
+  '@pnpm/exe.linux-ppc64@12.16.1':
     optional: true
 
-  '@pnpm/exe.linux-riscv64@12.15.0':
+  '@pnpm/exe.linux-riscv64@12.16.1':
     optional: true
 
-  '@pnpm/exe.linux-s390x@12.15.0':
+  '@pnpm/exe.linux-s390x@12.16.1':
     optional: true
 
-  '@pnpm/exe.linux-x64-musl@12.15.0':
+  '@pnpm/exe.linux-x64-musl@12.16.1':
     optional: true
 
-  '@pnpm/exe.linux-x64@12.15.0':
+  '@pnpm/exe.linux-x64@12.16.1':
     optional: true
 
-  '@pnpm/exe.win32-arm64@12.15.0':
+  '@pnpm/exe.win32-arm64@12.16.1':
     optional: true
 
-  '@pnpm/exe.win32-x64@12.15.0':
+  '@pnpm/exe.win32-x64@12.16.1':
     optional: true
 
-  pnpm@12.15.0:
+  pnpm@12.16.1:
     optionalDependencies:
-      '@pnpm/exe.android-arm64': 12.15.0
-      '@pnpm/exe.android-x64': 12.15.0
-      '@pnpm/exe.darwin-arm64': 12.15.0
-      '@pnpm/exe.darwin-x64': 12.15.0
-      '@pnpm/exe.freebsd-x64': 12.15.0
-      '@pnpm/exe.linux-arm64': 12.15.0
-      '@pnpm/exe.linux-arm64-musl': 12.15.0
-      '@pnpm/exe.linux-ppc64': 12.15.0
-      '@pnpm/exe.linux-riscv64': 12.15.0
-      '@pnpm/exe.linux-s390x': 12.15.0
-      '@pnpm/exe.linux-x64': 12.15.0
-      '@pnpm/exe.linux-x64-musl': 12.15.0
-      '@pnpm/exe.win32-arm64': 12.15.0
-      '@pnpm/exe.win32-x64': 12.15.0
+      '@pnpm/exe.android-arm64': 12.16.1
+      '@pnpm/exe.android-x64': 12.16.1
+      '@pnpm/exe.darwin-arm64': 12.16.1
+      '@pnpm/exe.darwin-x64': 12.16.1
+      '@pnpm/exe.freebsd-x64': 12.16.1
+      '@pnpm/exe.linux-arm64': 12.16.1
+      '@pnpm/exe.linux-arm64-musl': 12.16.1
+      '@pnpm/exe.linux-ppc64': 12.16.1
+      '@pnpm/exe.linux-riscv64': 12.16.1
+      '@pnpm/exe.linux-s390x': 12.16.1
+      '@pnpm/exe.linux-x64': 12.16.1
+      '@pnpm/exe.linux-x64-musl': 12.16.1
+      '@pnpm/exe.win32-arm64': 12.16.1
+      '@pnpm/exe.win32-x64': 12.16.1
 
 ---
 lockfileVersion: '9.0'
@@ -172,7 +172,7 @@ catalogs:
       version: 5.1.9
     '@salesforce/b2c-cli':
       specifier: ^2.0.0
-      version: 2.9.0
+      version: 2.10.0
     '@types/node':
       specifier: ^26.0.0
       version: 26.6.5
@@ -213,8 +213,8 @@ catalogs:
       specifier: npm:@typescript/typescript6@^6.0.2
       version: 6.0.2
     typescript-7:
-      specifier: npm:typescript@7.1.0-dev.20261026.1
-      version: 7.1.0-dev.20261026.1
+      specifier: npm:typescript@7.1.0-dev.20261027.1
+      version: 7.1.0-dev.20261027.1
     typescript-legacy:
       specifier: npm:@typescript/typescript6@^6.0.2
       version: 6.0.2
@@ -277,7 +277,7 @@ importers:
         version: 10.0.1(eslint@10.13.0(jiti@2.7.0)(supports-color@8.1.1))
       '@salesforce/b2c-cli':
         specifier: 'catalog:'
-        version: 2.9.0(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.10.0(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.5
@@ -325,7 +325,7 @@ importers:
         version: link:../../packages/vite-plugin-sfcc-modules
       '@salesforce/b2c-cli':
         specifier: 'catalog:'
-        version: 2.9.0(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.10.0(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.5
@@ -365,7 +365,7 @@ importers:
         version: 5.1.9
       '@salesforce/b2c-cli':
         specifier: 'catalog:'
-        version: 2.9.0(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.10.0(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.5
@@ -535,7 +535,7 @@ importers:
         version: 5.1.9
       '@salesforce/b2c-cli':
         specifier: '>=1.18.0'
-        version: 2.9.0(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.10.0(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       fast-xml-parser:
         specifier: 'catalog:'
         version: 5.11.2
@@ -551,7 +551,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       typescript-7:
         specifier: 'catalog:'
-        version: typescript@7.1.0-dev.20261026.1
+        version: typescript@7.1.0-dev.20261027.1
       vite-plus:
         specifier: 'catalog:'
         version: 1.4.0(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(jiti@2.7.0)(yaml@2.9.1)
@@ -1708,13 +1708,13 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@salesforce/b2c-cli@2.9.0':
-    resolution: {integrity: sha512-BhusGyP060+/olVIyYIP2i/hM5UTmYhjZZzver2lVK/n3AKV1laUTQ93IMJmtvukHfY+3INuD4aODSdCpsJttQ==}
+  '@salesforce/b2c-cli@2.10.0':
+    resolution: {integrity: sha512-Toh8f2wvOIqjMdZSmGBSII5MqCDaouB67jaVkdgdDr6dILbg5e5Am6arDI3gwlig7dy4nRyqYL3V3+0dMK6fpg==}
     engines: {node: '>=22.16.0'}
     hasBin: true
 
-  '@salesforce/b2c-tooling-sdk@2.9.0':
-    resolution: {integrity: sha512-yezuKqaTU1ExQK4k2ovXEph9ZNIeK8jGP3PJhd3xvf5n0VIj5mOB8ZHLbE1Ayqz/ulyoJ6ps+BAGDgXWPTOWXw==}
+  '@salesforce/b2c-tooling-sdk@2.10.0':
+    resolution: {integrity: sha512-qM78d00rq9jydvu9gi11UlNKNG18Xj7RUUAC/W9EskyZn3DcVHFMeazfX49jaHyJoEoesR2/xkDfS4IIk7AAgQ==}
     engines: {node: '>=22.16.0'}
     peerDependencies:
       '@oclif/core': ^4
@@ -2003,8 +2003,8 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
-  '@typescript/typescript-darwin-arm64@7.1.0-dev.20261026.1':
-    resolution: {integrity: sha512-RWRwkR2fg0VHxQO7gUeyLhrgAkptVLqNoqNOrzNm3S1cGL3UBHhM04KYg/XvTbK4OADntUAC+DYPzEKZqlC31A==}
+  '@typescript/typescript-darwin-arm64@7.1.0-dev.20261027.1':
+    resolution: {integrity: sha512-UJjLBpNLvWKszxNNoEsl+2Y5YOsgwIJHfwq8k/FPBzMcz5UDyH+mOMjTm6MsHhU4EVyfUJYCcESHdbvH0J6sRg==}
     engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [darwin]
@@ -2015,8 +2015,8 @@ packages:
     cpu: [x64]
     os: [darwin]
 
-  '@typescript/typescript-darwin-x64@7.1.0-dev.20261026.1':
-    resolution: {integrity: sha512-PtI216o0etjH8vlbNC3wjvOISz5iyY/bZ2ppXJlGOScti0iczFcbKsb+evgGXBT5iaVmyK0Yczue+GGE2iMzvA==}
+  '@typescript/typescript-darwin-x64@7.1.0-dev.20261027.1':
+    resolution: {integrity: sha512-kccP5mZQTs93noTIelNoT3bSjbeh2j4Ol5+2Vfd6y6GsI40NcwVg3VKyKBf9VDdFveXp5LgkLykHerZPiSuPsQ==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [darwin]
@@ -2039,8 +2039,8 @@ packages:
     cpu: [arm64]
     os: [linux]
 
-  '@typescript/typescript-linux-arm64@7.1.0-dev.20261026.1':
-    resolution: {integrity: sha512-HWPO3jI/mzKhi6LQzpNyRVq8V2DGf5eUXp+MYZktGEMicfKEWQRsy9FtbZWPDCvF5JoknQTqwjCWjqIV2edUDA==}
+  '@typescript/typescript-linux-arm64@7.1.0-dev.20261027.1':
+    resolution: {integrity: sha512-EZmsRYvs1MH2syqc+5t2k7XOYpB7xw7sqq0Xzs7EHmHxI5jMswfJbpNFRbmpg7g70y2b8v1dbBEsle9KwHKJsQ==}
     engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [linux]
@@ -2051,8 +2051,8 @@ packages:
     cpu: [arm]
     os: [linux]
 
-  '@typescript/typescript-linux-arm@7.1.0-dev.20261026.1':
-    resolution: {integrity: sha512-GAiru2K4i0n6ScgEt16/mJorbizPe7xBdIvrMOJICznjcU9fk9KZSdMAsyjiSbxlGTUIl7XfPxJAdceiezPz1g==}
+  '@typescript/typescript-linux-arm@7.1.0-dev.20261027.1':
+    resolution: {integrity: sha512-cIwCj9x+an2vLDkdNnxgFeLF/Q8+kjVcZisntc1gA8nISoRII/QePVNbG3jDBt2zqU7GxU71egvQbxuV5eQ59A==}
     engines: {node: '>=16.20.0'}
     cpu: [arm]
     os: [linux]
@@ -2093,8 +2093,8 @@ packages:
     cpu: [x64]
     os: [linux]
 
-  '@typescript/typescript-linux-x64@7.1.0-dev.20261026.1':
-    resolution: {integrity: sha512-adsyqmhIhDvhuneZpnOW+XaAq+szKqHk3rvx4Jfy2yzDkJELVL5URBXjqASpcqlvZk+uFwvikph7UnqTXZpajw==}
+  '@typescript/typescript-linux-x64@7.1.0-dev.20261027.1':
+    resolution: {integrity: sha512-LRXiR7cP44Sg0sz0SmfkMKAsImesb4yiGqIzDOsEZE3dbvQEU72VknlXlc4qcs2E8R+Qzuri2KkRRGiyy2oI1Q==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [linux]
@@ -2135,8 +2135,8 @@ packages:
     cpu: [arm64]
     os: [win32]
 
-  '@typescript/typescript-win32-arm64@7.1.0-dev.20261026.1':
-    resolution: {integrity: sha512-KPn36m05loleZvmixK5GdmocK6niV2ZsbHWz0F1sOvibNKFKbqptCvFEd2dI0f/McJQnKBv+72j3IR4aSLcRZA==}
+  '@typescript/typescript-win32-arm64@7.1.0-dev.20261027.1':
+    resolution: {integrity: sha512-p6JMGiKWY7fNCP1nptqnGeDp/OSZG4qyxXN0zkDR99pN4G2mBWN1tvOAw8qjs9MKX7Q5AU57cMDxTBc3L/kLDA==}
     engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [win32]
@@ -2147,8 +2147,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@typescript/typescript-win32-x64@7.1.0-dev.20261026.1':
-    resolution: {integrity: sha512-fSHdi/K9N6Ccxl/O8gjkvS8C38e2uATKaHRxGPlf+keqYFK7+f4DQliH7wL1Ih8U97Eq4g8L0LIDtHnZAY8AOQ==}
+  '@typescript/typescript-win32-x64@7.1.0-dev.20261027.1':
+    resolution: {integrity: sha512-rCsJOawGaofI6+aV5BCJm2YfoBUJGgIf6ej6r14atoeo9zHhJqy0VSyhgGUo1vvrP7ArtwiHWnGOqz6gGAxO7g==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [win32]
@@ -3983,8 +3983,8 @@ packages:
     resolution: {integrity: sha512-Z3lTE9pLaJF47NyMhd4ww1yFTAP8YhYI8SleJiHzM46Fgpm5cnNzSl9XfzFNqbaz+VlJrIj3fXQ4DeN1Rjm6cw==}
     engines: {node: '>=18'}
 
-  node-forge@1.4.0:
-    resolution: {integrity: sha512-LarFH0+6VfriEhqMMcLX2F7SwSXeWwnEAJEsYm5QKWchiVYVvJyV9v7UDvUv+w5HO23ZpQTXDv/GxdDdMyOuoQ==}
+  node-forge@1.4.1:
+    resolution: {integrity: sha512-w5/MfWaeMrpR/5ba6fZyAUTLSuE6aYz7H/3cYrqwZEmf5eQS3IaaLgJt4MBv7HglGFWmV22K8h4U18RJQmw/ow==}
     engines: {node: '>= 6.13.0'}
 
   node-releases@2.0.57:
@@ -4643,8 +4643,8 @@ packages:
     engines: {node: '>=16.20.0'}
     hasBin: true
 
-  typescript@7.1.0-dev.20261026.1:
-    resolution: {integrity: sha512-UMkX/9dUMDnkxhiqg3i9PBeD56zX1QIJ4yo53NSM9WsnSD7B/kQYgeeeveo/jsqPkciAmaGD+UFU8uV52fI00g==}
+  typescript@7.1.0-dev.20261027.1:
+    resolution: {integrity: sha512-pPXjJFnHoJGGZxw9qy6lSrW29TihO6LZcn39TkNP787WNA0g4/W/MYkhXQo/WL+NyGIPMa+1bmedrr3ixhqD2w==}
     engines: {node: '>=16.20.0'}
     hasBin: true
 
@@ -5931,7 +5931,7 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@salesforce/b2c-cli@2.9.0(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)':
+  '@salesforce/b2c-cli@2.10.0(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)':
     dependencies:
       '@inquirer/prompts': 8.2.0(@types/node@26.6.5)
       '@oclif/core': 4.8.0
@@ -5941,7 +5941,7 @@ snapshots:
       '@oclif/plugin-plugins': 5.4.53(supports-color@8.1.1)
       '@oclif/plugin-version': 2.2.36
       '@oclif/plugin-warn-if-update-available': 3.1.52(supports-color@8.1.1)
-      '@salesforce/b2c-tooling-sdk': 2.9.0(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)
+      '@salesforce/b2c-tooling-sdk': 2.10.0(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)
       cliui: 9.0.1
       glob: 13.0.0
       marked: 15.0.12
@@ -5955,7 +5955,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@salesforce/b2c-tooling-sdk@2.9.0(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)':
+  '@salesforce/b2c-tooling-sdk@2.10.0(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)':
     dependencies:
       '@vscode/debugadapter': 1.68.0
       chokidar: 5.0.0
@@ -5969,7 +5969,7 @@ snapshots:
       jszip: 3.10.1
       minimatch: 10.2.4
       minisearch: 7.2.0
-      node-forge: 1.4.0
+      node-forge: 1.4.1
       open: 11.0.0
       openapi-fetch: 0.15.0
       pino: 10.1.0
@@ -6324,13 +6324,13 @@ snapshots:
   '@typescript/typescript-darwin-arm64@7.0.2':
     optional: true
 
-  '@typescript/typescript-darwin-arm64@7.1.0-dev.20261026.1':
+  '@typescript/typescript-darwin-arm64@7.1.0-dev.20261027.1':
     optional: true
 
   '@typescript/typescript-darwin-x64@7.0.2':
     optional: true
 
-  '@typescript/typescript-darwin-x64@7.1.0-dev.20261026.1':
+  '@typescript/typescript-darwin-x64@7.1.0-dev.20261027.1':
     optional: true
 
   '@typescript/typescript-freebsd-arm64@7.0.2':
@@ -6342,13 +6342,13 @@ snapshots:
   '@typescript/typescript-linux-arm64@7.0.2':
     optional: true
 
-  '@typescript/typescript-linux-arm64@7.1.0-dev.20261026.1':
+  '@typescript/typescript-linux-arm64@7.1.0-dev.20261027.1':
     optional: true
 
   '@typescript/typescript-linux-arm@7.0.2':
     optional: true
 
-  '@typescript/typescript-linux-arm@7.1.0-dev.20261026.1':
+  '@typescript/typescript-linux-arm@7.1.0-dev.20261027.1':
     optional: true
 
   '@typescript/typescript-linux-loong64@7.0.2':
@@ -6369,7 +6369,7 @@ snapshots:
   '@typescript/typescript-linux-x64@7.0.2':
     optional: true
 
-  '@typescript/typescript-linux-x64@7.1.0-dev.20261026.1':
+  '@typescript/typescript-linux-x64@7.1.0-dev.20261027.1':
     optional: true
 
   '@typescript/typescript-netbsd-arm64@7.0.2':
@@ -6390,13 +6390,13 @@ snapshots:
   '@typescript/typescript-win32-arm64@7.0.2':
     optional: true
 
-  '@typescript/typescript-win32-arm64@7.1.0-dev.20261026.1':
+  '@typescript/typescript-win32-arm64@7.1.0-dev.20261027.1':
     optional: true
 
   '@typescript/typescript-win32-x64@7.0.2':
     optional: true
 
-  '@typescript/typescript-win32-x64@7.1.0-dev.20261026.1':
+  '@typescript/typescript-win32-x64@7.1.0-dev.20261027.1':
     optional: true
 
   '@typescript/typescript6@6.0.2':
@@ -8324,7 +8324,7 @@ snapshots:
       emojilib: 2.4.0
       skin-tone: 2.0.0
 
-  node-forge@1.4.0: {}
+  node-forge@1.4.1: {}
 
   node-releases@2.0.57: {}
 
@@ -9087,15 +9087,15 @@ snapshots:
       '@typescript/typescript-win32-arm64': 7.0.2
       '@typescript/typescript-win32-x64': 7.0.2
 
-  typescript@7.1.0-dev.20261026.1:
+  typescript@7.1.0-dev.20261027.1:
     optionalDependencies:
-      '@typescript/typescript-darwin-arm64': 7.1.0-dev.20261026.1
-      '@typescript/typescript-darwin-x64': 7.1.0-dev.20261026.1
-      '@typescript/typescript-linux-arm': 7.1.0-dev.20261026.1
-      '@typescript/typescript-linux-arm64': 7.1.0-dev.20261026.1
-      '@typescript/typescript-linux-x64': 7.1.0-dev.20261026.1
-      '@typescript/typescript-win32-arm64': 7.1.0-dev.20261026.1
-      '@typescript/typescript-win32-x64': 7.1.0-dev.20261026.1
+      '@typescript/typescript-darwin-arm64': 7.1.0-dev.20261027.1
+      '@typescript/typescript-darwin-x64': 7.1.0-dev.20261027.1
+      '@typescript/typescript-linux-arm': 7.1.0-dev.20261027.1
+      '@typescript/typescript-linux-arm64': 7.1.0-dev.20261027.1
+      '@typescript/typescript-linux-x64': 7.1.0-dev.20261027.1
+      '@typescript/typescript-win32-arm64': 7.1.0-dev.20261027.1
+      '@typescript/typescript-win32-x64': 7.1.0-dev.20261027.1
 
   uc.micro@2.1.0: {}
 
