@@ -164,6 +164,9 @@ settings:
 
 catalogs:
   default:
+    '@es-joy/jsdoccomment':
+      specifier: ^1.0.0
+      version: 1.0.0
     '@eslint/js':
       specifier: ^10.0.1
       version: 10.0.1
@@ -191,9 +194,6 @@ catalogs:
     acorn-walk:
       specifier: ^8.3.5
       version: 8.3.5
-    comment-parser:
-      specifier: ^1.4.9
-      version: 1.4.9
     eslint:
       specifier: ^10.0.1
       version: 10.13.0
@@ -209,9 +209,6 @@ catalogs:
     globals:
       specifier: ^17.4.0
       version: 17.13.0
-    jsdoc-type-pratt-parser:
-      specifier: ^8.0.0
-      version: 8.0.0
     oxlint:
       specifier: ^1.79.0
       version: 1.90.0
@@ -434,9 +431,9 @@ importers:
       '@commerce-klaus/sfcc-module-resolver':
         specifier: workspace:^
         version: link:../sfcc-module-resolver
-      comment-parser:
+      '@es-joy/jsdoccomment':
         specifier: 'catalog:'
-        version: 1.4.9
+        version: 1.0.0
       eslint:
         specifier: '>=9.0.0'
         version: 10.13.0(jiti@2.7.0)(supports-color@8.1.1)
@@ -446,9 +443,6 @@ importers:
       globals:
         specifier: '>=13.24.0'
         version: 17.13.0
-      jsdoc-type-pratt-parser:
-        specifier: 'catalog:'
-        version: 8.0.0
       jsonc-eslint-parser:
         specifier: ^3.3.0
         version: 3.3.0
@@ -834,6 +828,10 @@ packages:
 
   '@docsearch/sidepanel-js@4.7.1':
     resolution: {integrity: sha512-uyOKbC6rjHCZBVbLCSZVb1NDWzjbD27WqxTuRYnkTW717laEj2dX+W8Ho1fNHSyG4dqssIlPWlXdg+McGxxxxg==}
+
+  '@es-joy/jsdoccomment@1.0.0':
+    resolution: {integrity: sha512-jiVfUnvMioo3upHpAoxE4XkqfrL6nc/XQx7Uw7tQL6QbQDJcALm+fhdj6tjiORDF7uADJbTlmnYWR9DvJE/eiw==}
+    engines: {node: ^22.22.2 || >=24.15.0}
 
   '@eslint-community/eslint-utils@4.10.1':
     resolution: {integrity: sha512-cuadcxVFE8sDK6iWJbs8Sn0av2Nrh2QSGQhVlBW9AaAHqHwjWsZHT8LJ4hFGPh7ASBV2deFdM7H/DPjulmh8rg==}
@@ -3607,9 +3605,9 @@ packages:
     resolution: {integrity: sha512-SFNOvSJ+Dgf/9An904Yx+CgSlIPCkIpao4qo51lpee25TIRejdH3rhR4EZMGoNx3/TP3O+wzWuiTFl4sqbltzA==}
     hasBin: true
 
-  jsdoc-type-pratt-parser@8.0.0:
-    resolution: {integrity: sha512-uQu/fXVqVaMg6gM8/E5G5+eygVcZ1NV0Z51CvqhNa2bDWxvHMl484ETr6vph4oPyC+KUcbP/w2W2pewfCiR9aQ==}
-    engines: {node: '>=20.0.0'}
+  jsdoc-type-pratt-parser@9.4.0:
+    resolution: {integrity: sha512-orXhi2Y06rag47r4SW4JPII6WlUJbp0xe9cIcqLaSbb/8tREcEZSq99Lu3AFfra6PAlMqTYIxV+ZHxl1dFUrWw==}
+    engines: {node: ^22.22.2 || >=24.15.0}
 
   jsesc@3.1.0:
     resolution: {integrity: sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA==}
@@ -5249,6 +5247,14 @@ snapshots:
   '@docsearch/js@4.7.1': {}
 
   '@docsearch/sidepanel-js@4.7.1': {}
+
+  '@es-joy/jsdoccomment@1.0.0':
+    dependencies:
+      '@types/estree': 1.0.9
+      '@typescript-eslint/types': 8.72.1
+      comment-parser: 1.4.9
+      esquery: 1.7.0
+      jsdoc-type-pratt-parser: 9.4.0
 
   '@eslint-community/eslint-utils@4.10.1(eslint@10.13.0(jiti@2.7.0)(supports-color@8.1.1))':
     dependencies:
@@ -7859,7 +7865,9 @@ snapshots:
     dependencies:
       argparse: 2.0.1
 
-  jsdoc-type-pratt-parser@8.0.0: {}
+  jsdoc-type-pratt-parser@9.4.0:
+    dependencies:
+      '@types/estree': 1.0.9
 
   jsesc@3.1.0: {}
 

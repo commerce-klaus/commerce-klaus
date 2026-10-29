@@ -5,11 +5,12 @@ import {
   getSfccAttributeEmptySemantics,
   type SfccObjectMetadata,
 } from "@commerce-klaus/sfcc-module-resolver/object-metadata"
-import { parse as parseComment } from "comment-parser"
 import {
+  getJSDocComment,
+  parseComment,
   tryParse as parseJsdocType,
   type RootResult as JsdocTypeNode,
-} from "jsdoc-type-pratt-parser"
+} from "@es-joy/jsdoccomment"
 
 import type { SfccSettings } from "../../types/sfcc-settings.js"
 
@@ -219,23 +220,20 @@ function findJsdocType(
   tagName: "param" | "type",
   parameterName?: string,
 ): string | undefined {
-  for (const comment of context.sourceCode.getCommentsBefore(node).toReversed()) {
-    if (comment.type !== "Block" || !comment.value.startsWith("*")) {
-      continue
-    }
-
-    const block = parseComment(`/*${comment.value}*/`)[0]
-    const tag = block?.tags.find(
-      (candidate) =>
-        candidate.tag === tagName &&
-        (parameterName === undefined || candidate.name === parameterName),
-    )
-    if (tag?.type) {
-      return normalizeJsdocType(tag.type)
-    }
+  const comment = getJSDocComment(context.sourceCode, node, {
+    minLines: 0,
+    maxLines: 1,
+  })
+  if (!comment) {
+    return undefined
   }
 
-  return undefined
+  const tag = parseComment(comment).tags.find(
+    (candidate) =>
+      candidate.tag === tagName &&
+      (parameterName === undefined || candidate.name === parameterName),
+  )
+  return tag?.type ? normalizeJsdocType(tag.type) : undefined
 }
 
 function getJsdocTypeForIdentifier(context: Rule.RuleContext, node: Rule.Node): string | undefined {
@@ -258,10 +256,14 @@ function getJsdocTypeForIdentifier(context: Rule.RuleContext, node: Rule.Node): 
   }
 
   if (definition.type === "Variable") {
-    const declarationNode =
+    const variableDeclaration =
       definitionNode.parent?.type === "VariableDeclaration"
         ? (definitionNode.parent as Rule.Node)
         : definitionNode
+    const declarationNode =
+      variableDeclaration.parent?.type === "ExportNamedDeclaration"
+        ? (variableDeclaration.parent as Rule.Node)
+        : variableDeclaration
     return findJsdocType(context, declarationNode, "type")
   }
 

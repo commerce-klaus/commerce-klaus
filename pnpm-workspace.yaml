@@ -9,6 +9,7 @@ cleanupUnusedCatalogs: true
 
 catalog:
   "@eslint/js": ^10.0.1
+  "@es-joy/jsdoccomment": ^1.0.0
   "@oclif/core": ^5.0.0
   "@salesforce/b2c-cli": ^2.0.0
   "@types/node": ^26.0.0
@@ -17,13 +18,11 @@ catalog:
   "@vitest/coverage-v8": 5.0.5
   acorn: ^8.18.0
   acorn-walk: ^8.3.5
-  comment-parser: ^1.4.9
   eslint: ^10.0.1
   eslint-plugin-sonarjs: ^4.2.0
   eslint-plugin-unicorn: ^79.0.0
   fast-xml-parser: ^5.8.0
   globals: ^17.4.0
-  jsdoc-type-pratt-parser: ^8.0.0
   oxlint: ^1.79.0
   typescript: npm:@typescript/typescript6@^6.0.2
   typescript-legacy: npm:@typescript/typescript6@^6.0.2

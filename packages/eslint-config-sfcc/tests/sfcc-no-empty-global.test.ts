@@ -265,6 +265,18 @@ describe("SFCC empty() migration rules", () => {
     expect(findMessage(result, "sfcc/no-ambiguous-empty")).toBeUndefined()
   })
 
+  test("finds JSDoc attached to an exported declaration", async () => {
+    const code = ["/** @type {string} */", "export const value = getValue()", "empty(value)"].join(
+      "\n",
+    )
+    const result = await lint(code)
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
+
+    expect(hit?.message).toContain("inferred type string")
+    expect(applyFirstSuggestion(code, hit)).toContain("value.length === 0")
+    expect(findMessage(result, "sfcc/no-ambiguous-empty")).toBeUndefined()
+  })
+
   test("does not treat an empty plain object as SFCC-empty", async () => {
     const code = "empty({})"
     const result = await lint(code)

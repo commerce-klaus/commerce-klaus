@@ -10,7 +10,7 @@ Start with the [SFCC script runtime](/guide/sfcc-script-runtime) to understand t
 
 ## Requirements
 
-- Node.js 22.13 or newer
+- Node.js `^22.22.2` or `>=24.15.0`
 - An SFCC cartridge project
 - pnpm, npm, Yarn, or Vite+
 

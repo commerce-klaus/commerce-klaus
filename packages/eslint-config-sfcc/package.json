@@ -50,9 +50,8 @@
   "dependencies": {
     "@commerce-klaus/config": "workspace:^",
     "@commerce-klaus/sfcc-module-resolver": "workspace:^",
-    "comment-parser": "catalog:",
+    "@es-joy/jsdoccomment": "catalog:",
     "eslint-plugin-es-x": "^10.0.0",
-    "jsdoc-type-pratt-parser": "catalog:",
     "jsonc-eslint-parser": "^3.3.0"
   },
   "devDependencies": {
@@ -80,7 +79,7 @@
     }
   },
   "engines": {
-    "node": ">=22.13.0"
+    "node": "^22.22.2 || >=24.15.0"
   },
   "packageManager": "pnpm@12.16.1"
 }

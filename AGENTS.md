@@ -335,8 +335,8 @@ and process globals between tests because Vitest workers are reused.
 
 ## Development Workflow
 
-Use Node.js 22.13 or newer and Vite+ commands from the workspace root unless a
-package-specific check is intentionally narrower.
+Use Node.js `^22.22.2` or `>=24.15.0` and Vite+ commands from the workspace root
+unless a package-specific check is intentionally narrower.
 
 Treat Vite+ and its `vp` CLI as the primary interface for installing
 dependencies, running scripts, checking, testing, building, and publishing.

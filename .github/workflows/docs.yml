@@ -34,6 +34,7 @@ jobs:
         uses: voidzero-dev/setup-vp@v1
         with:
           cache: true
+          node-version: 22.22.2
           run-install: false
 
       - name: Set up Pages
