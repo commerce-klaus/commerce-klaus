@@ -32,6 +32,13 @@ Set the `autofix` option to `true` to apply replacements that preserve both the 
 }
 ```
 
+Autofix is limited to positive checks whose expressions can be evaluated safely.
+Type-derived replacements retain explicit `null` and `undefined` guards even
+when the static type is non-null, because legacy callers and optional platform
+attributes can violate that annotation at runtime. Member access and negated
+checks remain available as editor suggestions so applying a replacement does
+not duplicate a getter evaluation or introduce conflicting lint diagnostics.
+
 The [`empty-migration`](../../index.md#migrate-empty-in-batches) ESLint preset enables this option together with `sfcc/no-ambiguous-empty`. Oxlint can generate the equivalent override with `createOxlintEmptyMigrationOverride()`. Potentially side-effecting expressions remain suggestions in both migration modes.
 
 ## Oxlint support

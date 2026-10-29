@@ -101,7 +101,9 @@ const preferExplicitEmptyCheck: Rule.RuleModule = {
           context.sourceCode.getText(argument),
         )
         const autofixReplacement =
-          autofix && canAutofixEmptyReplacement(analysis, argument)
+          autofix &&
+          callExpression.parent?.type !== "UnaryExpression" &&
+          canAutofixEmptyReplacement(analysis, argument)
             ? getAutofixReplacement(callExpression, replacement)
             : undefined
 

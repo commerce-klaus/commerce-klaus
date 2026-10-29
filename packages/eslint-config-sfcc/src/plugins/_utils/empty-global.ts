@@ -296,7 +296,6 @@ export function analyzeEmptyArgument(
     return { kind: "ambiguous", reason: "unknown", typeText }
   }
 
-  const nullable = words.some((word) => isNullableTypeWord(word))
   const valueWords = words.filter((word) => !isNullableTypeWord(word))
   if (valueWords.length === 0) {
     return { kind: "always-empty", nullable: true, typeText }
@@ -316,7 +315,7 @@ export function analyzeEmptyArgument(
     return { kind: "ambiguous", reason: "unknown", typeText }
   }
 
-  return { kind, nullable, typeText }
+  return { kind, nullable: true, typeText }
 }
 
 function nullishCheck(text: string): string {
@@ -344,11 +343,18 @@ export function canAutofixEmptyReplacement(
   analysis: Exclude<EmptyArgumentAnalysis, { kind: "ambiguous" }>,
   argument: Rule.Node,
 ): boolean {
+  if (
+    analysis.kind === "always-empty" ||
+    (analysis.kind === "nullish-only" && !analysis.nullable)
+  ) {
+    return false
+  }
+
   if (argument.type === "Identifier" || argument.type === "Literal") {
     return true
   }
 
-  if (analysis.nullable || analysis.kind === "always-empty" || analysis.kind === "nullish-only") {
+  if (analysis.nullable) {
     return false
   }
 

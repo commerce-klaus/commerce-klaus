@@ -29,6 +29,25 @@ const typeAwareEslint = new ESLint({
     },
   ],
 })
+const typeAwareAutofixEslint = new ESLint({
+  fix: true,
+  overrideConfigFile: true,
+  overrideConfig: [
+    {
+      files: ["**/*.js"],
+      languageOptions: {
+        parser: tsParser,
+        parserOptions: {
+          project: [path.join(fixtureDir, "tsconfig.json")],
+        },
+      },
+      plugins: { sfcc },
+      rules: {
+        "sfcc/prefer-explicit-empty-check": ["error", { autofix: true }],
+      },
+    },
+  ],
+})
 
 async function lint(code: string, filename = "cartridges/app_sfra/cartridge/scripts/fixture.js") {
   const eslint = new ESLint({
@@ -82,6 +101,11 @@ async function lintTypeAwareFixture(filename: string) {
   return results[0]
 }
 
+async function lintTypeAwareFixtureWithAutofix(filename: string) {
+  const results = await typeAwareAutofixEslint.lintFiles([path.join(fixtureDir, filename)])
+  return results[0]
+}
+
 function findMessage(result: Awaited<ReturnType<typeof lint>> | undefined, ruleId: string) {
   return result?.messages.find((message) => message.ruleId === ruleId)
 }
@@ -117,10 +141,35 @@ describe("SFCC empty() migration rules", () => {
     expect(result?.messages).toHaveLength(0)
   })
 
-  test("preserves expression precedence when autofixing", async () => {
+  test("does not autofix a negated empty check", async () => {
     const result = await lintWithAutofix('const value = ""\n!empty(value)')
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
-    expect(result?.output).toBe('const value = ""\n!(value.length === 0)')
+    expect(result?.output).toBeUndefined()
+    expect(hit?.suggestions).toHaveLength(1)
+  })
+
+  test("keeps a defensive null check for a non-null object type", async () => {
+    const code = [
+      "/** @param {dw.order.Order} order */",
+      "function check(order) {",
+      "  return empty(order)",
+      "}",
+    ].join("\n")
+    const result = await lintWithAutofix(code)
+
+    expect(result?.output).toContain("return order === null || order === undefined")
+    expect(result?.messages).toHaveLength(0)
+  })
+
+  test("does not autofix a member access whose runtime value may be absent", async () => {
+    const result = await lintTypeAwareFixtureWithAutofix("member-string.js")
+    const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
+
+    expect(result?.output).toBeUndefined()
+    expect(hit?.suggestions?.[0]?.desc).toContain(
+      "customer.custom.code === null || customer.custom.code === undefined",
+    )
   })
 
   test("groups nullable replacements inside logical expressions", async () => {
@@ -316,11 +365,11 @@ describe("SFCC empty() migration rules", () => {
     )
   })
 
-  test("replaces a non-null Record check with false", async () => {
+  test("keeps a defensive nullish check for a non-null Record", async () => {
     const result = await lintTypeAwareFixture("record.js")
     const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
-    expect(hit?.suggestions?.[0]?.desc).toContain("false")
+    expect(hit?.suggestions?.[0]?.desc).toContain("customer === null || customer === undefined")
   })
 
   test("replaces a nullable object reference with an explicit nullish check", async () => {
@@ -334,7 +383,7 @@ describe("SFCC empty() migration rules", () => {
     const result = await lintTypeAwareFixture("object-record-union-alias.js")
     const hit = findMessage(result, "sfcc/prefer-explicit-empty-check")
 
-    expect(hit?.suggestions?.[0]?.desc).toContain("false")
+    expect(hit?.suggestions?.[0]?.desc).toContain("customer === null || customer === undefined")
   })
 
   test("reports mixed string and object unions as ambiguous", async () => {
