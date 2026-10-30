@@ -45,6 +45,11 @@ For operations with an OAS request body, the rule recognizes a local `JSON.parse
 
 The rule ignores unrelated JSON input, dynamic parsing helpers, destructured parse results, and parsing inside nested helper functions. Annotate those values explicitly when their contract is known.
 
+Request-body source tracing follows declaration initializers, not later writes.
+A variable declared without an initializer and assigned before `JSON.parse()`
+is not inferred to contain a request body. This differs from a later assignment
+of the parse result, which is supported when the input source is recognizable.
+
 The response variable can combine the generated type with local control-flow states through unions and intersections. The generated response must remain an explicit constituent:
 
 ```js

@@ -185,6 +185,29 @@ test("ignores JSON.parse calls unrelated to the Custom API request body", () => 
   })
 })
 
+test.each([
+  `let source; source = loadValue(); return JSON.parse(source)`,
+  `var source; source = loadValue(); return JSON.parse(source)`,
+  `let source; const alias = source; return JSON.parse(alias)`,
+  `let source; return JSON.parse(source || "{}")`,
+  `let source; return JSON.parse("{}" || source)`,
+  `let source; return JSON.parse(source ?? "{}")`,
+  `const source = null; return JSON.parse(source)`,
+  `const first = second; const second = first; return JSON.parse(first)`,
+  `let RESTResponseMgr; return RESTResponseMgr.createSuccess({}).render()`,
+])("ignores unknown sources without crashing: %s", (body) => {
+  const code = [
+    '/** @type {SfccCustomApis.Operations["getLoyaltyInfo"]["Handler"]} */',
+    `function getLoyaltyInfo() { ${body} }`,
+    "exports.getLoyaltyInfo = getLoyaltyInfo",
+  ].join("\n")
+
+  withCustomApi((filename) => {
+    expect(lint(code, filename)).toEqual([])
+  })
+  expect(lint(code, "cartridges/app_sample/cartridge/scripts/sample.js")).toEqual([])
+})
+
 test("suggests the generated response type for a local success value", () => {
   withCustomApi((filename) => {
     const code = [

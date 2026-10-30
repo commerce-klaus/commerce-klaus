@@ -52,13 +52,11 @@ function isRestResponseMgrCreateSuccess(context: Rule.RuleContext, node: Rule.No
   const responseManager = node.callee.object
   const scope = context.sourceCode.getScope(responseManager)
   const reference = scope.references.find((item) => item.identifier === responseManager)
-  const definitionNode = reference?.resolved?.defs[0]?.node as
-    | (Rule.Node & { init?: Rule.Node })
-    | undefined
+  const definitionNode = reference?.resolved?.defs[0]?.node
   return (
     definitionNode?.type === "VariableDeclarator" &&
-    definitionNode.init !== undefined &&
-    getRequiredModulePath(definitionNode.init) === "dw/system/RESTResponseMgr"
+    definitionNode.init != null &&
+    getRequiredModulePath(definitionNode.init as Rule.Node) === "dw/system/RESTResponseMgr"
   )
 }
 
@@ -152,13 +150,11 @@ function isRequestBodySource(
 
   const scope = context.sourceCode.getScope(node)
   const reference = scope.references.find((item) => item.identifier === node)
-  const definitionNode = reference?.resolved?.defs[0]?.node as
-    | (Rule.Node & { init?: Rule.Node })
-    | undefined
+  const definitionNode = reference?.resolved?.defs[0]?.node
   return (
     definitionNode?.type === "VariableDeclarator" &&
-    definitionNode.init !== undefined &&
-    isRequestBodySource(context, definitionNode.init, visited)
+    definitionNode.init != null &&
+    isRequestBodySource(context, definitionNode.init as Rule.Node, visited)
   )
 }
 

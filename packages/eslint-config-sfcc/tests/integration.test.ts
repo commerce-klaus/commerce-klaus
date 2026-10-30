@@ -116,6 +116,48 @@ describe("ESLint and Oxlint rule compatibility", () => {
   }, INTEGRATION_TEST_TIMEOUT)
 
   test.each([
+    `let source; source = loadValue(); return JSON.parse(source)`,
+    `var source; source = loadValue(); return JSON.parse(source)`,
+    `let source; const alias = source; return JSON.parse(alias || "{}")`,
+    `const source = null; return JSON.parse(source)`,
+    `let RESTResponseMgr; return RESTResponseMgr.createSuccess({}).render()`,
+  ])(
+    "ignores uninitialized Custom API type sources in published lint plugins: %s",
+    async (body) => {
+      const code = `function sample() { ${body} }`
+      const eslint = new ESLint({
+        overrideConfigFile: true,
+        overrideConfig: [
+          {
+            plugins: { sfcc: (await import("../dist/index.mjs")).sfcc },
+            rules: { "sfcc/prefer-generated-custom-api-types": "error" },
+          },
+        ],
+      })
+      const results = await eslint.lintText(code, { filePath: "sample.js" })
+      expect(results[0]?.messages).toEqual([])
+      const output = lintWithOxlint(
+        code,
+        "sample.js",
+        (temporaryDir) => {
+          fs.writeFileSync(
+            path.join(temporaryDir, "oxlint.config.mjs"),
+            `export default {
+        lint: {
+          categories: { correctness: "off" },
+          jsPlugins: ["@commerce-klaus/eslint-config-sfcc/oxlint/sfcc"],
+          rules: { "sfcc/prefer-generated-custom-api-types": "error" },
+        },
+      }`,
+          )
+        },
+        0,
+      )
+      expect(output).not.toContain("Error running JS plugin")
+    },
+  )
+
+  test.each([
     ["no-ambiguous-empty", "empty(customer)\n", "sfcc(no-ambiguous-empty)", 1, 0],
     [
       "no-rhino-import-globals",
