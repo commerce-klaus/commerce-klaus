@@ -1,5 +1,16 @@
 # @commerce-klaus/b2c-plugin
 
+## 2.0.0
+
+### Major Changes
+
+- f481469: Require Node.js `^22.22.2` or `>=24.15.0` and certify the Node 22 minimum in CI.
+
+### Patch Changes
+
+- Updated dependencies [a748faf]
+  - @commerce-klaus/sfcc-module-resolver@2.2.0
+
 ## 1.1.1
 
 ### Patch Changes

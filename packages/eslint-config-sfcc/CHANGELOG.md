@@ -1,5 +1,48 @@
 # Changelog
 
+## 2.0.0
+
+### Major Changes
+
+- f481469: Require Node.js `^22.22.2` or `>=24.15.0` and certify the Node 22 minimum in CI.
+
+### Minor Changes
+
+- fe6096c: Add an opt-in SFCC test preset for ESLint and Oxlint. The rules catch concurrent
+  tests sharing runtime state, eager SFCC module imports alongside runtime setup,
+  unmanaged access to SFCC test globals, runtime setup in hoisted Vitest mock
+  factories, and non-absolute exact-file mock paths without applying cartridge
+  language restrictions to tests.
+
+  Guard against native cartridge require calls and tilde imports outside configured
+  cartridges. Extend the opt-in file-extension rule to static value imports and
+  runtime mock identifiers, also exposing it through the test plugin. Import fixes
+  use shared resolution; context-dependent mock keys are reported without rewriting.
+
+  Report Proxyquire imports, require calls, and re-exports as migration warnings in
+  the test preset. Diagnostics point to loading sites, including aliases and chained
+  configuration, without automatically changing call-through or cache behavior.
+
+  Extend managed-global warnings to Vitest global stubs and static Reflect/Object
+  operations. Add opt-in runtime cleanup checks with suite-aware afterEach
+  recognition and an explicit externalCleanup option for central setup files.
+  Vitest mock resets and active-runtime replacement do not count as cleanup.
+
+  Recognize runtime bindings assigned in lifecycle hooks consistently across mock
+  path, extension, hoisting, and eager-import checks. Report SFCC imports executed
+  directly inside vi.hoisted(), and add opt-in no-stale-runtime-reference warnings
+  for active runtime instances captured before beforeEach replaces them.
+
+- a748faf: Add shared SFCC object metadata parsing, use unambiguous Custom Attribute and Site Preference types to refine `empty()` migration diagnostics, connect parsed Custom API request bodies to generated OAS operation types, and provide an action-oriented `empty()` migration formatter.
+
+### Patch Changes
+
+- 6a43b3c: Only offer `empty()` migration code actions when the replacement preserves argument evaluation, and keep stateful expressions as manual-review diagnostics.
+- 9db2499: Clarify `empty()` migration diagnostics with inferred types, redundant-condition guidance, and safer review instructions for repeated expressions.
+- 37b8327: Use explicit SFCC JSDoc receiver types to refine metadata-aware `empty()` diagnostics without TypeScript parser services.
+- Updated dependencies [a748faf]
+  - @commerce-klaus/sfcc-module-resolver@2.2.0
+
 ## 1.15.1
 
 ### Patch Changes
