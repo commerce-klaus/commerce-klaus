@@ -1,5 +1,11 @@
 # @commerce-klaus/sfcc-module-resolver
 
+## 2.2.0
+
+### Minor Changes
+
+- a748faf: Add shared SFCC object metadata parsing, use unambiguous Custom Attribute and Site Preference types to refine `empty()` migration diagnostics, connect parsed Custom API request bodies to generated OAS operation types, and provide an action-oriented `empty()` migration formatter.
+
 ## 2.1.1
 
 ### Patch Changes
