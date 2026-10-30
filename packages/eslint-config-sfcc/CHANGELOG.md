@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.1
+
+### Patch Changes
+
+- 19d01f2: Prevent prefer-generated-custom-api-types from crashing on variables declared
+  without an initializer when tracing JSON.parse inputs or RESTResponseMgr calls.
+  Unknown sources remain ignored in both ESLint and Oxlint.
+
 ## 2.0.0
 
 ### Major Changes
