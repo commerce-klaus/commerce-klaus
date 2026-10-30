@@ -49,6 +49,7 @@ export interface SfccVitestPlugin {
   name: string
   enforce: "pre"
   config(): object
+  configResolved(config: { root: string }): void
   resolveId(source: string, importer?: string): string | undefined
   transform(code: string, id: string): { code: string; map: null } | undefined
   load(id: string): string | undefined
@@ -99,6 +100,7 @@ function getSelectedCartridgeRoots(options: SfccVitestOptions): string[] {
 }
 
 export default function sfccVitest(options: SfccVitestOptions = {}): SfccVitestPlugin {
+  let viteRoot = path.resolve(options.cwd ?? process.cwd())
   const cartridgeRoots = getSelectedCartridgeRoots(options)
   const resolveSfccModule = createModuleResolver(cartridgeRoots)
   const customApiDefinitions = resolveCustomApiDefinitions(cartridgeRoots)
@@ -110,6 +112,16 @@ export default function sfccVitest(options: SfccVitestOptions = {}): SfccVitestP
   const stepTypeDefinitions = resolveStepTypeDefinitions(cartridgeRoots)
   setActiveStepTypes(stepTypeDefinitions)
   setSfccTestRuntime(createSfccTestRuntime(options.runtime))
+
+  function cartridgeFilePath(source: string): string {
+    if (!source.startsWith("/") || fs.existsSync(source)) {
+      return source
+    }
+    const candidate = path.resolve(viteRoot, `.${source}`)
+    return isCartridgeModule(candidate, cartridgeRoots) && fs.existsSync(candidate)
+      ? candidate
+      : source
+  }
 
   const sfccPlugin: SfccVitestPlugin = {
     name: "vitest-sfcc",
@@ -132,6 +144,10 @@ export default function sfccVitest(options: SfccVitestOptions = {}): SfccVitestP
       }
     },
 
+    configResolved(config) {
+      viteRoot = config.root
+    },
+
     resolveId(source, importer) {
       if (source.startsWith(VIRTUAL_PREFIX)) {
         return source
@@ -147,7 +163,7 @@ export default function sfccVitest(options: SfccVitestOptions = {}): SfccVitestP
       }
 
       if (source.endsWith(CARTRIDGE_MODULE_SUFFIX)) {
-        const cleanSource = source.slice(0, -CARTRIDGE_MODULE_SUFFIX.length)
+        const cleanSource = cartridgeFilePath(source.slice(0, -CARTRIDGE_MODULE_SUFFIX.length))
         const resolvedPath = path.isAbsolute(cleanSource)
           ? cleanSource
           : importer
@@ -176,7 +192,7 @@ export default function sfccVitest(options: SfccVitestOptions = {}): SfccVitestP
         return {
           code: transformCartridgeCommonJs(
             code,
-            id.slice(0, -CARTRIDGE_MODULE_SUFFIX.length),
+            cartridgeFilePath(id.slice(0, -CARTRIDGE_MODULE_SUFFIX.length)),
             cartridgeRoots,
           ),
           map: null,
@@ -189,7 +205,10 @@ export default function sfccVitest(options: SfccVitestOptions = {}): SfccVitestP
 
     load(id) {
       if (id.endsWith(CARTRIDGE_MODULE_SUFFIX)) {
-        return fs.readFileSync(id.slice(0, -CARTRIDGE_MODULE_SUFFIX.length), "utf8")
+        return fs.readFileSync(
+          cartridgeFilePath(id.slice(0, -CARTRIDGE_MODULE_SUFFIX.length)),
+          "utf8",
+        )
       }
 
       if (!id.startsWith(VIRTUAL_PREFIX)) {

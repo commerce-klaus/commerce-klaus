@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "vp run lint:cartridges && vp run typecheck:cartridges && vp run test",
-    "lint": "eslint cartridges",
+    "build": "vp run lint:cartridges && vp run lint:tests && vp run typecheck:cartridges && vp run test",
+    "lint": "eslint cartridges tests",
     "prepare": "vp run setup:b2c-plugin",
     "typecheck:cartridges": "b2c klaus types sync --min-version 26.7.0 && b2c klaus types check",
     "types:sfcc:sync": "b2c klaus types sync --min-version 26.7.0",

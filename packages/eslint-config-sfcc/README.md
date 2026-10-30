@@ -17,6 +17,7 @@ Shareable ESLint flat config for Salesforce Commerce Cloud projects. It catches 
 - Uses Custom Attribute and Site Preference metadata for higher-confidence `empty()` migration guidance
 - Connects parsed Custom API request bodies to generated OAS operation types
 - Provides an opt-in preset for enforcing generated project types at metadata boundaries
+- Provides an opt-in `sfcc-test` preset for sequential runtime use, delayed cartridge imports, managed test globals, and safe mock setup
 - Supports ESLint and an Oxlint-compatible preset
 
 **Prefer Oxlint for everyday linting.** It provides the fast feedback loop for normal development and CI. Use ESLint for complete migrations and audits where `.ds` files, E4X-like syntax, JavaScript type annotations, or complex inferred types require its parser and TypeScript services. The full guide documents a focused ESLint fallback for the three rules Oxlint cannot run.

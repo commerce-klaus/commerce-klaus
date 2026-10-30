@@ -8,8 +8,10 @@ import {
 } from "@commerce-klaus/sfcc-module-resolver/resolution"
 import path from "node:path"
 
+import { getStaticMemberName } from "../_utils/ast.js"
 import { withSfccSettings } from "../_utils/sfcc-settings.js"
 import { getStaticModulePath } from "../_utils/static-module.js"
+import { isNativeRequire, isRuntime, isValueImport } from "../sfcc-test/utils.js"
 
 const EXTENSION_PATTERN = new RegExp(`\\.(${SUPPORTED_RUNTIME_EXTENSIONS.join("|")})$`, "u")
 
@@ -61,7 +63,7 @@ const requireFileExtension: Rule.RuleModule = {
       return resolveSfccModule(modulePath, filename)
     }
 
-    function checkModuleArgument(reportNode: Rule.Node | undefined) {
+    function checkModuleArgument(reportNode: Rule.Node | undefined, mock = false) {
       const modulePath = getStaticModulePath(reportNode)
       if (!reportNode || !modulePath || !isFileModulePath(modulePath)) {
         return
@@ -71,14 +73,14 @@ const requireFileExtension: Rule.RuleModule = {
         return
       }
 
-      const resolvedPath = resolveModule(modulePath)
+      // Mock IDs refer to identifiers in cartridge code, not paths relative to this test.
+      const resolvedPath = mock ? undefined : resolveModule(modulePath)
       const extension = resolvedPath ? path.extname(resolvedPath) : undefined
       const canFix =
+        resolvedPath !== undefined &&
         extension !== undefined &&
-        path.basename(resolvedPath as string, extension) === path.posix.basename(modulePath) &&
-        SUPPORTED_RUNTIME_EXTENSIONS.includes(
-          extension.slice(1) as (typeof SUPPORTED_RUNTIME_EXTENSIONS)[number],
-        )
+        path.basename(resolvedPath, extension) === path.posix.basename(modulePath) &&
+        SUPPORTED_RUNTIME_EXTENSIONS.some((supported) => supported === extension.slice(1))
 
       context.report({
         node: reportNode,
@@ -100,13 +102,19 @@ const requireFileExtension: Rule.RuleModule = {
 
     return {
       CallExpression(node) {
-        const callNode = node as Rule.Node & {
-          callee?: { type?: string; name?: string }
-          arguments?: Rule.Node[]
+        if (isNativeRequire(context, node.callee as Rule.Node)) {
+          checkModuleArgument(node.arguments[0] as Rule.Node | undefined)
+        } else if (
+          node.callee.type === "MemberExpression" &&
+          getStaticMemberName(node.callee as Rule.Node) === "mock" &&
+          isRuntime(context, node.callee.object as Rule.Node)
+        ) {
+          checkModuleArgument(node.arguments[0] as Rule.Node | undefined, true)
         }
-
-        if (callNode.callee?.type === "Identifier" && callNode.callee.name === "require") {
-          checkModuleArgument(callNode.arguments?.[0])
+      },
+      ImportDeclaration(node) {
+        if (isValueImport(node)) {
+          checkModuleArgument(node.source as Rule.Node)
         }
       },
       ImportExpression(node) {

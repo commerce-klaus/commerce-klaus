@@ -219,6 +219,357 @@ describe("ESLint and Oxlint rule compatibility", () => {
     expect(output).toContain("sfcc(no-sfra-server)")
   })
 
+  test("exports the SFCC test preset through the published package root", () => {
+    const output = execFileSync(
+      process.execPath,
+      [
+        "--input-type=module",
+        "-e",
+        `import config, { createSfccTestConfig } from "@commerce-klaus/eslint-config-sfcc";
+         console.log(JSON.stringify({
+           rules: createSfccTestConfig()[0].rules,
+           preset: Boolean(config.configs["sfcc-test"]),
+           plugin: Boolean(config.plugins["sfcc-test"]),
+         }))`,
+      ],
+      { cwd: packageRoot, encoding: "utf8" },
+    )
+    expect(JSON.parse(output)).toEqual({
+      rules: {
+        "sfcc-test/no-cartridge-require": "error",
+        "sfcc-test/no-concurrent-runtime": "error",
+        "sfcc-test/no-hoisted-runtime-mock": "warn",
+        "sfcc-test/no-proxyquire": "warn",
+        "sfcc-test/no-static-cartridge-import": "warn",
+        "sfcc-test/no-tilde-import-outside-cartridge": "warn",
+        "sfcc-test/prefer-runtime-globals": "warn",
+        "sfcc-test/valid-mock-resolved-path": "error",
+      },
+      preset: true,
+      plugin: true,
+    })
+  })
+
+  test.each([
+    [
+      `import { vi as mocks } from "vitest"
+       mocks.hoisted(() => import("dw/system/Site"))`,
+      0,
+      ["no-hoisted-runtime-mock"],
+    ],
+    [
+      `import { resetSfccRuntime } from "@commerce-klaus/vitest-sfcc/runtime"
+       let runtime
+       beforeEach(() => { runtime = resetSfccRuntime() })
+       test("sample", () => runtime.mockResolved("./provider.js", {}))`,
+      1,
+      ["valid-mock-resolved-path"],
+    ],
+    [
+      `import { getSfccRuntime } from "@commerce-klaus/vitest-sfcc/runtime"
+       let runtime = getSfccRuntime()
+       runtime = other
+       runtime.mockResolved("./provider.js", {})
+       vi.hoisted(() => ({ load: () => import("dw/system/Site") }))`,
+      0,
+      [],
+    ],
+    [
+      `import { vi as mocks } from "vitest"
+       mocks.stubGlobal("request", {})
+       Reflect.deleteProperty(globalThis, "session")
+       Object.defineProperty(global, "customer", { value: {} })`,
+      0,
+      ["prefer-runtime-globals"],
+    ],
+    [
+      `import * as v from "vite-plus/test"
+       v.vi.stubGlobal("empty", () => false)
+       Object.assign(globalThis, { response: {} })`,
+      0,
+      ["prefer-runtime-globals"],
+    ],
+    [
+      `function local(vi, Reflect, Object, globalThis) {
+         vi.stubGlobal("request", {})
+         Reflect.deleteProperty(globalThis, "session")
+         Object.assign(globalThis, { response: {} })
+       }`,
+      0,
+      [],
+    ],
+    [
+      `const load = require("proxyquire").noCallThru().noPreserveCache()
+       load("./subject", { "./provider": {} })`,
+      0,
+      ["no-proxyquire"],
+    ],
+    [
+      `import load from "proxyquire"
+       await import("proxyquire/lib/proxyquire")
+       load("./subject", {})`,
+      0,
+      ["no-proxyquire"],
+    ],
+    [
+      `import type { Proxyquire } from "proxyquire"
+       function local(require) { return require("proxyquire") }
+       const proxyquire = (name, mocks) => mocks
+       proxyquire("./subject", {})`,
+      0,
+      [],
+    ],
+    [
+      `import { createRequire as factory } from "node:module"
+       const load = factory(import.meta.url)
+       load("../custom-cartridges/app_sample/cartridge/scripts/sample.js")
+       await import("~/cartridge/scripts/sample.js")`,
+      1,
+      ["no-cartridge-require", "no-tilde-import-outside-cartridge"],
+    ],
+    [
+      `import { getSfccRuntime } from "@commerce-klaus/vitest-sfcc/runtime"
+       getSfccRuntime().mock("~/cartridge/scripts/sample.js", {})
+       await import("*/cartridge/scripts/sample.js")
+       function local(require) { return require("dw/system/Site") }`,
+      0,
+      [],
+    ],
+    [
+      `import { vi as mocks } from "vite-plus/test"
+       import * as sfcc from "@commerce-klaus/vitest-sfcc/runtime"
+       mocks["hoisted"](() => {
+         const runtime = sfcc.getSfccRuntime()
+         runtime.mockResolved("./provider.js", {})
+       })`,
+      1,
+      ["no-hoisted-runtime-mock", "valid-mock-resolved-path"],
+    ],
+    [
+      `import { vi } from "vitest"
+       import { getSfccRuntime } from "@commerce-klaus/vitest-sfcc/runtime"
+       const runtime = getSfccRuntime()
+       runtime.mockResolved("/workspace/provider.js", {})
+       vi.mock("example", () => ({ setup: () => runtime.reset() }))
+       function local(vi) { vi.hoisted(() => runtime.reset()) }`,
+      0,
+      [],
+    ],
+    [
+      `import { test as check } from "vite-plus/test"
+       import { getSfccRuntime as getRuntime } from "@commerce-klaus/vitest-sfcc/runtime"
+       import sample from "../custom-cartridges/app_sample/cartridge/scripts/sample.js"
+       const runtime = getRuntime()
+       runtime.mock("dw/system/Site", {})
+       check.concurrent("example", () => { globalThis.request = sample })`,
+      1,
+      ["no-concurrent-runtime", "no-static-cartridge-import", "prefer-runtime-globals"],
+    ],
+    [
+      `import { test } from "vitest"
+       import { resetSfccRuntime } from "@commerce-klaus/vitest-sfcc/runtime"
+       test("example", async () => {
+         resetSfccRuntime().setGlobals({ request: {} })
+         await import("../custom-cartridges/app_sample/cartridge/scripts/sample.js")
+       })`,
+      0,
+      [],
+    ],
+    [
+      `import type { SfccTestRuntime } from "@commerce-klaus/vitest-sfcc/runtime"
+       import { type Sample } from "../custom-cartridges/app_sample/cartridge/scripts/sample.js"
+       test.concurrent("example", () => {})
+       function local(globalThis) { return globalThis.request }`,
+      0,
+      [],
+    ],
+  ])("runs the SFCC test plugin through its Oxlint export (%#)", (code, status, ruleNames) => {
+    const output = lintWithOxlint(
+      code,
+      "tests/sample.test.ts",
+      (temporaryDir) => {
+        const scripts = path.join(temporaryDir, "custom-cartridges/app_sample/cartridge/scripts")
+        fs.mkdirSync(scripts, { recursive: true })
+        fs.writeFileSync(path.join(scripts, "sample.js"), "module.exports = {}")
+        fs.writeFileSync(
+          path.join(temporaryDir, "oxlint.config.mjs"),
+          `import { createOxlintSfccTestOverride } from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
+           export default {
+             lint: {
+               categories: { correctness: "off" },
+               jsPlugins: ["@commerce-klaus/eslint-config-sfcc/oxlint/sfcc-test"],
+               settings: {
+                 sfcc: {
+                   configFile: false,
+                   cartridgesDir: ${JSON.stringify(path.join(temporaryDir, "custom-cartridges"))},
+                   cartridgePath: ["app_sample"],
+                 },
+               },
+               overrides: [createOxlintSfccTestOverride()],
+             },
+           }`,
+        )
+      },
+      status,
+    )
+    for (const name of ruleNames) {
+      expect(output).toContain(`sfcc-test(${name})`)
+    }
+    if (ruleNames.length === 0) {
+      expect(output).not.toContain("sfcc-test(")
+    }
+  })
+
+  test.each([
+    [false, `beforeEach(() => resetSfccRuntime())`, 1, true],
+    [true, `beforeEach(() => resetSfccRuntime())`, 0, false],
+    [
+      false,
+      `beforeEach(() => resetSfccRuntime()); afterEach(() => getSfccRuntime().reset())`,
+      0,
+      false,
+    ],
+    [false, `beforeEach(() => resetSfccRuntime()); afterEach(() => vi.restoreAllMocks())`, 1, true],
+    [
+      false,
+      `let runtime; beforeEach(() => { runtime = resetSfccRuntime() }); afterEach(() => runtime.reset())`,
+      0,
+      false,
+    ],
+  ])(
+    "runs opt-in runtime cleanup through the Oxlint export (%#)",
+    (externalCleanup, code, status, reports) => {
+      const output = lintWithOxlint(
+        `import { resetSfccRuntime, getSfccRuntime } from "@commerce-klaus/vitest-sfcc/runtime"; ${code}`,
+        "tests/sample.test.ts",
+        (temporaryDir) => {
+          fs.writeFileSync(
+            path.join(temporaryDir, "oxlint.config.mjs"),
+            `export default {
+            lint: {
+              categories: { correctness: "off" },
+              jsPlugins: ["@commerce-klaus/eslint-config-sfcc/oxlint/sfcc-test"],
+              overrides: [{
+                files: ["**/*.test.ts"],
+                rules: { "sfcc-test/require-runtime-cleanup": ["error", { externalCleanup: ${externalCleanup} }] },
+              }],
+            },
+          }`,
+          )
+        },
+        status,
+      )
+      expect(output.includes("sfcc-test(require-runtime-cleanup)")).toBe(reports)
+    },
+  )
+
+  test("fixes actual import extensions but preserves context-dependent mock IDs in Oxlint", () => {
+    const temporaryDir = fs.mkdtempSync(path.join(os.tmpdir(), "commerce-klaus-test-extensions-"))
+    try {
+      const configFile = path.join(temporaryDir, "oxlint.config.mjs")
+      const sampleFile = path.join(temporaryDir, "sample.test.ts")
+      const packageLink = path.join(temporaryDir, "node_modules/@commerce-klaus/eslint-config-sfcc")
+      const scripts = path.join(temporaryDir, "cartridges/app_sample/cartridge/scripts")
+      fs.mkdirSync(path.dirname(packageLink), { recursive: true })
+      fs.symlinkSync(packageRoot, packageLink, "junction")
+      fs.mkdirSync(scripts, { recursive: true })
+      fs.writeFileSync(path.join(scripts, "sample.js"), "module.exports = {}")
+      fs.writeFileSync(path.join(temporaryDir, "sample.json"), "{}")
+      fs.writeFileSync(
+        configFile,
+        `export default {
+          lint: {
+            categories: { correctness: "off" },
+            jsPlugins: ["@commerce-klaus/eslint-config-sfcc/oxlint/sfcc-test"],
+            settings: { sfcc: { configFile: false, cartridgePath: ["app_sample"] } },
+            overrides: [{
+              files: ["**/*.test.ts"],
+              rules: { "sfcc-test/require-file-extension": "error" },
+            }],
+          },
+        }`,
+      )
+      fs.writeFileSync(
+        sampleFile,
+        `import * as sfcc from "@commerce-klaus/vitest-sfcc/runtime"
+         import type Sample from "./cartridges/app_sample/cartridge/scripts/sample"
+         const subject = await import("./cartridges/app_sample/cartridge/scripts/sample")
+         sfcc.getSfccRuntime().mock("./sample", {})
+         sfcc.getSfccRuntime().mock("~/cartridge/scripts/sample.js", {})
+         sfcc.getSfccRuntime().mock("dw/system/Site", {})
+         sfcc.getSfccRuntime().mock("server", {})`,
+      )
+      const result = spawnSync(oxlint, ["--config", configFile, "--fix", sampleFile], {
+        cwd: temporaryDir,
+        encoding: "utf8",
+      })
+
+      expect(result.status, `${result.stdout}${result.stderr}`).toBe(1)
+      expect(`${result.stdout}${result.stderr}`).toContain("sfcc-test(require-file-extension)")
+      const output = fs.readFileSync(sampleFile, "utf8")
+      expect(output).toContain('import("./cartridges/app_sample/cartridge/scripts/sample.js")')
+      expect(output).toContain(
+        'import type Sample from "./cartridges/app_sample/cartridge/scripts/sample"',
+      )
+      expect(output).toContain('mock("./sample", {})')
+      expect(output).not.toContain('mock("./sample.json"')
+      expect(output).toContain('mock("dw/system/Site", {})')
+      expect(output).toContain('mock("server", {})')
+    } finally {
+      fs.rmSync(temporaryDir, { recursive: true, force: true })
+    }
+  })
+
+  test.each([
+    [
+      `const runtime = getSfccRuntime(); beforeEach(() => resetSfccRuntime()); test("sample", () => runtime.reset())`,
+      true,
+    ],
+    [
+      `let runtime; beforeEach(() => { runtime = resetSfccRuntime() }); test("sample", () => runtime.reset())`,
+      false,
+    ],
+    [
+      `const runtime = getSfccRuntime(); describe("first", () => { beforeEach(() => resetSfccRuntime()) }); describe("second", () => { test("sample", () => runtime.reset()) })`,
+      false,
+    ],
+  ])("exposes opt-in stale-runtime analysis in ESLint and Oxlint (%#)", async (body, reports) => {
+    const code = `import { getSfccRuntime, resetSfccRuntime } from "@commerce-klaus/vitest-sfcc/runtime"; ${body}`
+    const eslint = new ESLint({
+      overrideConfigFile: true,
+      overrideConfig: [
+        {
+          plugins: { "sfcc-test": (await import("../dist/index.mjs")).sfccTestPlugin },
+          rules: { "sfcc-test/no-stale-runtime-reference": "warn" },
+        },
+      ],
+    })
+    const results = await eslint.lintText(code, { filePath: "sample.test.js" })
+    expect(
+      results[0]?.messages.filter(
+        (message) => message.ruleId === "sfcc-test/no-stale-runtime-reference",
+      ),
+    ).toHaveLength(reports ? 1 : 0)
+    const output = lintWithOxlint(
+      code,
+      "sample.test.js",
+      (temporaryDir) => {
+        fs.writeFileSync(
+          path.join(temporaryDir, "oxlint.config.mjs"),
+          `export default {
+        lint: {
+          categories: { correctness: "off" },
+          jsPlugins: ["@commerce-klaus/eslint-config-sfcc/oxlint/sfcc-test"],
+          rules: { "sfcc-test/no-stale-runtime-reference": "error" },
+        },
+      }`,
+        )
+      },
+      reports ? 1 : 0,
+    )
+    expect(output.includes("sfcc-test(no-stale-runtime-reference)")).toBe(reports)
+  })
+
   test("applies the empty migration override through the Oxlint subpath", () => {
     const temporaryDir = fs.mkdtempSync(path.join(os.tmpdir(), "commerce-klaus-oxlint-empty-"))
 

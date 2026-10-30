@@ -1,6 +1,7 @@
 import {
   createCartridgeArchitectureConfig,
   createRecommendedConfig,
+  createSfccTestConfig,
 } from "@commerce-klaus/eslint-config-sfcc"
 import js from "@eslint/js"
 import tseslint from "@typescript-eslint/eslint-plugin"
@@ -27,6 +28,15 @@ export default defineConfig(
   },
   createRecommendedConfig(),
   createCartridgeArchitectureConfig(),
+  createSfccTestConfig(),
+  {
+    files: ["tests/**/*.js"],
+    rules: {
+      "sfcc-test/require-file-extension": "warn",
+      "sfcc-test/require-runtime-cleanup": "warn",
+      "sfcc-test/no-stale-runtime-reference": "warn",
+    },
+  },
   {
     files: ["cartridges/*/cartridge/controllers/*.js"],
     rules: {

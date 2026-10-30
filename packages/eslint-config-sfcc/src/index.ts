@@ -10,9 +10,11 @@ import generatedTypes, { createGeneratedTypesConfig } from "./configs/generated-
 import oxlint, {
   createOxlintArchitectureOverrides,
   createOxlintEmptyMigrationOverride,
+  createOxlintSfccTestOverride,
   oxlintRules,
 } from "./configs/oxlint.js"
 import recommended, { createRecommendedConfig } from "./configs/recommended.js"
+import sfccTest, { createSfccTestConfig, sfccTestRules } from "./configs/sfcc-test.js"
 import {
   createStorefrontConfig,
   createCartridgeArchitectureConfig,
@@ -23,6 +25,7 @@ import {
   sitegenesisPipelines,
   storefrontNext,
 } from "./configs/storefront.js"
+import sfccTestPlugin from "./plugins/sfcc-test/index.js"
 import sfccPlugin from "./plugins/sfcc/index.js"
 import sitegenesis from "./plugins/sitegenesis/index.js"
 
@@ -32,6 +35,7 @@ type Configs = {
   "empty-migration": Linter.Config[]
   "generated-types": Linter.Config[]
   recommended: Linter.Config[]
+  "sfcc-test": Linter.Config[]
   "storefront-next": Linter.Config[]
   pwa: Linter.Config[]
   sfra: Linter.Config[]
@@ -45,6 +49,7 @@ const configs: Configs = {
   "empty-migration": emptyMigration,
   "generated-types": generatedTypes,
   recommended,
+  "sfcc-test": sfccTest,
   "storefront-next": storefrontNext,
   pwa,
   sfra,
@@ -54,6 +59,7 @@ const configs: Configs = {
 
 const plugins = {
   sfcc: sfccPlugin,
+  "sfcc-test": sfccTestPlugin,
   sitegenesis,
 }
 
@@ -74,6 +80,9 @@ export {
   plugins,
   recommended,
   sfccPlugin as sfcc,
+  sfccTest,
+  sfccTestPlugin,
+  sfccTestRules,
   storefrontNext,
   pwa,
   sfra,
@@ -88,12 +97,15 @@ export {
   createGeneratedTypesConfig,
   createOxlintArchitectureOverrides,
   createOxlintEmptyMigrationOverride,
+  createOxlintSfccTestOverride,
   createRecommendedConfig,
+  createSfccTestConfig,
   createStorefrontConfig,
 }
 export type { CompatibilityConfigOptions, CompatibilityVersion } from "./configs/compatibility.js"
 export type { EmptyMigrationConfigOptions } from "./configs/empty-migration.js"
 export type { GeneratedTypesConfigOptions } from "./configs/generated-types.js"
+export type { SfccTestConfigOptions } from "./configs/sfcc-test.js"
 export type { OxlintArchitectureOverride, OxlintRuleOverride } from "./configs/oxlint.js"
 export type {
   CartridgeArchitectureConfigOptions,

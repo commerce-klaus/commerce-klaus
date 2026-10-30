@@ -289,6 +289,56 @@ export default defineConfig({
               ],
             },
             {
+              text: "SFCC tests",
+              collapsed: true,
+              items: [
+                {
+                  text: "no-cartridge-require",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc-test/no-cartridge-require",
+                },
+                {
+                  text: "no-concurrent-runtime",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc-test/no-concurrent-runtime",
+                },
+                {
+                  text: "no-hoisted-runtime-mock",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc-test/no-hoisted-runtime-mock",
+                },
+                {
+                  text: "no-proxyquire",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc-test/no-proxyquire",
+                },
+                {
+                  text: "no-static-cartridge-import",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc-test/no-static-cartridge-import",
+                },
+                {
+                  text: "no-stale-runtime-reference",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc-test/no-stale-runtime-reference",
+                },
+                {
+                  text: "no-tilde-import-outside-cartridge",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc-test/no-tilde-import-outside-cartridge",
+                },
+                {
+                  text: "prefer-runtime-globals",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc-test/prefer-runtime-globals",
+                },
+                {
+                  text: "require-file-extension",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc-test/require-file-extension",
+                },
+                {
+                  text: "require-runtime-cleanup",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc-test/require-runtime-cleanup",
+                },
+                {
+                  text: "valid-mock-resolved-path",
+                  link: "/packages/eslint-config-sfcc/rules/sfcc-test/valid-mock-resolved-path",
+                },
+              ],
+            },
+            {
               text: "SiteGenesis",
               collapsed: true,
               items: [

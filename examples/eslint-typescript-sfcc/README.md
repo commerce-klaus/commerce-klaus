@@ -92,6 +92,18 @@ base implementation from `app_example`. It also resets the SFCC test runtime
 with a site ID and custom preference before dynamically importing cartridge
 code that reads the current `dw/system/Site`.
 
+The separate `sfcc-test` ESLint preset checks test patterns without applying cartridge
+language restrictions to the test files. It guards against concurrent runtime use,
+eager cartridge imports alongside runtime setup, and unmanaged SFCC global access.
+It also guards against native SFCC `require()` calls and `~/` imports without an
+importing cartridge. The example opts into explicit file extensions for test
+imports and runtime mock IDs; platform IDs such as `dw/system/Site` remain extensionless.
+It also opts into `require-runtime-cleanup` and resets the existing runtime in
+`afterEach()` rather than replacing it with a new instance.
+The opt-in `no-stale-runtime-reference` rule also guards against capturing an
+active instance before `beforeEach()` replaces it.
+`vp run lint` checks both cartridges and tests; `vp run lint:tests` checks only tests.
+
 Force a refresh after changing metadata, sandbox details, or the API version
 with:
 

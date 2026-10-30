@@ -3,6 +3,7 @@ import type { Linter } from "eslint"
 import sfccRules from "../rules/sfcc.js"
 import sitegenesisRules from "../rules/sitegenesis.js"
 import { createEmptyMigrationConfig, type EmptyMigrationConfigOptions } from "./empty-migration.js"
+import { createSfccTestConfig, type SfccTestConfigOptions } from "./sfcc-test.js"
 import {
   cartridgeArchitectureRules,
   createCartridgeArchitectureConfig,
@@ -28,6 +29,17 @@ export interface OxlintRuleOverride {
 }
 
 export type OxlintArchitectureOverride = OxlintRuleOverride
+
+/** Creates an opt-in Oxlint override for SFCC tests. Register the sfcc-test JS plugin separately. */
+export function createOxlintSfccTestOverride(
+  options: Omit<SfccTestConfigOptions, "sfcc"> = {},
+): OxlintRuleOverride {
+  const [config] = createSfccTestConfig(options)
+  if (!config) {
+    throw new TypeError("The SFCC test config did not produce an override.")
+  }
+  return toOxlintRuleOverride(config)
+}
 
 function getIndividualGlobs(
   globs: NonNullable<Linter.Config["files"]>,

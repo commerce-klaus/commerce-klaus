@@ -296,6 +296,45 @@ Authentication and authorization declarations, non-JSON media types, response he
 
 ## Dependency mocking
 
+Vite root-relative cartridge URLs are resolved against the configured Vite root
+when loading transformed CommonJS modules. Existing absolute filesystem paths
+remain unchanged; Super Module lookup uses the resolved cartridge file.
+
+The optional [SFCC test lint preset](../eslint-config-sfcc/#sfcc-test-patterns)
+checks concurrent runtime use, static SFCC imports alongside runtime setup,
+runtime mutations in hoisted mock factories, non-absolute exact-file mock paths,
+and direct access to SFCC globals through `globalThis` or `global`. It runs in ESLint
+and Oxlint without applying cartridge runtime restrictions to test files.
+
+Global checks also cover `vi.stubGlobal()` and static reflection operations for
+known SFCC globals. The separate opt-in
+[`require-runtime-cleanup` rule](../eslint-config-sfcc/rules/sfcc-test/require-runtime-cleanup.md)
+checks for a runtime reset in `afterEach()` in the same suite or an ancestor.
+Reset the existing instance with `getSfccRuntime().reset()`; replacing it with
+`resetSfccRuntime()` does not restore the previous instance's globals.
+Projects with verified central cleanup can declare `{ externalCleanup: true }`.
+
+The preset also warns about SFCC imports directly inside `vi.hoisted()`.
+For projects replacing the active runtime in `beforeEach()`, the opt-in
+[`no-stale-runtime-reference` rule](../eslint-config-sfcc/rules/sfcc-test/no-stale-runtime-reference.md)
+reports test and cleanup callbacks using an instance captured earlier at
+file/suite scope. Fetch it inside the callback instead, or assign the newly
+created instance to a shared binding in `beforeEach()`.
+
+Test files should load SFCC modules with Vite imports, not native Node.js `require()`.
+Use `await import()` after setting up the runtime. Actual `~/` imports require the
+test itself to belong to a configured cartridge; a `~/` mock key instead matches
+the dependency identifier used by cartridge code and is valid from an external test.
+`*/` is an SFCC module prefix, not a glob matching every form of mock identifier.
+The test preset checks native cartridge requires and contextless tilde imports.
+An additional opt-in extension rule checks file imports and runtime mock IDs,
+leaving platform modules such as `dw/system/Site` and `server` extensionless.
+
+The preset's [`no-proxyquire` rule](../eslint-config-sfcc/rules/sfcc-test/no-proxyquire.md)
+reports Proxyquire imports and require calls as migration warnings, including chained
+`.noCallThru()` loading patterns. Replace dependency maps deliberately; runtime mocks
+do not automatically reproduce Proxyquire's call-through, global-stub, or cache options.
+
 Register replacements before dynamically importing the module under test:
 
 ```ts

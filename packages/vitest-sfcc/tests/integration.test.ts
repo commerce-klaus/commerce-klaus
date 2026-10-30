@@ -21,6 +21,29 @@ declare global {
 }
 
 describe("vitest-sfcc", () => {
+  it("loads root-relative marked cartridge URLs using the resolved Vite root", () => {
+    const root = path.resolve(import.meta.dirname, "..")
+    const plugin = sfccVitest({
+      cwd: os.tmpdir(),
+      configFile: false,
+      basePath: path.join(root, "tests/cartridges"),
+      cartridgePath: ["app_custom", "app_base"],
+    })
+    plugin.configResolved({ root })
+    const file = "/tests/cartridges/app_custom/cartridge/scripts/inherited.js"
+    const absolute = path.join(root, file)
+    const marked = `${file}?vitest-sfcc-cjs`
+    expect(plugin.resolveId(marked)).toBe(`${absolute}?vitest-sfcc-cjs`)
+    expect(plugin.load(marked)).toBe(fs.readFileSync(absolute, "utf8"))
+    const transformed = plugin.transform(plugin.load(marked)!, marked)
+    expect(transformed?.code).toContain(
+      JSON.stringify(path.join(root, "tests/cartridges/app_base/cartridge/scripts/inherited.js")),
+    )
+    expect(plugin.resolveId(`${absolute}?vitest-sfcc-cjs`)).toBe(`${absolute}?vitest-sfcc-cjs`)
+    expect(() => plugin.load("/vite.config.ts?vitest-sfcc-cjs")).toThrow("ENOENT")
+    expect(() => plugin.load("/tests/missing.js?vitest-sfcc-cjs")).toThrow("ENOENT")
+  })
+
   beforeEach(() => {
     vi.resetModules()
     getSfccRuntime().reset()
