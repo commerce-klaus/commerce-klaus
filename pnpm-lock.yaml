@@ -175,7 +175,7 @@ catalogs:
       version: 5.1.10
     '@salesforce/b2c-cli':
       specifier: ^2.0.0
-      version: 2.10.1
+      version: 2.10.2
     '@types/node':
       specifier: ^26.0.0
       version: 26.6.6
@@ -280,7 +280,7 @@ importers:
         version: 10.0.1(eslint@10.13.0(jiti@2.7.0)(supports-color@8.1.1))
       '@salesforce/b2c-cli':
         specifier: 'catalog:'
-        version: 2.10.1(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.10.2(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.6
@@ -328,7 +328,7 @@ importers:
         version: link:../../packages/vite-plugin-sfcc-modules
       '@salesforce/b2c-cli':
         specifier: 'catalog:'
-        version: 2.10.1(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.10.2(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.6
@@ -368,7 +368,7 @@ importers:
         version: 5.1.10
       '@salesforce/b2c-cli':
         specifier: 'catalog:'
-        version: 2.10.1(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.10.2(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.6
@@ -541,7 +541,7 @@ importers:
         version: 5.1.10
       '@salesforce/b2c-cli':
         specifier: '>=1.18.0'
-        version: 2.10.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.10.2(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       typescript-legacy:
         specifier: 'catalog:'
         version: '@typescript/typescript6@6.0.2'
@@ -1715,29 +1715,13 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@salesforce/b2c-cli@2.10.0':
-    resolution: {integrity: sha512-Toh8f2wvOIqjMdZSmGBSII5MqCDaouB67jaVkdgdDr6dILbg5e5Am6arDI3gwlig7dy4nRyqYL3V3+0dMK6fpg==}
+  '@salesforce/b2c-cli@2.10.2':
+    resolution: {integrity: sha512-9r4Cxb6fthMyLIK/HztzytKBotpiPp6Wr0Fmo4V8MYMu5UjcrKyN6FraKXkFSwr/QO22W1wYoXdiHkiaVYWvXw==}
     engines: {node: '>=22.16.0'}
     hasBin: true
 
-  '@salesforce/b2c-cli@2.10.1':
-    resolution: {integrity: sha512-92oKOR6c335kryu+vrxGh2NcZV8zhr1PEtI9WD5FbS4Vudq+uFiBq6Hv0T3ENU4O9b6rAJPVb2IP4NAJYnAowQ==}
-    engines: {node: '>=22.16.0'}
-    hasBin: true
-
-  '@salesforce/b2c-tooling-sdk@2.10.0':
-    resolution: {integrity: sha512-qM78d00rq9jydvu9gi11UlNKNG18Xj7RUUAC/W9EskyZn3DcVHFMeazfX49jaHyJoEoesR2/xkDfS4IIk7AAgQ==}
-    engines: {node: '>=22.16.0'}
-    peerDependencies:
-      '@oclif/core': ^4
-    peerDependenciesMeta:
-      '@oclif/core':
-        optional: true
-    bundledDependencies:
-      - '@salesforce/b2c-api-schemas'
-
-  '@salesforce/b2c-tooling-sdk@2.10.1':
-    resolution: {integrity: sha512-fIFa3xeE3pEZOrvpIS1Aj5hEDruvcpo5sJhtx3WaKSxvyUr6C10xCWRDrf4ZmUTDRvBEbl5E01WS1WTPawddrQ==}
+  '@salesforce/b2c-tooling-sdk@2.10.2':
+    resolution: {integrity: sha512-YGkKak7GrvrCzDxDolGcdw/5UxiCfyrpynvgm0BsqYVu74S6bidVjarIl0+W8H8YyMNH3NGB0X7f9p9XWbtLRw==}
     engines: {node: '>=22.16.0'}
     peerDependencies:
       '@oclif/core': ^4
@@ -5971,7 +5955,7 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@salesforce/b2c-cli@2.10.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)':
+  '@salesforce/b2c-cli@2.10.2(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)':
     dependencies:
       '@inquirer/prompts': 8.2.0(@types/node@26.6.6)
       '@oclif/core': 4.8.0
@@ -5981,7 +5965,7 @@ snapshots:
       '@oclif/plugin-plugins': 5.4.53(supports-color@8.1.1)
       '@oclif/plugin-version': 2.2.36
       '@oclif/plugin-warn-if-update-available': 3.1.52(supports-color@8.1.1)
-      '@salesforce/b2c-tooling-sdk': 2.10.0(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)
+      '@salesforce/b2c-tooling-sdk': 2.10.2(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)
       cliui: 9.0.1
       glob: 13.0.0
       marked: 15.0.12
@@ -5995,62 +5979,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@salesforce/b2c-cli@2.10.1(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)':
-    dependencies:
-      '@inquirer/prompts': 8.2.0(@types/node@26.6.6)
-      '@oclif/core': 4.8.0
-      '@oclif/plugin-autocomplete': 3.2.39(supports-color@8.1.1)
-      '@oclif/plugin-help': 6.2.35
-      '@oclif/plugin-not-found': 3.2.72(@types/node@26.6.6)
-      '@oclif/plugin-plugins': 5.4.53(supports-color@8.1.1)
-      '@oclif/plugin-version': 2.2.36
-      '@oclif/plugin-warn-if-update-available': 3.1.52(supports-color@8.1.1)
-      '@salesforce/b2c-tooling-sdk': 2.10.1(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)
-      cliui: 9.0.1
-      glob: 13.0.0
-      marked: 15.0.12
-      marked-terminal: 7.3.0(marked@15.0.12)
-      open: 11.0.0
-    transitivePeerDependencies:
-      - '@types/node'
-      - bare-abort-controller
-      - bare-buffer
-      - react-native-b4a
-      - supports-color
-      - typescript
-
-  '@salesforce/b2c-tooling-sdk@2.10.0(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)':
-    dependencies:
-      '@vscode/debugadapter': 1.68.0
-      chokidar: 5.0.0
-      cliui: 9.0.1
-      ejs: 3.1.10
-      glob: 13.0.0
-      i18next: 25.7.4(@typescript/typescript6@6.0.2)
-      jiti: 2.6.1
-      js-yaml: 4.3.2
-      jsonschema: 1.5.0
-      jszip: 3.10.1
-      minimatch: 10.2.4
-      minisearch: 7.2.0
-      node-forge: 1.4.1
-      open: 11.0.0
-      openapi-fetch: 0.15.0
-      pino: 10.1.0
-      pino-pretty: 13.1.2
-      protobufjs: 7.6.6
-      tar-fs: 3.1.2
-      undici: 7.30.1
-      xml2js: 0.6.2
-    optionalDependencies:
-      '@oclif/core': 4.8.0
-    transitivePeerDependencies:
-      - bare-abort-controller
-      - bare-buffer
-      - react-native-b4a
-      - typescript
-
-  '@salesforce/b2c-tooling-sdk@2.10.1(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)':
+  '@salesforce/b2c-tooling-sdk@2.10.2(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)':
     dependencies:
       '@vscode/debugadapter': 1.68.0
       chokidar: 5.0.0
