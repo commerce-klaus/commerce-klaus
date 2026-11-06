@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.8.1
+
+### Patch Changes
+
+- 086f831: Align generated custom-attribute types more closely with Salesforce Script API semantics: enum values expose their `value` property, and quantity attributes use `dw.value.Quantity` instead of `number`.
+
 ## 1.8.0
 
 ### Minor Changes
