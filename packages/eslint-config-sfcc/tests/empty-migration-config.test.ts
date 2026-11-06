@@ -42,6 +42,17 @@ test("creates an equivalent Oxlint migration override", () => {
   })
 })
 
+test("preserves explicit SFCC settings in the ESLint migration overlay", () => {
+  const config = createEmptyMigrationConfig({
+    files: ["commerce/**/*.js"],
+    sfcc: { cartridgesDir: "commerce" },
+  })
+
+  expect(config[0]?.settings).toEqual({
+    sfcc: expect.objectContaining({ cartridgesDir: "commerce" }),
+  })
+})
+
 test("fixes known calls and leaves ambiguous calls for review", async () => {
   const eslint = new ESLint({
     fix: true,

@@ -31,6 +31,7 @@
     "./configs/eslint-after-oxlint": "./dist/configs/eslint-after-oxlint.mjs",
     "./configs/oxlint": "./dist/configs/oxlint.mjs",
     "./formatters/empty-migration": "./dist/formatters/empty-migration.mjs",
+    "./oxlint/es-x": "./dist/oxlint/es-x.mjs",
     "./oxlint/sfcc": "./dist/oxlint/sfcc.mjs",
     "./oxlint/sfcc-test": "./dist/oxlint/sfcc-test.mjs",
     "./oxlint/sitegenesis": "./dist/oxlint/sitegenesis.mjs",

@@ -1,13 +1,26 @@
 import type { Linter } from "eslint"
 
+import pluginESx from "eslint-plugin-es-x"
+
+import esRules from "../rules/es.js"
 import sfccRules from "../rules/sfcc.js"
 import sitegenesisRules from "../rules/sitegenesis.js"
+import {
+  createCompatibilityConfig,
+  type CompatibilityConfigOptions,
+  type CompatibilityVersion,
+} from "./compatibility.js"
 import { createEmptyMigrationConfig, type EmptyMigrationConfigOptions } from "./empty-migration.js"
+import { createGeneratedTypesConfig, type GeneratedTypesConfigOptions } from "./generated-types.js"
+import { createRecommendedConfig, type RecommendedConfigOptions } from "./recommended.js"
 import { createSfccTestConfig, type SfccTestConfigOptions } from "./sfcc-test.js"
 import {
   cartridgeArchitectureRules,
   createCartridgeArchitectureConfig,
+  createStorefrontConfig,
   type CartridgeArchitectureConfigOptions,
+  type StorefrontConfigOptions,
+  type StorefrontPreset,
 } from "./storefront.js"
 
 const {
@@ -17,10 +30,17 @@ const {
   ...oxlintSfccRules
 } = sfccRules
 
-export const oxlintRules: Record<string, "error" | "warn"> = {
+const restrictToES2015Rules = pluginESx.configs["restrict-to-es2015"].rules ?? {}
+
+export const oxlintEsRules: NonNullable<Linter.Config["rules"]> = {
+  ...restrictToES2015Rules,
+  ...esRules,
+}
+
+export const oxlintRules: NonNullable<Linter.Config["rules"]> = {
   ...oxlintSfccRules,
   ...sitegenesisRules,
-} as Record<string, "error" | "warn">
+}
 
 export interface OxlintRuleOverride {
   files: string[]
@@ -29,6 +49,51 @@ export interface OxlintRuleOverride {
 }
 
 export type OxlintArchitectureOverride = OxlintRuleOverride
+
+export type OxlintRecommendedOverrideOptions = Pick<
+  RecommendedConfigOptions,
+  "cartridgesDir" | "files" | "ignores"
+>
+
+/** Creates the Oxlint override for the same recommended JavaScript rules used by ESLint. */
+export function createOxlintRecommendedOverride(
+  options: OxlintRecommendedOverrideOptions = {},
+): OxlintRuleOverride {
+  const [config] = createRecommendedConfig(options)
+  if (!config) {
+    throw new TypeError("The recommended SFCC config did not produce an override.")
+  }
+  return toOxlintRuleOverride({
+    ...config,
+    rules: {
+      ...oxlintEsRules,
+      ...oxlintRules,
+    },
+  })
+}
+
+/** Creates an Oxlint overlay for an older SFCC compatibility mode. */
+export function createOxlintCompatibilityOverride(
+  version: CompatibilityVersion,
+  options: CompatibilityConfigOptions = {},
+): OxlintRuleOverride {
+  const [config] = createCompatibilityConfig(version, options)
+  if (!config) {
+    throw new TypeError("The SFCC compatibility config did not produce an override.")
+  }
+  return toOxlintRuleOverride(config)
+}
+
+/** Creates the Oxlint override that requires generated project types. */
+export function createOxlintGeneratedTypesOverride(
+  options: Omit<GeneratedTypesConfigOptions, "sfcc"> = {},
+): OxlintRuleOverride {
+  const [config] = createGeneratedTypesConfig(options)
+  if (!config) {
+    throw new TypeError("The generated types config did not produce an override.")
+  }
+  return toOxlintRuleOverride(config)
+}
 
 /** Creates an opt-in Oxlint override for SFCC tests. Register the sfcc-test JS plugin separately. */
 export function createOxlintSfccTestOverride(
@@ -68,6 +133,18 @@ function toOxlintRuleOverride(config: Linter.Config): OxlintRuleOverride {
   }
 }
 
+/** Creates an Oxlint storefront policy overlay for all or selected cartridges. */
+export function createOxlintStorefrontOverride(
+  preset: StorefrontPreset,
+  options: StorefrontConfigOptions = {},
+): OxlintRuleOverride {
+  const [config] = createStorefrontConfig(preset, options)
+  if (!config) {
+    throw new TypeError("The storefront config did not produce an override.")
+  }
+  return toOxlintRuleOverride(config)
+}
+
 /** Creates Oxlint overrides from central or explicit cartridge architecture assignments. */
 export function createOxlintArchitectureOverrides(
   options: CartridgeArchitectureConfigOptions = {},
@@ -77,7 +154,7 @@ export function createOxlintArchitectureOverrides(
 
 /** Creates an Oxlint override that reports every global empty() call and safely fixes known cases. */
 export function createOxlintEmptyMigrationOverride(
-  options: EmptyMigrationConfigOptions = {},
+  options: Omit<EmptyMigrationConfigOptions, "sfcc"> = {},
 ): OxlintRuleOverride {
   const [config] = createEmptyMigrationConfig(options)
   if (!config) {
@@ -88,12 +165,18 @@ export function createOxlintEmptyMigrationOverride(
 
 export { cartridgeArchitectureRules }
 
-const oxlint: { jsPlugins: string[]; rules: typeof oxlintRules } = {
+const oxlint: {
+  jsPlugins: string[]
+  rules: NonNullable<Linter.Config["rules"]>
+  overrides: OxlintRuleOverride[]
+} = {
   jsPlugins: [
+    "@commerce-klaus/eslint-config-sfcc/oxlint/es-x",
     "@commerce-klaus/eslint-config-sfcc/oxlint/sfcc",
     "@commerce-klaus/eslint-config-sfcc/oxlint/sitegenesis",
   ],
-  rules: oxlintRules,
+  rules: {},
+  overrides: [createOxlintRecommendedOverride()],
 }
 
 export default { lint: oxlint }

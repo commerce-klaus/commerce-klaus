@@ -35,6 +35,10 @@ export default defineConfig({
     jsPlugins: hasSfccOxlintPlugins
       ? [
           {
+            name: "es-x",
+            specifier: path.join(sfccOxlintPluginDirectory, "es-x.mjs"),
+          },
+          {
             name: "sfcc",
             specifier: path.join(sfccOxlintPluginDirectory, "sfcc.mjs"),
           },
@@ -49,7 +53,7 @@ export default defineConfig({
       ? [
           {
             files: ["examples/oxlint-eslint-sfcc/cartridges/**"],
-            rules: sfccOxlint!.lint.rules,
+            rules: sfccOxlint!.lint.overrides[0]!.rules,
           },
         ]
       : [],

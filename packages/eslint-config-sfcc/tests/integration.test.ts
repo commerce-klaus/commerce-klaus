@@ -8,6 +8,7 @@ import path from "node:path"
 import { beforeAll, expect, test, describe } from "vite-plus/test"
 
 import { createEslintAfterOxlintConfig } from "../src/configs/eslint-after-oxlint.js"
+import { oxlintEsRules } from "../src/configs/oxlint.js"
 import { createRecommendedConfig } from "../src/configs/recommended.js"
 import sfcc from "../src/plugins/sfcc/index.js"
 import sitegenesis from "../src/plugins/sitegenesis/index.js"
@@ -77,7 +78,7 @@ const INTEGRATION_TEST_TIMEOUT = 30_000
 
 function lintWithOxlint(
   code: string,
-  relativeFilePath = "sample.js",
+  relativeFilePath = "cartridges/app_sfra/cartridge/scripts/sample.js",
   setup?: (temporaryDir: string) => void,
   expectedStatus = 1,
 ): string {
@@ -211,9 +212,14 @@ describe("ESLint and Oxlint rule compatibility", () => {
       const message = messages.find((item) => item.ruleId === eslintRuleId)
 
       expect(message?.severity).toBe(expectedEslintSeverity)
-      expect(lintWithOxlint(code, relativeFilePath, undefined, expectedOxlintStatus)).toContain(
-        oxlintRuleId,
-      )
+      expect(
+        lintWithOxlint(
+          code,
+          `cartridges/app_sfra/cartridge/scripts/${relativeFilePath}`,
+          undefined,
+          expectedOxlintStatus,
+        ),
+      ).toContain(oxlintRuleId)
     },
     INTEGRATION_TEST_TIMEOUT,
   )
@@ -248,10 +254,13 @@ describe("ESLint and Oxlint rule compatibility", () => {
           export default {
             lint: {
               ...sfcc.lint,
-              overrides: createOxlintArchitectureOverrides({
-                configFile: false,
-                architectures: { "storefront-next": ["app_headless"] },
-              }),
+              overrides: [
+                ...sfcc.lint.overrides,
+                ...createOxlintArchitectureOverrides({
+                  configFile: false,
+                  architectures: { "storefront-next": ["app_headless"] },
+                }),
+              ],
             },
           }\n`,
         )
@@ -721,9 +730,37 @@ describe("ESLint and Oxlint rule compatibility", () => {
       "No files found to lint",
     )
   })
+
+  test("runs sfcc/valid-step-type-definition through ESLint when Oxlint ignores JSON", async () => {
+    const code = JSON.stringify({
+      "step-types": {
+        "script-module-step": [{ "@type-id": "custom.MissingModule" }],
+      },
+    })
+    const messages = await lintAfterOxlint(code, "cartridges/app_custom/steptypes.json")
+
+    expect(messages.some((message) => message.ruleId === "sfcc/valid-step-type-definition")).toBe(
+      true,
+    )
+    expect(lintWithOxlint(code, "cartridges/app_custom/steptypes.json")).toContain(
+      "No files found to lint",
+    )
+  })
 })
 
 describe("✅ ES baseline wiring", () => {
+  test("✅ Oxlint mirrors the complete ESLint ES compatibility baseline", () => {
+    const expectedRules = {
+      ...pluginESx.configs["restrict-to-es2015"].rules,
+      ...esOverrides,
+    }
+    const actualRules = Object.fromEntries(
+      Object.entries(oxlintEsRules).filter(([rule]) => rule.startsWith("es-x/")),
+    )
+
+    expect(actualRules).toEqual(expectedRules)
+  })
+
   test("✅ no-optional-chaining comes from recommended baseline, not es overrides", async () => {
     expect(esOverrides["es-x/no-optional-chaining"]).toBeUndefined()
 
@@ -733,6 +770,88 @@ describe("✅ ES baseline wiring", () => {
     `)
 
     expect(messages.some((m) => m.ruleId === "es-x/no-optional-chaining")).toBe(true)
+  })
+
+  test.each([
+    ["nullish coalescing", "const value = input ?? fallback", "no-nullish-coalescing-operators"],
+    ["optional chaining", "const value = input?.value", "no-optional-chaining"],
+    ["spread syntax", "const values = [...input]", "no-spread-elements"],
+    ["unsupported builtins", "const value = Promise.resolve(input)", "no-promise"],
+  ])("✅ rejects %s through eslint-plugin-es-x in ESLint and Oxlint", async (_, code, rule) => {
+    const messages = await lint(code)
+
+    expect(messages.some((message) => message.ruleId === `es-x/${rule}`)).toBe(true)
+    expect(lintWithOxlint(code, "cartridges/app_sfra/cartridge/scripts/fixture.js")).toContain(
+      `es-x(${rule})`,
+    )
+  })
+
+  test("✅ applies older compatibility modes in Oxlint", () => {
+    const output = lintWithOxlint(
+      "module.exports = Object.values({ value: 1 })",
+      "cartridges/app_sfra/cartridge/scripts/fixture.js",
+      (temporaryDir) => {
+        fs.writeFileSync(
+          path.join(temporaryDir, "oxlint.config.mjs"),
+          `import sfcc, { createOxlintCompatibilityOverride } from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
+           export default {
+             lint: {
+               ...sfcc.lint,
+               overrides: [
+                 ...sfcc.lint.overrides,
+                 createOxlintCompatibilityOverride("21.2"),
+               ],
+             },
+           }\n`,
+        )
+      },
+    )
+
+    expect(output).toContain("es-x(no-object-values)")
+  })
+
+  test("✅ applies the generated-types preset in Oxlint", () => {
+    const output = lintWithOxlint(
+      "const run = function () {}\nexports.run = run\n",
+      "cartridges/app_jobs/cartridge/scripts/jobs/feed.js",
+      (temporaryDir) => {
+        fs.writeFileSync(
+          path.join(temporaryDir, "cartridges/app_jobs/steptypes.json"),
+          JSON.stringify({
+            "step-types": {
+              "script-module-step": [
+                {
+                  "@type-id": "custom.GenerateFeed",
+                  function: "run",
+                  module: "app_jobs/cartridge/scripts/jobs/feed",
+                },
+              ],
+            },
+          }),
+        )
+        fs.writeFileSync(
+          path.join(temporaryDir, "oxlint.config.mjs"),
+          `import sfcc, { createOxlintGeneratedTypesOverride } from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
+           export default {
+             lint: {
+               ...sfcc.lint,
+               settings: {
+                 sfcc: {
+                   configFile: false,
+                   cartridgesDir: ${JSON.stringify(path.join(temporaryDir, "cartridges"))},
+                 },
+               },
+               overrides: [
+                 ...sfcc.lint.overrides,
+                 createOxlintGeneratedTypesOverride(),
+               ],
+             },
+           }\n`,
+        )
+      },
+    )
+
+    expect(output).toContain("sfcc(prefer-generated-job-step-types)")
   })
 })
 

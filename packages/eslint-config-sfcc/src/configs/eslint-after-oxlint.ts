@@ -1,6 +1,7 @@
 import type { Linter } from "eslint"
 
 import tsParser from "@typescript-eslint/parser"
+import * as jsoncParser from "jsonc-eslint-parser"
 
 import sfcc from "../plugins/sfcc/index.js"
 import sfccLanguageGlobals from "../sfcc-language-globals.js"
@@ -48,6 +49,16 @@ export function createEslintAfterOxlintConfig(
         "sfcc/no-ds-files": "error",
         "sfcc/no-e4x-syntax": "error",
         "sfcc/no-type-annotations": "error",
+      },
+    },
+    {
+      files: [withBaseDir("*/steptypes.json")],
+      languageOptions: {
+        parser: jsoncParser,
+      },
+      plugins: { sfcc },
+      rules: {
+        "sfcc/valid-step-type-definition": "error",
       },
     },
   ]

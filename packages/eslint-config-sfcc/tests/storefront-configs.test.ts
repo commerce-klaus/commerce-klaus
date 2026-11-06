@@ -9,6 +9,7 @@ import {
   configs,
   createCartridgeArchitectureConfig,
   createOxlintArchitectureOverrides,
+  createOxlintStorefrontOverride,
   createStorefrontConfig,
   pwa,
   recommended,
@@ -180,6 +181,19 @@ test("creates Oxlint overrides from the same architecture rules", () => {
       rules: cartridgeArchitectureRules.pwa,
     },
   ])
+})
+
+test("creates an equivalent direct Oxlint storefront override", () => {
+  const options = {
+    cartridgesDir: "commerce/cartridges",
+    cartridges: ["app_headless"],
+  }
+  const eslintConfig = createStorefrontConfig("storefront-next", options)[0]
+
+  expect(createOxlintStorefrontOverride("storefront-next", options)).toEqual({
+    files: eslintConfig?.files,
+    rules: eslintConfig?.rules,
+  })
 })
 
 test("loads architecture assignments from the central project config", () => {

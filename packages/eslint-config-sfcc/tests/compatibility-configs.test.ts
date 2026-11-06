@@ -7,6 +7,7 @@ import {
   compatibility22_7,
   configs,
   createCompatibilityConfig,
+  createOxlintCompatibilityOverride,
   recommended,
 } from "../src/index.js"
 
@@ -110,4 +111,21 @@ describe("compatibility presets", () => {
       ignores: [],
     })
   })
+
+  test.each(["21.2", "22.7"] as const)(
+    "creates an equivalent Oxlint compatibility-%s override",
+    (version) => {
+      const options = {
+        files: ["legacy/**/*.js"],
+        ignores: ["legacy/client/**"],
+      }
+      const eslintConfig = createCompatibilityConfig(version, options)[0]
+
+      expect(createOxlintCompatibilityOverride(version, options)).toEqual({
+        files: eslintConfig?.files,
+        excludeFiles: eslintConfig?.ignores,
+        rules: eslintConfig?.rules,
+      })
+    },
+  )
 })

@@ -20,6 +20,7 @@ export function createEmptyMigrationConfig(
       files: recommendedSfccConfig?.files,
       ignores: recommendedSfccConfig?.ignores,
       plugins: { sfcc },
+      ...(recommendedSfccConfig?.settings ? { settings: recommendedSfccConfig.settings } : {}),
       rules: {
         "sfcc/no-ambiguous-empty": "error",
         "sfcc/prefer-explicit-empty-check": ["error", { autofix: true }],

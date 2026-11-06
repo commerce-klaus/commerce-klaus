@@ -9,8 +9,13 @@ import emptyMigration, { createEmptyMigrationConfig } from "./configs/empty-migr
 import generatedTypes, { createGeneratedTypesConfig } from "./configs/generated-types.js"
 import oxlint, {
   createOxlintArchitectureOverrides,
+  createOxlintCompatibilityOverride,
   createOxlintEmptyMigrationOverride,
+  createOxlintGeneratedTypesOverride,
+  createOxlintRecommendedOverride,
   createOxlintSfccTestOverride,
+  createOxlintStorefrontOverride,
+  oxlintEsRules,
   oxlintRules,
 } from "./configs/oxlint.js"
 import recommended, { createRecommendedConfig } from "./configs/recommended.js"
@@ -75,6 +80,7 @@ export {
   emptyMigration,
   generatedTypes,
   oxlint,
+  oxlintEsRules,
   oxlintRules,
   cartridgeArchitectureRules,
   plugins,
@@ -96,8 +102,12 @@ export {
   createEmptyMigrationConfig,
   createGeneratedTypesConfig,
   createOxlintArchitectureOverrides,
+  createOxlintCompatibilityOverride,
   createOxlintEmptyMigrationOverride,
+  createOxlintGeneratedTypesOverride,
+  createOxlintRecommendedOverride,
   createOxlintSfccTestOverride,
+  createOxlintStorefrontOverride,
   createRecommendedConfig,
   createSfccTestConfig,
   createStorefrontConfig,
@@ -106,7 +116,11 @@ export type { CompatibilityConfigOptions, CompatibilityVersion } from "./configs
 export type { EmptyMigrationConfigOptions } from "./configs/empty-migration.js"
 export type { GeneratedTypesConfigOptions } from "./configs/generated-types.js"
 export type { SfccTestConfigOptions } from "./configs/sfcc-test.js"
-export type { OxlintArchitectureOverride, OxlintRuleOverride } from "./configs/oxlint.js"
+export type {
+  OxlintArchitectureOverride,
+  OxlintRecommendedOverrideOptions,
+  OxlintRuleOverride,
+} from "./configs/oxlint.js"
 export type {
   CartridgeArchitectureConfigOptions,
   StorefrontConfigOptions,

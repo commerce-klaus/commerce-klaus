@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [sfccModules()],
   lint: {
     ...sfccOxlint.lint,
-    overrides: createOxlintArchitectureOverrides(),
+    overrides: [...sfccOxlint.lint.overrides, ...createOxlintArchitectureOverrides()],
   },
   run: {
     tasks: {

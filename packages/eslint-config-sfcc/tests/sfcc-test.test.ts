@@ -174,7 +174,10 @@ test("exports an additive test preset without cartridge language restrictions", 
 })
 
 test("customizes test and setup globs and exclusions for ESLint and Oxlint", () => {
-  const options = { files: ["tests/**/*.js"], ignores: ["tests/fixtures/**"] }
+  const options = {
+    files: ["tests/**/*.js"],
+    ignores: ["tests/fixtures/**"],
+  }
   expect(createSfccTestConfig(options)[0]).toMatchObject(options)
   expect(createOxlintSfccTestOverride(options)).toEqual({
     files: options.files,

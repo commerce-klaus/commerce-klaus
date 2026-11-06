@@ -20,7 +20,7 @@ Write modern JavaScript by default. A feature is restricted only when the [SFCC 
 | -------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | Verified modern JavaScript | Use it                                       | `const`/`let`, arrow functions, destructuring, template literals, generators, `for...of`          |
 | Standard library APIs      | Use APIs verified on supported SFCC versions | `Array.from`, `String.prototype.includes`, `Object.values`, `Number.isFinite`                     |
-| Known runtime gaps         | Report before the code reaches a sandbox     | classes, default parameters, spread syntax, `Promise`, dynamic `import()`, unsupported builtins   |
+| Known runtime gaps         | Report before the code reaches a sandbox     | classes, default parameters, spread syntax, nullish coalescing, `Promise`, dynamic `import()`     |
 | SFCC runtime contracts     | Prefer platform-compatible patterns          | CommonJS modules, valid cartridge paths, public Custom API exports, registered hook exports       |
 | Rhino-specific behavior    | Apply targeted compatibility rules           | safe `const` usage, loop declarations, repeated names in nested blocks                            |
 | Legacy or ambiguous syntax | Reject or migrate to standard JavaScript     | `.ds` files, E4X-like markup, Rhino import globals, `empty(...)`, Java-style `String.equals(...)` |
@@ -50,20 +50,24 @@ Use **ESLint deliberately for complete migrations and audits**. Its parser can i
 
 :::
 
-| Workflow                                       | Recommended tool        | Why                                                                                                  |
-| ---------------------------------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------- |
-| Normal development, editor feedback, and CI    | Oxlint                  | Fast feedback with almost the complete Commerce Klaus rule set                                       |
-| Initial modernization or legacy syntax cleanup | ESLint                  | Covers `.ds`, E4X-like syntax, JavaScript type annotations, and complex type-aware migration cases   |
-| Ongoing project with legacy-regression guards  | Oxlint, then ESLint     | Keeps the daily pass fast while a focused ESLint fallback covers the three parser-boundary rules     |
-| Maximum-confidence `empty()` migration         | ESLint migration preset | Uses TypeScript parser services for inferred and aliased types that Oxlint JavaScript plugins cannot |
+| Workflow                                       | Recommended tool        | Why                                                                                                   |
+| ---------------------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------- |
+| Normal development, editor feedback, and CI    | Oxlint                  | Fast feedback with the complete recommended JavaScript rule set                                       |
+| Initial modernization or legacy syntax cleanup | ESLint                  | Covers `.ds`, E4X-like syntax, JavaScript type annotations, and complex type-aware migration cases    |
+| Ongoing project with legacy-regression guards  | Oxlint, then ESLint     | Keeps the daily pass fast while a focused ESLint fallback covers four parser and discovery boundaries |
+| Maximum-confidence `empty()` migration         | ESLint migration preset | Uses TypeScript parser services for inferred and aliased types that Oxlint JavaScript plugins cannot  |
 
 Start with the [Oxlint configuration](#use-oxlint-for-daily-linting). Add the [focused ESLint fallback](#eslint-after-oxlint) when the repository must prevent legacy parser-boundary syntax from returning.
 
 ## Oxlint rule coverage
 
-The Oxlint preset enables the supported recommended SFCC rules. Architecture policies,
-generated-type checks, and [SFCC test rules](#sfcc-test-patterns) remain opt-in.
-The exceptions and type-aware differences are explicit below.
+The Oxlint preset enables the complete `eslint-plugin-es-x` compatibility baseline and
+the supported recommended SFCC rules over the same server-side cartridge files as
+ESLint. The same SFCC-specific overrides and client/static exclusions are applied in
+both tools, so newly restricted syntax, standard library APIs, and SFCC diagnostics
+cannot silently reach only one linter. Architecture policies, generated-type checks,
+and [SFCC test rules](#sfcc-test-patterns) remain opt-in. The exceptions and type-aware
+differences are explicit below.
 
 All `sfcc-test` rules run with the same syntax and scope analysis in ESLint and
 Oxlint, without TypeScript type information.
@@ -72,13 +76,14 @@ Oxlint, without TypeScript type information.
 
 These are parser and file-discovery boundaries, not rules omitted for performance:
 
-| ESLint-only rule                                                | Why Oxlint cannot run it                                                                                                               | When the rule matters                                                                       |
-| --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| [`sfcc/no-ds-files`](rules/sfcc/no-ds-files.md)                 | Oxlint ignores `.ds` files, so the JavaScript plugin never receives the file and cannot report its extension.                          | Modernizing cartridges that may still contain legacy Demandware Script files                |
-| [`sfcc/no-e4x-syntax`](rules/sfcc/no-e4x-syntax.md)             | E4X-like elements are not standard JavaScript. Oxlint stops with a parser error before the Commerce Klaus rule can inspect the nodes.  | Finding E4X-like markup and offering the safe static `XML(...)` migration suggestion        |
-| [`sfcc/no-type-annotations`](rules/sfcc/no-type-annotations.md) | TypeScript-style annotations inside `.js` are invalid JavaScript, so Oxlint stops before the JavaScript plugin can report or fix them. | Moving tolerated legacy annotations to JSDoc while preserving runnable cartridge JavaScript |
+| ESLint-only rule                                                              | Why Oxlint cannot run it                                                                                                               | When the rule matters                                                                       |
+| ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [`sfcc/no-ds-files`](rules/sfcc/no-ds-files.md)                               | Oxlint ignores `.ds` files, so the JavaScript plugin never receives the file and cannot report its extension.                          | Modernizing cartridges that may still contain legacy Demandware Script files                |
+| [`sfcc/no-e4x-syntax`](rules/sfcc/no-e4x-syntax.md)                           | E4X-like elements are not standard JavaScript. Oxlint stops with a parser error before the Commerce Klaus rule can inspect the nodes.  | Finding E4X-like markup and offering the safe static `XML(...)` migration suggestion        |
+| [`sfcc/no-type-annotations`](rules/sfcc/no-type-annotations.md)               | TypeScript-style annotations inside `.js` are invalid JavaScript, so Oxlint stops before the JavaScript plugin can report or fix them. | Moving tolerated legacy annotations to JSDoc while preserving runnable cartridge JavaScript |
+| [`sfcc/valid-step-type-definition`](rules/sfcc/valid-step-type-definition.md) | Oxlint does not discover or parse JSON files, so the plugin never receives `steptypes.json`.                                           | Validating job step definitions directly in cartridge metadata                              |
 
-The focused [ESLint-after-Oxlint config](#eslint-after-oxlint) covers exactly these rules without duplicating Oxlint diagnostics.
+The focused [ESLint-after-Oxlint config](#eslint-after-oxlint) covers exactly these four rules without duplicating Oxlint diagnostics.
 
 ### Rules refined by ESLint type information
 
@@ -166,6 +171,21 @@ export default defineConfig(
 ```
 
 Compatibility presets are additive restrictions. They do not replace `recommended` and must be composed after it.
+
+Use the equivalent Oxlint override in the same position:
+
+```js [oxlint.config.mjs]
+import sfcc, {
+  createOxlintCompatibilityOverride,
+} from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
+
+export default {
+  lint: {
+    ...sfcc.lint,
+    overrides: [...sfcc.lint.overrides, createOxlintCompatibilityOverride("21.2")],
+  },
+}
+```
 
 ## SFCC test patterns
 
@@ -314,7 +334,7 @@ export default {
   lint: {
     jsPlugins: [...sfcc.lint.jsPlugins, "@commerce-klaus/eslint-config-sfcc/oxlint/sfcc-test"],
     overrides: [
-      { files: ["cartridges/**/*.js"], rules: sfcc.lint.rules },
+      ...sfcc.lint.overrides,
       createOxlintSfccTestOverride({
         files: ["tests/**/*.{test,spec}.{js,ts}", "tests/setup.{js,ts}"],
       }),
@@ -358,7 +378,7 @@ Every rule in this plugin addresses an intentional compatibility or project-poli
 
 **Default indicators:** 🔴 `error` · 🟡 `warn` · ⚪ `off` · 🛠️ auto-fix available · ➖ no auto-fix
 
-Oxlint runs every built-in rule except `sfcc/no-ds-files`, `sfcc/no-e4x-syntax`, and `sfcc/no-type-annotations`. See [why those rules require ESLint](#rules-that-require-eslint).
+Oxlint runs the complete `eslint-plugin-es-x` baseline and every JavaScript rule except `sfcc/no-ds-files`, `sfcc/no-e4x-syntax`, and `sfcc/no-type-annotations`. It cannot run the JSON-only `sfcc/valid-step-type-definition` rule. See [why those rules require ESLint](#rules-that-require-eslint).
 
 | Rule                                                                                          | Description                                                                                                                                                                                                  | Default    | Auto-fix        |
 | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- | --------------- |
@@ -645,7 +665,7 @@ import sfccOxlint, {
 
 export default defineConfig({
   ...sfccOxlint.lint,
-  overrides: [createOxlintEmptyMigrationOverride()],
+  overrides: [...sfccOxlint.lint.overrides, createOxlintEmptyMigrationOverride()],
 })
 ```
 
@@ -754,6 +774,36 @@ export default defineConfig(
 )
 ```
 
+Oxlint uses the same three rules and file scope through
+`createOxlintGeneratedTypesOverride()`:
+
+```js [oxlint.config.mjs]
+import sfcc, {
+  createOxlintGeneratedTypesOverride,
+} from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
+
+export default {
+  lint: {
+    ...sfcc.lint,
+    settings: {
+      sfcc: {
+        cartridgesDir: "commerce/cartridges",
+        cartridgePath: ["app_custom", "app_base"],
+      },
+    },
+    overrides: [
+      ...sfcc.lint.overrides,
+      createOxlintGeneratedTypesOverride({
+        files: ["commerce/cartridges/**/*.{js,ds}"],
+      }),
+    ],
+  },
+}
+```
+
+Oxlint requires resolver settings at `lint.settings.sfcc`; file overrides cannot
+contain settings. The rule activation and file scope remain equivalent to ESLint.
+
 ### Storefront architecture presets
 
 Storefront presets are policy overlays for the shared cartridge architecture
@@ -775,6 +825,21 @@ export default defineConfig(
   sfcc.configs.recommended,
   sfcc.configs["storefront-next"],
 )
+```
+
+Use `createOxlintStorefrontOverride()` for the equivalent direct Oxlint policy:
+
+```js [oxlint.config.mjs]
+import sfcc, {
+  createOxlintStorefrontOverride,
+} from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
+
+export default {
+  lint: {
+    ...sfcc.lint,
+    overrides: [...sfcc.lint.overrides, createOxlintStorefrontOverride("storefront-next")],
+  },
+}
 ```
 
 <!--@include: ../../_partials/cartridge-architecture-eslint-policies.md-->
@@ -881,9 +946,17 @@ import sfcc from "@commerce-klaus/eslint-config-sfcc/configs/oxlint"
 export default sfcc
 ```
 
-The preset loads both plugins and enables the supported SFCC and SiteGenesis rules.
+The preset loads `eslint-plugin-es-x` together with the SFCC and SiteGenesis plugins. It
+uses the same ES compatibility baseline and SFCC-specific feature overrides as the
+recommended ESLint config.
 
-See the central [Oxlint rule coverage](#oxlint-rule-coverage) matrix for the three ESLint-only rules and the five rules that gain additional precision from ESLint type information.
+The default recommended override targets server-side JavaScript below
+`cartridges/` and excludes client and static folders. Use
+`createOxlintRecommendedOverride()` when the cartridge directory or file globs
+differ from those defaults; the helper accepts the same `cartridgesDir`, `files`, and
+`ignores` options as the recommended ESLint config.
+
+See the central [Oxlint rule coverage](#oxlint-rule-coverage) matrix for the four ESLint-only rules and the five rules that gain additional precision from ESLint type information.
 
 For mixed architectures, reuse the assignments from the central project configuration:
 
@@ -895,7 +968,7 @@ import sfcc, {
 export default {
   lint: {
     ...sfcc.lint,
-    overrides: createOxlintArchitectureOverrides(),
+    overrides: [...sfcc.lint.overrides, ...createOxlintArchitectureOverrides()],
   },
 }
 ```
@@ -904,6 +977,7 @@ The generated overrides use the same exported `cartridgeArchitectureRules` recor
 
 ```js
 overrides: [
+  ...sfcc.lint.overrides,
   ...createOxlintArchitectureOverrides(),
   {
     files: ["cartridges/modules/server/**"],
@@ -912,18 +986,23 @@ overrides: [
 ]
 ```
 
-For custom rule severities, import the rule record directly:
+For custom rule severities, replace the default recommended override:
 
 ```js{1,7} [oxlint.config.mjs]
-import sfcc, { oxlintRules } from "@commerce-klaus/eslint-config-sfcc"
+import sfcc, {
+  createOxlintRecommendedOverride,
+} from "@commerce-klaus/eslint-config-sfcc"
 
 export default {
   lint: {
     ...sfcc.lint,
-    rules: {
-      ...oxlintRules,
-      "sfcc/prefer-const": "warn",
-    },
+    overrides: [
+      createOxlintRecommendedOverride(),
+      {
+        files: ["cartridges/**/*.js"],
+        rules: { "sfcc/prefer-const": "warn" },
+      },
+    ],
   },
 }
 ```
@@ -938,7 +1017,8 @@ This distinction is why Oxlint is preferred for everyday feedback while ESLint r
 
 ### ESLint after Oxlint
 
-Run ESLint after Oxlint for a complete migration or to keep legacy syntax from returning. The fallback covers only `sfcc/no-ds-files`, `sfcc/no-e4x-syntax`, and `sfcc/no-type-annotations`.
+Run ESLint after Oxlint for a complete migration or to keep legacy syntax from returning. The fallback covers only `sfcc/no-ds-files`, `sfcc/no-e4x-syntax`,
+`sfcc/no-type-annotations`, and the JSON-only `sfcc/valid-step-type-definition`.
 
 This optional fallback requires `@typescript-eslint/parser`:
 
