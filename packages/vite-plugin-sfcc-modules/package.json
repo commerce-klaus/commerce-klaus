@@ -54,10 +54,11 @@
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "typescript": "^7.0.0",
+    "vite": "catalog:",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
     "vite": ">=5.0.0"
   },
-  "packageManager": "pnpm@12.16.1"
+  "packageManager": "pnpm@12.18.0"
 }
