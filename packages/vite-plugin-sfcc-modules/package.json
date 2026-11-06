@@ -54,6 +54,7 @@
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "typescript": "^7.0.0",
+    "vite": "catalog:",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
