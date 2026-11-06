@@ -305,6 +305,7 @@ test("generateCustomAttributesTypes covers all supported SFCC type mappings", ()
         "        <select-multiple-flag>true</select-multiple-flag>",
         "      </attribute-definition>",
         '      <attribute-definition attribute-id="attrInvalidSetEnum"><type>set-of-enum-of-int</type></attribute-definition>',
+        '      <attribute-definition attribute-id="attrInvalidSetQuantity"><type>set-of-quantity</type></attribute-definition>',
         '      <attribute-definition attribute-id="attrSetUnknown"><type>set-of-bar</type></attribute-definition>',
         "    </custom-attribute-definitions>",
         "  </type-extension>",
@@ -331,13 +332,16 @@ test("generateCustomAttributesTypes covers all supported SFCC type mappings", ()
     expect(generatedContent).toContain("attrLong?: number")
     expect(generatedContent).toContain("attrNumber?: number")
     expect(generatedContent).toContain("attrPassword?: string")
-    expect(generatedContent).toContain("attrQuantity?: number")
+    expect(generatedContent).toContain("attrQuantity?: dw.value.Quantity")
     expect(generatedContent).toContain("attrString?: string")
     expect(generatedContent).toContain("attrText?: string")
     expect(generatedContent).toContain("attrUrl?: string")
     expect(generatedContent).toContain("attrUnknown?: unknown")
 
     expect(generatedContent).toContain('attrEnumStringWithValues?: SfccEnumValue<"a" | "b">')
+    expect(generatedContent).toContain(
+      "type SfccEnumValue<TValue> = { readonly value: TValue; getValue(): TValue; getDisplayValue(): string }",
+    )
     expect(generatedContent).toContain("attrEnumStringNoValues?: SfccEnumValue<string>")
     expect(generatedContent).toContain("attrEnumIntWithValues?: SfccEnumValue<1 | 2>")
     expect(generatedContent).toContain("attrEnumIntNoValues?: SfccEnumValue<number>")
@@ -350,6 +354,7 @@ test("generateCustomAttributesTypes covers all supported SFCC type mappings", ()
     expect(generatedContent).toContain("attrEnumIntMulti?: SfccEnumValue<7 | 8>[]")
     expect(generatedContent).toContain("attrEnumUnknownMulti?: SfccEnumValue<string | number>[]")
     expect(generatedContent).toContain("attrInvalidSetEnum?: unknown[]")
+    expect(generatedContent).toContain("attrInvalidSetQuantity?: unknown[]")
     expect(generatedContent).toContain("attrSetUnknown?: unknown[]")
   })
 })

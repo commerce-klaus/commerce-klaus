@@ -132,28 +132,29 @@ Notes:
 - Custom Object and System Object attribute interfaces are available by name to JavaScript JSDoc from `.b2c-script-types/types/sfcc-custom-attributes.generated.d.ts`, for example `CustomObjectExampleNotificationCustomAttributes` and `ProductCustomAttributes`.
 - The generated declarations are consumed by both `sfcc-ts-typecheck` and the tsserver plugin, so editor diagnostics and CLI diagnostics use the same custom attribute typing.
 - The generated declarations also patch `dw/object/SystemObjectMgr` so supported `type` literals narrow `getAllSystemObjects`, `querySystemObject`, and `querySystemObjects` to the matching system object class.
-- Custom attribute values are inferred by metadata type. For enums, `select-multiple-flag=true` is treated as a multi-value enum and emitted as `SfccEnumValue<T>[]`.
+- Custom attribute values are inferred by metadata type. Enum values expose both the SFCC `value` property and `getValue()`/`getDisplayValue()` methods; `select-multiple-flag=true` is treated as a multi-value enum and emitted as `SfccEnumValue<T>[]`.
 - Attribute type values follow Salesforce metadata schema (`metadata.xsd`), where enum multi-select is modeled via `enum-of-*` plus `select-multiple-flag=true` (not via `set-of-enum-of-*`).
 
 Custom attribute mapping reference:
 
-| Metadata type                                            | Generated TypeScript type                 |
-| -------------------------------------------------------- | ----------------------------------------- |
-| `boolean`                                                | `boolean`                                 |
-| `date`, `datetime`                                       | `Date`                                    |
-| `double`, `int`, `integer`, `long`, `number`, `quantity` | `number`                                  |
-| `email`, `password`, `string`, `text`, `url`             | `string`                                  |
-| `html`                                                   | `dw.content.MarkupText`                   |
-| `enum-of-string` (with value-definitions)                | `SfccEnumValue<"value1" \| "value2" ...>` |
-| `enum-of-int` (with value-definitions)                   | `SfccEnumValue<1 \| 2 ...>`               |
-| `enum-of-*` with `select-multiple-flag=true`             | `SfccEnumValue<...>[]`                    |
-| `enum-of-*` (without value-definitions)                  | `SfccEnumValue<baseType>`                 |
-| unknown `enum-of-*`                                      | `SfccEnumValue<string \| number>`         |
-| `set-of-string`                                          | `string[]`                                |
-| `set-of-int`, `set-of-double`                            | `number[]`                                |
-| invalid `set-of-enum-of-*` (not in `metadata.xsd`)       | `unknown[]`                               |
-| unknown `set-of-*`                                       | `unknown[]`                               |
-| unsupported/unknown single-value type                    | `unknown`                                 |
+| Metadata type                                      | Generated TypeScript type                 |
+| -------------------------------------------------- | ----------------------------------------- |
+| `boolean`                                          | `boolean`                                 |
+| `date`, `datetime`                                 | `Date`                                    |
+| `double`, `int`, `integer`, `long`, `number`       | `number`                                  |
+| `quantity`                                         | `dw.value.Quantity`                       |
+| `email`, `password`, `string`, `text`, `url`       | `string`                                  |
+| `html`                                             | `dw.content.MarkupText`                   |
+| `enum-of-string` (with value-definitions)          | `SfccEnumValue<"value1" \| "value2" ...>` |
+| `enum-of-int` (with value-definitions)             | `SfccEnumValue<1 \| 2 ...>`               |
+| `enum-of-*` with `select-multiple-flag=true`       | `SfccEnumValue<...>[]`                    |
+| `enum-of-*` (without value-definitions)            | `SfccEnumValue<baseType>`                 |
+| unknown `enum-of-*`                                | `SfccEnumValue<string \| number>`         |
+| `set-of-string`                                    | `string[]`                                |
+| `set-of-int`, `set-of-double`                      | `number[]`                                |
+| invalid `set-of-enum-of-*` (not in `metadata.xsd`) | `unknown[]`                               |
+| unknown `set-of-*`                                 | `unknown[]`                               |
+| unsupported/unknown single-value type              | `unknown`                                 |
 
 Example (`Product.custom`):
 
@@ -166,8 +167,10 @@ if (product) {
   // enum-of-string -> SfccEnumValue<...>
   const status = product.custom.status
   if (status) {
+    const propertyValue = status.value
     const value = status.getValue()
     const label = status.getDisplayValue()
+    void propertyValue
     void value
     void label
   }
