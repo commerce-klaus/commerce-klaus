@@ -284,29 +284,39 @@ test.each([
 ] as const)(
   "%s enforces explicit cross-cartridge and tilde local imports",
   async (_preset, config) => {
-    const eslint = new ESLint({
-      overrideConfigFile: true,
-      overrideConfig: [...recommended, ...config],
+    const cwd = fs.mkdtempSync(path.join(os.tmpdir(), "sfcc-storefront-imports-"))
+    fs.mkdirSync(path.join(cwd, "cartridges", "app_sfra", "cartridge", "scripts"), {
+      recursive: true,
     })
 
-    const [result] = await eslint.lintText(
-      `
-      const inherited = require("*/cartridge/scripts/helper")
-      const namedLocal = require("app_sfra/cartridge/scripts/helper")
-      const local = require("~/cartridge/scripts/helper")
-      const superModule = module.superModule
-      module.exports = { inherited, namedLocal, local, superModule }
-    `,
-      { filePath: "cartridges/app_sfra/cartridge/scripts/example.js" },
-    )
+    try {
+      const eslint = new ESLint({
+        cwd,
+        overrideConfigFile: true,
+        overrideConfig: [...recommended, ...config],
+      })
 
-    expect(result?.messages.map((message) => message.ruleId)).toEqual(
-      expect.arrayContaining([
-        "sfcc/no-proprietary-module-syntax",
-        "sfcc/prefer-tilde-require-path",
-      ]),
-    )
-    expect(result?.messages).toHaveLength(2)
+      const [result] = await eslint.lintText(
+        `
+        const inherited = require("*/cartridge/scripts/helper")
+        const namedLocal = require("app_sfra/cartridge/scripts/helper")
+        const local = require("~/cartridge/scripts/helper")
+        const superModule = module.superModule
+        module.exports = { inherited, namedLocal, local, superModule }
+      `,
+        { filePath: "cartridges/app_sfra/cartridge/scripts/example.js" },
+      )
+
+      expect(result?.messages.map((message) => message.ruleId)).toEqual(
+        expect.arrayContaining([
+          "sfcc/no-proprietary-module-syntax",
+          "sfcc/prefer-tilde-require-path",
+        ]),
+      )
+      expect(result?.messages).toHaveLength(2)
+    } finally {
+      fs.rmSync(cwd, { recursive: true, force: true })
+    }
   },
 )
 
