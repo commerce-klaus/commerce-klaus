@@ -175,7 +175,7 @@ catalogs:
       version: 5.1.12
     '@salesforce/b2c-cli':
       specifier: ^2.0.0
-      version: 2.14.0
+      version: 2.15.0
     '@types/node':
       specifier: ^26.0.0
       version: 26.6.6
@@ -259,7 +259,7 @@ importers:
         version: 0.2.0(@voidzero-dev/vite-plus-core@1.5.1(@types/node@26.6.6)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.1))(vitepress@2.0.0-alpha.21(@types/node@26.6.6)(change-case@5.4.4)(fuse.js@7.1.0)(jiti@2.7.0)(postcss@8.5.32)(typescript@6.0.3)(yaml@2.9.1))(vue@3.5.45(typescript@6.0.3))
       vitepress-plugin-llms:
         specifier: ^1.14.0
-        version: 1.14.0(supports-color@8.1.1)
+        version: 1.15.0(supports-color@8.1.1)
       vue:
         specifier: ^3.5.42
         version: 3.5.45(typescript@6.0.3)
@@ -286,7 +286,7 @@ importers:
         version: 10.0.1(eslint@10.14.0(jiti@2.7.0)(supports-color@8.1.1))
       '@salesforce/b2c-cli':
         specifier: 'catalog:'
-        version: 2.14.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.15.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.6
@@ -334,7 +334,7 @@ importers:
         version: link:../../packages/vite-plugin-sfcc-modules
       '@salesforce/b2c-cli':
         specifier: 'catalog:'
-        version: 2.14.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.15.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.6
@@ -374,7 +374,7 @@ importers:
         version: 5.1.12
       '@salesforce/b2c-cli':
         specifier: 'catalog:'
-        version: 2.14.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.15.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.6
@@ -547,7 +547,7 @@ importers:
         version: 5.1.12
       '@salesforce/b2c-cli':
         specifier: '>=1.18.0'
-        version: 2.14.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.15.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       typescript-legacy:
         specifier: 'catalog:'
         version: '@typescript/typescript6@6.0.2'
@@ -623,8 +623,8 @@ importers:
 
 packages:
 
-  '@11ty/gray-matter@2.1.0':
-    resolution: {integrity: sha512-fNdBOb3MgDz/1UCIoeY4wDuGbp+/3s5y6UrsyfMabECbh/CVycj7Er33JXqSxRwxrRKXcGE1Jipuq/1mODInsQ==}
+  '@11ty/gray-matter@3.0.0':
+    resolution: {integrity: sha512-mi6KB36DZCpCfCb9XP3NtDDNXe1N0jKtuFj9mTCZNy5H7vTabODyMgFmmOiGIGJKt+i8mJqEb/REtK+JTEzlpQ==}
     engines: {node: '>=11'}
 
   '@antfu/install-pkg@2.1.0':
@@ -1737,13 +1737,13 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@salesforce/b2c-cli@2.14.0':
-    resolution: {integrity: sha512-6keEqhwFOWMTTq/ywlH00sxSRGOypCky9tkX6sEVhHi3HZ3Q4Y75GEX/YZHaq9DB2IKkoDuPdzqfNyjnuaaXSg==}
+  '@salesforce/b2c-cli@2.15.0':
+    resolution: {integrity: sha512-nGSLpfe7rRbLvdgsgwZRHnbDzaQQ9IevpsdbfzXqfrsJT5D2AONBccWSuYdtVvQ3crt94DcOxfNlp3K1OZmecQ==}
     engines: {node: '>=22.16.0'}
     hasBin: true
 
-  '@salesforce/b2c-tooling-sdk@2.14.0':
-    resolution: {integrity: sha512-rCrcYxHG17evj/f4Sxts6ykDwt1/7wqkyxVGGaD5Wiv82OuJKklIoIIg4bjCod21nh5nTgBswgFA2wKr+II4xQ==}
+  '@salesforce/b2c-tooling-sdk@2.15.0':
+    resolution: {integrity: sha512-nBpbhsyjL8Bf7yAYdCV9UdD+ZOoBaudfhAPmB+xH5WgBqNFfRs7OzjTIDeoh31Ct+eBHsDbAz7M1Mz11K9sZLQ==}
     engines: {node: '>=22.16.0'}
     peerDependencies:
       '@oclif/core': ^4
@@ -2622,6 +2622,9 @@ packages:
 
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
+
+  argparse@3.0.4:
+    resolution: {integrity: sha512-fwWK3Zq22l4XJJjx5mcBHGikIk+hJqO+32dPm0Jur7+rtG5x1scOjSfdT9ZKeWHPpsya/l0HHK4tDImBkTrtvA==}
 
   args-tokenizer@0.3.0:
     resolution: {integrity: sha512-xXAd7G2Mll5W8uo37GETpQ2VrE84M181Z7ugHFGQnJZ50M2mbOv0osSZ9VsSgPfJQ+LVG0prSi0th+ELMsno7Q==}
@@ -3631,12 +3634,12 @@ packages:
     resolution: {integrity: sha512-6EuL879VkRA+1Cz578mKMiKvjPNEuk6+r1JaFzoSWejZmtf7xWbIyw1e3KkxlkzTIt9Taw6JBhEppG7utc1P+w==}
     hasBin: true
 
-  js-yaml@4.2.0:
-    resolution: {integrity: sha512-ePWsvanv0DWuDRsW8dnt+R4jQ31SCRCQ7hhNcPXZPsoBZiemuZNYGf7adZdqX2D86j6rvKp3RpCxVTSb8WQlOw==}
-    hasBin: true
-
   js-yaml@4.3.2:
     resolution: {integrity: sha512-SFNOvSJ+Dgf/9An904Yx+CgSlIPCkIpao4qo51lpee25TIRejdH3rhR4EZMGoNx3/TP3O+wzWuiTFl4sqbltzA==}
+    hasBin: true
+
+  js-yaml@5.5.0:
+    resolution: {integrity: sha512-paNr4LFIFPjeeSmwNYdrb8FafLLG/Cr2Af3GjbsHJ5CxIjH4r0c2emlmRdAtpPAieP1gRVzk6buBbVP5gBMGAg==}
     hasBin: true
 
   jsdoc-type-pratt-parser@9.5.0:
@@ -3856,8 +3859,8 @@ packages:
     engines: {node: '>= 20'}
     hasBin: true
 
-  mdast-util-from-markdown@2.0.3:
-    resolution: {integrity: sha512-W4mAWTvSlKvf8L6J+VN9yLSqQ9AOAAvHuoDAmPkz4dHf553m5gVj2ejadHJhoJmcmxEnOv6Pa8XJhpxE93kb8Q==}
+  mdast-util-from-markdown@2.1.0:
+    resolution: {integrity: sha512-KRLgmPaP2H1ul2bpoJkOS+9pAcDAAj9Nu1mqLnh8NLeJG5tlvj42TH80PIGBpROWlRXLk0lDrWNuZCFy/tsB4A==}
 
   mdast-util-frontmatter@2.0.1:
     resolution: {integrity: sha512-LRqI9+wdgC25P0URIJY9vwocIzCcksduHQ9OF2joxQoyTNVduwLAFUzjoopuRJbJAReaKrNQKAZKL3uCMugWJA==}
@@ -4652,8 +4655,9 @@ packages:
     resolution: {integrity: sha512-LgO3D9yZJjApUiuUfl9iFAwrtaX4+lok3wJIqttGoKCHlWUqHqbQpnxCf82L8FjgKsh4iGo78hqJwgL8F6To2A==}
     engines: {node: '>=14.0.0'}
 
-  tokenx@1.6.0:
-    resolution: {integrity: sha512-CKTjk345ajvBAUp5xUI9a5KKN0zU0lBueVHQbCskH1Hp6WkUKsPW2qGCYNs0pxNyfzxfo+IIjdt2W4sMbw/qBw==}
+  tokenx@2.2.0:
+    resolution: {integrity: sha512-VdOqWPybBSlPVATvuxkoa8XfrYOPmOUkpp1xesb0LZjmUBmXDVND2lPlm4tiEc5MHP1OlswxCY4s2KXkc5p3JA==}
+    hasBin: true
 
   totalist@3.0.1:
     resolution: {integrity: sha512-sf4i37nQ2LBx4m3wB74y+ubopq6W/dIzXg0FDGjsYnZHVa1Da8FH853wlL2gtUhg+xJXjfk3kUZS3BRoQeoQBQ==}
@@ -4747,8 +4751,14 @@ packages:
   unist-util-visit-parents@6.0.2:
     resolution: {integrity: sha512-goh1s1TBrqSqukSc8wrjwWhL0hiJxgA8m4kFxGlQ+8FYQ3C/m11FcTs4YYem7V664AhHVvgoQLk890Ssdsr2IQ==}
 
+  unist-util-visit-parents@6.1.0:
+    resolution: {integrity: sha512-vKXxz6O38sKDj1mtx/k2cWvkkFBuYGx6uGrlzBkVeWCRF/F8sdI0j3Wbkz/5rVNRRuVc8UrgRdbCxNhmYXgP3w==}
+
   unist-util-visit@5.1.0:
     resolution: {integrity: sha512-m+vIdyeCOpdr/QeQCu2EzxX/ohgS8KbnPDgFni4dQsfSCtpz8UqDyY5GjRru8PDKuYn7Fq19j1CQ+nJSsGKOzg==}
+
+  unist-util-visit@5.2.0:
+    resolution: {integrity: sha512-fpsYs/VVoZxfGY9/j3FQpZmN8wdLJaV1Pt38AaJNZu9uKIHcFU3halCdBveEq1HGKO1OEfJY65w1zvoFV1b3qQ==}
 
   update-browserslist-db@1.3.3:
     resolution: {integrity: sha512-pJ2sYawQS0R/WI928Gj5GlPhTGzbMelq0+4INtSYNDV9ErKJcX6xjGWkoG/VnB3dpUm00zALaqkrUD77pO5TDQ==}
@@ -4807,8 +4817,8 @@ packages:
       vitepress: '>=1.0.0'
       vue: '>=3.3.0'
 
-  vitepress-plugin-llms@1.14.0:
-    resolution: {integrity: sha512-Qb42p9pYoRlMRbv+Yvh3reS4GInyr+ToU3G1tEC1Euz+gyBNywXkZIQPV/AoltizaakAeuI89Bkhkd7Y0jaM/w==}
+  vitepress-plugin-llms@1.15.0:
+    resolution: {integrity: sha512-WuYhR+WCNJSwSlZFdkisS94/7o1Tt+DSngUgq65zxCDM7CroquAGzuNl3BQhAaXno2uoBTmjzDD47LzRwsFhww==}
     engines: {node: '>=18'}
 
   vitepress@2.0.0-alpha.21:
@@ -4999,9 +5009,9 @@ packages:
 
 snapshots:
 
-  '@11ty/gray-matter@2.1.0':
+  '@11ty/gray-matter@3.0.0':
     dependencies:
-      js-yaml: 4.2.0
+      js-yaml: 5.5.0
       section-matter: 1.0.0
 
   '@antfu/install-pkg@2.1.0':
@@ -6001,7 +6011,7 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@salesforce/b2c-cli@2.14.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)':
+  '@salesforce/b2c-cli@2.15.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)':
     dependencies:
       '@inquirer/prompts': 8.2.0(@types/node@26.6.6)
       '@oclif/core': 4.8.0
@@ -6011,7 +6021,7 @@ snapshots:
       '@oclif/plugin-plugins': 5.4.53(supports-color@8.1.1)
       '@oclif/plugin-version': 2.2.36
       '@oclif/plugin-warn-if-update-available': 3.1.52(supports-color@8.1.1)
-      '@salesforce/b2c-tooling-sdk': 2.14.0(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)
+      '@salesforce/b2c-tooling-sdk': 2.15.0(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)
       cliui: 9.0.1
       glob: 13.0.0
       marked: 15.0.12
@@ -6025,7 +6035,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@salesforce/b2c-tooling-sdk@2.14.0(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)':
+  '@salesforce/b2c-tooling-sdk@2.15.0(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)':
     dependencies:
       '@vscode/debugadapter': 1.68.0
       chokidar: 5.0.0
@@ -6932,6 +6942,8 @@ snapshots:
       sprintf-js: 1.0.3
 
   argparse@2.0.1: {}
+
+  argparse@3.0.4: {}
 
   args-tokenizer@0.3.0: {}
 
@@ -7910,13 +7922,13 @@ snapshots:
       argparse: 1.0.10
       esprima: 4.0.1
 
-  js-yaml@4.2.0:
-    dependencies:
-      argparse: 2.0.1
-
   js-yaml@4.3.2:
     dependencies:
       argparse: 2.0.1
+
+  js-yaml@5.5.0:
+    dependencies:
+      argparse: 3.0.4
 
   jsdoc-type-pratt-parser@9.5.0:
     dependencies:
@@ -8098,7 +8110,7 @@ snapshots:
 
   marked@16.4.2: {}
 
-  mdast-util-from-markdown@2.0.3(supports-color@8.1.1):
+  mdast-util-from-markdown@2.1.0(supports-color@8.1.1):
     dependencies:
       '@types/mdast': 4.0.4
       '@types/unist': 3.0.3
@@ -8110,7 +8122,7 @@ snapshots:
       micromark-util-decode-string: 2.0.1
       micromark-util-normalize-identifier: 2.0.1
       micromark-util-symbol: 2.0.1
-      micromark-util-types: 2.0.2
+      micromark-util-types: 2.0.3
       unist-util-stringify-position: 4.0.0
     transitivePeerDependencies:
       - supports-color
@@ -8120,7 +8132,7 @@ snapshots:
       '@types/mdast': 4.0.4
       devlop: 1.1.0
       escape-string-regexp: 5.0.0
-      mdast-util-from-markdown: 2.0.3(supports-color@8.1.1)
+      mdast-util-from-markdown: 2.1.0(supports-color@8.1.1)
       mdast-util-to-markdown: 2.1.3
       micromark-extension-frontmatter: 2.0.0
     transitivePeerDependencies:
@@ -8154,7 +8166,7 @@ snapshots:
       micromark-util-classify-character: 2.0.1
       micromark-util-decode-string: 2.0.1
       micromark-util-html-tag-name: 2.0.1
-      unist-util-visit: 5.1.0
+      unist-util-visit: 5.2.0
       zwitch: 2.0.4
 
   mdast-util-to-string@4.0.0:
@@ -8215,7 +8227,7 @@ snapshots:
       fault: 2.0.1
       micromark-util-character: 2.1.1
       micromark-util-symbol: 2.0.1
-      micromark-util-types: 2.0.2
+      micromark-util-types: 2.0.3
 
   micromark-factory-destination@2.0.1:
     dependencies:
@@ -8872,8 +8884,8 @@ snapshots:
   remark-parse@11.0.0(supports-color@8.1.1):
     dependencies:
       '@types/mdast': 4.0.4
-      mdast-util-from-markdown: 2.0.3(supports-color@8.1.1)
-      micromark-util-types: 2.0.2
+      mdast-util-from-markdown: 2.1.0(supports-color@8.1.1)
+      micromark-util-types: 2.0.3
       unified: 11.0.5
     transitivePeerDependencies:
       - supports-color
@@ -9120,7 +9132,7 @@ snapshots:
 
   tinyrainbow@3.2.0: {}
 
-  tokenx@1.6.0: {}
+  tokenx@2.2.0: {}
 
   totalist@3.0.1: {}
 
@@ -9245,11 +9257,22 @@ snapshots:
       '@types/unist': 3.0.3
       unist-util-is: 6.0.1
 
+  unist-util-visit-parents@6.1.0:
+    dependencies:
+      '@types/unist': 3.0.3
+      unist-util-is: 6.0.1
+
   unist-util-visit@5.1.0:
     dependencies:
       '@types/unist': 3.0.3
       unist-util-is: 6.0.1
       unist-util-visit-parents: 6.0.2
+
+  unist-util-visit@5.2.0:
+    dependencies:
+      '@types/unist': 3.0.3
+      unist-util-is: 6.0.1
+      unist-util-visit-parents: 6.1.0
 
   update-browserslist-db@1.3.3(browserslist@4.29.3):
     dependencies:
@@ -9471,22 +9494,22 @@ snapshots:
       vitepress: 2.0.0-alpha.21(@types/node@26.6.6)(change-case@5.4.4)(fuse.js@7.1.0)(jiti@2.7.0)(postcss@8.5.32)(typescript@6.0.3)(yaml@2.9.1)
       vue: 3.5.45(typescript@6.0.3)
 
-  vitepress-plugin-llms@1.14.0(supports-color@8.1.1):
+  vitepress-plugin-llms@1.15.0(supports-color@8.1.1):
     dependencies:
-      '@11ty/gray-matter': 2.1.0
+      '@11ty/gray-matter': 3.0.0
       markdown-it: 14.3.3
       markdown-title: 1.0.2
-      mdast-util-from-markdown: 2.0.3(supports-color@8.1.1)
+      mdast-util-from-markdown: 2.1.0(supports-color@8.1.1)
       millify: 6.1.0
-      minimatch: 10.2.6
+      minimatch: 11.0.5
       path-to-regexp: 6.3.0
       picocolors: 1.1.1
       pretty-bytes: 7.2.0
       remark: 15.0.1(supports-color@8.1.1)
       remark-frontmatter: 5.0.0(supports-color@8.1.1)
-      tokenx: 1.6.0
+      tokenx: 2.2.0
       unist-util-remove: 4.0.0
-      unist-util-visit: 5.1.0
+      unist-util-visit: 5.2.0
     transitivePeerDependencies:
       - supports-color
 
