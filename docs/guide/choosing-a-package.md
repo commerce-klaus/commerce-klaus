@@ -10,9 +10,15 @@ These packages provide direct feedback or commands in the everyday development w
 
 ::: tip A sensible starting point
 
-Begin with the ESLint config for immediate compatibility feedback. Add TypeScript for editor and CI guarantees, then add the Vitest integration when tests need to execute cartridge modules. The B2C CLI plugin provides a common command surface for type and project workflows.
+Begin with the ESLint config for immediate compatibility feedback. Add TypeScript for editor and CI guarantees, and use the Vitest integration when tests need to execute cartridge modules. The B2C CLI plugin provides a common command surface for type and project workflows.
 
 :::
+
+## Special-purpose Node.js execution
+
+Most projects should not install or use the standalone runner. Consider it only for an unusual local tool, such as converting an order export into payloads or fixtures, when that tool must execute an existing cartridge mapping and duplicating the mapping logic in Node.js would be error-prone. It is not a general application runtime or a replacement for the Vitest integration.
+
+<!--@include: ../_partials/package-cards-special-purpose.md-->
 
 ## Integration adapters
 

@@ -131,6 +131,7 @@ export default defineConfig({
             { text: "ESLint config", link: "/packages/eslint-config-sfcc/" },
             { text: "TypeScript tooling", link: "/packages/typescript-sfcc/" },
             { text: "Vitest integration", link: "/packages/vitest-sfcc/" },
+            { text: "Special-purpose runner", link: "/packages/sfcc-runner/" },
           ],
         },
         {

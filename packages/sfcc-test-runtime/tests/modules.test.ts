@@ -1,14 +1,22 @@
 import { beforeEach, describe, expect, it } from "vite-plus/test"
 
-import { createSfccTestRuntime, requireSfccModule, setSfccTestRuntime } from "../src/index.js"
+import {
+  createSfccTestRuntime,
+  requireSfccModule,
+  setSfccTestRuntime,
+  type LoggerEntry,
+} from "../src/index.js"
 
 describe("SFCC module registry", () => {
+  const loggerCallbacks: LoggerEntry[] = []
   const runtime = createSfccTestRuntime({
+    onLoggerEntry: (entry) => loggerCallbacks.push(entry),
     site: { id: "RefArch", preferences: { reviewsEnabled: true } },
   })
 
   beforeEach(() => {
     runtime.reset()
+    loggerCallbacks.length = 0
     setSfccTestRuntime(runtime)
   })
 
@@ -107,6 +115,7 @@ describe("SFCC module registry", () => {
     expect(runtime.loggerEntries).toEqual([
       { level: "warn", message: "Failed {0}", parameters: ["payment"] },
     ])
+    expect(loggerCallbacks).toEqual(runtime.loggerEntries)
     expect(Site.getCurrent().ID).toBe("RefArch")
     expect(Site.getCurrent().getCustomPreferenceValue("reviewsEnabled")).toBe(true)
   })

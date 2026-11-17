@@ -32,6 +32,8 @@ export interface LoggerEntry {
 
 export interface SfccTestRuntimeOptions {
   globals?: SfccGlobals
+  /** Receives default Logger calls, or false to disable forwarding. */
+  onLoggerEntry?: false | ((entry: LoggerEntry) => void)
   site?: {
     id?: string
     preferences?: Record<string, unknown>
@@ -44,11 +46,18 @@ interface ModuleRegistryOptions extends SfccTestRuntimeOptions {
   serverModule: SfccModule
 }
 
-function createLoggerModule(entries: LoggerEntry[]): SfccModule {
+function createLoggerModule(
+  entries: LoggerEntry[],
+  onLoggerEntry?: SfccTestRuntimeOptions["onLoggerEntry"],
+): SfccModule {
   const write =
     (level: LoggerEntry["level"]) =>
     (message: string, ...parameters: unknown[]) => {
-      entries.push({ level, message, parameters })
+      const entry = { level, message, parameters }
+      entries.push(entry)
+      if (typeof onLoggerEntry === "function") {
+        onLoggerEntry({ ...entry, parameters: [...parameters] })
+      }
     }
 
   return {
@@ -57,7 +66,7 @@ function createLoggerModule(entries: LoggerEntry[]): SfccModule {
     warn: write("warn"),
     error: write("error"),
     fatal: write("fatal"),
-    getLogger: () => createLoggerModule(entries),
+    getLogger: () => createLoggerModule(entries, onLoggerEntry),
   }
 }
 
@@ -79,7 +88,10 @@ export class ModuleRegistry {
     this.defaults.set("dw/util/Calendar", Calendar)
     this.defaults.set("dw/util/HashMap", HashMap)
     this.defaults.set("dw/util/StringUtils", createStringUtilsModule())
-    this.defaults.set("dw/system/Logger", createLoggerModule(this.loggerEntries))
+    this.defaults.set(
+      "dw/system/Logger",
+      createLoggerModule(this.loggerEntries, options.onLoggerEntry),
+    )
     this.defaults.set("dw/system/Transaction", {
       begin: () => this.transactionCalls.push("begin"),
       commit: () => this.transactionCalls.push("commit"),

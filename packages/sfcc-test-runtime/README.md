@@ -46,6 +46,8 @@ runtime.setGlobals({ request, session, customer })
 runtime.getGlobal("request")?.locale
 ```
 
+Set `onLoggerEntry` in runtime options to forward default Logger calls to stdout, stderr, or another output while keeping the recorded `loggerEntries`.
+
 Use `@commerce-klaus/vitest-sfcc` to connect the runtime to cartridge modules
 in Vitest. The standalone package is intended for test-framework integrations
 and focused runtime tests.

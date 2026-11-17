@@ -22,6 +22,8 @@ runtime.mock("dw/system/Logger", loggerMock)
 runtime.setGlobals({ request, session, customer })
 ```
 
+The default `dw/system/Logger` records calls as `runtime.loggerEntries`. Set `onLoggerEntry` in runtime options to forward each call synchronously to a console, stream, or other logger; set it to `false` to disable forwarding. Without a callback, this framework-independent runtime only records calls.
+
 ## Why this package exists
 
 Tests often need a small, deterministic subset of SFCC behavior without coupling that behavior to Vite, Vitest, cartridge discovery, or filesystem resolution. This package provides that framework-independent core: an explicit module registry, controlled globals, focused platform modules, and execution harnesses for controllers, hooks, and job steps.
@@ -88,6 +90,8 @@ runtime.mockResolved("/workspace/cartridges/app_custom/cartridge/scripts/provide
 runtime.hasModuleMock("dw/system/Logger")
 runtime.reset()
 ```
+
+Configure `onLoggerEntry` to receive each call to the default Logger implementation as it occurs, or set it to `false` to disable forwarding. The callback is invoked in addition to recording the entry; if `dw/system/Logger` is mocked, the callback is not used by that mock.
 
 `mock()` targets the original module identifier. SFCC script modules match whether the mock or import includes a supported `.js`, `.ds`, or `.json` extension; an exact identifier match takes precedence when multiple variants are registered. This is useful for platform modules and shared identifiers such as `*/cartridge/scripts/provider` or `./helper`. `mockResolved()` targets exactly one absolute cartridge file and takes precedence when identical relative identifiers occur in different directories. `hasModuleMock()` reports whether an identifier or one of its supported extension aliases has an explicit `mock()` replacement; built-in runtime implementations do not count as mocks.
 
