@@ -1,6 +1,6 @@
 {
   "name": "@commerce-klaus/sfcc-runner",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Execute existing SFCC cartridge logic from specialized Node.js tools",
   "keywords": [
     "cartridge",
