@@ -24,6 +24,12 @@ The lower-level packages and Salesforce B2C CLI integration over the last year.
 
 [![Weekly npm downloads over the last year for the Commerce Klaus configuration, module resolver, test runtime, and B2C CLI packages](https://www.npm.bet/svg?q=%40commerce-klaus%2Fconfig%2C%40commerce-klaus%2Fsfcc-module-resolver%2C%40commerce-klaus%2Fsfcc-test-runtime%2C%40commerce-klaus%2Fb2c-plugin&timeRange=last-year&grouping=week&metric=downloads&zeroMode=reported)](https://www.npm.bet/?q=%40commerce-klaus%2Fconfig%2C%40commerce-klaus%2Fsfcc-module-resolver%2C%40commerce-klaus%2Fsfcc-test-runtime%2C%40commerce-klaus%2Fb2c-plugin&timeRange=last-year&grouping=week&metric=downloads&zeroMode=reported)
 
+## Special-purpose tools
+
+Packages for specialized workflows outside regular SFCC application development.
+
+[![Weekly npm downloads over the last year for the Commerce Klaus SFCC runner](https://www.npm.bet/svg?q=%40commerce-klaus%2Fsfcc-runner&timeRange=last-year&grouping=week&metric=downloads&zeroMode=reported)](https://www.npm.bet/?q=%40commerce-klaus%2Fsfcc-runner&timeRange=last-year&grouping=week&metric=downloads&zeroMode=reported)
+
 ## ESLint package migration
 
 The scoped Commerce Klaus package compared with its two `@jenssimon` predecessors across their full download history.
