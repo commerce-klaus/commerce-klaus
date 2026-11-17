@@ -1,5 +1,11 @@
 # @commerce-klaus/sfcc-test-runtime
 
+## 1.3.0
+
+### Minor Changes
+
+- 6c38b61: Allow the default Logger implementation to forward entries to a custom output callback.
+
 ## 1.2.0
 
 ### Minor Changes
