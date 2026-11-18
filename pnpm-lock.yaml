@@ -184,7 +184,7 @@ catalogs:
       version: 5.1.12
     '@salesforce/b2c-cli':
       specifier: ^2.0.0
-      version: 2.15.0
+      version: 2.16.0
     '@types/node':
       specifier: ^26.0.0
       version: 26.6.6
@@ -225,8 +225,8 @@ catalogs:
       specifier: npm:@typescript/typescript6@^6.0.2
       version: 6.0.2
     typescript-7:
-      specifier: npm:typescript@7.1.0-dev.20261116.1
-      version: 7.1.0-dev.20261116.1
+      specifier: npm:typescript@7.1.0-dev.20261117.1
+      version: 7.1.0-dev.20261117.1
     typescript-legacy:
       specifier: npm:@typescript/typescript6@^6.0.2
       version: 6.0.2
@@ -292,7 +292,7 @@ importers:
         version: 10.0.1(eslint@10.15.0(jiti@2.7.0)(supports-color@8.1.1))
       '@salesforce/b2c-cli':
         specifier: 'catalog:'
-        version: 2.15.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.16.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.6
@@ -340,7 +340,7 @@ importers:
         version: link:../../packages/vite-plugin-sfcc-modules
       '@salesforce/b2c-cli':
         specifier: 'catalog:'
-        version: 2.15.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.16.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.6
@@ -380,7 +380,7 @@ importers:
         version: 5.1.12
       '@salesforce/b2c-cli':
         specifier: 'catalog:'
-        version: 2.15.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.16.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.6
@@ -578,7 +578,7 @@ importers:
         version: 5.1.12
       '@salesforce/b2c-cli':
         specifier: '>=1.18.0'
-        version: 2.15.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
+        version: 2.16.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)
       typescript-legacy:
         specifier: 'catalog:'
         version: '@typescript/typescript6@6.0.2'
@@ -591,7 +591,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       typescript-7:
         specifier: 'catalog:'
-        version: typescript@7.1.0-dev.20261116.1
+        version: typescript@7.1.0-dev.20261117.1
       vite-plus:
         specifier: 'catalog:'
         version: 1.7.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(@vitest/browser-preview@5.1.0)(@vitest/browser@5.1.0)(@vitest/coverage-v8@5.1.0)(@vitest/ui@5.1.0)(@voidzero-dev/vite-plus-core@8.3.8000(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(jiti@2.7.0)(yaml@2.9.1))(jiti@2.7.0)(vitest@5.1.0)(yaml@2.9.1)
@@ -1616,13 +1616,13 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@salesforce/b2c-cli@2.15.0':
-    resolution: {integrity: sha512-nGSLpfe7rRbLvdgsgwZRHnbDzaQQ9IevpsdbfzXqfrsJT5D2AONBccWSuYdtVvQ3crt94DcOxfNlp3K1OZmecQ==}
+  '@salesforce/b2c-cli@2.16.0':
+    resolution: {integrity: sha512-GuDyNLNlWBiWDKBTMnyZ3X0KALqMBjY0qG5twYtpl76A9mS5YmFcVXXGfy3oaWL8PYIMtsCIY76F3g7X+mSwvw==}
     engines: {node: '>=22.16.0'}
     hasBin: true
 
-  '@salesforce/b2c-tooling-sdk@2.15.0':
-    resolution: {integrity: sha512-nBpbhsyjL8Bf7yAYdCV9UdD+ZOoBaudfhAPmB+xH5WgBqNFfRs7OzjTIDeoh31Ct+eBHsDbAz7M1Mz11K9sZLQ==}
+  '@salesforce/b2c-tooling-sdk@2.16.0':
+    resolution: {integrity: sha512-NeZGUetgUIicPZ0l7cdL4nh2zUWqXXABm3CBaqfvhlTncVdQ5jN26xHBb6n2Zbzb5U7C53+L2SyZ0XAhyj6D0A==}
     engines: {node: '>=22.16.0'}
     peerDependencies:
       '@oclif/core': ^4
@@ -1975,8 +1975,8 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
-  '@typescript/typescript-darwin-arm64@7.1.0-dev.20261116.1':
-    resolution: {integrity: sha512-cIFWoytFFv33dqOGyv/SAccjuWDHHmtri2cQeudD2N8Szw80R8hHkOYM3xd8FWiY471yHUWvx4geCYoGWKZDbg==}
+  '@typescript/typescript-darwin-arm64@7.1.0-dev.20261117.1':
+    resolution: {integrity: sha512-FK55win8pWF6KgVJD9EZ7+vwEss1d/Be0LdeVYkGs3l3Zlx/W7+x2/gNwZFI3kCVy58MrZun4pCi3IJbl1pq/A==}
     engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [darwin]
@@ -1987,8 +1987,8 @@ packages:
     cpu: [x64]
     os: [darwin]
 
-  '@typescript/typescript-darwin-x64@7.1.0-dev.20261116.1':
-    resolution: {integrity: sha512-Dx7113b+EWCdkXTmwsMAbxb+SBVB+Itz7wLTO1pM9F/788AZ8F3UEgpYWH+GWPiy1EwN7Sah+OTAuRd1+dEvmQ==}
+  '@typescript/typescript-darwin-x64@7.1.0-dev.20261117.1':
+    resolution: {integrity: sha512-W+X5JTwQNawvGC1WRAnH7jiAVgGTeRAtIYHOjNGCKGgpJ0Bl1piEdmuoi1OpbcgYJUm2AuTMUbSlj5Vp7ufagg==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [darwin]
@@ -2011,8 +2011,8 @@ packages:
     cpu: [arm64]
     os: [linux]
 
-  '@typescript/typescript-linux-arm64@7.1.0-dev.20261116.1':
-    resolution: {integrity: sha512-Y/0/d3Abdmv6c4R2EW6607D2q3cZ2gId6TusNJo6IkpkeBCgEKfqjZoIhR1c6eIOgvAmOm+nYCgTa8HZu542/Q==}
+  '@typescript/typescript-linux-arm64@7.1.0-dev.20261117.1':
+    resolution: {integrity: sha512-CQ6iUCwok9ttmxANmOSUhoL/U7lrA+wSvwms3uZC6ERXpg8fXUjiBUIifIMPX6SBpxIu91OlylxHgHeH5Cdq0w==}
     engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [linux]
@@ -2023,8 +2023,8 @@ packages:
     cpu: [arm]
     os: [linux]
 
-  '@typescript/typescript-linux-arm@7.1.0-dev.20261116.1':
-    resolution: {integrity: sha512-s/F1Y+89iXzbplHcE3u2wxd3slAqj4idXw9YBRgmYU5DPNVrBPA2dDLVrF8YIxF71+Iqi9tUcZXgdCSCTJkXsg==}
+  '@typescript/typescript-linux-arm@7.1.0-dev.20261117.1':
+    resolution: {integrity: sha512-8S2/0AHlPNao+lkPLmUjQtctT3Mhw8yG0m5MUeilxhkqBjurFMlf5tKLdaHVe1kcO+334TYG3dWcpFRY4IZSCw==}
     engines: {node: '>=16.20.0'}
     cpu: [arm]
     os: [linux]
@@ -2065,8 +2065,8 @@ packages:
     cpu: [x64]
     os: [linux]
 
-  '@typescript/typescript-linux-x64@7.1.0-dev.20261116.1':
-    resolution: {integrity: sha512-t5UGJpSRrmpqiBOy0yzStSW1WNrxtNgSkwWzUqMcSDdCwFlG1Fyy8SxJdlFyQBdZ5+nK8l5MPH3IdHt61T594A==}
+  '@typescript/typescript-linux-x64@7.1.0-dev.20261117.1':
+    resolution: {integrity: sha512-L8MJ8oazby1QmvLptd5W4AwJaBFzmjDqNn61tNBJFeMID0zTcBfbgnEDUgVyseU/Kxw45igmeqMf9lle42gYPg==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [linux]
@@ -2107,8 +2107,8 @@ packages:
     cpu: [arm64]
     os: [win32]
 
-  '@typescript/typescript-win32-arm64@7.1.0-dev.20261116.1':
-    resolution: {integrity: sha512-6y8oDz8o/a+HQhKX3kXx/TnU5BKw3VImloN/PKmZz1RNCPuo1lhGTATnaed12TA9OhuMTyAAhbjumDWGvksHNQ==}
+  '@typescript/typescript-win32-arm64@7.1.0-dev.20261117.1':
+    resolution: {integrity: sha512-PAnfEOFa/W+gYI7RJk0OXoxUng841P8sIBPnrkdp8V4naCQGRfarnNnl400eSADqWmfMppaCHiPqiw6vlJqPuw==}
     engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [win32]
@@ -2119,8 +2119,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@typescript/typescript-win32-x64@7.1.0-dev.20261116.1':
-    resolution: {integrity: sha512-0/TtuBxGGyxaAsXkeqEm1erzDFL6OvARCkcADC9lt2P2FMvHdRgcmXIFRfFTRgjH+siK24b14atst4M6SC6PgQ==}
+  '@typescript/typescript-win32-x64@7.1.0-dev.20261117.1':
+    resolution: {integrity: sha512-1m103Znql3Q8jDtz+CSMxhBonT+cm5b+0y1H177hSHSs7IPEmpgzdGGqN/xTK01cK8uKLQBC3zAtDkKG8U8+sg==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [win32]
@@ -3133,6 +3133,10 @@ packages:
       typescript:
         optional: true
 
+  eslint-scope@8.4.0:
+    resolution: {integrity: sha512-sNXOfKCn74rt8RICKMvJS7XKV/Xk9kA7DyJr8mJik3S7Cwgy3qlkkmyS2uQB3jiJg6VNdZd/pDBJu0nvG2NlTg==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
   eslint-scope@9.1.2:
     resolution: {integrity: sha512-xS90H51cKw0jltxmvmHy2Iai1LIqrfbw57b79w/J7MfvDfkIkFZ+kj6zC3BjtUwh150HsSSdxXZcsuv72miDFQ==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
@@ -3147,6 +3151,10 @@ packages:
     resolution: {integrity: sha512-wpc+LXeiyiisxPlEkUzU6svyS1frIO3Mgxj1fdy7Pm8Ygzguax2N3Fa/D/ag1WqbOprdI+uY6wMUl8/a2G+iag==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
+  eslint-visitor-keys@4.2.1:
+    resolution: {integrity: sha512-Uhdk5sfqcee/9H/rCOJikYz67o0a2Tw2hGRPOG2Y1R2dg7brRe1uG0yaNQDHu+TO/uQPF/5eCapvYSmHUjt7JQ==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
   eslint-visitor-keys@5.0.1:
     resolution: {integrity: sha512-tD40eHxA35h0PEIZNeIjkHoDR4YjjJp34biM0mDvplBe//mB+IHCqHDGV7pxF+7MklTvighcCPPZC7ynWyjdTA==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
@@ -3160,6 +3168,10 @@ packages:
     peerDependenciesMeta:
       jiti:
         optional: true
+
+  espree@10.4.0:
+    resolution: {integrity: sha512-j6PAQ2uUr79PZhBjP5C5fhl8e39FmRnOjsD5lGnWrFU8i2G776tBK7+nP8KuQUTTyAZUwfQqXAgrVH5MbH9CYQ==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   espree@11.2.0:
     resolution: {integrity: sha512-7p3DrVEIopW1B1avAGLuCSh1jubc01H2JHc8B4qqGblmg5gI9yumBgACjWo4JlIc04ufug4xJ3SQI8HkS/Rgzw==}
@@ -4618,8 +4630,8 @@ packages:
     engines: {node: '>=16.20.0'}
     hasBin: true
 
-  typescript@7.1.0-dev.20261116.1:
-    resolution: {integrity: sha512-qiH4z+FROU1bUY1mmyxQpZxYF317Ldd1jUtkOZJnitm629+n78NtJqY1ZKqGm81F1QIT0a1Zxq3bAg/k5finTw==}
+  typescript@7.1.0-dev.20261117.1:
+    resolution: {integrity: sha512-4grWj8gHZqfaB/gKuVt9PfP92ZylyEQ8185ZfeHDnleOeadczo27JGg8+EYm+PFnwkbbmXqKXGv+L1xu4TuZdQ==}
     engines: {node: '>=16.20.0'}
     hasBin: true
 
@@ -5854,7 +5866,7 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@salesforce/b2c-cli@2.15.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)':
+  '@salesforce/b2c-cli@2.16.0(@types/node@26.6.6)(@typescript/typescript6@6.0.2)(supports-color@8.1.1)':
     dependencies:
       '@inquirer/prompts': 8.2.0(@types/node@26.6.6)
       '@oclif/core': 4.8.0
@@ -5864,7 +5876,7 @@ snapshots:
       '@oclif/plugin-plugins': 5.4.53(supports-color@8.1.1)
       '@oclif/plugin-version': 2.2.36
       '@oclif/plugin-warn-if-update-available': 3.1.52(supports-color@8.1.1)
-      '@salesforce/b2c-tooling-sdk': 2.15.0(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)
+      '@salesforce/b2c-tooling-sdk': 2.16.0(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)
       cliui: 9.0.1
       glob: 13.0.0
       marked: 15.0.12
@@ -5878,12 +5890,15 @@ snapshots:
       - supports-color
       - typescript
 
-  '@salesforce/b2c-tooling-sdk@2.15.0(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)':
+  '@salesforce/b2c-tooling-sdk@2.16.0(@oclif/core@4.8.0)(@typescript/typescript6@6.0.2)':
     dependencies:
       '@vscode/debugadapter': 1.68.0
       chokidar: 5.0.0
       cliui: 9.0.1
       ejs: 3.1.10
+      eslint-scope: 8.4.0
+      eslint-visitor-keys: 4.2.1
+      espree: 10.4.0
       glob: 13.0.0
       i18next: 25.7.4(@typescript/typescript6@6.0.2)
       jiti: 2.6.1
@@ -5898,6 +5913,7 @@ snapshots:
       pino: 10.1.0
       pino-pretty: 13.1.2
       protobufjs: 7.6.6
+      sax: 1.6.1
       tar-fs: 3.1.2
       undici: 7.30.1
       xml2js: 0.6.2
@@ -6279,13 +6295,13 @@ snapshots:
   '@typescript/typescript-darwin-arm64@7.0.2':
     optional: true
 
-  '@typescript/typescript-darwin-arm64@7.1.0-dev.20261116.1':
+  '@typescript/typescript-darwin-arm64@7.1.0-dev.20261117.1':
     optional: true
 
   '@typescript/typescript-darwin-x64@7.0.2':
     optional: true
 
-  '@typescript/typescript-darwin-x64@7.1.0-dev.20261116.1':
+  '@typescript/typescript-darwin-x64@7.1.0-dev.20261117.1':
     optional: true
 
   '@typescript/typescript-freebsd-arm64@7.0.2':
@@ -6297,13 +6313,13 @@ snapshots:
   '@typescript/typescript-linux-arm64@7.0.2':
     optional: true
 
-  '@typescript/typescript-linux-arm64@7.1.0-dev.20261116.1':
+  '@typescript/typescript-linux-arm64@7.1.0-dev.20261117.1':
     optional: true
 
   '@typescript/typescript-linux-arm@7.0.2':
     optional: true
 
-  '@typescript/typescript-linux-arm@7.1.0-dev.20261116.1':
+  '@typescript/typescript-linux-arm@7.1.0-dev.20261117.1':
     optional: true
 
   '@typescript/typescript-linux-loong64@7.0.2':
@@ -6324,7 +6340,7 @@ snapshots:
   '@typescript/typescript-linux-x64@7.0.2':
     optional: true
 
-  '@typescript/typescript-linux-x64@7.1.0-dev.20261116.1':
+  '@typescript/typescript-linux-x64@7.1.0-dev.20261117.1':
     optional: true
 
   '@typescript/typescript-netbsd-arm64@7.0.2':
@@ -6345,13 +6361,13 @@ snapshots:
   '@typescript/typescript-win32-arm64@7.0.2':
     optional: true
 
-  '@typescript/typescript-win32-arm64@7.1.0-dev.20261116.1':
+  '@typescript/typescript-win32-arm64@7.1.0-dev.20261117.1':
     optional: true
 
   '@typescript/typescript-win32-x64@7.0.2':
     optional: true
 
-  '@typescript/typescript-win32-x64@7.1.0-dev.20261116.1':
+  '@typescript/typescript-win32-x64@7.1.0-dev.20261117.1':
     optional: true
 
   '@typescript/typescript6@6.0.2':
@@ -7493,6 +7509,11 @@ snapshots:
     optionalDependencies:
       typescript: '@typescript/typescript6@6.0.2'
 
+  eslint-scope@8.4.0:
+    dependencies:
+      esrecurse: 4.3.0
+      estraverse: 5.3.0
+
   eslint-scope@9.1.2:
     dependencies:
       '@types/esrecurse': 4.3.1
@@ -7506,6 +7527,8 @@ snapshots:
       eslint: 10.15.0(jiti@2.7.0)(supports-color@8.1.1)
 
   eslint-visitor-keys@3.4.3: {}
+
+  eslint-visitor-keys@4.2.1: {}
 
   eslint-visitor-keys@5.0.1: {}
 
@@ -7545,6 +7568,12 @@ snapshots:
       jiti: 2.7.0
     transitivePeerDependencies:
       - supports-color
+
+  espree@10.4.0:
+    dependencies:
+      acorn: 8.19.0
+      acorn-jsx: 5.3.2(acorn@8.19.0)
+      eslint-visitor-keys: 4.2.1
 
   espree@11.2.0:
     dependencies:
@@ -9120,15 +9149,15 @@ snapshots:
       '@typescript/typescript-win32-arm64': 7.0.2
       '@typescript/typescript-win32-x64': 7.0.2
 
-  typescript@7.1.0-dev.20261116.1:
+  typescript@7.1.0-dev.20261117.1:
     optionalDependencies:
-      '@typescript/typescript-darwin-arm64': 7.1.0-dev.20261116.1
-      '@typescript/typescript-darwin-x64': 7.1.0-dev.20261116.1
-      '@typescript/typescript-linux-arm': 7.1.0-dev.20261116.1
-      '@typescript/typescript-linux-arm64': 7.1.0-dev.20261116.1
-      '@typescript/typescript-linux-x64': 7.1.0-dev.20261116.1
-      '@typescript/typescript-win32-arm64': 7.1.0-dev.20261116.1
-      '@typescript/typescript-win32-x64': 7.1.0-dev.20261116.1
+      '@typescript/typescript-darwin-arm64': 7.1.0-dev.20261117.1
+      '@typescript/typescript-darwin-x64': 7.1.0-dev.20261117.1
+      '@typescript/typescript-linux-arm': 7.1.0-dev.20261117.1
+      '@typescript/typescript-linux-arm64': 7.1.0-dev.20261117.1
+      '@typescript/typescript-linux-x64': 7.1.0-dev.20261117.1
+      '@typescript/typescript-win32-arm64': 7.1.0-dev.20261117.1
+      '@typescript/typescript-win32-x64': 7.1.0-dev.20261117.1
 
   uc.micro@2.1.0: {}
 
