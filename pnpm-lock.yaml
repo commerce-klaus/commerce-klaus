@@ -185,7 +185,7 @@ catalogs:
   default:
     '@es-joy/jsdoccomment':
       specifier: ^1.0.0
-      version: 1.2.1
+      version: 1.2.2
     '@eslint/js':
       specifier: ^10.0.1
       version: 10.0.1
@@ -455,7 +455,7 @@ importers:
         version: link:../sfcc-module-resolver
       '@es-joy/jsdoccomment':
         specifier: 'catalog:'
-        version: 1.2.1
+        version: 1.2.2
       eslint:
         specifier: '>=9.0.0'
         version: 10.15.0(jiti@2.7.0)(supports-color@8.1.1)
@@ -880,8 +880,8 @@ packages:
     resolution: {integrity: sha512-HoZQ40a9RgdZ1VgmrX6x8887cNXedaRJT1l+Ie5YRIMK4gY7v0EpsiNqf6dmixrKylZlTgUSyR+vE8xhjfkr+w==}
     engines: {node: '>=22.19.0'}
 
-  '@es-joy/jsdoccomment@1.2.1':
-    resolution: {integrity: sha512-x7OYWicHr3qYEiHeYNIVQD6AXjzU9YE1sOk0jtPkEbbMRUiergcQCHoRFRQpqHivivH0B0ZzexrvTx5An34ZJQ==}
+  '@es-joy/jsdoccomment@1.2.2':
+    resolution: {integrity: sha512-rx7i7QK9It5ekeASWa97aBTQUO/3DAnBD6wPwjCyfmagA3jyUxmRZ6hupz92iBZVyoi/Ns35/AjHP53COPVKGQ==}
     engines: {node: ^22.22.2 || >=24.15.0}
 
   '@eslint-community/eslint-utils@4.10.1':
@@ -1981,6 +1981,9 @@ packages:
   '@types/estree@1.0.10':
     resolution: {integrity: sha512-lTyOMnOcmRBzdCv6/4zUZCrEhV0xrqQiUZBZtVcbmLHBXKLnN8q89v/wKRF/Q0HbwVsqbIG3o5HDoFl9sduM+g==}
 
+  '@types/estree@1.0.11':
+    resolution: {integrity: sha512-YBdNe5JcjYR0sPhJW1QIeRCmI11YhYvaRuGCs9+WCeTTb+Yhb2BE2XMe5/wAqF10FK5g3+q1PDhQABfT7aX0gg==}
+
   '@types/estree@1.0.9':
     resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
 
@@ -2063,10 +2066,6 @@ packages:
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
       typescript: '>=4.8.4 <6.1.0'
-
-  '@typescript-eslint/types@8.73.0':
-    resolution: {integrity: sha512-O/1ytYzflF16QDKXx4/qOXg1IuZp+n7hr9t+S0nv7N/2Tl8rJiNCshztV1gcSUvHbPtoX3+zmNbtSAyVbzxVfw==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@typescript-eslint/types@8.74.0':
     resolution: {integrity: sha512-MpnMrJCVNpP1iVL8NiHkQZgQqIMBH5ewDGUPBh1pqQXwFtMFjsl1M03QcYPXmv6stCKEiF0PN7CGbU1ZbXFzEA==}
@@ -2941,8 +2940,8 @@ packages:
     resolution: {integrity: sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw==}
     engines: {node: '>= 10'}
 
-  comment-parser@1.4.9:
-    resolution: {integrity: sha512-+2AvZKjJaNq9GQljm3tr0utwrig5BL+jgJGvz5rDpGKNIp+ojcRXWUwBbh/sGIi1QCprR6PsKFakub+w1v+4hQ==}
+  comment-parser@1.4.11:
+    resolution: {integrity: sha512-bZMt5Mw4GgsMmnOZ5mHsHzyexC5JgzDbyMk5P0/RMqVPbK9sL+qOQyTGO95xCWQ8VhUzCbTdKkgcgGuofaVjuw==}
     engines: {node: '>= 12.0.0'}
 
   config-chain@1.1.13:
@@ -5406,11 +5405,11 @@ snapshots:
     dependencies:
       quickjs-wasi: 3.6.2
 
-  '@es-joy/jsdoccomment@1.2.1':
+  '@es-joy/jsdoccomment@1.2.2':
     dependencies:
-      '@types/estree': 1.0.10
-      '@typescript-eslint/types': 8.73.0
-      comment-parser: 1.4.9
+      '@types/estree': 1.0.11
+      '@typescript-eslint/types': 8.74.0
+      comment-parser: 1.4.11
       esquery: 1.7.0
       jsdoc-type-pratt-parser: 9.5.0
 
@@ -6387,6 +6386,8 @@ snapshots:
 
   '@types/estree@1.0.10': {}
 
+  '@types/estree@1.0.11': {}
+
   '@types/estree@1.0.9': {}
 
   '@types/gensync@1.0.5': {}
@@ -6487,8 +6488,6 @@ snapshots:
     transitivePeerDependencies:
       - '@typescript/native'
       - supports-color
-
-  '@typescript-eslint/types@8.73.0': {}
 
   '@typescript-eslint/types@8.74.0': {}
 
@@ -7388,7 +7387,7 @@ snapshots:
 
   commander@7.2.0: {}
 
-  comment-parser@1.4.9: {}
+  comment-parser@1.4.11: {}
 
   config-chain@1.1.13:
     dependencies:
@@ -8161,7 +8160,7 @@ snapshots:
 
   jsdoc-type-pratt-parser@9.5.0:
     dependencies:
-      '@types/estree': 1.0.10
+      '@types/estree': 1.0.11
 
   jsesc@3.1.0: {}
 
